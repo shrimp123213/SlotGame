@@ -74,9 +74,23 @@ public class LinkManager : MonoBehaviour
     }
 
     /// <summary>
+    /// 清除棋盤上的角色
+    /// </summary>
+    public void ClearGrid()
+    {
+        for (int i = 0; i < rows; i++)
+        {
+            for (int j = 0; j < cols; j++)
+            {
+                gridCells[i, j].OccupiedCharacter = null;
+            }
+        }
+    }
+
+    /// <summary>
     /// 隨機放置角色在棋盤上
     /// </summary>
-    private void PlaceCharactersRandomly()
+    public void PlaceCharactersRandomly()
     {
         // 這裡簡單地隨機放置玩家和敵人角色
         // 實際應從牌組中抽取
@@ -107,7 +121,7 @@ public class LinkManager : MonoBehaviour
     /// <summary>
     /// 檢查棋盤上的連線
     /// </summary>
-    private void CheckForLinks()
+    public void CheckForLinks()
     {
         // 分別檢查玩家和敵人的連線
         bool playerLinked = CheckLinksForSide(true);

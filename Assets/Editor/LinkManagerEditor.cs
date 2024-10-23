@@ -10,11 +10,32 @@ public class LinkManagerEditor : Editor
 
         LinkManager manager = (LinkManager)target;
 
+        // 添加一個分隔線
+        EditorGUILayout.Space();
+        EditorGUILayout.LabelField("調試工具", EditorStyles.boldLabel);
+
+        // 添加重新放置角色和檢查連線的按鈕
+        if (GUILayout.Button("重新放置角色並檢查連線"))
+        {
+            // 調用LinkManager的方法
+            manager.ClearGrid();
+            manager.PlaceCharactersRandomly();
+            manager.CheckForLinks();
+
+            // 在場景中繪製連線
+            SceneView.RepaintAll();
+        }
+
+        // 顯示當前選擇的連線模式
         if (manager.allLinkPatterns != null && manager.allLinkPatterns.Count > 0)
         {
-            // 顯示當前選擇的連線模式
+            // 確保索引在有效範圍內
+            manager.selectedPatternIndex = Mathf.Clamp(manager.selectedPatternIndex, 0, manager.allLinkPatterns.Count - 1);
+
+            // 顯示選擇連線模式的滑塊
             manager.selectedPatternIndex = EditorGUILayout.IntSlider("選擇連線模式", manager.selectedPatternIndex, 0, manager.allLinkPatterns.Count - 1);
 
+            // 添加刷新按鈕
             if (GUILayout.Button("刷新連線模式"))
             {
                 // 強制重繪Scene視圖

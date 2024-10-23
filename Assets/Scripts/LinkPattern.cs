@@ -1,45 +1,31 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-/// <summary>
-/// 表示一個連線模式
-/// </summary>
 public class LinkPattern
 {
-    /// <summary>
-    /// 連線模式的ID，用於識別
-    /// </summary>
     public int Id { get; private set; }
-
-    /// <summary>
-    /// 連線模式包含的格子座標列表
-    /// </summary>
     public List<Vector2Int> Positions { get; private set; }
-
-    /// <summary>
-    /// 是否已解鎖該連線模式
-    /// </summary>
     public bool IsUnlocked { get; set; }
 
-    /// <summary>
-    /// 構造函數，從JSON數據初始化連線模式
-    /// </summary>
-    /// <param name="id">模式ID</param>
-    /// <param name="patternData">模式數據</param>
+    public List<string> PatternData { get; private set; } // 原始的模式數據
+
     public LinkPattern(int id, List<string> patternData)
     {
         Id = id;
         Positions = new List<Vector2Int>();
         IsUnlocked = false; // 默認未解鎖
 
-        // 解析模式數據，將"O"的位置存入Positions
-        // 解析模式數據，將"O"的位置存入Positions
-        for (int i = 0; i < patternData.Count; i++)
+        PatternData = patternData; // 保存原始的模式數據
+
+        int numRows = patternData.Count;
+        int numCols = patternData[0].Length;
+
+        // 調整循環順序，先遍歷列，再遍歷行
+        for (int j = 0; j < numCols; j++)
         {
-            string row = patternData[i];
-            for (int j = 0; j < row.Length; j++)
+            for (int i = 0; i < numRows; i++)
             {
-                if (row[j] == 'O')
+                if (patternData[i][j] == 'O')
                 {
                     Positions.Add(new Vector2Int(i, j));
                 }

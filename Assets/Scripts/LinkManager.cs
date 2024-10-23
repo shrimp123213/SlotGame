@@ -1,15 +1,14 @@
 using System.Collections.Generic;
 using UnityEngine;
-using System.IO;
 
-/// <summary>
-/// 管理連線檢測和處理的類別
-/// </summary>
 public class LinkManager : MonoBehaviour
 {
     private GridCell[,] gridCells; // 棋盤格子矩陣
     private int rows = 4;          // 行數
     private int cols = 6;          // 列數
+
+    public List<LinkPattern> allLinkPatterns; // 所有連線模式
+    public int selectedPatternIndex = 0;      // 當前選擇的連線模式索引
 
     private List<LinkPattern> unlockedLinkPatterns; // 已解鎖的連線模式
 
@@ -17,9 +16,14 @@ public class LinkManager : MonoBehaviour
     {
         InitializeGrid();          // 初始化棋盤
         LoadLinkPatterns();        // 從JSON文件中讀取連線模式
-        UnlockSomeLinkPatterns();  // 解鎖部分連線模式（可根據需要調整）
+        // UnlockSomeLinkPatterns();  // 解鎖部分連線模式（可根據需要調整）
         PlaceCharactersRandomly(); // 隨機放置角色
         CheckForLinks();           // 檢查連線
+    }
+
+    private void Update()
+    {
+        DrawSelectedLinkPattern(); // 繪製當前選擇的連線模式
     }
 
     /// <summary>
@@ -42,6 +46,7 @@ public class LinkManager : MonoBehaviour
     /// </summary>
     private void LoadLinkPatterns()
     {
+        allLinkPatterns = new List<LinkPattern>();
         unlockedLinkPatterns = new List<LinkPattern>();
 
         // 讀取JSON文件
@@ -55,24 +60,16 @@ public class LinkManager : MonoBehaviour
             {
                 // 將JSON數據轉換為LinkPattern對象
                 LinkPattern pattern = new LinkPattern(patternData.id, patternData.pattern);
+                allLinkPatterns.Add(pattern);
+
+                // 假設所有模式都已解鎖
+                pattern.IsUnlocked = true;
                 unlockedLinkPatterns.Add(pattern);
             }
         }
         else
         {
             Debug.LogError("無法載入 LinkPatterns.json");
-        }
-    }
-
-    /// <summary>
-    /// 解鎖部分連線模式
-    /// </summary>
-    private void UnlockSomeLinkPatterns()
-    {
-        // 這裡假設解鎖了所有模式，可以根據實際需求進行調整
-        foreach (var pattern in unlockedLinkPatterns)
-        {
-            pattern.IsUnlocked = true;
         }
     }
 
@@ -142,7 +139,7 @@ public class LinkManager : MonoBehaviour
             if (!pattern.IsUnlocked)
                 continue;
 
-            // 檢查棋盤是否匹配該連線模式
+            // 檢查棋盤是否匹配該模式
             if (pattern.Matches(gridCells, isPlayer))
             {
                 hasLink = true;
@@ -194,29 +191,51 @@ public class LinkManager : MonoBehaviour
     /// <param name="isPlayer">是否為玩家</param>
     private void TriggerLinkEffect(LinkPattern pattern, bool isPlayer)
     {
+        int linkedCharacterCount = pattern.Positions.Count;
+
         // 在這裡實現連線效果，例如對敵方城鎮造成傷害
         if (isPlayer)
         {
-            Debug.Log($"玩家觸發了連線模式 {pattern.Id}，對敵人造成傷害！");
+            Debug.Log($"玩家觸發了連線模式 {pattern.Id}，連線角色數量：{linkedCharacterCount}，對敵人造成傷害！");
         }
         else
         {
-            Debug.Log($"敵人觸發了連線模式 {pattern.Id}，對玩家造成傷害！");
+            Debug.Log($"敵人觸發了連線模式 {pattern.Id}，連線角色數量：{linkedCharacterCount}，對玩家造成傷害！");
         }
     }
 
     /// <summary>
-    /// 用於包裝連線模式列表，方便反序列化
+    /// 繪製當前選擇的連線模式
     /// </summary>
+    private void DrawSelectedLinkPattern()
+    {
+        if (allLinkPatterns == null || allLinkPatterns.Count == 0)
+            return;
+
+        // 確保索引在有效範圍內
+        selectedPatternIndex = Mathf.Clamp(selectedPatternIndex, 0, allLinkPatterns.Count - 1);
+
+        LinkPattern pattern = allLinkPatterns[selectedPatternIndex];
+
+        // 繪製連線
+        List<Vector2Int> positions = pattern.Positions;
+        Color lineColor = Color.green; // 可以根據需要調整顏色
+
+        for (int i = 0; i < positions.Count - 1; i++)
+        {
+            Vector3 startPos = new Vector3(positions[i].y, -positions[i].x, 0);
+            Vector3 endPos = new Vector3(positions[i + 1].y, -positions[i + 1].x, 0);
+
+            Debug.DrawLine(startPos, endPos, lineColor);
+        }
+    }
+
     [System.Serializable]
     public class LinkPatternsWrapper
     {
         public List<LinkPatternData> patterns;
     }
 
-    /// <summary>
-    /// 連線模式的數據結構，用於反序列化JSON
-    /// </summary>
     [System.Serializable]
     public class LinkPatternData
     {

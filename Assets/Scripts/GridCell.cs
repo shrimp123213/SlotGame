@@ -11,9 +11,9 @@ public class GridCell
     public Vector2Int Position { get; private set; }
 
     /// <summary>
-    /// 該格子上所佔據的角色，可能為null
+    /// 該格子上所佔據的單位，可能為null
     /// </summary>
-    public CharacterBase OccupiedCharacter { get; set; }
+    public Unit OccupiedUnit { get; set; }
 
     /// <summary>
     /// 構造函數，初始化格子的座標
@@ -23,46 +23,15 @@ public class GridCell
     public GridCell(int x, int y)
     {
         Position = new Vector2Int(x, y);
-        OccupiedCharacter = null;
+        OccupiedUnit = null;
     }
-}
-
-/// <summary>
-/// 角色的基類，包含基本屬性
-/// </summary>
-public abstract class CharacterBase
-{
-    /// <summary>
-    /// 角色是否屬於玩家
-    /// </summary>
-    public bool IsPlayerOwned { get; protected set; }
 
     /// <summary>
-    /// 角色是否已經參與連線
+    /// 檢查格子是否為空
     /// </summary>
-    public bool IsLinked { get; set; }
-
-    /// <summary>
-    /// 構造函數，初始化角色的擁有者
-    /// </summary>
-    /// <param name="isPlayerOwned">是否屬於玩家</param>
-    protected CharacterBase(bool isPlayerOwned)
+    /// <returns>如果為空返回true，否則返回false</returns>
+    public bool IsEmpty()
     {
-        IsPlayerOwned = isPlayerOwned;
-        IsLinked = false;
-    }
-}
-
-public class PlayerCharacter : CharacterBase
-{
-    public PlayerCharacter() : base(true)
-    {
-    }
-}
-
-public class EnemyCharacter : CharacterBase
-{
-    public EnemyCharacter() : base(false)
-    {
+        return OccupiedUnit == null;
     }
 }

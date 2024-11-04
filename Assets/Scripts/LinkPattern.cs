@@ -7,20 +7,17 @@ public class LinkPattern
     public List<Vector2Int> Positions { get; private set; }
     public bool IsUnlocked { get; set; }
 
-    public List<string> PatternData { get; private set; } // 原始的模式數據
-
     public LinkPattern(int id, List<string> patternData)
     {
         Id = id;
         Positions = new List<Vector2Int>();
-        IsUnlocked = false; // 默認未解鎖
+        IsUnlocked = false;
 
-        PatternData = patternData; // 保存原始的模式數據
-
+        // 解析模式數據，將"O"的位置存入Positions
         int numRows = patternData.Count;
         int numCols = patternData[0].Length;
 
-        // 調整循環順序，先遍歷列，再遍歷行
+        // 調整循環順序，先遍歷列，再遍歷行，保證從左到右
         for (int j = 0; j < numCols; j++)
         {
             for (int i = 0; i < numRows; i++)
@@ -44,8 +41,7 @@ public class LinkPattern
         foreach (var pos in Positions)
         {
             GridCell cell = gridCells[pos.x, pos.y];
-            if (cell.OccupiedCharacter == null ||
-                cell.OccupiedCharacter.IsPlayerOwned != isPlayer)
+            if (cell == null || cell.OccupiedUnit == null || cell.OccupiedUnit.IsPlayerOwned != isPlayer)
             {
                 return false;
             }

@@ -414,6 +414,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0890013f77d6b4e4d966515ceaa0548f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  tilemap: {fileID: 1502437236}
+  gridTile: {fileID: 11400000, guid: d81d38f98b6736d4ab7bfaf9f7f6f087, type: 2}
+  playerTile: {fileID: 11400000, guid: cdd727bb9b7d4aa44a99c6bfde2051b6, type: 2}
+  enemyTile: {fileID: 11400000, guid: 5c872a54e09a6e048b8bc47c3433e5fb, type: 2}
+  selectedPatternIndex: 0
 --- !u!4 &1015224588
 Transform:
   m_ObjectHideFlags: 0

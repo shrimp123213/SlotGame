@@ -1,0 +1,4198 @@
+{
+    "patterns": [
+        {
+            "id": 0,
+            "pattern": [
+                "OOOOOO",
+                "XXXXXX",
+                "XXXXXX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 1,
+            "pattern": [
+                "OOOOOX",
+                "XXXXXO",
+                "XXXXXX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 2,
+            "pattern": [
+                "OOOOXO",
+                "XXXXOX",
+                "XXXXXX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 3,
+            "pattern": [
+                "OOOOXX",
+                "XXXXOO",
+                "XXXXXX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 4,
+            "pattern": [
+                "OOOOXX",
+                "XXXXOX",
+                "XXXXXO",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 5,
+            "pattern": [
+                "OOOXOO",
+                "XXXOXX",
+                "XXXXXX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 6,
+            "pattern": [
+                "OOOXOX",
+                "XXXOXO",
+                "XXXXXX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 7,
+            "pattern": [
+                "OOOXXO",
+                "XXXOOX",
+                "XXXXXX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 8,
+            "pattern": [
+                "OOOXXX",
+                "XXXOOO",
+                "XXXXXX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 9,
+            "pattern": [
+                "OOOXXX",
+                "XXXOOX",
+                "XXXXXO",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 10,
+            "pattern": [
+                "OOOXXX",
+                "XXXOXO",
+                "XXXXOX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 11,
+            "pattern": [
+                "OOOXXX",
+                "XXXOXX",
+                "XXXXOO",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 12,
+            "pattern": [
+                "OOOXXX",
+                "XXXOXX",
+                "XXXXOX",
+                "XXXXXO"
+            ]
+        },
+        {
+            "id": 13,
+            "pattern": [
+                "OOXOOO",
+                "XXOXXX",
+                "XXXXXX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 14,
+            "pattern": [
+                "OOXOOX",
+                "XXOXXO",
+                "XXXXXX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 15,
+            "pattern": [
+                "OOXOXO",
+                "XXOXOX",
+                "XXXXXX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 16,
+            "pattern": [
+                "OOXOXX",
+                "XXOXOO",
+                "XXXXXX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 17,
+            "pattern": [
+                "OOXOXX",
+                "XXOXOX",
+                "XXXXXO",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 18,
+            "pattern": [
+                "OOXXOO",
+                "XXOOXX",
+                "XXXXXX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 19,
+            "pattern": [
+                "OOXXOX",
+                "XXOOXO",
+                "XXXXXX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 20,
+            "pattern": [
+                "OOXXXO",
+                "XXOOOX",
+                "XXXXXX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 21,
+            "pattern": [
+                "OOXXXX",
+                "XXOOOO",
+                "XXXXXX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 22,
+            "pattern": [
+                "OOXXXX",
+                "XXOOOX",
+                "XXXXXO",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 23,
+            "pattern": [
+                "OOXXXX",
+                "XXOOXO",
+                "XXXXOX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 24,
+            "pattern": [
+                "OOXXXX",
+                "XXOOXX",
+                "XXXXOO",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 25,
+            "pattern": [
+                "OOXXXX",
+                "XXOOXX",
+                "XXXXOX",
+                "XXXXXO"
+            ]
+        },
+        {
+            "id": 26,
+            "pattern": [
+                "OOXXXO",
+                "XXOXOX",
+                "XXXOXX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 27,
+            "pattern": [
+                "OOXXXX",
+                "XXOXOO",
+                "XXXOXX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 28,
+            "pattern": [
+                "OOXXXX",
+                "XXOXOX",
+                "XXXOXO",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 29,
+            "pattern": [
+                "OOXXXX",
+                "XXOXXO",
+                "XXXOOX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 30,
+            "pattern": [
+                "OOXXXX",
+                "XXOXXX",
+                "XXXOOO",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 31,
+            "pattern": [
+                "OOXXXX",
+                "XXOXXX",
+                "XXXOOX",
+                "XXXXXO"
+            ]
+        },
+        {
+            "id": 32,
+            "pattern": [
+                "OOXXXX",
+                "XXOXXX",
+                "XXXOXO",
+                "XXXXOX"
+            ]
+        },
+        {
+            "id": 33,
+            "pattern": [
+                "OOXXXX",
+                "XXOXXX",
+                "XXXOXX",
+                "XXXXOO"
+            ]
+        },
+        {
+            "id": 34,
+            "pattern": [
+                "OXOOOO",
+                "XOXXXX",
+                "XXXXXX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 35,
+            "pattern": [
+                "OXOOOX",
+                "XOXXXO",
+                "XXXXXX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 36,
+            "pattern": [
+                "OXOOXO",
+                "XOXXOX",
+                "XXXXXX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 37,
+            "pattern": [
+                "OXOOXX",
+                "XOXXOO",
+                "XXXXXX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 38,
+            "pattern": [
+                "OXOOXX",
+                "XOXXOX",
+                "XXXXXO",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 39,
+            "pattern": [
+                "OXOXOO",
+                "XOXOXX",
+                "XXXXXX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 40,
+            "pattern": [
+                "OXOXOX",
+                "XOXOXO",
+                "XXXXXX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 41,
+            "pattern": [
+                "OXOXXO",
+                "XOXOOX",
+                "XXXXXX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 42,
+            "pattern": [
+                "OXOXXX",
+                "XOXOOO",
+                "XXXXXX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 43,
+            "pattern": [
+                "OXOXXX",
+                "XOXOOX",
+                "XXXXXO",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 44,
+            "pattern": [
+                "OXOXXX",
+                "XOXOXO",
+                "XXXXOX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 45,
+            "pattern": [
+                "OXOXXX",
+                "XOXOXX",
+                "XXXXOO",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 46,
+            "pattern": [
+                "OXOXXX",
+                "XOXOXX",
+                "XXXXOX",
+                "XXXXXO"
+            ]
+        },
+        {
+            "id": 47,
+            "pattern": [
+                "OXXOOO",
+                "XOOXXX",
+                "XXXXXX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 48,
+            "pattern": [
+                "OXXOOX",
+                "XOOXXO",
+                "XXXXXX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 49,
+            "pattern": [
+                "OXXOXO",
+                "XOOXOX",
+                "XXXXXX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 50,
+            "pattern": [
+                "OXXOXX",
+                "XOOXOO",
+                "XXXXXX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 51,
+            "pattern": [
+                "OXXOXX",
+                "XOOXOX",
+                "XXXXXO",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 52,
+            "pattern": [
+                "OXXXOO",
+                "XOOOXX",
+                "XXXXXX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 53,
+            "pattern": [
+                "OXXXOX",
+                "XOOOXO",
+                "XXXXXX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 54,
+            "pattern": [
+                "OXXXXO",
+                "XOOOOX",
+                "XXXXXX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 55,
+            "pattern": [
+                "OXXXXX",
+                "XOOOOO",
+                "XXXXXX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 56,
+            "pattern": [
+                "OXXXXX",
+                "XOOOOX",
+                "XXXXXO",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 57,
+            "pattern": [
+                "OXXXXX",
+                "XOOOXO",
+                "XXXXOX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 58,
+            "pattern": [
+                "OXXXXX",
+                "XOOOXX",
+                "XXXXOO",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 59,
+            "pattern": [
+                "OXXXXX",
+                "XOOOXX",
+                "XXXXOX",
+                "XXXXXO"
+            ]
+        },
+        {
+            "id": 60,
+            "pattern": [
+                "OXXXXO",
+                "XOOXOX",
+                "XXXOXX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 61,
+            "pattern": [
+                "OXXXXX",
+                "XOOXOO",
+                "XXXOXX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 62,
+            "pattern": [
+                "OXXXXX",
+                "XOOXOX",
+                "XXXOXO",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 63,
+            "pattern": [
+                "OXXXXX",
+                "XOOXXO",
+                "XXXOOX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 64,
+            "pattern": [
+                "OXXXXX",
+                "XOOXXX",
+                "XXXOOO",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 65,
+            "pattern": [
+                "OXXXXX",
+                "XOOXXX",
+                "XXXOOX",
+                "XXXXXO"
+            ]
+        },
+        {
+            "id": 66,
+            "pattern": [
+                "OXXXXX",
+                "XOOXXX",
+                "XXXOXO",
+                "XXXXOX"
+            ]
+        },
+        {
+            "id": 67,
+            "pattern": [
+                "OXXXXX",
+                "XOOXXX",
+                "XXXOXX",
+                "XXXXOO"
+            ]
+        },
+        {
+            "id": 68,
+            "pattern": [
+                "OXXXOO",
+                "XOXOXX",
+                "XXOXXX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 69,
+            "pattern": [
+                "OXXXOX",
+                "XOXOXO",
+                "XXOXXX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 70,
+            "pattern": [
+                "OXXXXO",
+                "XOXOOX",
+                "XXOXXX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 71,
+            "pattern": [
+                "OXXXXX",
+                "XOXOOO",
+                "XXOXXX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 72,
+            "pattern": [
+                "OXXXXX",
+                "XOXOOX",
+                "XXOXXO",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 73,
+            "pattern": [
+                "OXXXXX",
+                "XOXOXO",
+                "XXOXOX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 74,
+            "pattern": [
+                "OXXXXX",
+                "XOXOXX",
+                "XXOXOO",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 75,
+            "pattern": [
+                "OXXXXX",
+                "XOXOXX",
+                "XXOXOX",
+                "XXXXXO"
+            ]
+        },
+        {
+            "id": 76,
+            "pattern": [
+                "OXXXXO",
+                "XOXXOX",
+                "XXOOXX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 77,
+            "pattern": [
+                "OXXXXX",
+                "XOXXOO",
+                "XXOOXX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 78,
+            "pattern": [
+                "OXXXXX",
+                "XOXXOX",
+                "XXOOXO",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 79,
+            "pattern": [
+                "OXXXXX",
+                "XOXXXO",
+                "XXOOOX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 80,
+            "pattern": [
+                "OXXXXX",
+                "XOXXXX",
+                "XXOOOO",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 81,
+            "pattern": [
+                "OXXXXX",
+                "XOXXXX",
+                "XXOOOX",
+                "XXXXXO"
+            ]
+        },
+        {
+            "id": 82,
+            "pattern": [
+                "OXXXXX",
+                "XOXXXX",
+                "XXOOXO",
+                "XXXXOX"
+            ]
+        },
+        {
+            "id": 83,
+            "pattern": [
+                "OXXXXX",
+                "XOXXXX",
+                "XXOOXX",
+                "XXXXOO"
+            ]
+        },
+        {
+            "id": 84,
+            "pattern": [
+                "OXXXXX",
+                "XOXXXO",
+                "XXOXOX",
+                "XXXOXX"
+            ]
+        },
+        {
+            "id": 85,
+            "pattern": [
+                "OXXXXX",
+                "XOXXXX",
+                "XXOXOO",
+                "XXXOXX"
+            ]
+        },
+        {
+            "id": 86,
+            "pattern": [
+                "OXXXXX",
+                "XOXXXX",
+                "XXOXOX",
+                "XXXOXO"
+            ]
+        },
+        {
+            "id": 87,
+            "pattern": [
+                "OXXXXX",
+                "XOXXXX",
+                "XXOXXO",
+                "XXXOOX"
+            ]
+        },
+        {
+            "id": 88,
+            "pattern": [
+                "OXXXXX",
+                "XOXXXX",
+                "XXOXXX",
+                "XXXOOO"
+            ]
+        },
+        {
+            "id": 89,
+            "pattern": [
+                "XOOOOO",
+                "OXXXXX",
+                "XXXXXX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 90,
+            "pattern": [
+                "XOOOOX",
+                "OXXXXO",
+                "XXXXXX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 91,
+            "pattern": [
+                "XOOOXO",
+                "OXXXOX",
+                "XXXXXX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 92,
+            "pattern": [
+                "XOOOXX",
+                "OXXXOO",
+                "XXXXXX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 93,
+            "pattern": [
+                "XOOOXX",
+                "OXXXOX",
+                "XXXXXO",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 94,
+            "pattern": [
+                "XOOXOO",
+                "OXXOXX",
+                "XXXXXX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 95,
+            "pattern": [
+                "XOOXOX",
+                "OXXOXO",
+                "XXXXXX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 96,
+            "pattern": [
+                "XOOXXO",
+                "OXXOOX",
+                "XXXXXX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 97,
+            "pattern": [
+                "XOOXXX",
+                "OXXOOO",
+                "XXXXXX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 98,
+            "pattern": [
+                "XOOXXX",
+                "OXXOOX",
+                "XXXXXO",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 99,
+            "pattern": [
+                "XOOXXX",
+                "OXXOXO",
+                "XXXXOX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 100,
+            "pattern": [
+                "XOOXXX",
+                "OXXOXX",
+                "XXXXOO",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 101,
+            "pattern": [
+                "XOOXXX",
+                "OXXOXX",
+                "XXXXOX",
+                "XXXXXO"
+            ]
+        },
+        {
+            "id": 102,
+            "pattern": [
+                "XOXOOO",
+                "OXOXXX",
+                "XXXXXX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 103,
+            "pattern": [
+                "XOXOOX",
+                "OXOXXO",
+                "XXXXXX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 104,
+            "pattern": [
+                "XOXOXO",
+                "OXOXOX",
+                "XXXXXX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 105,
+            "pattern": [
+                "XOXOXX",
+                "OXOXOO",
+                "XXXXXX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 106,
+            "pattern": [
+                "XOXOXX",
+                "OXOXOX",
+                "XXXXXO",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 107,
+            "pattern": [
+                "XOXXOO",
+                "OXOOXX",
+                "XXXXXX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 108,
+            "pattern": [
+                "XOXXOX",
+                "OXOOXO",
+                "XXXXXX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 109,
+            "pattern": [
+                "XOXXXO",
+                "OXOOOX",
+                "XXXXXX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 110,
+            "pattern": [
+                "XOXXXX",
+                "OXOOOO",
+                "XXXXXX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 111,
+            "pattern": [
+                "XOXXXX",
+                "OXOOOX",
+                "XXXXXO",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 112,
+            "pattern": [
+                "XOXXXX",
+                "OXOOXO",
+                "XXXXOX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 113,
+            "pattern": [
+                "XOXXXX",
+                "OXOOXX",
+                "XXXXOO",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 114,
+            "pattern": [
+                "XOXXXX",
+                "OXOOXX",
+                "XXXXOX",
+                "XXXXXO"
+            ]
+        },
+        {
+            "id": 115,
+            "pattern": [
+                "XOXXXO",
+                "OXOXOX",
+                "XXXOXX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 116,
+            "pattern": [
+                "XOXXXX",
+                "OXOXOO",
+                "XXXOXX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 117,
+            "pattern": [
+                "XOXXXX",
+                "OXOXOX",
+                "XXXOXO",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 118,
+            "pattern": [
+                "XOXXXX",
+                "OXOXXO",
+                "XXXOOX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 119,
+            "pattern": [
+                "XOXXXX",
+                "OXOXXX",
+                "XXXOOO",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 120,
+            "pattern": [
+                "XOXXXX",
+                "OXOXXX",
+                "XXXOOX",
+                "XXXXXO"
+            ]
+        },
+        {
+            "id": 121,
+            "pattern": [
+                "XOXXXX",
+                "OXOXXX",
+                "XXXOXO",
+                "XXXXOX"
+            ]
+        },
+        {
+            "id": 122,
+            "pattern": [
+                "XOXXXX",
+                "OXOXXX",
+                "XXXOXX",
+                "XXXXOO"
+            ]
+        },
+        {
+            "id": 123,
+            "pattern": [
+                "XXOOOO",
+                "OOXXXX",
+                "XXXXXX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 124,
+            "pattern": [
+                "XXOOOX",
+                "OOXXXO",
+                "XXXXXX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 125,
+            "pattern": [
+                "XXOOXO",
+                "OOXXOX",
+                "XXXXXX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 126,
+            "pattern": [
+                "XXOOXX",
+                "OOXXOO",
+                "XXXXXX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 127,
+            "pattern": [
+                "XXOOXX",
+                "OOXXOX",
+                "XXXXXO",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 128,
+            "pattern": [
+                "XXOXOO",
+                "OOXOXX",
+                "XXXXXX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 129,
+            "pattern": [
+                "XXOXOX",
+                "OOXOXO",
+                "XXXXXX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 130,
+            "pattern": [
+                "XXOXXO",
+                "OOXOOX",
+                "XXXXXX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 131,
+            "pattern": [
+                "XXOXXX",
+                "OOXOOO",
+                "XXXXXX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 132,
+            "pattern": [
+                "XXOXXX",
+                "OOXOOX",
+                "XXXXXO",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 133,
+            "pattern": [
+                "XXOXXX",
+                "OOXOXO",
+                "XXXXOX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 134,
+            "pattern": [
+                "XXOXXX",
+                "OOXOXX",
+                "XXXXOO",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 135,
+            "pattern": [
+                "XXOXXX",
+                "OOXOXX",
+                "XXXXOX",
+                "XXXXXO"
+            ]
+        },
+        {
+            "id": 136,
+            "pattern": [
+                "XXXOOO",
+                "OOOXXX",
+                "XXXXXX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 137,
+            "pattern": [
+                "XXXOOX",
+                "OOOXXO",
+                "XXXXXX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 138,
+            "pattern": [
+                "XXXOXO",
+                "OOOXOX",
+                "XXXXXX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 139,
+            "pattern": [
+                "XXXOXX",
+                "OOOXOO",
+                "XXXXXX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 140,
+            "pattern": [
+                "XXXOXX",
+                "OOOXOX",
+                "XXXXXO",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 141,
+            "pattern": [
+                "XXXXOO",
+                "OOOOXX",
+                "XXXXXX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 142,
+            "pattern": [
+                "XXXXOX",
+                "OOOOXO",
+                "XXXXXX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 143,
+            "pattern": [
+                "XXXXXO",
+                "OOOOOX",
+                "XXXXXX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 144,
+            "pattern": [
+                "XXXXXX",
+                "OOOOOO",
+                "XXXXXX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 145,
+            "pattern": [
+                "XXXXXX",
+                "OOOOOX",
+                "XXXXXO",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 146,
+            "pattern": [
+                "XXXXXX",
+                "OOOOXO",
+                "XXXXOX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 147,
+            "pattern": [
+                "XXXXXX",
+                "OOOOXX",
+                "XXXXOO",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 148,
+            "pattern": [
+                "XXXXXX",
+                "OOOOXX",
+                "XXXXOX",
+                "XXXXXO"
+            ]
+        },
+        {
+            "id": 149,
+            "pattern": [
+                "XXXXXO",
+                "OOOXOX",
+                "XXXOXX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 150,
+            "pattern": [
+                "XXXXXX",
+                "OOOXOO",
+                "XXXOXX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 151,
+            "pattern": [
+                "XXXXXX",
+                "OOOXOX",
+                "XXXOXO",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 152,
+            "pattern": [
+                "XXXXXX",
+                "OOOXXO",
+                "XXXOOX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 153,
+            "pattern": [
+                "XXXXXX",
+                "OOOXXX",
+                "XXXOOO",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 154,
+            "pattern": [
+                "XXXXXX",
+                "OOOXXX",
+                "XXXOOX",
+                "XXXXXO"
+            ]
+        },
+        {
+            "id": 155,
+            "pattern": [
+                "XXXXXX",
+                "OOOXXX",
+                "XXXOXO",
+                "XXXXOX"
+            ]
+        },
+        {
+            "id": 156,
+            "pattern": [
+                "XXXXXX",
+                "OOOXXX",
+                "XXXOXX",
+                "XXXXOO"
+            ]
+        },
+        {
+            "id": 157,
+            "pattern": [
+                "XXXXOO",
+                "OOXOXX",
+                "XXOXXX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 158,
+            "pattern": [
+                "XXXXOX",
+                "OOXOXO",
+                "XXOXXX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 159,
+            "pattern": [
+                "XXXXXO",
+                "OOXOOX",
+                "XXOXXX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 160,
+            "pattern": [
+                "XXXXXX",
+                "OOXOOO",
+                "XXOXXX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 161,
+            "pattern": [
+                "XXXXXX",
+                "OOXOOX",
+                "XXOXXO",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 162,
+            "pattern": [
+                "XXXXXX",
+                "OOXOXO",
+                "XXOXOX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 163,
+            "pattern": [
+                "XXXXXX",
+                "OOXOXX",
+                "XXOXOO",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 164,
+            "pattern": [
+                "XXXXXX",
+                "OOXOXX",
+                "XXOXOX",
+                "XXXXXO"
+            ]
+        },
+        {
+            "id": 165,
+            "pattern": [
+                "XXXXXO",
+                "OOXXOX",
+                "XXOOXX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 166,
+            "pattern": [
+                "XXXXXX",
+                "OOXXOO",
+                "XXOOXX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 167,
+            "pattern": [
+                "XXXXXX",
+                "OOXXOX",
+                "XXOOXO",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 168,
+            "pattern": [
+                "XXXXXX",
+                "OOXXXO",
+                "XXOOOX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 169,
+            "pattern": [
+                "XXXXXX",
+                "OOXXXX",
+                "XXOOOO",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 170,
+            "pattern": [
+                "XXXXXX",
+                "OOXXXX",
+                "XXOOOX",
+                "XXXXXO"
+            ]
+        },
+        {
+            "id": 171,
+            "pattern": [
+                "XXXXXX",
+                "OOXXXX",
+                "XXOOXO",
+                "XXXXOX"
+            ]
+        },
+        {
+            "id": 172,
+            "pattern": [
+                "XXXXXX",
+                "OOXXXX",
+                "XXOOXX",
+                "XXXXOO"
+            ]
+        },
+        {
+            "id": 173,
+            "pattern": [
+                "XXXXXX",
+                "OOXXXO",
+                "XXOXOX",
+                "XXXOXX"
+            ]
+        },
+        {
+            "id": 174,
+            "pattern": [
+                "XXXXXX",
+                "OOXXXX",
+                "XXOXOO",
+                "XXXOXX"
+            ]
+        },
+        {
+            "id": 175,
+            "pattern": [
+                "XXXXXX",
+                "OOXXXX",
+                "XXOXOX",
+                "XXXOXO"
+            ]
+        },
+        {
+            "id": 176,
+            "pattern": [
+                "XXXXXX",
+                "OOXXXX",
+                "XXOXXO",
+                "XXXOOX"
+            ]
+        },
+        {
+            "id": 177,
+            "pattern": [
+                "XXXXXX",
+                "OOXXXX",
+                "XXOXXX",
+                "XXXOOO"
+            ]
+        },
+        {
+            "id": 178,
+            "pattern": [
+                "XXXOOO",
+                "OXOXXX",
+                "XOXXXX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 179,
+            "pattern": [
+                "XXXOOX",
+                "OXOXXO",
+                "XOXXXX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 180,
+            "pattern": [
+                "XXXOXO",
+                "OXOXOX",
+                "XOXXXX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 181,
+            "pattern": [
+                "XXXOXX",
+                "OXOXOO",
+                "XOXXXX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 182,
+            "pattern": [
+                "XXXOXX",
+                "OXOXOX",
+                "XOXXXO",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 183,
+            "pattern": [
+                "XXXXOO",
+                "OXOOXX",
+                "XOXXXX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 184,
+            "pattern": [
+                "XXXXOX",
+                "OXOOXO",
+                "XOXXXX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 185,
+            "pattern": [
+                "XXXXXO",
+                "OXOOOX",
+                "XOXXXX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 186,
+            "pattern": [
+                "XXXXXX",
+                "OXOOOO",
+                "XOXXXX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 187,
+            "pattern": [
+                "XXXXXX",
+                "OXOOOX",
+                "XOXXXO",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 188,
+            "pattern": [
+                "XXXXXX",
+                "OXOOXO",
+                "XOXXOX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 189,
+            "pattern": [
+                "XXXXXX",
+                "OXOOXX",
+                "XOXXOO",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 190,
+            "pattern": [
+                "XXXXXX",
+                "OXOOXX",
+                "XOXXOX",
+                "XXXXXO"
+            ]
+        },
+        {
+            "id": 191,
+            "pattern": [
+                "XXXXXO",
+                "OXOXOX",
+                "XOXOXX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 192,
+            "pattern": [
+                "XXXXXX",
+                "OXOXOO",
+                "XOXOXX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 193,
+            "pattern": [
+                "XXXXXX",
+                "OXOXOX",
+                "XOXOXO",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 194,
+            "pattern": [
+                "XXXXXX",
+                "OXOXXO",
+                "XOXOOX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 195,
+            "pattern": [
+                "XXXXXX",
+                "OXOXXX",
+                "XOXOOO",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 196,
+            "pattern": [
+                "XXXXXX",
+                "OXOXXX",
+                "XOXOOX",
+                "XXXXXO"
+            ]
+        },
+        {
+            "id": 197,
+            "pattern": [
+                "XXXXXX",
+                "OXOXXX",
+                "XOXOXO",
+                "XXXXOX"
+            ]
+        },
+        {
+            "id": 198,
+            "pattern": [
+                "XXXXXX",
+                "OXOXXX",
+                "XOXOXX",
+                "XXXXOO"
+            ]
+        },
+        {
+            "id": 199,
+            "pattern": [
+                "XXXXOO",
+                "OXXOXX",
+                "XOOXXX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 200,
+            "pattern": [
+                "XXXXOX",
+                "OXXOXO",
+                "XOOXXX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 201,
+            "pattern": [
+                "XXXXXO",
+                "OXXOOX",
+                "XOOXXX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 202,
+            "pattern": [
+                "XXXXXX",
+                "OXXOOO",
+                "XOOXXX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 203,
+            "pattern": [
+                "XXXXXX",
+                "OXXOOX",
+                "XOOXXO",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 204,
+            "pattern": [
+                "XXXXXX",
+                "OXXOXO",
+                "XOOXOX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 205,
+            "pattern": [
+                "XXXXXX",
+                "OXXOXX",
+                "XOOXOO",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 206,
+            "pattern": [
+                "XXXXXX",
+                "OXXOXX",
+                "XOOXOX",
+                "XXXXXO"
+            ]
+        },
+        {
+            "id": 207,
+            "pattern": [
+                "XXXXXO",
+                "OXXXOX",
+                "XOOOXX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 208,
+            "pattern": [
+                "XXXXXX",
+                "OXXXOO",
+                "XOOOXX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 209,
+            "pattern": [
+                "XXXXXX",
+                "OXXXOX",
+                "XOOOXO",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 210,
+            "pattern": [
+                "XXXXXX",
+                "OXXXXO",
+                "XOOOOX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 211,
+            "pattern": [
+                "XXXXXX",
+                "OXXXXX",
+                "XOOOOO",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 212,
+            "pattern": [
+                "XXXXXX",
+                "OXXXXX",
+                "XOOOOX",
+                "XXXXXO"
+            ]
+        },
+        {
+            "id": 213,
+            "pattern": [
+                "XXXXXX",
+                "OXXXXX",
+                "XOOOXO",
+                "XXXXOX"
+            ]
+        },
+        {
+            "id": 214,
+            "pattern": [
+                "XXXXXX",
+                "OXXXXX",
+                "XOOOXX",
+                "XXXXOO"
+            ]
+        },
+        {
+            "id": 215,
+            "pattern": [
+                "XXXXXX",
+                "OXXXXO",
+                "XOOXOX",
+                "XXXOXX"
+            ]
+        },
+        {
+            "id": 216,
+            "pattern": [
+                "XXXXXX",
+                "OXXXXX",
+                "XOOXOO",
+                "XXXOXX"
+            ]
+        },
+        {
+            "id": 217,
+            "pattern": [
+                "XXXXXX",
+                "OXXXXX",
+                "XOOXOX",
+                "XXXOXO"
+            ]
+        },
+        {
+            "id": 218,
+            "pattern": [
+                "XXXXXX",
+                "OXXXXX",
+                "XOOXXO",
+                "XXXOOX"
+            ]
+        },
+        {
+            "id": 219,
+            "pattern": [
+                "XXXXXX",
+                "OXXXXX",
+                "XOOXXX",
+                "XXXOOO"
+            ]
+        },
+        {
+            "id": 220,
+            "pattern": [
+                "XXXXXO",
+                "OXXXOX",
+                "XOXOXX",
+                "XXOXXX"
+            ]
+        },
+        {
+            "id": 221,
+            "pattern": [
+                "XXXXXX",
+                "OXXXOO",
+                "XOXOXX",
+                "XXOXXX"
+            ]
+        },
+        {
+            "id": 222,
+            "pattern": [
+                "XXXXXX",
+                "OXXXOX",
+                "XOXOXO",
+                "XXOXXX"
+            ]
+        },
+        {
+            "id": 223,
+            "pattern": [
+                "XXXXXX",
+                "OXXXXO",
+                "XOXOOX",
+                "XXOXXX"
+            ]
+        },
+        {
+            "id": 224,
+            "pattern": [
+                "XXXXXX",
+                "OXXXXX",
+                "XOXOOO",
+                "XXOXXX"
+            ]
+        },
+        {
+            "id": 225,
+            "pattern": [
+                "XXXXXX",
+                "OXXXXX",
+                "XOXOOX",
+                "XXOXXO"
+            ]
+        },
+        {
+            "id": 226,
+            "pattern": [
+                "XXXXXX",
+                "OXXXXX",
+                "XOXOXO",
+                "XXOXOX"
+            ]
+        },
+        {
+            "id": 227,
+            "pattern": [
+                "XXXXXX",
+                "OXXXXX",
+                "XOXOXX",
+                "XXOXOO"
+            ]
+        },
+        {
+            "id": 228,
+            "pattern": [
+                "XXXXXX",
+                "OXXXXO",
+                "XOXXOX",
+                "XXOOXX"
+            ]
+        },
+        {
+            "id": 229,
+            "pattern": [
+                "XXXXXX",
+                "OXXXXX",
+                "XOXXOO",
+                "XXOOXX"
+            ]
+        },
+        {
+            "id": 230,
+            "pattern": [
+                "XXXXXX",
+                "OXXXXX",
+                "XOXXOX",
+                "XXOOXO"
+            ]
+        },
+        {
+            "id": 231,
+            "pattern": [
+                "XXXXXX",
+                "OXXXXX",
+                "XOXXXO",
+                "XXOOOX"
+            ]
+        },
+        {
+            "id": 232,
+            "pattern": [
+                "XXXXXX",
+                "OXXXXX",
+                "XOXXXX",
+                "XXOOOO"
+            ]
+        },
+        {
+            "id": 233,
+            "pattern": [
+                "XXOOOO",
+                "XOXXXX",
+                "OXXXXX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 234,
+            "pattern": [
+                "XXOOOX",
+                "XOXXXO",
+                "OXXXXX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 235,
+            "pattern": [
+                "XXOOXO",
+                "XOXXOX",
+                "OXXXXX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 236,
+            "pattern": [
+                "XXOOXX",
+                "XOXXOO",
+                "OXXXXX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 237,
+            "pattern": [
+                "XXOOXX",
+                "XOXXOX",
+                "OXXXXO",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 238,
+            "pattern": [
+                "XXOXOO",
+                "XOXOXX",
+                "OXXXXX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 239,
+            "pattern": [
+                "XXOXOX",
+                "XOXOXO",
+                "OXXXXX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 240,
+            "pattern": [
+                "XXOXXO",
+                "XOXOOX",
+                "OXXXXX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 241,
+            "pattern": [
+                "XXOXXX",
+                "XOXOOO",
+                "OXXXXX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 242,
+            "pattern": [
+                "XXOXXX",
+                "XOXOOX",
+                "OXXXXO",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 243,
+            "pattern": [
+                "XXOXXX",
+                "XOXOXO",
+                "OXXXOX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 244,
+            "pattern": [
+                "XXOXXX",
+                "XOXOXX",
+                "OXXXOO",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 245,
+            "pattern": [
+                "XXOXXX",
+                "XOXOXX",
+                "OXXXOX",
+                "XXXXXO"
+            ]
+        },
+        {
+            "id": 246,
+            "pattern": [
+                "XXXOOO",
+                "XOOXXX",
+                "OXXXXX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 247,
+            "pattern": [
+                "XXXOOX",
+                "XOOXXO",
+                "OXXXXX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 248,
+            "pattern": [
+                "XXXOXO",
+                "XOOXOX",
+                "OXXXXX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 249,
+            "pattern": [
+                "XXXOXX",
+                "XOOXOO",
+                "OXXXXX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 250,
+            "pattern": [
+                "XXXOXX",
+                "XOOXOX",
+                "OXXXXO",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 251,
+            "pattern": [
+                "XXXXOO",
+                "XOOOXX",
+                "OXXXXX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 252,
+            "pattern": [
+                "XXXXOX",
+                "XOOOXO",
+                "OXXXXX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 253,
+            "pattern": [
+                "XXXXXO",
+                "XOOOOX",
+                "OXXXXX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 254,
+            "pattern": [
+                "XXXXXX",
+                "XOOOOO",
+                "OXXXXX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 255,
+            "pattern": [
+                "XXXXXX",
+                "XOOOOX",
+                "OXXXXO",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 256,
+            "pattern": [
+                "XXXXXX",
+                "XOOOXO",
+                "OXXXOX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 257,
+            "pattern": [
+                "XXXXXX",
+                "XOOOXX",
+                "OXXXOO",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 258,
+            "pattern": [
+                "XXXXXX",
+                "XOOOXX",
+                "OXXXOX",
+                "XXXXXO"
+            ]
+        },
+        {
+            "id": 259,
+            "pattern": [
+                "XXXXXO",
+                "XOOXOX",
+                "OXXOXX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 260,
+            "pattern": [
+                "XXXXXX",
+                "XOOXOO",
+                "OXXOXX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 261,
+            "pattern": [
+                "XXXXXX",
+                "XOOXOX",
+                "OXXOXO",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 262,
+            "pattern": [
+                "XXXXXX",
+                "XOOXXO",
+                "OXXOOX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 263,
+            "pattern": [
+                "XXXXXX",
+                "XOOXXX",
+                "OXXOOO",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 264,
+            "pattern": [
+                "XXXXXX",
+                "XOOXXX",
+                "OXXOOX",
+                "XXXXXO"
+            ]
+        },
+        {
+            "id": 265,
+            "pattern": [
+                "XXXXXX",
+                "XOOXXX",
+                "OXXOXO",
+                "XXXXOX"
+            ]
+        },
+        {
+            "id": 266,
+            "pattern": [
+                "XXXXXX",
+                "XOOXXX",
+                "OXXOXX",
+                "XXXXOO"
+            ]
+        },
+        {
+            "id": 267,
+            "pattern": [
+                "XXXXOO",
+                "XOXOXX",
+                "OXOXXX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 268,
+            "pattern": [
+                "XXXXOX",
+                "XOXOXO",
+                "OXOXXX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 269,
+            "pattern": [
+                "XXXXXO",
+                "XOXOOX",
+                "OXOXXX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 270,
+            "pattern": [
+                "XXXXXX",
+                "XOXOOO",
+                "OXOXXX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 271,
+            "pattern": [
+                "XXXXXX",
+                "XOXOOX",
+                "OXOXXO",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 272,
+            "pattern": [
+                "XXXXXX",
+                "XOXOXO",
+                "OXOXOX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 273,
+            "pattern": [
+                "XXXXXX",
+                "XOXOXX",
+                "OXOXOO",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 274,
+            "pattern": [
+                "XXXXXX",
+                "XOXOXX",
+                "OXOXOX",
+                "XXXXXO"
+            ]
+        },
+        {
+            "id": 275,
+            "pattern": [
+                "XXXXXO",
+                "XOXXOX",
+                "OXOOXX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 276,
+            "pattern": [
+                "XXXXXX",
+                "XOXXOO",
+                "OXOOXX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 277,
+            "pattern": [
+                "XXXXXX",
+                "XOXXOX",
+                "OXOOXO",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 278,
+            "pattern": [
+                "XXXXXX",
+                "XOXXXO",
+                "OXOOOX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 279,
+            "pattern": [
+                "XXXXXX",
+                "XOXXXX",
+                "OXOOOO",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 280,
+            "pattern": [
+                "XXXXXX",
+                "XOXXXX",
+                "OXOOOX",
+                "XXXXXO"
+            ]
+        },
+        {
+            "id": 281,
+            "pattern": [
+                "XXXXXX",
+                "XOXXXX",
+                "OXOOXO",
+                "XXXXOX"
+            ]
+        },
+        {
+            "id": 282,
+            "pattern": [
+                "XXXXXX",
+                "XOXXXX",
+                "OXOOXX",
+                "XXXXOO"
+            ]
+        },
+        {
+            "id": 283,
+            "pattern": [
+                "XXXXXX",
+                "XOXXXO",
+                "OXOXOX",
+                "XXXOXX"
+            ]
+        },
+        {
+            "id": 284,
+            "pattern": [
+                "XXXXXX",
+                "XOXXXX",
+                "OXOXOO",
+                "XXXOXX"
+            ]
+        },
+        {
+            "id": 285,
+            "pattern": [
+                "XXXXXX",
+                "XOXXXX",
+                "OXOXOX",
+                "XXXOXO"
+            ]
+        },
+        {
+            "id": 286,
+            "pattern": [
+                "XXXXXX",
+                "XOXXXX",
+                "OXOXXO",
+                "XXXOOX"
+            ]
+        },
+        {
+            "id": 287,
+            "pattern": [
+                "XXXXXX",
+                "XOXXXX",
+                "OXOXXX",
+                "XXXOOO"
+            ]
+        },
+        {
+            "id": 288,
+            "pattern": [
+                "XXXOOO",
+                "XXOXXX",
+                "OOXXXX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 289,
+            "pattern": [
+                "XXXOOX",
+                "XXOXXO",
+                "OOXXXX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 290,
+            "pattern": [
+                "XXXOXO",
+                "XXOXOX",
+                "OOXXXX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 291,
+            "pattern": [
+                "XXXOXX",
+                "XXOXOO",
+                "OOXXXX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 292,
+            "pattern": [
+                "XXXOXX",
+                "XXOXOX",
+                "OOXXXO",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 293,
+            "pattern": [
+                "XXXXOO",
+                "XXOOXX",
+                "OOXXXX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 294,
+            "pattern": [
+                "XXXXOX",
+                "XXOOXO",
+                "OOXXXX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 295,
+            "pattern": [
+                "XXXXXO",
+                "XXOOOX",
+                "OOXXXX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 296,
+            "pattern": [
+                "XXXXXX",
+                "XXOOOO",
+                "OOXXXX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 297,
+            "pattern": [
+                "XXXXXX",
+                "XXOOOX",
+                "OOXXXO",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 298,
+            "pattern": [
+                "XXXXXX",
+                "XXOOXO",
+                "OOXXOX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 299,
+            "pattern": [
+                "XXXXXX",
+                "XXOOXX",
+                "OOXXOO",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 300,
+            "pattern": [
+                "XXXXXX",
+                "XXOOXX",
+                "OOXXOX",
+                "XXXXXO"
+            ]
+        },
+        {
+            "id": 301,
+            "pattern": [
+                "XXXXXO",
+                "XXOXOX",
+                "OOXOXX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 302,
+            "pattern": [
+                "XXXXXX",
+                "XXOXOO",
+                "OOXOXX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 303,
+            "pattern": [
+                "XXXXXX",
+                "XXOXOX",
+                "OOXOXO",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 304,
+            "pattern": [
+                "XXXXXX",
+                "XXOXXO",
+                "OOXOOX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 305,
+            "pattern": [
+                "XXXXXX",
+                "XXOXXX",
+                "OOXOOO",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 306,
+            "pattern": [
+                "XXXXXX",
+                "XXOXXX",
+                "OOXOOX",
+                "XXXXXO"
+            ]
+        },
+        {
+            "id": 307,
+            "pattern": [
+                "XXXXXX",
+                "XXOXXX",
+                "OOXOXO",
+                "XXXXOX"
+            ]
+        },
+        {
+            "id": 308,
+            "pattern": [
+                "XXXXXX",
+                "XXOXXX",
+                "OOXOXX",
+                "XXXXOO"
+            ]
+        },
+        {
+            "id": 309,
+            "pattern": [
+                "XXXXOO",
+                "XXXOXX",
+                "OOOXXX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 310,
+            "pattern": [
+                "XXXXOX",
+                "XXXOXO",
+                "OOOXXX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 311,
+            "pattern": [
+                "XXXXXO",
+                "XXXOOX",
+                "OOOXXX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 312,
+            "pattern": [
+                "XXXXXX",
+                "XXXOOO",
+                "OOOXXX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 313,
+            "pattern": [
+                "XXXXXX",
+                "XXXOOX",
+                "OOOXXO",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 314,
+            "pattern": [
+                "XXXXXX",
+                "XXXOXO",
+                "OOOXOX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 315,
+            "pattern": [
+                "XXXXXX",
+                "XXXOXX",
+                "OOOXOO",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 316,
+            "pattern": [
+                "XXXXXX",
+                "XXXOXX",
+                "OOOXOX",
+                "XXXXXO"
+            ]
+        },
+        {
+            "id": 317,
+            "pattern": [
+                "XXXXXO",
+                "XXXXOX",
+                "OOOOXX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 318,
+            "pattern": [
+                "XXXXXX",
+                "XXXXOO",
+                "OOOOXX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 319,
+            "pattern": [
+                "XXXXXX",
+                "XXXXOX",
+                "OOOOXO",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 320,
+            "pattern": [
+                "XXXXXX",
+                "XXXXXO",
+                "OOOOOX",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 321,
+            "pattern": [
+                "XXXXXX",
+                "XXXXXX",
+                "OOOOOO",
+                "XXXXXX"
+            ]
+        },
+        {
+            "id": 322,
+            "pattern": [
+                "XXXXXX",
+                "XXXXXX",
+                "OOOOOX",
+                "XXXXXO"
+            ]
+        },
+        {
+            "id": 323,
+            "pattern": [
+                "XXXXXX",
+                "XXXXXX",
+                "OOOOXO",
+                "XXXXOX"
+            ]
+        },
+        {
+            "id": 324,
+            "pattern": [
+                "XXXXXX",
+                "XXXXXX",
+                "OOOOXX",
+                "XXXXOO"
+            ]
+        },
+        {
+            "id": 325,
+            "pattern": [
+                "XXXXXX",
+                "XXXXXO",
+                "OOOXOX",
+                "XXXOXX"
+            ]
+        },
+        {
+            "id": 326,
+            "pattern": [
+                "XXXXXX",
+                "XXXXXX",
+                "OOOXOO",
+                "XXXOXX"
+            ]
+        },
+        {
+            "id": 327,
+            "pattern": [
+                "XXXXXX",
+                "XXXXXX",
+                "OOOXOX",
+                "XXXOXO"
+            ]
+        },
+        {
+            "id": 328,
+            "pattern": [
+                "XXXXXX",
+                "XXXXXX",
+                "OOOXXO",
+                "XXXOOX"
+            ]
+        },
+        {
+            "id": 329,
+            "pattern": [
+                "XXXXXX",
+                "XXXXXX",
+                "OOOXXX",
+                "XXXOOO"
+            ]
+        },
+        {
+            "id": 330,
+            "pattern": [
+                "XXXXXO",
+                "XXXXOX",
+                "OOXOXX",
+                "XXOXXX"
+            ]
+        },
+        {
+            "id": 331,
+            "pattern": [
+                "XXXXXX",
+                "XXXXOO",
+                "OOXOXX",
+                "XXOXXX"
+            ]
+        },
+        {
+            "id": 332,
+            "pattern": [
+                "XXXXXX",
+                "XXXXOX",
+                "OOXOXO",
+                "XXOXXX"
+            ]
+        },
+        {
+            "id": 333,
+            "pattern": [
+                "XXXXXX",
+                "XXXXXO",
+                "OOXOOX",
+                "XXOXXX"
+            ]
+        },
+        {
+            "id": 334,
+            "pattern": [
+                "XXXXXX",
+                "XXXXXX",
+                "OOXOOO",
+                "XXOXXX"
+            ]
+        },
+        {
+            "id": 335,
+            "pattern": [
+                "XXXXXX",
+                "XXXXXX",
+                "OOXOOX",
+                "XXOXXO"
+            ]
+        },
+        {
+            "id": 336,
+            "pattern": [
+                "XXXXXX",
+                "XXXXXX",
+                "OOXOXO",
+                "XXOXOX"
+            ]
+        },
+        {
+            "id": 337,
+            "pattern": [
+                "XXXXXX",
+                "XXXXXX",
+                "OOXOXX",
+                "XXOXOO"
+            ]
+        },
+        {
+            "id": 338,
+            "pattern": [
+                "XXXXXX",
+                "XXXXXO",
+                "OOXXOX",
+                "XXOOXX"
+            ]
+        },
+        {
+            "id": 339,
+            "pattern": [
+                "XXXXXX",
+                "XXXXXX",
+                "OOXXOO",
+                "XXOOXX"
+            ]
+        },
+        {
+            "id": 340,
+            "pattern": [
+                "XXXXXX",
+                "XXXXXX",
+                "OOXXOX",
+                "XXOOXO"
+            ]
+        },
+        {
+            "id": 341,
+            "pattern": [
+                "XXXXXX",
+                "XXXXXX",
+                "OOXXXO",
+                "XXOOOX"
+            ]
+        },
+        {
+            "id": 342,
+            "pattern": [
+                "XXXXXX",
+                "XXXXXX",
+                "OOXXXX",
+                "XXOOOO"
+            ]
+        },
+        {
+            "id": 343,
+            "pattern": [
+                "XXXXOO",
+                "XXXOXX",
+                "OXOXXX",
+                "XOXXXX"
+            ]
+        },
+        {
+            "id": 344,
+            "pattern": [
+                "XXXXOX",
+                "XXXOXO",
+                "OXOXXX",
+                "XOXXXX"
+            ]
+        },
+        {
+            "id": 345,
+            "pattern": [
+                "XXXXXO",
+                "XXXOOX",
+                "OXOXXX",
+                "XOXXXX"
+            ]
+        },
+        {
+            "id": 346,
+            "pattern": [
+                "XXXXXX",
+                "XXXOOO",
+                "OXOXXX",
+                "XOXXXX"
+            ]
+        },
+        {
+            "id": 347,
+            "pattern": [
+                "XXXXXX",
+                "XXXOOX",
+                "OXOXXO",
+                "XOXXXX"
+            ]
+        },
+        {
+            "id": 348,
+            "pattern": [
+                "XXXXXX",
+                "XXXOXO",
+                "OXOXOX",
+                "XOXXXX"
+            ]
+        },
+        {
+            "id": 349,
+            "pattern": [
+                "XXXXXX",
+                "XXXOXX",
+                "OXOXOO",
+                "XOXXXX"
+            ]
+        },
+        {
+            "id": 350,
+            "pattern": [
+                "XXXXXX",
+                "XXXOXX",
+                "OXOXOX",
+                "XOXXXO"
+            ]
+        },
+        {
+            "id": 351,
+            "pattern": [
+                "XXXXXO",
+                "XXXXOX",
+                "OXOOXX",
+                "XOXXXX"
+            ]
+        },
+        {
+            "id": 352,
+            "pattern": [
+                "XXXXXX",
+                "XXXXOO",
+                "OXOOXX",
+                "XOXXXX"
+            ]
+        },
+        {
+            "id": 353,
+            "pattern": [
+                "XXXXXX",
+                "XXXXOX",
+                "OXOOXO",
+                "XOXXXX"
+            ]
+        },
+        {
+            "id": 354,
+            "pattern": [
+                "XXXXXX",
+                "XXXXXO",
+                "OXOOOX",
+                "XOXXXX"
+            ]
+        },
+        {
+            "id": 355,
+            "pattern": [
+                "XXXXXX",
+                "XXXXXX",
+                "OXOOOO",
+                "XOXXXX"
+            ]
+        },
+        {
+            "id": 356,
+            "pattern": [
+                "XXXXXX",
+                "XXXXXX",
+                "OXOOOX",
+                "XOXXXO"
+            ]
+        },
+        {
+            "id": 357,
+            "pattern": [
+                "XXXXXX",
+                "XXXXXX",
+                "OXOOXO",
+                "XOXXOX"
+            ]
+        },
+        {
+            "id": 358,
+            "pattern": [
+                "XXXXXX",
+                "XXXXXX",
+                "OXOOXX",
+                "XOXXOO"
+            ]
+        },
+        {
+            "id": 359,
+            "pattern": [
+                "XXXXXX",
+                "XXXXXO",
+                "OXOXOX",
+                "XOXOXX"
+            ]
+        },
+        {
+            "id": 360,
+            "pattern": [
+                "XXXXXX",
+                "XXXXXX",
+                "OXOXOO",
+                "XOXOXX"
+            ]
+        },
+        {
+            "id": 361,
+            "pattern": [
+                "XXXXXX",
+                "XXXXXX",
+                "OXOXOX",
+                "XOXOXO"
+            ]
+        },
+        {
+            "id": 362,
+            "pattern": [
+                "XXXXXX",
+                "XXXXXX",
+                "OXOXXO",
+                "XOXOOX"
+            ]
+        },
+        {
+            "id": 363,
+            "pattern": [
+                "XXXXXX",
+                "XXXXXX",
+                "OXOXXX",
+                "XOXOOO"
+            ]
+        },
+        {
+            "id": 364,
+            "pattern": [
+                "XXXXXO",
+                "XXXXOX",
+                "OXXOXX",
+                "XOOXXX"
+            ]
+        },
+        {
+            "id": 365,
+            "pattern": [
+                "XXXXXX",
+                "XXXXOO",
+                "OXXOXX",
+                "XOOXXX"
+            ]
+        },
+        {
+            "id": 366,
+            "pattern": [
+                "XXXXXX",
+                "XXXXOX",
+                "OXXOXO",
+                "XOOXXX"
+            ]
+        },
+        {
+            "id": 367,
+            "pattern": [
+                "XXXXXX",
+                "XXXXXO",
+                "OXXOOX",
+                "XOOXXX"
+            ]
+        },
+        {
+            "id": 368,
+            "pattern": [
+                "XXXXXX",
+                "XXXXXX",
+                "OXXOOO",
+                "XOOXXX"
+            ]
+        },
+        {
+            "id": 369,
+            "pattern": [
+                "XXXXXX",
+                "XXXXXX",
+                "OXXOOX",
+                "XOOXXO"
+            ]
+        },
+        {
+            "id": 370,
+            "pattern": [
+                "XXXXXX",
+                "XXXXXX",
+                "OXXOXO",
+                "XOOXOX"
+            ]
+        },
+        {
+            "id": 371,
+            "pattern": [
+                "XXXXXX",
+                "XXXXXX",
+                "OXXOXX",
+                "XOOXOO"
+            ]
+        },
+        {
+            "id": 372,
+            "pattern": [
+                "XXXXXX",
+                "XXXXXO",
+                "OXXXOX",
+                "XOOOXX"
+            ]
+        },
+        {
+            "id": 373,
+            "pattern": [
+                "XXXXXX",
+                "XXXXXX",
+                "OXXXOO",
+                "XOOOXX"
+            ]
+        },
+        {
+            "id": 374,
+            "pattern": [
+                "XXXXXX",
+                "XXXXXX",
+                "OXXXOX",
+                "XOOOXO"
+            ]
+        },
+        {
+            "id": 375,
+            "pattern": [
+                "XXXXXX",
+                "XXXXXX",
+                "OXXXXO",
+                "XOOOOX"
+            ]
+        },
+        {
+            "id": 376,
+            "pattern": [
+                "XXXXXX",
+                "XXXXXX",
+                "OXXXXX",
+                "XOOOOO"
+            ]
+        },
+        {
+            "id": 377,
+            "pattern": [
+                "XXXOOO",
+                "XXOXXX",
+                "XOXXXX",
+                "OXXXXX"
+            ]
+        },
+        {
+            "id": 378,
+            "pattern": [
+                "XXXOOX",
+                "XXOXXO",
+                "XOXXXX",
+                "OXXXXX"
+            ]
+        },
+        {
+            "id": 379,
+            "pattern": [
+                "XXXOXO",
+                "XXOXOX",
+                "XOXXXX",
+                "OXXXXX"
+            ]
+        },
+        {
+            "id": 380,
+            "pattern": [
+                "XXXOXX",
+                "XXOXOO",
+                "XOXXXX",
+                "OXXXXX"
+            ]
+        },
+        {
+            "id": 381,
+            "pattern": [
+                "XXXOXX",
+                "XXOXOX",
+                "XOXXXO",
+                "OXXXXX"
+            ]
+        },
+        {
+            "id": 382,
+            "pattern": [
+                "XXXXOO",
+                "XXOOXX",
+                "XOXXXX",
+                "OXXXXX"
+            ]
+        },
+        {
+            "id": 383,
+            "pattern": [
+                "XXXXOX",
+                "XXOOXO",
+                "XOXXXX",
+                "OXXXXX"
+            ]
+        },
+        {
+            "id": 384,
+            "pattern": [
+                "XXXXXO",
+                "XXOOOX",
+                "XOXXXX",
+                "OXXXXX"
+            ]
+        },
+        {
+            "id": 385,
+            "pattern": [
+                "XXXXXX",
+                "XXOOOO",
+                "XOXXXX",
+                "OXXXXX"
+            ]
+        },
+        {
+            "id": 386,
+            "pattern": [
+                "XXXXXX",
+                "XXOOOX",
+                "XOXXXO",
+                "OXXXXX"
+            ]
+        },
+        {
+            "id": 387,
+            "pattern": [
+                "XXXXXX",
+                "XXOOXO",
+                "XOXXOX",
+                "OXXXXX"
+            ]
+        },
+        {
+            "id": 388,
+            "pattern": [
+                "XXXXXX",
+                "XXOOXX",
+                "XOXXOO",
+                "OXXXXX"
+            ]
+        },
+        {
+            "id": 389,
+            "pattern": [
+                "XXXXXX",
+                "XXOOXX",
+                "XOXXOX",
+                "OXXXXO"
+            ]
+        },
+        {
+            "id": 390,
+            "pattern": [
+                "XXXXXO",
+                "XXOXOX",
+                "XOXOXX",
+                "OXXXXX"
+            ]
+        },
+        {
+            "id": 391,
+            "pattern": [
+                "XXXXXX",
+                "XXOXOO",
+                "XOXOXX",
+                "OXXXXX"
+            ]
+        },
+        {
+            "id": 392,
+            "pattern": [
+                "XXXXXX",
+                "XXOXOX",
+                "XOXOXO",
+                "OXXXXX"
+            ]
+        },
+        {
+            "id": 393,
+            "pattern": [
+                "XXXXXX",
+                "XXOXXO",
+                "XOXOOX",
+                "OXXXXX"
+            ]
+        },
+        {
+            "id": 394,
+            "pattern": [
+                "XXXXXX",
+                "XXOXXX",
+                "XOXOOO",
+                "OXXXXX"
+            ]
+        },
+        {
+            "id": 395,
+            "pattern": [
+                "XXXXXX",
+                "XXOXXX",
+                "XOXOOX",
+                "OXXXXO"
+            ]
+        },
+        {
+            "id": 396,
+            "pattern": [
+                "XXXXXX",
+                "XXOXXX",
+                "XOXOXO",
+                "OXXXOX"
+            ]
+        },
+        {
+            "id": 397,
+            "pattern": [
+                "XXXXXX",
+                "XXOXXX",
+                "XOXOXX",
+                "OXXXOO"
+            ]
+        },
+        {
+            "id": 398,
+            "pattern": [
+                "XXXXOO",
+                "XXXOXX",
+                "XOOXXX",
+                "OXXXXX"
+            ]
+        },
+        {
+            "id": 399,
+            "pattern": [
+                "XXXXOX",
+                "XXXOXO",
+                "XOOXXX",
+                "OXXXXX"
+            ]
+        },
+        {
+            "id": 400,
+            "pattern": [
+                "XXXXXO",
+                "XXXOOX",
+                "XOOXXX",
+                "OXXXXX"
+            ]
+        },
+        {
+            "id": 401,
+            "pattern": [
+                "XXXXXX",
+                "XXXOOO",
+                "XOOXXX",
+                "OXXXXX"
+            ]
+        },
+        {
+            "id": 402,
+            "pattern": [
+                "XXXXXX",
+                "XXXOOX",
+                "XOOXXO",
+                "OXXXXX"
+            ]
+        },
+        {
+            "id": 403,
+            "pattern": [
+                "XXXXXX",
+                "XXXOXO",
+                "XOOXOX",
+                "OXXXXX"
+            ]
+        },
+        {
+            "id": 404,
+            "pattern": [
+                "XXXXXX",
+                "XXXOXX",
+                "XOOXOO",
+                "OXXXXX"
+            ]
+        },
+        {
+            "id": 405,
+            "pattern": [
+                "XXXXXX",
+                "XXXOXX",
+                "XOOXOX",
+                "OXXXXO"
+            ]
+        },
+        {
+            "id": 406,
+            "pattern": [
+                "XXXXXO",
+                "XXXXOX",
+                "XOOOXX",
+                "OXXXXX"
+            ]
+        },
+        {
+            "id": 407,
+            "pattern": [
+                "XXXXXX",
+                "XXXXOO",
+                "XOOOXX",
+                "OXXXXX"
+            ]
+        },
+        {
+            "id": 408,
+            "pattern": [
+                "XXXXXX",
+                "XXXXOX",
+                "XOOOXO",
+                "OXXXXX"
+            ]
+        },
+        {
+            "id": 409,
+            "pattern": [
+                "XXXXXX",
+                "XXXXXO",
+                "XOOOOX",
+                "OXXXXX"
+            ]
+        },
+        {
+            "id": 410,
+            "pattern": [
+                "XXXXXX",
+                "XXXXXX",
+                "XOOOOO",
+                "OXXXXX"
+            ]
+        },
+        {
+            "id": 411,
+            "pattern": [
+                "XXXXXX",
+                "XXXXXX",
+                "XOOOOX",
+                "OXXXXO"
+            ]
+        },
+        {
+            "id": 412,
+            "pattern": [
+                "XXXXXX",
+                "XXXXXX",
+                "XOOOXO",
+                "OXXXOX"
+            ]
+        },
+        {
+            "id": 413,
+            "pattern": [
+                "XXXXXX",
+                "XXXXXX",
+                "XOOOXX",
+                "OXXXOO"
+            ]
+        },
+        {
+            "id": 414,
+            "pattern": [
+                "XXXXXX",
+                "XXXXXO",
+                "XOOXOX",
+                "OXXOXX"
+            ]
+        },
+        {
+            "id": 415,
+            "pattern": [
+                "XXXXXX",
+                "XXXXXX",
+                "XOOXOO",
+                "OXXOXX"
+            ]
+        },
+        {
+            "id": 416,
+            "pattern": [
+                "XXXXXX",
+                "XXXXXX",
+                "XOOXOX",
+                "OXXOXO"
+            ]
+        },
+        {
+            "id": 417,
+            "pattern": [
+                "XXXXXX",
+                "XXXXXX",
+                "XOOXXO",
+                "OXXOOX"
+            ]
+        },
+        {
+            "id": 418,
+            "pattern": [
+                "XXXXXX",
+                "XXXXXX",
+                "XOOXXX",
+                "OXXOOO"
+            ]
+        },
+        {
+            "id": 419,
+            "pattern": [
+                "XXXXXO",
+                "XXXXOX",
+                "XOXOXX",
+                "OXOXXX"
+            ]
+        },
+        {
+            "id": 420,
+            "pattern": [
+                "XXXXXX",
+                "XXXXOO",
+                "XOXOXX",
+                "OXOXXX"
+            ]
+        },
+        {
+            "id": 421,
+            "pattern": [
+                "XXXXXX",
+                "XXXXOX",
+                "XOXOXO",
+                "OXOXXX"
+            ]
+        },
+        {
+            "id": 422,
+            "pattern": [
+                "XXXXXX",
+                "XXXXXO",
+                "XOXOOX",
+                "OXOXXX"
+            ]
+        },
+        {
+            "id": 423,
+            "pattern": [
+                "XXXXXX",
+                "XXXXXX",
+                "XOXOOO",
+                "OXOXXX"
+            ]
+        },
+        {
+            "id": 424,
+            "pattern": [
+                "XXXXXX",
+                "XXXXXX",
+                "XOXOOX",
+                "OXOXXO"
+            ]
+        },
+        {
+            "id": 425,
+            "pattern": [
+                "XXXXXX",
+                "XXXXXX",
+                "XOXOXO",
+                "OXOXOX"
+            ]
+        },
+        {
+            "id": 426,
+            "pattern": [
+                "XXXXXX",
+                "XXXXXX",
+                "XOXOXX",
+                "OXOXOO"
+            ]
+        },
+        {
+            "id": 427,
+            "pattern": [
+                "XXXXXX",
+                "XXXXXO",
+                "XOXXOX",
+                "OXOOXX"
+            ]
+        },
+        {
+            "id": 428,
+            "pattern": [
+                "XXXXXX",
+                "XXXXXX",
+                "XOXXOO",
+                "OXOOXX"
+            ]
+        },
+        {
+            "id": 429,
+            "pattern": [
+                "XXXXXX",
+                "XXXXXX",
+                "XOXXOX",
+                "OXOOXO"
+            ]
+        },
+        {
+            "id": 430,
+            "pattern": [
+                "XXXXXX",
+                "XXXXXX",
+                "XOXXXO",
+                "OXOOOX"
+            ]
+        },
+        {
+            "id": 431,
+            "pattern": [
+                "XXXXXX",
+                "XXXXXX",
+                "XOXXXX",
+                "OXOOOO"
+            ]
+        },
+        {
+            "id": 432,
+            "pattern": [
+                "XXXXOO",
+                "XXXOXX",
+                "XXOXXX",
+                "OOXXXX"
+            ]
+        },
+        {
+            "id": 433,
+            "pattern": [
+                "XXXXOX",
+                "XXXOXO",
+                "XXOXXX",
+                "OOXXXX"
+            ]
+        },
+        {
+            "id": 434,
+            "pattern": [
+                "XXXXXO",
+                "XXXOOX",
+                "XXOXXX",
+                "OOXXXX"
+            ]
+        },
+        {
+            "id": 435,
+            "pattern": [
+                "XXXXXX",
+                "XXXOOO",
+                "XXOXXX",
+                "OOXXXX"
+            ]
+        },
+        {
+            "id": 436,
+            "pattern": [
+                "XXXXXX",
+                "XXXOOX",
+                "XXOXXO",
+                "OOXXXX"
+            ]
+        },
+        {
+            "id": 437,
+            "pattern": [
+                "XXXXXX",
+                "XXXOXO",
+                "XXOXOX",
+                "OOXXXX"
+            ]
+        },
+        {
+            "id": 438,
+            "pattern": [
+                "XXXXXX",
+                "XXXOXX",
+                "XXOXOO",
+                "OOXXXX"
+            ]
+        },
+        {
+            "id": 439,
+            "pattern": [
+                "XXXXXX",
+                "XXXOXX",
+                "XXOXOX",
+                "OOXXXO"
+            ]
+        },
+        {
+            "id": 440,
+            "pattern": [
+                "XXXXXO",
+                "XXXXOX",
+                "XXOOXX",
+                "OOXXXX"
+            ]
+        },
+        {
+            "id": 441,
+            "pattern": [
+                "XXXXXX",
+                "XXXXOO",
+                "XXOOXX",
+                "OOXXXX"
+            ]
+        },
+        {
+            "id": 442,
+            "pattern": [
+                "XXXXXX",
+                "XXXXOX",
+                "XXOOXO",
+                "OOXXXX"
+            ]
+        },
+        {
+            "id": 443,
+            "pattern": [
+                "XXXXXX",
+                "XXXXXO",
+                "XXOOOX",
+                "OOXXXX"
+            ]
+        },
+        {
+            "id": 444,
+            "pattern": [
+                "XXXXXX",
+                "XXXXXX",
+                "XXOOOO",
+                "OOXXXX"
+            ]
+        },
+        {
+            "id": 445,
+            "pattern": [
+                "XXXXXX",
+                "XXXXXX",
+                "XXOOOX",
+                "OOXXXO"
+            ]
+        },
+        {
+            "id": 446,
+            "pattern": [
+                "XXXXXX",
+                "XXXXXX",
+                "XXOOXO",
+                "OOXXOX"
+            ]
+        },
+        {
+            "id": 447,
+            "pattern": [
+                "XXXXXX",
+                "XXXXXX",
+                "XXOOXX",
+                "OOXXOO"
+            ]
+        },
+        {
+            "id": 448,
+            "pattern": [
+                "XXXXXX",
+                "XXXXXO",
+                "XXOXOX",
+                "OOXOXX"
+            ]
+        },
+        {
+            "id": 449,
+            "pattern": [
+                "XXXXXX",
+                "XXXXXX",
+                "XXOXOO",
+                "OOXOXX"
+            ]
+        },
+        {
+            "id": 450,
+            "pattern": [
+                "XXXXXX",
+                "XXXXXX",
+                "XXOXOX",
+                "OOXOXO"
+            ]
+        },
+        {
+            "id": 451,
+            "pattern": [
+                "XXXXXX",
+                "XXXXXX",
+                "XXOXXO",
+                "OOXOOX"
+            ]
+        },
+        {
+            "id": 452,
+            "pattern": [
+                "XXXXXX",
+                "XXXXXX",
+                "XXOXXX",
+                "OOXOOO"
+            ]
+        },
+        {
+            "id": 453,
+            "pattern": [
+                "XXXXXO",
+                "XXXXOX",
+                "XXXOXX",
+                "OOOXXX"
+            ]
+        },
+        {
+            "id": 454,
+            "pattern": [
+                "XXXXXX",
+                "XXXXOO",
+                "XXXOXX",
+                "OOOXXX"
+            ]
+        },
+        {
+            "id": 455,
+            "pattern": [
+                "XXXXXX",
+                "XXXXOX",
+                "XXXOXO",
+                "OOOXXX"
+            ]
+        },
+        {
+            "id": 456,
+            "pattern": [
+                "XXXXXX",
+                "XXXXXO",
+                "XXXOOX",
+                "OOOXXX"
+            ]
+        },
+        {
+            "id": 457,
+            "pattern": [
+                "XXXXXX",
+                "XXXXXX",
+                "XXXOOO",
+                "OOOXXX"
+            ]
+        },
+        {
+            "id": 458,
+            "pattern": [
+                "XXXXXX",
+                "XXXXXX",
+                "XXXOOX",
+                "OOOXXO"
+            ]
+        },
+        {
+            "id": 459,
+            "pattern": [
+                "XXXXXX",
+                "XXXXXX",
+                "XXXOXO",
+                "OOOXOX"
+            ]
+        },
+        {
+            "id": 460,
+            "pattern": [
+                "XXXXXX",
+                "XXXXXX",
+                "XXXOXX",
+                "OOOXOO"
+            ]
+        },
+        {
+            "id": 461,
+            "pattern": [
+                "XXXXXX",
+                "XXXXXO",
+                "XXXXOX",
+                "OOOOXX"
+            ]
+        },
+        {
+            "id": 462,
+            "pattern": [
+                "XXXXXX",
+                "XXXXXX",
+                "XXXXOO",
+                "OOOOXX"
+            ]
+        },
+        {
+            "id": 463,
+            "pattern": [
+                "XXXXXX",
+                "XXXXXX",
+                "XXXXOX",
+                "OOOOXO"
+            ]
+        },
+        {
+            "id": 464,
+            "pattern": [
+                "XXXXXX",
+                "XXXXXX",
+                "XXXXXO",
+                "OOOOOX"
+            ]
+        },
+        {
+            "id": 465,
+            "pattern": [
+                "XXXXXX",
+                "XXXXXX",
+                "XXXXXX",
+                "OOOOOO"
+            ]
+        }
+    ]
+}

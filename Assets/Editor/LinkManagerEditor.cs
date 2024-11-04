@@ -14,12 +14,12 @@ public class LinkManagerEditor : Editor
         EditorGUILayout.Space();
         EditorGUILayout.LabelField("調試工具", EditorStyles.boldLabel);
 
-        // 添加重新放置角色和檢查連線的按鈕
-        if (GUILayout.Button("重新放置角色並檢查連線"))
+        // 添加重新放置單位和檢查連線的按鈕
+        if (GUILayout.Button("重新放置單位並檢查連線"))
         {
-            // 調用LinkManager的方法
-            manager.ClearGrid();
-            manager.PlaceCharactersRandomly();
+            // 調用 LinkManager 的方法
+            manager.ClearUnits();
+            manager.PlaceUnitsRandomly();
             manager.CheckForLinks();
 
             // 在場景中繪製連線
@@ -27,35 +27,35 @@ public class LinkManagerEditor : Editor
         }
 
         // 顯示當前選擇的連線模式
-        if (manager.allLinkPatterns != null && manager.allLinkPatterns.Count > 0)
+        if (manager.unlockedLinkPatterns != null && manager.unlockedLinkPatterns.Count > 0)
         {
             // 確保索引在有效範圍內
-            manager.selectedPatternIndex = Mathf.Clamp(manager.selectedPatternIndex, 0, manager.allLinkPatterns.Count - 1);
+            manager.selectedPatternIndex = Mathf.Clamp(manager.selectedPatternIndex, 0, manager.unlockedLinkPatterns.Count - 1);
 
             // 顯示選擇連線模式的滑塊
-            manager.selectedPatternIndex = EditorGUILayout.IntSlider("選擇連線模式", manager.selectedPatternIndex, 0, manager.allLinkPatterns.Count - 1);
+            manager.selectedPatternIndex = EditorGUILayout.IntSlider("選擇連線模式", manager.selectedPatternIndex, 0, manager.unlockedLinkPatterns.Count - 1);
 
             // 添加刷新按鈕
             if (GUILayout.Button("刷新連線模式"))
             {
-                // 強制重繪Scene視圖
+                // 強制重繪 Scene 視圖
                 SceneView.RepaintAll();
             }
 
-            // 顯示當前連線模式的ID
-            EditorGUILayout.LabelField("當前連線模式ID", manager.allLinkPatterns[manager.selectedPatternIndex].Id.ToString());
+            // 顯示當前連線模式的 ID
+            EditorGUILayout.LabelField("當前連線模式 ID", manager.unlockedLinkPatterns[manager.selectedPatternIndex].Id.ToString());
 
             // 顯示連線模式的圖形表示
-            DisplayLinkPattern(manager.allLinkPatterns[manager.selectedPatternIndex]);
+            DisplayLinkPattern(manager.unlockedLinkPatterns[manager.selectedPatternIndex]);
         }
     }
 
     private void DisplayLinkPattern(LinkPattern pattern)
     {
         EditorGUILayout.LabelField("連線模式：");
-        foreach (var row in pattern.PatternData)
+        foreach (var position in pattern.Positions)
         {
-            EditorGUILayout.LabelField(row);
+            EditorGUILayout.LabelField($"({position.x}, {position.y})");
         }
     }
 }

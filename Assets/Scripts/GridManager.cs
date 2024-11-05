@@ -203,6 +203,16 @@ public class GridManager : MonoBehaviour
     }
 
     /// <summary>
+    /// 判断一个位置是否在战斗区域内
+    /// </summary>
+    /// <param name="position">格子位置</param>
+    /// <returns>是否在战斗区域内</returns>
+    public bool IsWithinBattleArea(Vector3Int position)
+    {
+        return position.x >= 1 && position.x <= columns && position.y >= 0 && position.y < rows;
+    }
+
+    /// <summary>
     /// 从指定位置移除单位
     /// </summary>
     /// <param name="position">格子位置</param>

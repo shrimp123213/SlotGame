@@ -6,12 +6,10 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "NewBuilding", menuName = "ScriptableObjects/Building")]
 public class BuildingData : ScriptableObject
 {
-    public string buildingName;        // 建築名稱
-    public string description;         // 建築描述
-    public Sprite buildingSprite;      // 建築圖片
-    public BuildingType buildingType;  // 建築類型
-    public int health;                 // 建築生命值
-    // 其他屬性如加成、攻擊等可根據需求添加
+    public string buildingName;    // 建筑物名称
+    public Sprite buildingSprite;  // 建筑物的Sprite
+    public int health;             // 建筑物生命值
+    // 可以根据需要添加更多属性，如建筑物类型、功能等
 }
 
 public enum BuildingType

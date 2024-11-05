@@ -4,12 +4,19 @@ public class UnitController : MonoBehaviour
 {
     public UnitData unitData;       // 单位的数据
 
-    private Vector3Int gridPosition; // 单位在格子上的位置
+    public Vector3Int gridPosition; // 单位在格子上的位置
 
     private int defensePoints = 0;  // 防卫点数
 
     // 引用 SkillManager
     private SkillManager skillManager;
+
+    [Header("Skills")]
+    public SkillSO mainSkillSO;      // 主技能
+    public SkillSO supportSkillSO;   // 支援技能
+
+    [HideInInspector]
+    public Skill currentSkill;       // 当前技能的运行时实例
 
     void Start()
     {
@@ -21,6 +28,16 @@ public class UnitController : MonoBehaviour
         if (skillManager == null)
         {
             Debug.LogError("未找到 SkillManager！");
+        }
+
+        // 初始化当前技能为主技能的克隆
+        if (mainSkillSO != null)
+        {
+            currentSkill = Skill.FromSkillSO(mainSkillSO);
+        }
+        else
+        {
+            Debug.LogWarning($"{unitData.unitName} 没有配置主技能！");
         }
     }
 
@@ -72,7 +89,7 @@ public class UnitController : MonoBehaviour
         }
 
         // 检查新位置是否被占据
-        if (GridManager.Instance.HasUnitAt(newPosition))
+        if (GridManager.Instance.HasUnitAt(newPosition) || GridManager.Instance.HasBuildingAt(newPosition))
         {
             Debug.Log($"{unitData.unitName} 无法移动，前方已被占据！");
             return;
@@ -87,6 +104,30 @@ public class UnitController : MonoBehaviour
     }
 
     /// <summary>
+    /// 检查单位是否可以继续向前移动
+    /// </summary>
+    /// <returns>是否可以移动</returns>
+    public bool CanMoveForward()
+    {
+        Vector3Int direction = unitData.camp == Camp.Player ? Vector3Int.right : Vector3Int.left;
+        Vector3Int newPosition = gridPosition + direction;
+
+        // 检查新位置是否在战斗区域
+        if (!GridManager.Instance.IsWithinBattleArea(newPosition))
+        {
+            return false;
+        }
+
+        // 检查新位置是否被占据
+        if (GridManager.Instance.HasUnitAt(newPosition) || GridManager.Instance.HasBuildingAt(newPosition))
+        {
+            return false;
+        }
+
+        return true;
+    }
+
+    /// <summary>
     /// 执行近战攻击
     /// </summary>
     public void PerformMeleeAttack()
@@ -94,13 +135,19 @@ public class UnitController : MonoBehaviour
         Vector3Int attackDirection = unitData.camp == Camp.Player ? Vector3Int.right : Vector3Int.left;
         Vector3Int targetPosition = gridPosition + attackDirection;
 
-        // 获取目标单位
+        // 获取目标单位或建筑
         UnitController targetUnit = GridManager.Instance.GetUnitAt(targetPosition);
+        BuildingController targetBuilding = GridManager.Instance.GetBuildingAt(targetPosition);
 
         if (targetUnit != null)
         {
             targetUnit.TakeDamage(1);
             Debug.Log($"{unitData.unitName} 对 {targetUnit.unitData.unitName} 进行近战攻击，造成1点伤害！");
+        }
+        else if (targetBuilding != null)
+        {
+            targetBuilding.TakeDamage(1);
+            Debug.Log($"{unitData.unitName} 对建筑 {targetBuilding.buildingData.buildingName} 进行近战攻击，造成1点伤害！");
         }
         else
         {
@@ -121,15 +168,21 @@ public class UnitController : MonoBehaviour
         while (GridManager.Instance.IsWithinBattleArea(currentPos))
         {
             UnitController targetUnit = GridManager.Instance.GetUnitAt(currentPos);
+            BuildingController targetBuilding = GridManager.Instance.GetBuildingAt(currentPos);
+
             if (targetUnit != null)
             {
                 targetUnit.TakeDamage(1);
                 Debug.Log($"{unitData.unitName} 对 {targetUnit.unitData.unitName} 进行远程攻击，造成1点伤害！");
                 hasAttacked = true;
-
-                // 如果远程攻击让单位离开战场，继续攻击下一个目标
-                // 这里假设攻击不会导致单位离开战场，除非有特殊效果
-                break; // 根据需求决定是否继续攻击
+                break; // 只攻击第一个目标
+            }
+            else if (targetBuilding != null)
+            {
+                targetBuilding.TakeDamage(1);
+                Debug.Log($"{unitData.unitName} 对建筑 {targetBuilding.buildingData.buildingName} 进行远程攻击，造成1点伤害！");
+                hasAttacked = true;
+                break; // 只攻击第一个目标
             }
 
             currentPos += attackDirection;
@@ -189,44 +242,87 @@ public class UnitController : MonoBehaviour
     }
 
     /// <summary>
-    /// 使用技能
+    /// 使用主技能
     /// </summary>
-    /// <param name="skillString">技能字符串，例如 "2[Move] 2[Melee]"</param>
-    public void UseSkill(string skillString)
+    public void UseMainSkill()
     {
-        if (skillManager == null)
+        if (mainSkillSO != null)
         {
-            Debug.LogError("SkillManager 未初始化！");
-            return;
+            skillManager.ExecuteSkill(mainSkillSO, this);
         }
-
-        Skill skill = skillManager.ParseSkill(skillString);
-        skillManager.ExecuteSkill(skill, this);
+        else
+        {
+            Debug.LogWarning($"{unitData.unitName} 没有配置主技能！");
+        }
     }
-    
+
     /// <summary>
-    /// 检查单位是否可以继续向前移动
+    /// 使用支援技能
     /// </summary>
-    /// <returns>是否可以移动</returns>
-    public bool CanMoveForward()
+    /// <param name="skillSO">支援技能ScriptableObject</param>
+    public void ApplySupportSkill(SkillSO skillSO)
     {
-        Vector3Int direction = unitData.camp == Camp.Player ? Vector3Int.right : Vector3Int.left;
-        Vector3Int newPosition = gridPosition + direction;
-
-        // 检查新位置是否在战斗区域
-        if (!GridManager.Instance.IsWithinBattleArea(newPosition))
+        if (skillSO != null)
         {
-            return false;
-        }
+            // 克隆支援技能动作并添加到当前技能
+            Skill supportSkill = Skill.FromSkillSO(skillSO);
+            foreach (var action in supportSkill.Actions)
+            {
+                currentSkill.AddAction(action);
+                Debug.Log($"{unitData.unitName} 的主技能增加了支援技能动作：{action.Type} {action.Value}");
+            }
 
-        // 检查新位置是否被占据
-        if (GridManager.Instance.HasUnitAt(newPosition))
-        {
-            return false;
+            // 重新执行当前技能
+            ExecuteCurrentSkill();
         }
-
-        return true;
     }
 
-    // 其他行为如攻击、使用技能等可根据需求添加
+    /// <summary>
+    /// 重新执行当前技能
+    /// </summary>
+    public void ExecuteCurrentSkill()
+    {
+        if (currentSkill != null)
+        {
+            // 执行当前技能的所有动作
+            foreach (var action in currentSkill.Actions)
+            {
+                switch (action.Type)
+                {
+                    case SkillType.Move:
+                        for (int i = 0; i < action.Value; i++)
+                        {
+                            if (!CanMoveForward())
+                            {
+                                Debug.Log($"{unitData.unitName} 无法继续移动，技能执行被阻挡！");
+                                break;
+                            }
+                            MoveForward();
+                        }
+                        break;
+                    case SkillType.Melee:
+                        for (int i = 0; i < action.Value; i++)
+                        {
+                            PerformMeleeAttack();
+                        }
+                        break;
+                    case SkillType.Ranged:
+                        for (int i = 0; i < action.Value; i++)
+                        {
+                            PerformRangedAttack();
+                        }
+                        break;
+                    case SkillType.Defense:
+                        IncreaseDefense(action.Value);
+                        break;
+                    default:
+                        Debug.LogWarning($"未处理的技能类型：{action.Type}");
+                        break;
+                }
+            }
+
+            // 清空当前技能动作，防止重复执行
+            currentSkill.Actions.Clear();
+        }
+    }
 }

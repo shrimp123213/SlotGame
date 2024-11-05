@@ -59,14 +59,17 @@ public class GridManager : MonoBehaviour
         GenerateBattleArea();
         GenerateWallArea();
 
-        // 测试生成单位和建筑
+        // 生成玩家单位
         if (playerUnits.Count > 0)
         {
             SpawnUnit(new Vector3Int(2, 1, 0), playerUnits[0]);
         }
+
+        // 生成建筑物
         if (buildings.Count > 0)
         {
-            SpawnBuilding(new Vector3Int(0, 1, 0), buildings[0]);
+            SpawnBuilding(new Vector3Int(0, 1, 0), buildings[0]); // 城墙
+            SpawnBuilding(new Vector3Int(totalColumns - 1, 1, 0), buildings[1]); // 另一侧城墙或城镇
         }
     }
 
@@ -109,9 +112,9 @@ public class GridManager : MonoBehaviour
     /// <param name="unitData">单位数据</param>
     public void SpawnUnit(Vector3Int position, UnitData unitData)
     {
-        if (unitPositions.ContainsKey(position))
+        if (unitPositions.ContainsKey(position) || buildingPositions.ContainsKey(position))
         {
-            Debug.LogWarning($"位置 {position} 已经有单位存在！");
+            Debug.LogWarning($"位置 {position} 已经有单位或建筑存在！");
             return;
         }
 
@@ -136,9 +139,9 @@ public class GridManager : MonoBehaviour
     /// <param name="buildingData">建筑数据</param>
     public void SpawnBuilding(Vector3Int position, BuildingData buildingData)
     {
-        if (buildingPositions.ContainsKey(position))
+        if (buildingPositions.ContainsKey(position) || unitPositions.ContainsKey(position))
         {
-            Debug.LogWarning($"位置 {position} 已经有建筑存在！");
+            Debug.LogWarning($"位置 {position} 已经有建筑或单位存在！");
             return;
         }
 
@@ -191,6 +194,20 @@ public class GridManager : MonoBehaviour
     }
 
     /// <summary>
+    /// 获取指定位置的建筑
+    /// </summary>
+    /// <param name="position">格子位置</param>
+    /// <returns>BuildingController 或 null</returns>
+    public BuildingController GetBuildingAt(Vector3Int position)
+    {
+        if (buildingPositions.ContainsKey(position))
+        {
+            return buildingPositions[position];
+        }
+        return null;
+    }
+
+    /// <summary>
     /// 获取格子中心的世界坐标
     /// </summary>
     /// <param name="gridPosition">格子坐标</param>
@@ -223,4 +240,51 @@ public class GridManager : MonoBehaviour
             unitPositions.Remove(position);
         }
     }
+
+    /// <summary>
+    /// 从指定位置移除建筑
+    /// </summary>
+    /// <param name="position">格子位置</param>
+    public void RemoveBuildingAt(Vector3Int position)
+    {
+        if (buildingPositions.ContainsKey(position))
+        {
+            buildingPositions.Remove(position);
+        }
+    }
+
+    /// <summary>
+    /// 获取同一行中最前面的友方单位
+    /// </summary>
+    /// <param name="unit">当前单位</param>
+    /// <returns>前方的友方单位，若无则返回null</returns>
+    public UnitController GetFrontUnitInRow(UnitController unit)
+    {
+        if (unit == null)
+        {
+            //Debug.LogError("传入的UnitController为null！");
+            return null;
+        }
+
+        Vector3Int position = unit.gridPosition;
+        int row = position.y;
+        int frontColumn = unit.unitData.camp == Camp.Player ? position.x + 1 : position.x - 1;
+
+        // 遍历前方的格子，找到第一个友方单位
+        while ((unit.unitData.camp == Camp.Player && frontColumn <= columns) ||
+               (unit.unitData.camp == Camp.Enemy && frontColumn >= 1))
+        {
+            Vector3Int currentPos = new Vector3Int(frontColumn, row, 0);
+            UnitController frontUnit = GetUnitAt(currentPos);
+            if (frontUnit != null && frontUnit.unitData.camp == unit.unitData.camp)
+            {
+                return frontUnit;
+            }
+
+            frontColumn += unit.unitData.camp == Camp.Player ? 1 : -1;
+        }
+
+        return null;
+    }
+
 }

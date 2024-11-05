@@ -1,0 +1,4664 @@
+{
+    "connections": [
+        {
+            "name": "連線方式 1",
+            "pattern": [
+                "OOOOOO",
+                "XXXXXX",
+                "XXXXXX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 2",
+            "pattern": [
+                "OOOOOX",
+                "XXXXXO",
+                "XXXXXX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 3",
+            "pattern": [
+                "OOOOXO",
+                "XXXXOX",
+                "XXXXXX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 4",
+            "pattern": [
+                "OOOOXX",
+                "XXXXOO",
+                "XXXXXX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 5",
+            "pattern": [
+                "OOOOXX",
+                "XXXXOX",
+                "XXXXXO",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 6",
+            "pattern": [
+                "OOOXOO",
+                "XXXOXX",
+                "XXXXXX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 7",
+            "pattern": [
+                "OOOXOX",
+                "XXXOXO",
+                "XXXXXX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 8",
+            "pattern": [
+                "OOOXXO",
+                "XXXOOX",
+                "XXXXXX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 9",
+            "pattern": [
+                "OOOXXX",
+                "XXXOOO",
+                "XXXXXX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 10",
+            "pattern": [
+                "OOOXXX",
+                "XXXOOX",
+                "XXXXXO",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 11",
+            "pattern": [
+                "OOOXXX",
+                "XXXOXO",
+                "XXXXOX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 12",
+            "pattern": [
+                "OOOXXX",
+                "XXXOXX",
+                "XXXXOO",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 13",
+            "pattern": [
+                "OOOXXX",
+                "XXXOXX",
+                "XXXXOX",
+                "XXXXXO"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 14",
+            "pattern": [
+                "OOXOOO",
+                "XXOXXX",
+                "XXXXXX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 15",
+            "pattern": [
+                "OOXOOX",
+                "XXOXXO",
+                "XXXXXX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 16",
+            "pattern": [
+                "OOXOXO",
+                "XXOXOX",
+                "XXXXXX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 17",
+            "pattern": [
+                "OOXOXX",
+                "XXOXOO",
+                "XXXXXX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 18",
+            "pattern": [
+                "OOXOXX",
+                "XXOXOX",
+                "XXXXXO",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 19",
+            "pattern": [
+                "OOXXOO",
+                "XXOOXX",
+                "XXXXXX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 20",
+            "pattern": [
+                "OOXXOX",
+                "XXOOXO",
+                "XXXXXX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 21",
+            "pattern": [
+                "OOXXXO",
+                "XXOOOX",
+                "XXXXXX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 22",
+            "pattern": [
+                "OOXXXX",
+                "XXOOOO",
+                "XXXXXX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 23",
+            "pattern": [
+                "OOXXXX",
+                "XXOOOX",
+                "XXXXXO",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 24",
+            "pattern": [
+                "OOXXXX",
+                "XXOOXO",
+                "XXXXOX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 25",
+            "pattern": [
+                "OOXXXX",
+                "XXOOXX",
+                "XXXXOO",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 26",
+            "pattern": [
+                "OOXXXX",
+                "XXOOXX",
+                "XXXXOX",
+                "XXXXXO"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 27",
+            "pattern": [
+                "OOXXXO",
+                "XXOXOX",
+                "XXXOXX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 28",
+            "pattern": [
+                "OOXXXX",
+                "XXOXOO",
+                "XXXOXX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 29",
+            "pattern": [
+                "OOXXXX",
+                "XXOXOX",
+                "XXXOXO",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 30",
+            "pattern": [
+                "OOXXXX",
+                "XXOXXO",
+                "XXXOOX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 31",
+            "pattern": [
+                "OOXXXX",
+                "XXOXXX",
+                "XXXOOO",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 32",
+            "pattern": [
+                "OOXXXX",
+                "XXOXXX",
+                "XXXOOX",
+                "XXXXXO"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 33",
+            "pattern": [
+                "OOXXXX",
+                "XXOXXX",
+                "XXXOXO",
+                "XXXXOX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 34",
+            "pattern": [
+                "OOXXXX",
+                "XXOXXX",
+                "XXXOXX",
+                "XXXXOO"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 35",
+            "pattern": [
+                "OXOOOO",
+                "XOXXXX",
+                "XXXXXX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 36",
+            "pattern": [
+                "OXOOOX",
+                "XOXXXO",
+                "XXXXXX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 37",
+            "pattern": [
+                "OXOOXO",
+                "XOXXOX",
+                "XXXXXX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 38",
+            "pattern": [
+                "OXOOXX",
+                "XOXXOO",
+                "XXXXXX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 39",
+            "pattern": [
+                "OXOOXX",
+                "XOXXOX",
+                "XXXXXO",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 40",
+            "pattern": [
+                "OXOXOO",
+                "XOXOXX",
+                "XXXXXX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 41",
+            "pattern": [
+                "OXOXOX",
+                "XOXOXO",
+                "XXXXXX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 42",
+            "pattern": [
+                "OXOXXO",
+                "XOXOOX",
+                "XXXXXX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 43",
+            "pattern": [
+                "OXOXXX",
+                "XOXOOO",
+                "XXXXXX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 44",
+            "pattern": [
+                "OXOXXX",
+                "XOXOOX",
+                "XXXXXO",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 45",
+            "pattern": [
+                "OXOXXX",
+                "XOXOXO",
+                "XXXXOX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 46",
+            "pattern": [
+                "OXOXXX",
+                "XOXOXX",
+                "XXXXOO",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 47",
+            "pattern": [
+                "OXOXXX",
+                "XOXOXX",
+                "XXXXOX",
+                "XXXXXO"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 48",
+            "pattern": [
+                "OXXOOO",
+                "XOOXXX",
+                "XXXXXX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 49",
+            "pattern": [
+                "OXXOOX",
+                "XOOXXO",
+                "XXXXXX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 50",
+            "pattern": [
+                "OXXOXO",
+                "XOOXOX",
+                "XXXXXX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 51",
+            "pattern": [
+                "OXXOXX",
+                "XOOXOO",
+                "XXXXXX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 52",
+            "pattern": [
+                "OXXOXX",
+                "XOOXOX",
+                "XXXXXO",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 53",
+            "pattern": [
+                "OXXXOO",
+                "XOOOXX",
+                "XXXXXX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 54",
+            "pattern": [
+                "OXXXOX",
+                "XOOOXO",
+                "XXXXXX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 55",
+            "pattern": [
+                "OXXXXO",
+                "XOOOOX",
+                "XXXXXX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 56",
+            "pattern": [
+                "OXXXXX",
+                "XOOOOO",
+                "XXXXXX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 57",
+            "pattern": [
+                "OXXXXX",
+                "XOOOOX",
+                "XXXXXO",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 58",
+            "pattern": [
+                "OXXXXX",
+                "XOOOXO",
+                "XXXXOX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 59",
+            "pattern": [
+                "OXXXXX",
+                "XOOOXX",
+                "XXXXOO",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 60",
+            "pattern": [
+                "OXXXXX",
+                "XOOOXX",
+                "XXXXOX",
+                "XXXXXO"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 61",
+            "pattern": [
+                "OXXXXO",
+                "XOOXOX",
+                "XXXOXX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 62",
+            "pattern": [
+                "OXXXXX",
+                "XOOXOO",
+                "XXXOXX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 63",
+            "pattern": [
+                "OXXXXX",
+                "XOOXOX",
+                "XXXOXO",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 64",
+            "pattern": [
+                "OXXXXX",
+                "XOOXXO",
+                "XXXOOX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 65",
+            "pattern": [
+                "OXXXXX",
+                "XOOXXX",
+                "XXXOOO",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 66",
+            "pattern": [
+                "OXXXXX",
+                "XOOXXX",
+                "XXXOOX",
+                "XXXXXO"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 67",
+            "pattern": [
+                "OXXXXX",
+                "XOOXXX",
+                "XXXOXO",
+                "XXXXOX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 68",
+            "pattern": [
+                "OXXXXX",
+                "XOOXXX",
+                "XXXOXX",
+                "XXXXOO"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 69",
+            "pattern": [
+                "OXXXOO",
+                "XOXOXX",
+                "XXOXXX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 70",
+            "pattern": [
+                "OXXXOX",
+                "XOXOXO",
+                "XXOXXX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 71",
+            "pattern": [
+                "OXXXXO",
+                "XOXOOX",
+                "XXOXXX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 72",
+            "pattern": [
+                "OXXXXX",
+                "XOXOOO",
+                "XXOXXX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 73",
+            "pattern": [
+                "OXXXXX",
+                "XOXOOX",
+                "XXOXXO",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 74",
+            "pattern": [
+                "OXXXXX",
+                "XOXOXO",
+                "XXOXOX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 75",
+            "pattern": [
+                "OXXXXX",
+                "XOXOXX",
+                "XXOXOO",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 76",
+            "pattern": [
+                "OXXXXX",
+                "XOXOXX",
+                "XXOXOX",
+                "XXXXXO"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 77",
+            "pattern": [
+                "OXXXXO",
+                "XOXXOX",
+                "XXOOXX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 78",
+            "pattern": [
+                "OXXXXX",
+                "XOXXOO",
+                "XXOOXX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 79",
+            "pattern": [
+                "OXXXXX",
+                "XOXXOX",
+                "XXOOXO",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 80",
+            "pattern": [
+                "OXXXXX",
+                "XOXXXO",
+                "XXOOOX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 81",
+            "pattern": [
+                "OXXXXX",
+                "XOXXXX",
+                "XXOOOO",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 82",
+            "pattern": [
+                "OXXXXX",
+                "XOXXXX",
+                "XXOOOX",
+                "XXXXXO"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 83",
+            "pattern": [
+                "OXXXXX",
+                "XOXXXX",
+                "XXOOXO",
+                "XXXXOX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 84",
+            "pattern": [
+                "OXXXXX",
+                "XOXXXX",
+                "XXOOXX",
+                "XXXXOO"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 85",
+            "pattern": [
+                "OXXXXX",
+                "XOXXXO",
+                "XXOXOX",
+                "XXXOXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 86",
+            "pattern": [
+                "OXXXXX",
+                "XOXXXX",
+                "XXOXOO",
+                "XXXOXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 87",
+            "pattern": [
+                "OXXXXX",
+                "XOXXXX",
+                "XXOXOX",
+                "XXXOXO"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 88",
+            "pattern": [
+                "OXXXXX",
+                "XOXXXX",
+                "XXOXXO",
+                "XXXOOX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 89",
+            "pattern": [
+                "OXXXXX",
+                "XOXXXX",
+                "XXOXXX",
+                "XXXOOO"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 90",
+            "pattern": [
+                "XOOOOO",
+                "OXXXXX",
+                "XXXXXX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 91",
+            "pattern": [
+                "XOOOOX",
+                "OXXXXO",
+                "XXXXXX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 92",
+            "pattern": [
+                "XOOOXO",
+                "OXXXOX",
+                "XXXXXX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 93",
+            "pattern": [
+                "XOOOXX",
+                "OXXXOO",
+                "XXXXXX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 94",
+            "pattern": [
+                "XOOOXX",
+                "OXXXOX",
+                "XXXXXO",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 95",
+            "pattern": [
+                "XOOXOO",
+                "OXXOXX",
+                "XXXXXX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 96",
+            "pattern": [
+                "XOOXOX",
+                "OXXOXO",
+                "XXXXXX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 97",
+            "pattern": [
+                "XOOXXO",
+                "OXXOOX",
+                "XXXXXX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 98",
+            "pattern": [
+                "XOOXXX",
+                "OXXOOO",
+                "XXXXXX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 99",
+            "pattern": [
+                "XOOXXX",
+                "OXXOOX",
+                "XXXXXO",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 100",
+            "pattern": [
+                "XOOXXX",
+                "OXXOXO",
+                "XXXXOX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 101",
+            "pattern": [
+                "XOOXXX",
+                "OXXOXX",
+                "XXXXOO",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 102",
+            "pattern": [
+                "XOOXXX",
+                "OXXOXX",
+                "XXXXOX",
+                "XXXXXO"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 103",
+            "pattern": [
+                "XOXOOO",
+                "OXOXXX",
+                "XXXXXX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 104",
+            "pattern": [
+                "XOXOOX",
+                "OXOXXO",
+                "XXXXXX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 105",
+            "pattern": [
+                "XOXOXO",
+                "OXOXOX",
+                "XXXXXX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 106",
+            "pattern": [
+                "XOXOXX",
+                "OXOXOO",
+                "XXXXXX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 107",
+            "pattern": [
+                "XOXOXX",
+                "OXOXOX",
+                "XXXXXO",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 108",
+            "pattern": [
+                "XOXXOO",
+                "OXOOXX",
+                "XXXXXX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 109",
+            "pattern": [
+                "XOXXOX",
+                "OXOOXO",
+                "XXXXXX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 110",
+            "pattern": [
+                "XOXXXO",
+                "OXOOOX",
+                "XXXXXX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 111",
+            "pattern": [
+                "XOXXXX",
+                "OXOOOO",
+                "XXXXXX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 112",
+            "pattern": [
+                "XOXXXX",
+                "OXOOOX",
+                "XXXXXO",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 113",
+            "pattern": [
+                "XOXXXX",
+                "OXOOXO",
+                "XXXXOX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 114",
+            "pattern": [
+                "XOXXXX",
+                "OXOOXX",
+                "XXXXOO",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 115",
+            "pattern": [
+                "XOXXXX",
+                "OXOOXX",
+                "XXXXOX",
+                "XXXXXO"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 116",
+            "pattern": [
+                "XOXXXO",
+                "OXOXOX",
+                "XXXOXX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 117",
+            "pattern": [
+                "XOXXXX",
+                "OXOXOO",
+                "XXXOXX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 118",
+            "pattern": [
+                "XOXXXX",
+                "OXOXOX",
+                "XXXOXO",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 119",
+            "pattern": [
+                "XOXXXX",
+                "OXOXXO",
+                "XXXOOX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 120",
+            "pattern": [
+                "XOXXXX",
+                "OXOXXX",
+                "XXXOOO",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 121",
+            "pattern": [
+                "XOXXXX",
+                "OXOXXX",
+                "XXXOOX",
+                "XXXXXO"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 122",
+            "pattern": [
+                "XOXXXX",
+                "OXOXXX",
+                "XXXOXO",
+                "XXXXOX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 123",
+            "pattern": [
+                "XOXXXX",
+                "OXOXXX",
+                "XXXOXX",
+                "XXXXOO"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 124",
+            "pattern": [
+                "XXOOOO",
+                "OOXXXX",
+                "XXXXXX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 125",
+            "pattern": [
+                "XXOOOX",
+                "OOXXXO",
+                "XXXXXX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 126",
+            "pattern": [
+                "XXOOXO",
+                "OOXXOX",
+                "XXXXXX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 127",
+            "pattern": [
+                "XXOOXX",
+                "OOXXOO",
+                "XXXXXX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 128",
+            "pattern": [
+                "XXOOXX",
+                "OOXXOX",
+                "XXXXXO",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 129",
+            "pattern": [
+                "XXOXOO",
+                "OOXOXX",
+                "XXXXXX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 130",
+            "pattern": [
+                "XXOXOX",
+                "OOXOXO",
+                "XXXXXX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 131",
+            "pattern": [
+                "XXOXXO",
+                "OOXOOX",
+                "XXXXXX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 132",
+            "pattern": [
+                "XXOXXX",
+                "OOXOOO",
+                "XXXXXX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 133",
+            "pattern": [
+                "XXOXXX",
+                "OOXOOX",
+                "XXXXXO",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 134",
+            "pattern": [
+                "XXOXXX",
+                "OOXOXO",
+                "XXXXOX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 135",
+            "pattern": [
+                "XXOXXX",
+                "OOXOXX",
+                "XXXXOO",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 136",
+            "pattern": [
+                "XXOXXX",
+                "OOXOXX",
+                "XXXXOX",
+                "XXXXXO"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 137",
+            "pattern": [
+                "XXXOOO",
+                "OOOXXX",
+                "XXXXXX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 138",
+            "pattern": [
+                "XXXOOX",
+                "OOOXXO",
+                "XXXXXX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 139",
+            "pattern": [
+                "XXXOXO",
+                "OOOXOX",
+                "XXXXXX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 140",
+            "pattern": [
+                "XXXOXX",
+                "OOOXOO",
+                "XXXXXX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 141",
+            "pattern": [
+                "XXXOXX",
+                "OOOXOX",
+                "XXXXXO",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 142",
+            "pattern": [
+                "XXXXOO",
+                "OOOOXX",
+                "XXXXXX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 143",
+            "pattern": [
+                "XXXXOX",
+                "OOOOXO",
+                "XXXXXX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 144",
+            "pattern": [
+                "XXXXXO",
+                "OOOOOX",
+                "XXXXXX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 145",
+            "pattern": [
+                "XXXXXX",
+                "OOOOOO",
+                "XXXXXX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 146",
+            "pattern": [
+                "XXXXXX",
+                "OOOOOX",
+                "XXXXXO",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 147",
+            "pattern": [
+                "XXXXXX",
+                "OOOOXO",
+                "XXXXOX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 148",
+            "pattern": [
+                "XXXXXX",
+                "OOOOXX",
+                "XXXXOO",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 149",
+            "pattern": [
+                "XXXXXX",
+                "OOOOXX",
+                "XXXXOX",
+                "XXXXXO"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 150",
+            "pattern": [
+                "XXXXXO",
+                "OOOXOX",
+                "XXXOXX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 151",
+            "pattern": [
+                "XXXXXX",
+                "OOOXOO",
+                "XXXOXX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 152",
+            "pattern": [
+                "XXXXXX",
+                "OOOXOX",
+                "XXXOXO",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 153",
+            "pattern": [
+                "XXXXXX",
+                "OOOXXO",
+                "XXXOOX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 154",
+            "pattern": [
+                "XXXXXX",
+                "OOOXXX",
+                "XXXOOO",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 155",
+            "pattern": [
+                "XXXXXX",
+                "OOOXXX",
+                "XXXOOX",
+                "XXXXXO"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 156",
+            "pattern": [
+                "XXXXXX",
+                "OOOXXX",
+                "XXXOXO",
+                "XXXXOX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 157",
+            "pattern": [
+                "XXXXXX",
+                "OOOXXX",
+                "XXXOXX",
+                "XXXXOO"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 158",
+            "pattern": [
+                "XXXXOO",
+                "OOXOXX",
+                "XXOXXX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 159",
+            "pattern": [
+                "XXXXOX",
+                "OOXOXO",
+                "XXOXXX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 160",
+            "pattern": [
+                "XXXXXO",
+                "OOXOOX",
+                "XXOXXX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 161",
+            "pattern": [
+                "XXXXXX",
+                "OOXOOO",
+                "XXOXXX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 162",
+            "pattern": [
+                "XXXXXX",
+                "OOXOOX",
+                "XXOXXO",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 163",
+            "pattern": [
+                "XXXXXX",
+                "OOXOXO",
+                "XXOXOX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 164",
+            "pattern": [
+                "XXXXXX",
+                "OOXOXX",
+                "XXOXOO",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 165",
+            "pattern": [
+                "XXXXXX",
+                "OOXOXX",
+                "XXOXOX",
+                "XXXXXO"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 166",
+            "pattern": [
+                "XXXXXO",
+                "OOXXOX",
+                "XXOOXX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 167",
+            "pattern": [
+                "XXXXXX",
+                "OOXXOO",
+                "XXOOXX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 168",
+            "pattern": [
+                "XXXXXX",
+                "OOXXOX",
+                "XXOOXO",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 169",
+            "pattern": [
+                "XXXXXX",
+                "OOXXXO",
+                "XXOOOX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 170",
+            "pattern": [
+                "XXXXXX",
+                "OOXXXX",
+                "XXOOOO",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 171",
+            "pattern": [
+                "XXXXXX",
+                "OOXXXX",
+                "XXOOOX",
+                "XXXXXO"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 172",
+            "pattern": [
+                "XXXXXX",
+                "OOXXXX",
+                "XXOOXO",
+                "XXXXOX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 173",
+            "pattern": [
+                "XXXXXX",
+                "OOXXXX",
+                "XXOOXX",
+                "XXXXOO"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 174",
+            "pattern": [
+                "XXXXXX",
+                "OOXXXO",
+                "XXOXOX",
+                "XXXOXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 175",
+            "pattern": [
+                "XXXXXX",
+                "OOXXXX",
+                "XXOXOO",
+                "XXXOXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 176",
+            "pattern": [
+                "XXXXXX",
+                "OOXXXX",
+                "XXOXOX",
+                "XXXOXO"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 177",
+            "pattern": [
+                "XXXXXX",
+                "OOXXXX",
+                "XXOXXO",
+                "XXXOOX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 178",
+            "pattern": [
+                "XXXXXX",
+                "OOXXXX",
+                "XXOXXX",
+                "XXXOOO"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 179",
+            "pattern": [
+                "XXXOOO",
+                "OXOXXX",
+                "XOXXXX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 180",
+            "pattern": [
+                "XXXOOX",
+                "OXOXXO",
+                "XOXXXX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 181",
+            "pattern": [
+                "XXXOXO",
+                "OXOXOX",
+                "XOXXXX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 182",
+            "pattern": [
+                "XXXOXX",
+                "OXOXOO",
+                "XOXXXX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 183",
+            "pattern": [
+                "XXXOXX",
+                "OXOXOX",
+                "XOXXXO",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 184",
+            "pattern": [
+                "XXXXOO",
+                "OXOOXX",
+                "XOXXXX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 185",
+            "pattern": [
+                "XXXXOX",
+                "OXOOXO",
+                "XOXXXX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 186",
+            "pattern": [
+                "XXXXXO",
+                "OXOOOX",
+                "XOXXXX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 187",
+            "pattern": [
+                "XXXXXX",
+                "OXOOOO",
+                "XOXXXX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 188",
+            "pattern": [
+                "XXXXXX",
+                "OXOOOX",
+                "XOXXXO",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 189",
+            "pattern": [
+                "XXXXXX",
+                "OXOOXO",
+                "XOXXOX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 190",
+            "pattern": [
+                "XXXXXX",
+                "OXOOXX",
+                "XOXXOO",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 191",
+            "pattern": [
+                "XXXXXX",
+                "OXOOXX",
+                "XOXXOX",
+                "XXXXXO"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 192",
+            "pattern": [
+                "XXXXXO",
+                "OXOXOX",
+                "XOXOXX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 193",
+            "pattern": [
+                "XXXXXX",
+                "OXOXOO",
+                "XOXOXX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 194",
+            "pattern": [
+                "XXXXXX",
+                "OXOXOX",
+                "XOXOXO",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 195",
+            "pattern": [
+                "XXXXXX",
+                "OXOXXO",
+                "XOXOOX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 196",
+            "pattern": [
+                "XXXXXX",
+                "OXOXXX",
+                "XOXOOO",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 197",
+            "pattern": [
+                "XXXXXX",
+                "OXOXXX",
+                "XOXOOX",
+                "XXXXXO"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 198",
+            "pattern": [
+                "XXXXXX",
+                "OXOXXX",
+                "XOXOXO",
+                "XXXXOX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 199",
+            "pattern": [
+                "XXXXXX",
+                "OXOXXX",
+                "XOXOXX",
+                "XXXXOO"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 200",
+            "pattern": [
+                "XXXXOO",
+                "OXXOXX",
+                "XOOXXX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 201",
+            "pattern": [
+                "XXXXOX",
+                "OXXOXO",
+                "XOOXXX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 202",
+            "pattern": [
+                "XXXXXO",
+                "OXXOOX",
+                "XOOXXX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 203",
+            "pattern": [
+                "XXXXXX",
+                "OXXOOO",
+                "XOOXXX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 204",
+            "pattern": [
+                "XXXXXX",
+                "OXXOOX",
+                "XOOXXO",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 205",
+            "pattern": [
+                "XXXXXX",
+                "OXXOXO",
+                "XOOXOX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 206",
+            "pattern": [
+                "XXXXXX",
+                "OXXOXX",
+                "XOOXOO",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 207",
+            "pattern": [
+                "XXXXXX",
+                "OXXOXX",
+                "XOOXOX",
+                "XXXXXO"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 208",
+            "pattern": [
+                "XXXXXO",
+                "OXXXOX",
+                "XOOOXX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 209",
+            "pattern": [
+                "XXXXXX",
+                "OXXXOO",
+                "XOOOXX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 210",
+            "pattern": [
+                "XXXXXX",
+                "OXXXOX",
+                "XOOOXO",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 211",
+            "pattern": [
+                "XXXXXX",
+                "OXXXXO",
+                "XOOOOX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 212",
+            "pattern": [
+                "XXXXXX",
+                "OXXXXX",
+                "XOOOOO",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 213",
+            "pattern": [
+                "XXXXXX",
+                "OXXXXX",
+                "XOOOOX",
+                "XXXXXO"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 214",
+            "pattern": [
+                "XXXXXX",
+                "OXXXXX",
+                "XOOOXO",
+                "XXXXOX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 215",
+            "pattern": [
+                "XXXXXX",
+                "OXXXXX",
+                "XOOOXX",
+                "XXXXOO"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 216",
+            "pattern": [
+                "XXXXXX",
+                "OXXXXO",
+                "XOOXOX",
+                "XXXOXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 217",
+            "pattern": [
+                "XXXXXX",
+                "OXXXXX",
+                "XOOXOO",
+                "XXXOXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 218",
+            "pattern": [
+                "XXXXXX",
+                "OXXXXX",
+                "XOOXOX",
+                "XXXOXO"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 219",
+            "pattern": [
+                "XXXXXX",
+                "OXXXXX",
+                "XOOXXO",
+                "XXXOOX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 220",
+            "pattern": [
+                "XXXXXX",
+                "OXXXXX",
+                "XOOXXX",
+                "XXXOOO"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 221",
+            "pattern": [
+                "XXXXXO",
+                "OXXXOX",
+                "XOXOXX",
+                "XXOXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 222",
+            "pattern": [
+                "XXXXXX",
+                "OXXXOO",
+                "XOXOXX",
+                "XXOXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 223",
+            "pattern": [
+                "XXXXXX",
+                "OXXXOX",
+                "XOXOXO",
+                "XXOXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 224",
+            "pattern": [
+                "XXXXXX",
+                "OXXXXO",
+                "XOXOOX",
+                "XXOXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 225",
+            "pattern": [
+                "XXXXXX",
+                "OXXXXX",
+                "XOXOOO",
+                "XXOXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 226",
+            "pattern": [
+                "XXXXXX",
+                "OXXXXX",
+                "XOXOOX",
+                "XXOXXO"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 227",
+            "pattern": [
+                "XXXXXX",
+                "OXXXXX",
+                "XOXOXO",
+                "XXOXOX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 228",
+            "pattern": [
+                "XXXXXX",
+                "OXXXXX",
+                "XOXOXX",
+                "XXOXOO"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 229",
+            "pattern": [
+                "XXXXXX",
+                "OXXXXO",
+                "XOXXOX",
+                "XXOOXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 230",
+            "pattern": [
+                "XXXXXX",
+                "OXXXXX",
+                "XOXXOO",
+                "XXOOXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 231",
+            "pattern": [
+                "XXXXXX",
+                "OXXXXX",
+                "XOXXOX",
+                "XXOOXO"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 232",
+            "pattern": [
+                "XXXXXX",
+                "OXXXXX",
+                "XOXXXO",
+                "XXOOOX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 233",
+            "pattern": [
+                "XXXXXX",
+                "OXXXXX",
+                "XOXXXX",
+                "XXOOOO"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 234",
+            "pattern": [
+                "XXOOOO",
+                "XOXXXX",
+                "OXXXXX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 235",
+            "pattern": [
+                "XXOOOX",
+                "XOXXXO",
+                "OXXXXX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 236",
+            "pattern": [
+                "XXOOXO",
+                "XOXXOX",
+                "OXXXXX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 237",
+            "pattern": [
+                "XXOOXX",
+                "XOXXOO",
+                "OXXXXX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 238",
+            "pattern": [
+                "XXOOXX",
+                "XOXXOX",
+                "OXXXXO",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 239",
+            "pattern": [
+                "XXOXOO",
+                "XOXOXX",
+                "OXXXXX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 240",
+            "pattern": [
+                "XXOXOX",
+                "XOXOXO",
+                "OXXXXX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 241",
+            "pattern": [
+                "XXOXXO",
+                "XOXOOX",
+                "OXXXXX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 242",
+            "pattern": [
+                "XXOXXX",
+                "XOXOOO",
+                "OXXXXX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 243",
+            "pattern": [
+                "XXOXXX",
+                "XOXOOX",
+                "OXXXXO",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 244",
+            "pattern": [
+                "XXOXXX",
+                "XOXOXO",
+                "OXXXOX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 245",
+            "pattern": [
+                "XXOXXX",
+                "XOXOXX",
+                "OXXXOO",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 246",
+            "pattern": [
+                "XXOXXX",
+                "XOXOXX",
+                "OXXXOX",
+                "XXXXXO"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 247",
+            "pattern": [
+                "XXXOOO",
+                "XOOXXX",
+                "OXXXXX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 248",
+            "pattern": [
+                "XXXOOX",
+                "XOOXXO",
+                "OXXXXX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 249",
+            "pattern": [
+                "XXXOXO",
+                "XOOXOX",
+                "OXXXXX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 250",
+            "pattern": [
+                "XXXOXX",
+                "XOOXOO",
+                "OXXXXX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 251",
+            "pattern": [
+                "XXXOXX",
+                "XOOXOX",
+                "OXXXXO",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 252",
+            "pattern": [
+                "XXXXOO",
+                "XOOOXX",
+                "OXXXXX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 253",
+            "pattern": [
+                "XXXXOX",
+                "XOOOXO",
+                "OXXXXX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 254",
+            "pattern": [
+                "XXXXXO",
+                "XOOOOX",
+                "OXXXXX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 255",
+            "pattern": [
+                "XXXXXX",
+                "XOOOOO",
+                "OXXXXX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 256",
+            "pattern": [
+                "XXXXXX",
+                "XOOOOX",
+                "OXXXXO",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 257",
+            "pattern": [
+                "XXXXXX",
+                "XOOOXO",
+                "OXXXOX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 258",
+            "pattern": [
+                "XXXXXX",
+                "XOOOXX",
+                "OXXXOO",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 259",
+            "pattern": [
+                "XXXXXX",
+                "XOOOXX",
+                "OXXXOX",
+                "XXXXXO"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 260",
+            "pattern": [
+                "XXXXXO",
+                "XOOXOX",
+                "OXXOXX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 261",
+            "pattern": [
+                "XXXXXX",
+                "XOOXOO",
+                "OXXOXX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 262",
+            "pattern": [
+                "XXXXXX",
+                "XOOXOX",
+                "OXXOXO",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 263",
+            "pattern": [
+                "XXXXXX",
+                "XOOXXO",
+                "OXXOOX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 264",
+            "pattern": [
+                "XXXXXX",
+                "XOOXXX",
+                "OXXOOO",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 265",
+            "pattern": [
+                "XXXXXX",
+                "XOOXXX",
+                "OXXOOX",
+                "XXXXXO"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 266",
+            "pattern": [
+                "XXXXXX",
+                "XOOXXX",
+                "OXXOXO",
+                "XXXXOX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 267",
+            "pattern": [
+                "XXXXXX",
+                "XOOXXX",
+                "OXXOXX",
+                "XXXXOO"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 268",
+            "pattern": [
+                "XXXXOO",
+                "XOXOXX",
+                "OXOXXX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 269",
+            "pattern": [
+                "XXXXOX",
+                "XOXOXO",
+                "OXOXXX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 270",
+            "pattern": [
+                "XXXXXO",
+                "XOXOOX",
+                "OXOXXX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 271",
+            "pattern": [
+                "XXXXXX",
+                "XOXOOO",
+                "OXOXXX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 272",
+            "pattern": [
+                "XXXXXX",
+                "XOXOOX",
+                "OXOXXO",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 273",
+            "pattern": [
+                "XXXXXX",
+                "XOXOXO",
+                "OXOXOX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 274",
+            "pattern": [
+                "XXXXXX",
+                "XOXOXX",
+                "OXOXOO",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 275",
+            "pattern": [
+                "XXXXXX",
+                "XOXOXX",
+                "OXOXOX",
+                "XXXXXO"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 276",
+            "pattern": [
+                "XXXXXO",
+                "XOXXOX",
+                "OXOOXX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 277",
+            "pattern": [
+                "XXXXXX",
+                "XOXXOO",
+                "OXOOXX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 278",
+            "pattern": [
+                "XXXXXX",
+                "XOXXOX",
+                "OXOOXO",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 279",
+            "pattern": [
+                "XXXXXX",
+                "XOXXXO",
+                "OXOOOX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 280",
+            "pattern": [
+                "XXXXXX",
+                "XOXXXX",
+                "OXOOOO",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 281",
+            "pattern": [
+                "XXXXXX",
+                "XOXXXX",
+                "OXOOOX",
+                "XXXXXO"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 282",
+            "pattern": [
+                "XXXXXX",
+                "XOXXXX",
+                "OXOOXO",
+                "XXXXOX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 283",
+            "pattern": [
+                "XXXXXX",
+                "XOXXXX",
+                "OXOOXX",
+                "XXXXOO"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 284",
+            "pattern": [
+                "XXXXXX",
+                "XOXXXO",
+                "OXOXOX",
+                "XXXOXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 285",
+            "pattern": [
+                "XXXXXX",
+                "XOXXXX",
+                "OXOXOO",
+                "XXXOXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 286",
+            "pattern": [
+                "XXXXXX",
+                "XOXXXX",
+                "OXOXOX",
+                "XXXOXO"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 287",
+            "pattern": [
+                "XXXXXX",
+                "XOXXXX",
+                "OXOXXO",
+                "XXXOOX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 288",
+            "pattern": [
+                "XXXXXX",
+                "XOXXXX",
+                "OXOXXX",
+                "XXXOOO"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 289",
+            "pattern": [
+                "XXXOOO",
+                "XXOXXX",
+                "OOXXXX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 290",
+            "pattern": [
+                "XXXOOX",
+                "XXOXXO",
+                "OOXXXX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 291",
+            "pattern": [
+                "XXXOXO",
+                "XXOXOX",
+                "OOXXXX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 292",
+            "pattern": [
+                "XXXOXX",
+                "XXOXOO",
+                "OOXXXX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 293",
+            "pattern": [
+                "XXXOXX",
+                "XXOXOX",
+                "OOXXXO",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 294",
+            "pattern": [
+                "XXXXOO",
+                "XXOOXX",
+                "OOXXXX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 295",
+            "pattern": [
+                "XXXXOX",
+                "XXOOXO",
+                "OOXXXX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 296",
+            "pattern": [
+                "XXXXXO",
+                "XXOOOX",
+                "OOXXXX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 297",
+            "pattern": [
+                "XXXXXX",
+                "XXOOOO",
+                "OOXXXX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 298",
+            "pattern": [
+                "XXXXXX",
+                "XXOOOX",
+                "OOXXXO",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 299",
+            "pattern": [
+                "XXXXXX",
+                "XXOOXO",
+                "OOXXOX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 300",
+            "pattern": [
+                "XXXXXX",
+                "XXOOXX",
+                "OOXXOO",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 301",
+            "pattern": [
+                "XXXXXX",
+                "XXOOXX",
+                "OOXXOX",
+                "XXXXXO"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 302",
+            "pattern": [
+                "XXXXXO",
+                "XXOXOX",
+                "OOXOXX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 303",
+            "pattern": [
+                "XXXXXX",
+                "XXOXOO",
+                "OOXOXX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 304",
+            "pattern": [
+                "XXXXXX",
+                "XXOXOX",
+                "OOXOXO",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 305",
+            "pattern": [
+                "XXXXXX",
+                "XXOXXO",
+                "OOXOOX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 306",
+            "pattern": [
+                "XXXXXX",
+                "XXOXXX",
+                "OOXOOO",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 307",
+            "pattern": [
+                "XXXXXX",
+                "XXOXXX",
+                "OOXOOX",
+                "XXXXXO"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 308",
+            "pattern": [
+                "XXXXXX",
+                "XXOXXX",
+                "OOXOXO",
+                "XXXXOX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 309",
+            "pattern": [
+                "XXXXXX",
+                "XXOXXX",
+                "OOXOXX",
+                "XXXXOO"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 310",
+            "pattern": [
+                "XXXXOO",
+                "XXXOXX",
+                "OOOXXX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 311",
+            "pattern": [
+                "XXXXOX",
+                "XXXOXO",
+                "OOOXXX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 312",
+            "pattern": [
+                "XXXXXO",
+                "XXXOOX",
+                "OOOXXX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 313",
+            "pattern": [
+                "XXXXXX",
+                "XXXOOO",
+                "OOOXXX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 314",
+            "pattern": [
+                "XXXXXX",
+                "XXXOOX",
+                "OOOXXO",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 315",
+            "pattern": [
+                "XXXXXX",
+                "XXXOXO",
+                "OOOXOX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 316",
+            "pattern": [
+                "XXXXXX",
+                "XXXOXX",
+                "OOOXOO",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 317",
+            "pattern": [
+                "XXXXXX",
+                "XXXOXX",
+                "OOOXOX",
+                "XXXXXO"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 318",
+            "pattern": [
+                "XXXXXO",
+                "XXXXOX",
+                "OOOOXX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 319",
+            "pattern": [
+                "XXXXXX",
+                "XXXXOO",
+                "OOOOXX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 320",
+            "pattern": [
+                "XXXXXX",
+                "XXXXOX",
+                "OOOOXO",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 321",
+            "pattern": [
+                "XXXXXX",
+                "XXXXXO",
+                "OOOOOX",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 322",
+            "pattern": [
+                "XXXXXX",
+                "XXXXXX",
+                "OOOOOO",
+                "XXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 323",
+            "pattern": [
+                "XXXXXX",
+                "XXXXXX",
+                "OOOOOX",
+                "XXXXXO"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 324",
+            "pattern": [
+                "XXXXXX",
+                "XXXXXX",
+                "OOOOXO",
+                "XXXXOX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 325",
+            "pattern": [
+                "XXXXXX",
+                "XXXXXX",
+                "OOOOXX",
+                "XXXXOO"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 326",
+            "pattern": [
+                "XXXXXX",
+                "XXXXXO",
+                "OOOXOX",
+                "XXXOXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 327",
+            "pattern": [
+                "XXXXXX",
+                "XXXXXX",
+                "OOOXOO",
+                "XXXOXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 328",
+            "pattern": [
+                "XXXXXX",
+                "XXXXXX",
+                "OOOXOX",
+                "XXXOXO"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 329",
+            "pattern": [
+                "XXXXXX",
+                "XXXXXX",
+                "OOOXXO",
+                "XXXOOX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 330",
+            "pattern": [
+                "XXXXXX",
+                "XXXXXX",
+                "OOOXXX",
+                "XXXOOO"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 331",
+            "pattern": [
+                "XXXXXO",
+                "XXXXOX",
+                "OOXOXX",
+                "XXOXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 332",
+            "pattern": [
+                "XXXXXX",
+                "XXXXOO",
+                "OOXOXX",
+                "XXOXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 333",
+            "pattern": [
+                "XXXXXX",
+                "XXXXOX",
+                "OOXOXO",
+                "XXOXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 334",
+            "pattern": [
+                "XXXXXX",
+                "XXXXXO",
+                "OOXOOX",
+                "XXOXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 335",
+            "pattern": [
+                "XXXXXX",
+                "XXXXXX",
+                "OOXOOO",
+                "XXOXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 336",
+            "pattern": [
+                "XXXXXX",
+                "XXXXXX",
+                "OOXOOX",
+                "XXOXXO"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 337",
+            "pattern": [
+                "XXXXXX",
+                "XXXXXX",
+                "OOXOXO",
+                "XXOXOX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 338",
+            "pattern": [
+                "XXXXXX",
+                "XXXXXX",
+                "OOXOXX",
+                "XXOXOO"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 339",
+            "pattern": [
+                "XXXXXX",
+                "XXXXXO",
+                "OOXXOX",
+                "XXOOXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 340",
+            "pattern": [
+                "XXXXXX",
+                "XXXXXX",
+                "OOXXOO",
+                "XXOOXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 341",
+            "pattern": [
+                "XXXXXX",
+                "XXXXXX",
+                "OOXXOX",
+                "XXOOXO"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 342",
+            "pattern": [
+                "XXXXXX",
+                "XXXXXX",
+                "OOXXXO",
+                "XXOOOX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 343",
+            "pattern": [
+                "XXXXXX",
+                "XXXXXX",
+                "OOXXXX",
+                "XXOOOO"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 344",
+            "pattern": [
+                "XXXXOO",
+                "XXXOXX",
+                "OXOXXX",
+                "XOXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 345",
+            "pattern": [
+                "XXXXOX",
+                "XXXOXO",
+                "OXOXXX",
+                "XOXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 346",
+            "pattern": [
+                "XXXXXO",
+                "XXXOOX",
+                "OXOXXX",
+                "XOXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 347",
+            "pattern": [
+                "XXXXXX",
+                "XXXOOO",
+                "OXOXXX",
+                "XOXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 348",
+            "pattern": [
+                "XXXXXX",
+                "XXXOOX",
+                "OXOXXO",
+                "XOXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 349",
+            "pattern": [
+                "XXXXXX",
+                "XXXOXO",
+                "OXOXOX",
+                "XOXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 350",
+            "pattern": [
+                "XXXXXX",
+                "XXXOXX",
+                "OXOXOO",
+                "XOXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 351",
+            "pattern": [
+                "XXXXXX",
+                "XXXOXX",
+                "OXOXOX",
+                "XOXXXO"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 352",
+            "pattern": [
+                "XXXXXO",
+                "XXXXOX",
+                "OXOOXX",
+                "XOXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 353",
+            "pattern": [
+                "XXXXXX",
+                "XXXXOO",
+                "OXOOXX",
+                "XOXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 354",
+            "pattern": [
+                "XXXXXX",
+                "XXXXOX",
+                "OXOOXO",
+                "XOXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 355",
+            "pattern": [
+                "XXXXXX",
+                "XXXXXO",
+                "OXOOOX",
+                "XOXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 356",
+            "pattern": [
+                "XXXXXX",
+                "XXXXXX",
+                "OXOOOO",
+                "XOXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 357",
+            "pattern": [
+                "XXXXXX",
+                "XXXXXX",
+                "OXOOOX",
+                "XOXXXO"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 358",
+            "pattern": [
+                "XXXXXX",
+                "XXXXXX",
+                "OXOOXO",
+                "XOXXOX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 359",
+            "pattern": [
+                "XXXXXX",
+                "XXXXXX",
+                "OXOOXX",
+                "XOXXOO"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 360",
+            "pattern": [
+                "XXXXXX",
+                "XXXXXO",
+                "OXOXOX",
+                "XOXOXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 361",
+            "pattern": [
+                "XXXXXX",
+                "XXXXXX",
+                "OXOXOO",
+                "XOXOXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 362",
+            "pattern": [
+                "XXXXXX",
+                "XXXXXX",
+                "OXOXOX",
+                "XOXOXO"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 363",
+            "pattern": [
+                "XXXXXX",
+                "XXXXXX",
+                "OXOXXO",
+                "XOXOOX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 364",
+            "pattern": [
+                "XXXXXX",
+                "XXXXXX",
+                "OXOXXX",
+                "XOXOOO"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 365",
+            "pattern": [
+                "XXXXXO",
+                "XXXXOX",
+                "OXXOXX",
+                "XOOXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 366",
+            "pattern": [
+                "XXXXXX",
+                "XXXXOO",
+                "OXXOXX",
+                "XOOXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 367",
+            "pattern": [
+                "XXXXXX",
+                "XXXXOX",
+                "OXXOXO",
+                "XOOXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 368",
+            "pattern": [
+                "XXXXXX",
+                "XXXXXO",
+                "OXXOOX",
+                "XOOXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 369",
+            "pattern": [
+                "XXXXXX",
+                "XXXXXX",
+                "OXXOOO",
+                "XOOXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 370",
+            "pattern": [
+                "XXXXXX",
+                "XXXXXX",
+                "OXXOOX",
+                "XOOXXO"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 371",
+            "pattern": [
+                "XXXXXX",
+                "XXXXXX",
+                "OXXOXO",
+                "XOOXOX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 372",
+            "pattern": [
+                "XXXXXX",
+                "XXXXXX",
+                "OXXOXX",
+                "XOOXOO"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 373",
+            "pattern": [
+                "XXXXXX",
+                "XXXXXO",
+                "OXXXOX",
+                "XOOOXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 374",
+            "pattern": [
+                "XXXXXX",
+                "XXXXXX",
+                "OXXXOO",
+                "XOOOXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 375",
+            "pattern": [
+                "XXXXXX",
+                "XXXXXX",
+                "OXXXOX",
+                "XOOOXO"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 376",
+            "pattern": [
+                "XXXXXX",
+                "XXXXXX",
+                "OXXXXO",
+                "XOOOOX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 377",
+            "pattern": [
+                "XXXXXX",
+                "XXXXXX",
+                "OXXXXX",
+                "XOOOOO"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 378",
+            "pattern": [
+                "XXXOOO",
+                "XXOXXX",
+                "XOXXXX",
+                "OXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 379",
+            "pattern": [
+                "XXXOOX",
+                "XXOXXO",
+                "XOXXXX",
+                "OXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 380",
+            "pattern": [
+                "XXXOXO",
+                "XXOXOX",
+                "XOXXXX",
+                "OXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 381",
+            "pattern": [
+                "XXXOXX",
+                "XXOXOO",
+                "XOXXXX",
+                "OXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 382",
+            "pattern": [
+                "XXXOXX",
+                "XXOXOX",
+                "XOXXXO",
+                "OXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 383",
+            "pattern": [
+                "XXXXOO",
+                "XXOOXX",
+                "XOXXXX",
+                "OXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 384",
+            "pattern": [
+                "XXXXOX",
+                "XXOOXO",
+                "XOXXXX",
+                "OXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 385",
+            "pattern": [
+                "XXXXXO",
+                "XXOOOX",
+                "XOXXXX",
+                "OXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 386",
+            "pattern": [
+                "XXXXXX",
+                "XXOOOO",
+                "XOXXXX",
+                "OXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 387",
+            "pattern": [
+                "XXXXXX",
+                "XXOOOX",
+                "XOXXXO",
+                "OXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 388",
+            "pattern": [
+                "XXXXXX",
+                "XXOOXO",
+                "XOXXOX",
+                "OXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 389",
+            "pattern": [
+                "XXXXXX",
+                "XXOOXX",
+                "XOXXOO",
+                "OXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 390",
+            "pattern": [
+                "XXXXXX",
+                "XXOOXX",
+                "XOXXOX",
+                "OXXXXO"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 391",
+            "pattern": [
+                "XXXXXO",
+                "XXOXOX",
+                "XOXOXX",
+                "OXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 392",
+            "pattern": [
+                "XXXXXX",
+                "XXOXOO",
+                "XOXOXX",
+                "OXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 393",
+            "pattern": [
+                "XXXXXX",
+                "XXOXOX",
+                "XOXOXO",
+                "OXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 394",
+            "pattern": [
+                "XXXXXX",
+                "XXOXXO",
+                "XOXOOX",
+                "OXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 395",
+            "pattern": [
+                "XXXXXX",
+                "XXOXXX",
+                "XOXOOO",
+                "OXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 396",
+            "pattern": [
+                "XXXXXX",
+                "XXOXXX",
+                "XOXOOX",
+                "OXXXXO"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 397",
+            "pattern": [
+                "XXXXXX",
+                "XXOXXX",
+                "XOXOXO",
+                "OXXXOX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 398",
+            "pattern": [
+                "XXXXXX",
+                "XXOXXX",
+                "XOXOXX",
+                "OXXXOO"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 399",
+            "pattern": [
+                "XXXXOO",
+                "XXXOXX",
+                "XOOXXX",
+                "OXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 400",
+            "pattern": [
+                "XXXXOX",
+                "XXXOXO",
+                "XOOXXX",
+                "OXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 401",
+            "pattern": [
+                "XXXXXO",
+                "XXXOOX",
+                "XOOXXX",
+                "OXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 402",
+            "pattern": [
+                "XXXXXX",
+                "XXXOOO",
+                "XOOXXX",
+                "OXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 403",
+            "pattern": [
+                "XXXXXX",
+                "XXXOOX",
+                "XOOXXO",
+                "OXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 404",
+            "pattern": [
+                "XXXXXX",
+                "XXXOXO",
+                "XOOXOX",
+                "OXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 405",
+            "pattern": [
+                "XXXXXX",
+                "XXXOXX",
+                "XOOXOO",
+                "OXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 406",
+            "pattern": [
+                "XXXXXX",
+                "XXXOXX",
+                "XOOXOX",
+                "OXXXXO"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 407",
+            "pattern": [
+                "XXXXXO",
+                "XXXXOX",
+                "XOOOXX",
+                "OXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 408",
+            "pattern": [
+                "XXXXXX",
+                "XXXXOO",
+                "XOOOXX",
+                "OXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 409",
+            "pattern": [
+                "XXXXXX",
+                "XXXXOX",
+                "XOOOXO",
+                "OXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 410",
+            "pattern": [
+                "XXXXXX",
+                "XXXXXO",
+                "XOOOOX",
+                "OXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 411",
+            "pattern": [
+                "XXXXXX",
+                "XXXXXX",
+                "XOOOOO",
+                "OXXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 412",
+            "pattern": [
+                "XXXXXX",
+                "XXXXXX",
+                "XOOOOX",
+                "OXXXXO"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 413",
+            "pattern": [
+                "XXXXXX",
+                "XXXXXX",
+                "XOOOXO",
+                "OXXXOX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 414",
+            "pattern": [
+                "XXXXXX",
+                "XXXXXX",
+                "XOOOXX",
+                "OXXXOO"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 415",
+            "pattern": [
+                "XXXXXX",
+                "XXXXXO",
+                "XOOXOX",
+                "OXXOXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 416",
+            "pattern": [
+                "XXXXXX",
+                "XXXXXX",
+                "XOOXOO",
+                "OXXOXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 417",
+            "pattern": [
+                "XXXXXX",
+                "XXXXXX",
+                "XOOXOX",
+                "OXXOXO"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 418",
+            "pattern": [
+                "XXXXXX",
+                "XXXXXX",
+                "XOOXXO",
+                "OXXOOX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 419",
+            "pattern": [
+                "XXXXXX",
+                "XXXXXX",
+                "XOOXXX",
+                "OXXOOO"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 420",
+            "pattern": [
+                "XXXXXO",
+                "XXXXOX",
+                "XOXOXX",
+                "OXOXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 421",
+            "pattern": [
+                "XXXXXX",
+                "XXXXOO",
+                "XOXOXX",
+                "OXOXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 422",
+            "pattern": [
+                "XXXXXX",
+                "XXXXOX",
+                "XOXOXO",
+                "OXOXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 423",
+            "pattern": [
+                "XXXXXX",
+                "XXXXXO",
+                "XOXOOX",
+                "OXOXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 424",
+            "pattern": [
+                "XXXXXX",
+                "XXXXXX",
+                "XOXOOO",
+                "OXOXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 425",
+            "pattern": [
+                "XXXXXX",
+                "XXXXXX",
+                "XOXOOX",
+                "OXOXXO"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 426",
+            "pattern": [
+                "XXXXXX",
+                "XXXXXX",
+                "XOXOXO",
+                "OXOXOX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 427",
+            "pattern": [
+                "XXXXXX",
+                "XXXXXX",
+                "XOXOXX",
+                "OXOXOO"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 428",
+            "pattern": [
+                "XXXXXX",
+                "XXXXXO",
+                "XOXXOX",
+                "OXOOXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 429",
+            "pattern": [
+                "XXXXXX",
+                "XXXXXX",
+                "XOXXOO",
+                "OXOOXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 430",
+            "pattern": [
+                "XXXXXX",
+                "XXXXXX",
+                "XOXXOX",
+                "OXOOXO"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 431",
+            "pattern": [
+                "XXXXXX",
+                "XXXXXX",
+                "XOXXXO",
+                "OXOOOX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 432",
+            "pattern": [
+                "XXXXXX",
+                "XXXXXX",
+                "XOXXXX",
+                "OXOOOO"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 433",
+            "pattern": [
+                "XXXXOO",
+                "XXXOXX",
+                "XXOXXX",
+                "OOXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 434",
+            "pattern": [
+                "XXXXOX",
+                "XXXOXO",
+                "XXOXXX",
+                "OOXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 435",
+            "pattern": [
+                "XXXXXO",
+                "XXXOOX",
+                "XXOXXX",
+                "OOXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 436",
+            "pattern": [
+                "XXXXXX",
+                "XXXOOO",
+                "XXOXXX",
+                "OOXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 437",
+            "pattern": [
+                "XXXXXX",
+                "XXXOOX",
+                "XXOXXO",
+                "OOXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 438",
+            "pattern": [
+                "XXXXXX",
+                "XXXOXO",
+                "XXOXOX",
+                "OOXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 439",
+            "pattern": [
+                "XXXXXX",
+                "XXXOXX",
+                "XXOXOO",
+                "OOXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 440",
+            "pattern": [
+                "XXXXXX",
+                "XXXOXX",
+                "XXOXOX",
+                "OOXXXO"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 441",
+            "pattern": [
+                "XXXXXO",
+                "XXXXOX",
+                "XXOOXX",
+                "OOXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 442",
+            "pattern": [
+                "XXXXXX",
+                "XXXXOO",
+                "XXOOXX",
+                "OOXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 443",
+            "pattern": [
+                "XXXXXX",
+                "XXXXOX",
+                "XXOOXO",
+                "OOXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 444",
+            "pattern": [
+                "XXXXXX",
+                "XXXXXO",
+                "XXOOOX",
+                "OOXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 445",
+            "pattern": [
+                "XXXXXX",
+                "XXXXXX",
+                "XXOOOO",
+                "OOXXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 446",
+            "pattern": [
+                "XXXXXX",
+                "XXXXXX",
+                "XXOOOX",
+                "OOXXXO"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 447",
+            "pattern": [
+                "XXXXXX",
+                "XXXXXX",
+                "XXOOXO",
+                "OOXXOX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 448",
+            "pattern": [
+                "XXXXXX",
+                "XXXXXX",
+                "XXOOXX",
+                "OOXXOO"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 449",
+            "pattern": [
+                "XXXXXX",
+                "XXXXXO",
+                "XXOXOX",
+                "OOXOXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 450",
+            "pattern": [
+                "XXXXXX",
+                "XXXXXX",
+                "XXOXOO",
+                "OOXOXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 451",
+            "pattern": [
+                "XXXXXX",
+                "XXXXXX",
+                "XXOXOX",
+                "OOXOXO"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 452",
+            "pattern": [
+                "XXXXXX",
+                "XXXXXX",
+                "XXOXXO",
+                "OOXOOX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 453",
+            "pattern": [
+                "XXXXXX",
+                "XXXXXX",
+                "XXOXXX",
+                "OOXOOO"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 454",
+            "pattern": [
+                "XXXXXO",
+                "XXXXOX",
+                "XXXOXX",
+                "OOOXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 455",
+            "pattern": [
+                "XXXXXX",
+                "XXXXOO",
+                "XXXOXX",
+                "OOOXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 456",
+            "pattern": [
+                "XXXXXX",
+                "XXXXOX",
+                "XXXOXO",
+                "OOOXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 457",
+            "pattern": [
+                "XXXXXX",
+                "XXXXXO",
+                "XXXOOX",
+                "OOOXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 458",
+            "pattern": [
+                "XXXXXX",
+                "XXXXXX",
+                "XXXOOO",
+                "OOOXXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 459",
+            "pattern": [
+                "XXXXXX",
+                "XXXXXX",
+                "XXXOOX",
+                "OOOXXO"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 460",
+            "pattern": [
+                "XXXXXX",
+                "XXXXXX",
+                "XXXOXO",
+                "OOOXOX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 461",
+            "pattern": [
+                "XXXXXX",
+                "XXXXXX",
+                "XXXOXX",
+                "OOOXOO"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 462",
+            "pattern": [
+                "XXXXXX",
+                "XXXXXO",
+                "XXXXOX",
+                "OOOOXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 463",
+            "pattern": [
+                "XXXXXX",
+                "XXXXXX",
+                "XXXXOO",
+                "OOOOXX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 464",
+            "pattern": [
+                "XXXXXX",
+                "XXXXXX",
+                "XXXXOX",
+                "OOOOXO"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 465",
+            "pattern": [
+                "XXXXXX",
+                "XXXXXX",
+                "XXXXXO",
+                "OOOOOX"
+            ],
+            "isUnlocked": true
+        },
+        {
+            "name": "連線方式 466",
+            "pattern": [
+                "XXXXXX",
+                "XXXXXX",
+                "XXXXXX",
+                "OOOOOO"
+            ],
+            "isUnlocked": true
+        }
+    ]
+}

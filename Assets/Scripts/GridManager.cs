@@ -1,189 +1,217 @@
-// Scripts/GridManager.cs
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
 /// <summary>
-/// 管理遊戲的棋盤格子和單位佈局
+/// 管理遊戲場地的生成與狀態
 /// </summary>
 public class GridManager : MonoBehaviour
 {
-    public int rows = 4;        // 行數
-    public int columns = 6;     // 列數
+    public static GridManager Instance { get; private set; } // 單例模式
 
-    public Tilemap tilemap;                 // 參考 Tilemap，用於顯示棋盤
-    public TileBase gridTile;               // 用於表示空格子的 Tile
-    public TileBase playerTile;             // 用於表示玩家單位的 Tile
-    public TileBase enemyTile;              // 用於表示敵方單位的 Tile
+    [Header("Tilemaps")]
+    public Tilemap battleTilemap; // 戰鬥區域的Tilemap
+    public Tilemap wallTilemap;   // 城牆區域的Tilemap
 
-    public GridCell[,] gridCells;           // 棋盤格子矩陣
+    [Header("Tiles")]
+    public Tile battleTile;       // 戰鬥區域使用的Tile
+    public Tile wallTile;         // 城牆區域使用的Tile
 
-    private void Awake()
+    [Header("Prefabs")]
+    public GameObject unitPrefab;      // 單位的Prefab
+    public GameObject buildingPrefab;  // 建築的Prefab
+
+    [Header("Data")]
+    public List<UnitData> playerUnits;    // 玩家單位的資料
+    public List<UnitData> enemyUnits;     // 敵方單位的資料
+    public List<BuildingData> buildings;  // 建築的資料
+
+    [Header("Parent Objects")]
+    public Transform unitsParent;      // 單位的父物件
+    public Transform buildingsParent;  // 建築的父物件
+
+    public int rows = 4;          // 行數
+    public int columns = 6;       // 列數（戰鬥區域）
+
+    private int totalColumns;     // 總列數 = 戰鬥區域列數 + 2（城牆）
+
+    // 存儲單位和建築的位置
+    private Dictionary<Vector3Int, UnitController> unitPositions = new Dictionary<Vector3Int, UnitController>();
+    private Dictionary<Vector3Int, BuildingController> buildingPositions = new Dictionary<Vector3Int, BuildingController>();
+
+    void Awake()
     {
-        InitializeGrid(); // 初始化棋盤
+        // 單例模式實現
+        if (Instance == null)
+        {
+            Instance = this;
+        }
+        else
+        {
+            Destroy(this);
+        }
+    }
+
+    void Start()
+    {
+        totalColumns = columns + 2; // 加上兩側的城牆
+
+        GenerateBattleArea();
+        GenerateWallArea();
+
+        // 測試生成單位和建築
+        // 確保 `Units` 和 `Buildings` 父物件已經在場景中創建並設置
+        if (playerUnits.Count > 0)
+        {
+            SpawnUnit(new Vector3Int(2, 1, 0), playerUnits[0]);
+        }
+        if (buildings.Count > 0)
+        {
+            SpawnBuilding(new Vector3Int(0, 1, 0), buildings[0]);
+        }
     }
 
     /// <summary>
-    /// 初始化棋盤格子
+    /// 生成戰鬥區域
     /// </summary>
-    public void InitializeGrid()
+    void GenerateBattleArea()
     {
-        gridCells = new GridCell[rows, columns];
-
-        // 清除 Tilemap 上的所有 Tile
-        tilemap.ClearAllTiles();
-
-        // 初始化每個格子
-        for (int i = 0; i < rows; i++)
+        for (int row = 0; row < rows; row++)
         {
-            for (int j = 0; j < columns; j++)
+            for (int col = 1; col <= columns; col++) // 列從1到6
             {
-                gridCells[i, j] = new GridCell(i, j);
-
-                // 在 Tilemap 上放置空格子的 Tile
-                Vector3Int tilePosition = new Vector3Int(j, -i, 0);
-                tilemap.SetTile(tilePosition, gridTile);
+                Vector3Int tilePosition = new Vector3Int(col, row, 0);
+                battleTilemap.SetTile(tilePosition, battleTile);
             }
         }
     }
 
     /// <summary>
-    /// 獲取指定位置的格子
+    /// 生成城牆區域（最左和最右）
     /// </summary>
-    /// <param name="row">行號</param>
-    /// <param name="column">列號</param>
-    /// <returns>對應的 GridCell，如果超出範圍則返回 null</returns>
-    public GridCell GetGridCell(int row, int column)
+    void GenerateWallArea()
     {
-        if (row >= 0 && row < rows && column >= 0 && column < columns)
+        for (int row = 0; row < rows; row++)
         {
-            return gridCells[row, column];
+            // 最左邊一列（0）
+            Vector3Int leftWallPos = new Vector3Int(0, row, 0);
+            wallTilemap.SetTile(leftWallPos, wallTile);
+
+            // 最右邊一列（7）
+            Vector3Int rightWallPos = new Vector3Int(totalColumns - 1, row, 0);
+            wallTilemap.SetTile(rightWallPos, wallTile);
+        }
+    }
+
+    /// <summary>
+    /// 生成單位
+    /// </summary>
+    /// <param name="position">格子位置</param>
+    /// <param name="unitData">單位數據</param>
+    public void SpawnUnit(Vector3Int position, UnitData unitData)
+    {
+        if (unitPositions.ContainsKey(position))
+        {
+            Debug.LogWarning($"位置 {position} 已經有單位存在！");
+            return;
+        }
+
+        GameObject unitGO = Instantiate(unitPrefab);
+        UnitController unit = unitGO.GetComponent<UnitController>();
+        unit.unitData = unitData;
+        unit.SetPosition(position);
+
+        // 設置為 Units 父物件的子物件
+        if (unitsParent != null)
+        {
+            unitGO.transform.SetParent(unitsParent);
+        }
+
+        unitPositions.Add(position, unit);
+    }
+
+    /// <summary>
+    /// 生成建築
+    /// </summary>
+    /// <param name="position">格子位置</param>
+    /// <param name="buildingData">建築數據</param>
+    public void SpawnBuilding(Vector3Int position, BuildingData buildingData)
+    {
+        if (buildingPositions.ContainsKey(position))
+        {
+            Debug.LogWarning($"位置 {position} 已經有建築存在！");
+            return;
+        }
+
+        GameObject buildingGO = Instantiate(buildingPrefab);
+        BuildingController building = buildingGO.GetComponent<BuildingController>();
+        building.buildingData = buildingData;
+        building.SetPosition(position);
+
+        // 設置為 Buildings 父物件的子物件
+        if (buildingsParent != null)
+        {
+            buildingGO.transform.SetParent(buildingsParent);
+        }
+
+        buildingPositions.Add(position, building);
+    }
+
+    /// <summary>
+    /// 判斷戰鬥區域上的格子是否有玩家或敵人角色
+    /// </summary>
+    /// <param name="position">格子的位置</param>
+    /// <returns>是否有角色</returns>
+    public bool HasUnitAt(Vector3Int position)
+    {
+        return unitPositions.ContainsKey(position);
+    }
+
+    /// <summary>
+    /// 獲取指定位置的單位
+    /// </summary>
+    /// <param name="position">格子位置</param>
+    /// <returns>UnitController 或 null</returns>
+    public UnitController GetUnitAt(Vector3Int position)
+    {
+        if (unitPositions.ContainsKey(position))
+        {
+            return unitPositions[position];
         }
         return null;
     }
 
     /// <summary>
-    /// 獲取單位所在的格子
+    /// 判斷城牆區域上的格子是否有建築
     /// </summary>
-    /// <param name="unit">需要查找的單位</param>
-    /// <returns>單位所在的 GridCell，如果找不到則返回 null</returns>
-    public GridCell GetUnitCell(Unit unit)
+    /// <param name="position">格子的位置</param>
+    /// <returns>是否有建築</returns>
+    public bool HasBuildingAt(Vector3Int position)
     {
-        foreach (var cell in gridCells)
-        {
-            if (cell.OccupiedUnit == unit)
-            {
-                return cell;
-            }
-        }
-        return null;
+        return buildingPositions.ContainsKey(position);
     }
 
     /// <summary>
-    /// 獲取指定格子前方的格子
+    /// 獲取格子中心的世界坐標
     /// </summary>
-    /// <param name="currentCell">當前格子</param>
-    /// <param name="isPlayer">是否為玩家的單位</param>
-    /// <returns>前方的 GridCell，如果超出範圍則返回 null</returns>
-    public GridCell GetFrontCell(GridCell currentCell, bool isPlayer)
+    /// <param name="gridPosition">格子坐標</param>
+    /// <returns>世界坐標</returns>
+    public Vector3 GetCellCenterWorld(Vector3Int gridPosition)
     {
-        int row = currentCell.Position.x;
-        int column = currentCell.Position.y;
-
-        // 根據單位的陣營決定前進方向
-        if (isPlayer)
-        {
-            column += 1; // 玩家單位向右移動
-        }
-        else
-        {
-            column -= 1; // 敵方單位向左移動
-        }
-
-        return GetGridCell(row, column);
+        // 使用Tilemap的方法計算格子中心的世界坐標
+        Vector3 cellWorldPosition = battleTilemap.GetCellCenterWorld(gridPosition);
+        return cellWorldPosition;
     }
 
     /// <summary>
-    /// 移動單位到新的格子
+    /// 從指定位置移除單位
     /// </summary>
-    /// <param name="unit">需要移動的單位</param>
-    /// <param name="fromCell">當前格子</param>
-    /// <param name="toCell">目標格子</param>
-    public void MoveUnit(Unit unit, GridCell fromCell, GridCell toCell)
+    /// <param name="position">格子位置</param>
+    public void RemoveUnitAt(Vector3Int position)
     {
-        // 更新格子的 OccupiedUnit 屬性
-        fromCell.OccupiedUnit = null;
-        toCell.OccupiedUnit = unit;
-
-        // 更新單位在 Tilemap 上的位置
-        Vector3Int fromPosition = new Vector3Int(fromCell.Position.y, -fromCell.Position.x, 0);
-        Vector3Int toPosition = new Vector3Int(toCell.Position.y, -toCell.Position.x, 0);
-
-        // 將起始位置的 Tile 設置為空格子 Tile
-        tilemap.SetTile(fromPosition, gridTile);
-
-        // 根據單位的陣營，設置目標位置的 Tile
-        if (unit.IsPlayerOwned)
+        if (unitPositions.ContainsKey(position))
         {
-            tilemap.SetTile(toPosition, playerTile);
-        }
-        else
-        {
-            tilemap.SetTile(toPosition, enemyTile);
+            unitPositions.Remove(position);
         }
     }
-
-    /// <summary>
-    /// 在指定的格子上放置單位
-    /// </summary>
-    /// <param name="unit">需要放置的單位</param>
-    /// <param name="row">行號</param>
-    /// <param name="column">列號</param>
-    public void PlaceUnit(Unit unit, int row, int column)
-    {
-        GridCell cell = GetGridCell(row, column);
-        if (cell != null && cell.IsEmpty())
-        {
-            cell.OccupiedUnit = unit;
-
-            // 在 Tilemap 上設置單位的 Tile
-            Vector3Int position = new Vector3Int(column, -row, 0);
-            if (unit.IsPlayerOwned)
-            {
-                tilemap.SetTile(position, playerTile);
-            }
-            else
-            {
-                tilemap.SetTile(position, enemyTile);
-            }
-        }
-        else
-        {
-            Debug.LogWarning($"無法在位置 ({row}, {column}) 放置單位，可能已被佔據或超出範圍。");
-        }
-    }
-
-    /// <summary>
-    /// 清除棋盤上的所有單位
-    /// </summary>
-    public void ClearUnits()
-    {
-        for (int i = 0; i < rows; i++)
-        {
-            for (int j = 0; j < columns; j++)
-            {
-                GridCell cell = gridCells[i, j];
-                if (cell.OccupiedUnit != null)
-                {
-                    cell.OccupiedUnit = null;
-
-                    // 在 Tilemap 上重置為空格子 Tile
-                    Vector3Int position = new Vector3Int(j, -i, 0);
-                    tilemap.SetTile(position, gridTile);
-                }
-            }
-        }
-    }
-
-    // 其他與棋盤相關的方法，可以根據需要添加
 }

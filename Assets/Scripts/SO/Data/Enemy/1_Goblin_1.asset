@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 154b13b9e80b44744be4ba91457e8c5a, type: 3}
+  m_Name: 1_Goblin_1
+  m_EditorClassIdentifier: 
+  unitName: Goblin_1
+  description: 
+  unitSprite: {fileID: 1238363452, guid: 197bcfde909abe1469ab49fe7764a45b, type: 3}
+  attackRange: 0
+  attackDamage: 0
+  profession: 0
+  speed: 0
+  camp: 1

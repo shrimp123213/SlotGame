@@ -3,45 +3,45 @@ using UnityEngine;
 using UnityEngine.Tilemaps;
 
 /// <summary>
-/// 管理遊戲場地的生成與狀態
+/// 管理游戏场地的生成与状态
 /// </summary>
 public class GridManager : MonoBehaviour
 {
-    public static GridManager Instance { get; private set; } // 單例模式
+    public static GridManager Instance { get; private set; } // 单例模式
 
     [Header("Tilemaps")]
-    public Tilemap battleTilemap; // 戰鬥區域的Tilemap
-    public Tilemap wallTilemap;   // 城牆區域的Tilemap
+    public Tilemap battleTilemap; // 战斗区域的Tilemap
+    public Tilemap wallTilemap;   // 城墙区域的Tilemap
 
     [Header("Tiles")]
-    public Tile battleTile;       // 戰鬥區域使用的Tile
-    public Tile wallTile;         // 城牆區域使用的Tile
+    public Tile battleTile;       // 战斗区域使用的Tile
+    public Tile wallTile;         // 城墙区域使用的Tile
 
     [Header("Prefabs")]
-    public GameObject unitPrefab;      // 單位的Prefab
-    public GameObject buildingPrefab;  // 建築的Prefab
+    public GameObject unitPrefab;      // 单位的Prefab
+    public GameObject buildingPrefab;  // 建筑的Prefab
 
     [Header("Data")]
-    public List<UnitData> playerUnits;    // 玩家單位的資料
-    public List<UnitData> enemyUnits;     // 敵方單位的資料
-    public List<BuildingData> buildings;  // 建築的資料
+    public List<UnitData> playerUnits;    // 玩家单位的数据
+    public List<UnitData> enemyUnits;     // 敌方单位的数据
+    public List<BuildingData> buildings;  // 建筑的数据
 
     [Header("Parent Objects")]
-    public Transform unitsParent;      // 單位的父物件
-    public Transform buildingsParent;  // 建築的父物件
+    public Transform unitsParent;      // 单位的父对象
+    public Transform buildingsParent;  // 建筑的父对象
 
-    public int rows = 4;          // 行數
-    public int columns = 6;       // 列數（戰鬥區域）
+    public int rows = 4;          // 行数
+    public int columns = 6;       // 列数（战斗区域）
 
-    private int totalColumns;     // 總列數 = 戰鬥區域列數 + 2（城牆）
+    private int totalColumns;     // 总列数 = 战斗区域列数 + 2（城墙）
 
-    // 存儲單位和建築的位置
+    // 存储单位和建筑的位置
     private Dictionary<Vector3Int, UnitController> unitPositions = new Dictionary<Vector3Int, UnitController>();
     private Dictionary<Vector3Int, BuildingController> buildingPositions = new Dictionary<Vector3Int, BuildingController>();
 
     void Awake()
     {
-        // 單例模式實現
+        // 单例模式实现
         if (Instance == null)
         {
             Instance = this;
@@ -54,13 +54,12 @@ public class GridManager : MonoBehaviour
 
     void Start()
     {
-        totalColumns = columns + 2; // 加上兩側的城牆
+        totalColumns = columns + 2; // 加上两侧的城墙
 
         GenerateBattleArea();
         GenerateWallArea();
 
-        // 測試生成單位和建築
-        // 確保 `Units` 和 `Buildings` 父物件已經在場景中創建並設置
+        // 测试生成单位和建筑
         if (playerUnits.Count > 0)
         {
             SpawnUnit(new Vector3Int(2, 1, 0), playerUnits[0]);
@@ -72,13 +71,13 @@ public class GridManager : MonoBehaviour
     }
 
     /// <summary>
-    /// 生成戰鬥區域
+    /// 生成战斗区域
     /// </summary>
     void GenerateBattleArea()
     {
         for (int row = 0; row < rows; row++)
         {
-            for (int col = 1; col <= columns; col++) // 列從1到6
+            for (int col = 1; col <= columns; col++) // 列从1到6
             {
                 Vector3Int tilePosition = new Vector3Int(col, row, 0);
                 battleTilemap.SetTile(tilePosition, battleTile);
@@ -87,32 +86,32 @@ public class GridManager : MonoBehaviour
     }
 
     /// <summary>
-    /// 生成城牆區域（最左和最右）
+    /// 生成城墙区域（最左和最右）
     /// </summary>
     void GenerateWallArea()
     {
         for (int row = 0; row < rows; row++)
         {
-            // 最左邊一列（0）
+            // 最左边一列（0）
             Vector3Int leftWallPos = new Vector3Int(0, row, 0);
             wallTilemap.SetTile(leftWallPos, wallTile);
 
-            // 最右邊一列（7）
+            // 最右边一列（columns + 1）
             Vector3Int rightWallPos = new Vector3Int(totalColumns - 1, row, 0);
             wallTilemap.SetTile(rightWallPos, wallTile);
         }
     }
 
     /// <summary>
-    /// 生成單位
+    /// 生成单位
     /// </summary>
     /// <param name="position">格子位置</param>
-    /// <param name="unitData">單位數據</param>
+    /// <param name="unitData">单位数据</param>
     public void SpawnUnit(Vector3Int position, UnitData unitData)
     {
         if (unitPositions.ContainsKey(position))
         {
-            Debug.LogWarning($"位置 {position} 已經有單位存在！");
+            Debug.LogWarning($"位置 {position} 已经有单位存在！");
             return;
         }
 
@@ -121,7 +120,7 @@ public class GridManager : MonoBehaviour
         unit.unitData = unitData;
         unit.SetPosition(position);
 
-        // 設置為 Units 父物件的子物件
+        // 设置为 Units 父对象的子对象
         if (unitsParent != null)
         {
             unitGO.transform.SetParent(unitsParent);
@@ -131,15 +130,15 @@ public class GridManager : MonoBehaviour
     }
 
     /// <summary>
-    /// 生成建築
+    /// 生成建筑
     /// </summary>
     /// <param name="position">格子位置</param>
-    /// <param name="buildingData">建築數據</param>
+    /// <param name="buildingData">建筑数据</param>
     public void SpawnBuilding(Vector3Int position, BuildingData buildingData)
     {
         if (buildingPositions.ContainsKey(position))
         {
-            Debug.LogWarning($"位置 {position} 已經有建築存在！");
+            Debug.LogWarning($"位置 {position} 已经有建筑存在！");
             return;
         }
 
@@ -148,7 +147,7 @@ public class GridManager : MonoBehaviour
         building.buildingData = buildingData;
         building.SetPosition(position);
 
-        // 設置為 Buildings 父物件的子物件
+        // 设置为 Buildings 父对象的子对象
         if (buildingsParent != null)
         {
             buildingGO.transform.SetParent(buildingsParent);
@@ -158,7 +157,7 @@ public class GridManager : MonoBehaviour
     }
 
     /// <summary>
-    /// 判斷戰鬥區域上的格子是否有玩家或敵人角色
+    /// 判断战斗区域上的格子是否有玩家或敌人角色
     /// </summary>
     /// <param name="position">格子的位置</param>
     /// <returns>是否有角色</returns>
@@ -168,7 +167,7 @@ public class GridManager : MonoBehaviour
     }
 
     /// <summary>
-    /// 獲取指定位置的單位
+    /// 获取指定位置的单位
     /// </summary>
     /// <param name="position">格子位置</param>
     /// <returns>UnitController 或 null</returns>
@@ -182,29 +181,29 @@ public class GridManager : MonoBehaviour
     }
 
     /// <summary>
-    /// 判斷城牆區域上的格子是否有建築
+    /// 判断城墙区域上的格子是否有建筑
     /// </summary>
     /// <param name="position">格子的位置</param>
-    /// <returns>是否有建築</returns>
+    /// <returns>是否有建筑</returns>
     public bool HasBuildingAt(Vector3Int position)
     {
         return buildingPositions.ContainsKey(position);
     }
 
     /// <summary>
-    /// 獲取格子中心的世界坐標
+    /// 获取格子中心的世界坐标
     /// </summary>
-    /// <param name="gridPosition">格子坐標</param>
-    /// <returns>世界坐標</returns>
+    /// <param name="gridPosition">格子坐标</param>
+    /// <returns>世界坐标</returns>
     public Vector3 GetCellCenterWorld(Vector3Int gridPosition)
     {
-        // 使用Tilemap的方法計算格子中心的世界坐標
+        // 使用Tilemap的方法计算格子中心的世界坐标
         Vector3 cellWorldPosition = battleTilemap.GetCellCenterWorld(gridPosition);
         return cellWorldPosition;
     }
 
     /// <summary>
-    /// 從指定位置移除單位
+    /// 从指定位置移除单位
     /// </summary>
     /// <param name="position">格子位置</param>
     public void RemoveUnitAt(Vector3Int position)

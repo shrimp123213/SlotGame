@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// 管理連線方式的讀取與檢查
+/// 管理连接方式的读取与检查
 /// </summary>
 public class ConnectionManager : MonoBehaviour
 {
@@ -10,23 +10,26 @@ public class ConnectionManager : MonoBehaviour
     public GridManager gridManager; // 引用GridManager
 
     [Header("Connection Patterns")]
-    public TextAsset connectionPatternsJson; // 連線方式的JSON文件（從Resources中加載）
+    public TextAsset connectionPatternsJson; // 连接方式的JSON文件（从Resources中加载）
 
     private List<ConnectionPattern> connectionPatterns = new List<ConnectionPattern>();
+
+    private UnitController[,] gridCells; // 棋盘格子矩阵
 
     void Start()
     {
         LoadConnections();
+        InitializeGridCells();
     }
 
     /// <summary>
-    /// 加載連線方式
+    /// 加载连接方式
     /// </summary>
     void LoadConnections()
     {
         if (connectionPatternsJson == null)
         {
-            Debug.LogError("未指定連線方式的JSON文件！");
+            Debug.LogError("未指定连接方式的JSON文件！");
             return;
         }
 
@@ -35,180 +38,173 @@ public class ConnectionManager : MonoBehaviour
         ConnectionList connectionList = JsonUtility.FromJson<ConnectionList>(json);
         connectionPatterns = connectionList.connections;
 
-        Debug.Log($"已加載 {connectionPatterns.Count} 種連線方式");
+        // 初始化 positions
+        foreach (var pattern in connectionPatterns)
+        {
+            pattern.InitializePositions();
+        }
+
+        Debug.Log($"已加载 {connectionPatterns.Count} 种连接方式");
     }
 
     /// <summary>
-    /// 檢查並觸發連線效果
+    /// 初始化 GridCells
+    /// </summary>
+    void InitializeGridCells()
+    {
+        int rows = gridManager.rows;
+        int cols = gridManager.columns;
+        gridCells = new UnitController[rows, cols];
+
+        // 遍历 GridManager 中的单位，填充 gridCells
+        for (int row = 0; row < rows; row++)
+        {
+            for (int col = 0; col < cols; col++)
+            {
+                Vector3Int pos = new Vector3Int(col + 1, row, 0); // 列从1开始
+                if (gridManager.HasUnitAt(pos))
+                {
+                    gridCells[row, col] = gridManager.GetUnitAt(pos);
+                }
+                else
+                {
+                    gridCells[row, col] = null;
+                }
+            }
+        }
+    }
+
+    /// <summary>
+    /// 检查并触发连接效果
     /// </summary>
     public void CheckConnections()
     {
+        // 每次检查前更新 gridCells
+        InitializeGridCells();
+
         bool anyConnectionTriggered = false;
 
-        foreach (var pattern in connectionPatterns)
+        // 分别检查玩家和敌人的连接
+        bool playerLinked = CheckLinksForSide(Camp.Player);
+        bool enemyLinked = CheckLinksForSide(Camp.Enemy);
+
+        if (playerLinked)
         {
-            if (!pattern.isUnlocked)
-            {
-                // 跳過未解鎖的連線方式
-                continue;
-            }
+            Debug.Log("玩家连接成功！");
+            anyConnectionTriggered = true;
+        }
 
-            if (IsPatternMatch(pattern.pattern, pattern.name))
-            {
-                // 觸發連線效果，例如對敵方城鎮造成傷害
-                Debug.Log($"觸發連線: {pattern.name}");
-                // 根據連線方式定義具體的效果
-                ApplyConnectionEffect(pattern);
-
-                // 繪製連線
-                DrawConnection(pattern.pattern);
-
-                anyConnectionTriggered = true;
-            }
+        if (enemyLinked)
+        {
+            Debug.Log("敌人连接成功！");
+            anyConnectionTriggered = true;
         }
 
         if (!anyConnectionTriggered)
         {
-            Debug.Log("沒有觸發任何連線");
+            Debug.Log("没有触发任何连接");
         }
     }
 
     /// <summary>
-    /// 檢查當前場地是否符合連線模式
+    /// 检查特定阵营的连接
     /// </summary>
-    /// <param name="pattern">連線模式</param>
-    /// <param name="patternName">連線模式名稱，用於調試</param>
-    /// <returns>是否匹配</returns>
-    bool IsPatternMatch(List<string> pattern, string patternName)
+    /// <param name="camp">要检查的阵营</param>
+    /// <returns>是否有连接</returns>
+    private bool CheckLinksForSide(Camp camp)
     {
-        // 存儲每列的陣營
-        List<Camp> campsPerColumn = new List<Camp>();
+        bool hasLink = false;
 
-        // 遍歷戰鬥區域的格子，對比連線模式
-        for (int row = 0; row < gridManager.rows; row++)
+        // 遍历已解锁的连接模式
+        foreach (var pattern in connectionPatterns)
         {
-            for (int col = 0; col < gridManager.columns; col++)
+            if (!pattern.isUnlocked)
+                continue;
+
+            // 检查棋盘是否匹配该模式
+            if (MatchesPatternForCamp(pattern, camp))
             {
-                Vector3Int pos = new Vector3Int(col + 1, row, 0); // 戰鬥區域列從1開始
-                bool hasUnit = gridManager.HasUnitAt(pos);
-                char expected = pattern[row][col];
+                hasLink = true;
 
-                // 調試信息
-                Debug.Log($"[{patternName}] 檢查位置 ({pos.x}, {pos.y}): hasUnit = {hasUnit}, expected = {expected}");
+                // 绘制连接
+                DrawConnection(pattern.positions);
 
-                if ((hasUnit && expected != 'O') || (!hasUnit && expected != 'X'))
-                {
-                    return false; // 不匹配
-                }
+                // 触发连接效果
+                TriggerLinkEffect(pattern, camp);
 
-                if (expected == 'O' && hasUnit)
-                {
-                    // 獲取單位的陣營
-                    UnitController unit = gridManager.GetUnitAt(pos);
-                    Camp unitCamp = unit.unitData.camp;
-
-                    campsPerColumn.Add(unitCamp);
-                }
+                // 如果只需要检查一个连接，可以在这里break
+                // break;
             }
         }
 
-        // 檢查連線中是否有相同陣營的多個單位
-        Dictionary<Camp, int> campCount = new Dictionary<Camp, int>();
-        foreach (Camp camp in campsPerColumn)
+        return hasLink;
+    }
+
+    /// <summary>
+    /// 检查给定的模式是否匹配指定阵营
+    /// </summary>
+    /// <param name="pattern">连接模式</param>
+    /// <param name="camp">阵营</param>
+    /// <returns>是否匹配</returns>
+    private bool MatchesPatternForCamp(ConnectionPattern pattern, Camp camp)
+    {
+        HashSet<int> columnsWithUnit = new HashSet<int>();
+
+        foreach (var pos in pattern.positions)
         {
-            if (campCount.ContainsKey(camp))
+            int row = pos.x;
+            int col = pos.y;
+
+            // 检查边界
+            if (row < 0 || row >= gridManager.rows || col < 0 || col >= gridManager.columns)
             {
-                campCount[camp]++;
-                if (campCount[camp] > 1)
-                {
-                    Debug.Log($"[{patternName}] 連線中有同一陣營的多個單位: {camp}");
-                    return false; // 同一陣營的單位在連線中出現多次
-                }
+                Debug.LogWarning($"位置 ({row}, {col}) 超出棋盘范围！");
+                return false;
+            }
+
+            UnitController unit = gridCells[row, col];
+
+            if (unit == null || unit.unitData.camp != camp)
+            {
+                return false;
+            }
+
+            if (columnsWithUnit.Contains(col))
+            {
+                // 同一列中有多个单位，返回 false
+                return false;
             }
             else
             {
-                campCount[camp] = 1;
+                columnsWithUnit.Add(col);
             }
         }
 
-        return true; // 完全匹配，且無同陣營重複
+        return true;
     }
 
     /// <summary>
-    /// 根據連線方式應用效果
+    /// 绘制连接
     /// </summary>
-    /// <param name="pattern">連線模式</param>
-    void ApplyConnectionEffect(ConnectionPattern pattern)
+    /// <param name="positions">连接包含的格子位置列表</param>
+    private void DrawConnection(List<Vector2Int> positions)
     {
-        // 根據具體的連線方式定義效果
-        // 例如，對敵方城鎮造成固定傷害
-        List<UnitController> connectedUnits = new List<UnitController>();
+        Color lineColor = new Color(Random.value, Random.value, Random.value);
 
-        for (int row = 0; row < gridManager.rows; row++)
-        {
-            for (int col = 0; col < gridManager.columns; col++)
-            {
-                if (pattern.pattern[row][col] == 'O')
-                {
-                    Vector3Int pos = new Vector3Int(col + 1, row, 0);
-                    if (gridManager.HasUnitAt(pos))
-                    {
-                        UnitController unit = gridManager.GetUnitAt(pos);
-                        connectedUnits.Add(unit);
-                    }
-                }
-            }
-        }
-
-        foreach (var unit in connectedUnits)
-        {
-            if (unit.unitData.camp == Camp.Enemy)
-            {
-                // 對敵方單位造成傷害
-                int damage = 5;
-                Debug.Log($"對敵方單位 {unit.unitData.unitName} 造成 {damage} 點傷害");
-                unit.TakeDamage(damage);
-            }
-            else if (unit.unitData.camp == Camp.Player)
-            {
-                // 對玩家單位造成傷害（根據需求）
-                int damage = 3;
-                Debug.Log($"對玩家單位 {unit.unitData.unitName} 造成 {damage} 點傷害");
-                unit.TakeDamage(damage);
-            }
-        }
-    }
-
-    /// <summary>
-    /// 繪製連線
-    /// </summary>
-    /// <param name="pattern">連線模式</param>
-    void DrawConnection(List<string> pattern)
-    {
-        // 使用 LineRenderer 繪製連線
         List<Vector3> linePositions = new List<Vector3>();
-
-        for (int col = 0; col < gridManager.columns; col++)
+        foreach (var pos in positions)
         {
-            for (int row = 0; row < gridManager.rows; row++)
-            {
-                if (pattern[row][col] == 'O')
-                {
-                    Vector3Int gridPos = new Vector3Int(col + 1, row, 0); // 戰鬥區域列從1開始
-                    Vector3 worldPos = gridManager.GetCellCenterWorld(gridPos);
-                    linePositions.Add(worldPos);
-                    break; // 每列只有一個 "O"
-                }
-            }
+            int row = pos.x;
+            int col = pos.y;
+            Vector3Int gridPos = new Vector3Int(col + 1, row, 0); // 列从1开始
+            Vector3 worldPos = gridManager.GetCellCenterWorld(gridPos);
+            linePositions.Add(worldPos);
         }
 
         if (linePositions.Count < 2)
-        {
-            Debug.LogWarning("連線點數不足，無法繪製連線");
             return;
-        }
 
-        // 創建一個新的 GameObject 用於 LineRenderer
+        // 创建一个新的 GameObject 用于 LineRenderer
         GameObject lineGO = new GameObject("ConnectionLine");
         LineRenderer lr = lineGO.AddComponent<LineRenderer>();
         lr.positionCount = linePositions.Count;
@@ -216,13 +212,51 @@ public class ConnectionManager : MonoBehaviour
         lr.startWidth = 0.1f;
         lr.endWidth = 0.1f;
         lr.material = new Material(Shader.Find("Sprites/Default"));
-        lr.startColor = Color.green; // 可以根據需要調整顏色
-        lr.endColor = Color.green;
+        lr.startColor = lineColor; // 可以根据需要调整颜色
+        lr.endColor = lineColor;
         lr.sortingOrder = 10;
 
-        // Optional: 設置連線的層級和渲染順序
+        // 使用 Debug.DrawLine 从左到右连接
+        for (int i = 0; i < linePositions.Count - 1; i++)
+        {
+            Debug.DrawLine(linePositions[i], linePositions[i + 1], lineColor, 5f);
+        }
 
-        // Optional: 自動刪除連線線條
-        Destroy(lineGO, 5f); // 5 秒後刪除
+        // 可选：自动删除连接线条
+        Destroy(lineGO, 5f); // 5 秒后删除
+    }
+
+    /// <summary>
+    /// 触发连接效果，例如造成伤害等
+    /// </summary>
+    /// <param name="pattern">匹配的连接模式</param>
+    /// <param name="camp">阵营</param>
+    private void TriggerLinkEffect(ConnectionPattern pattern, Camp camp)
+    {
+        int linkedUnitCount = pattern.positions.Count;
+
+        // 在这里实现连接效果，例如对敌方城镇造成伤害
+        if (camp == Camp.Player)
+        {
+            Debug.Log($"玩家触发了连接模式 {pattern.name}，连接单位数量：{linkedUnitCount}，对敌人造成伤害！");
+            // 实现对敌方的具体伤害逻辑，例如调用敌方城镇的伤害方法
+            // Example:
+            // EnemyBuildingController enemyBuilding = FindObjectOfType<EnemyBuildingController>();
+            // if (enemyBuilding != null)
+            // {
+            //     enemyBuilding.TakeDamage(linkedUnitCount * damagePerUnit);
+            // }
+        }
+        else if (camp == Camp.Enemy)
+        {
+            Debug.Log($"敌人触发了连接模式 {pattern.name}，连接单位数量：{linkedUnitCount}，对玩家造成伤害！");
+            // 实现对玩家的具体伤害逻辑，例如调用玩家城镇的伤害方法
+            // Example:
+            // PlayerBuildingController playerBuilding = FindObjectOfType<PlayerBuildingController>();
+            // if (playerBuilding != null)
+            // {
+            //     playerBuilding.TakeDamage(linkedUnitCount * damagePerUnit);
+            // }
+        }
     }
 }

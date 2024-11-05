@@ -4,53 +4,53 @@ using UnityEditor;
 using System.IO;
 
 /// <summary>
-/// 自動生成所有可能的連線方式，並保存到JSON文件
+/// 自动生成所有可能的连接方式，并保存到JSON文件
 /// </summary>
 public class ConnectionPatternGenerator : MonoBehaviour
 {
-    public int rows = 4;      // 行數
-    public int columns = 6;   // 列數
+    public int rows = 4;      // 行数
+    public int columns = 6;   // 列数
 
-    public string outputFileName = "ConnectionPatterns.json"; // 輸出文件名，保存在 Assets/Resources 資料夾下
+    public string outputFileName = "ConnectionPatterns.json"; // 输出文件名，保存在 Assets/Resources 文件夹下
 
-    [ContextMenu("生成連線方式並保存到JSON")]
+    [ContextMenu("生成连接方式并保存到JSON")]
     public void GenerateAndSavePatterns()
     {
         List<ConnectionPattern> generatedPatterns = GenerateAllConnectionPatterns();
 
-        // 將連線方式列表包裝為 ConnectionList 對象
+        // 将连接方式列表包装为 ConnectionList 对象
         ConnectionList connectionList = new ConnectionList
         {
             connections = generatedPatterns
         };
 
-        // 序列化為JSON字符串
+        // 序列化为JSON字符串
         string json = JsonUtility.ToJson(connectionList, true);
 
-        // 確保輸出目錄存在
+        // 确保输出目录存在
         string outputDir = Application.dataPath + "/Resources";
         if (!Directory.Exists(outputDir))
         {
             Directory.CreateDirectory(outputDir);
         }
 
-        // 輸出文件路徑
+        // 输出文件路径
         string outputPath = Path.Combine(outputDir, outputFileName);
 
-        // 將JSON字符串寫入文件
+        // 将JSON字符串写入文件
         File.WriteAllText(outputPath, json);
 
-        Debug.Log($"連線方式已生成並保存到 {outputPath}");
+        Debug.Log($"连接方式已生成并保存到 {outputPath}");
     }
 
     /// <summary>
-    /// 生成所有可能的連線方式
+    /// 生成所有可能的连接方式
     /// </summary>
     List<ConnectionPattern> GenerateAllConnectionPatterns()
     {
         List<ConnectionPattern> generatedPatterns = new List<ConnectionPattern>();
 
-        // 對每一行的每一個格子進行遍歷，生成從第一列到第六列的連線
+        // 对每一行的每一个格子进行遍历，生成从第一列到第六列的连接
         for (int startRow = 0; startRow < rows; startRow++)
         {
             List<int> currentPath = new List<int>();
@@ -58,37 +58,38 @@ public class ConnectionPatternGenerator : MonoBehaviour
             GeneratePatternsRecursive(1, currentPath, generatedPatterns);
         }
 
-        Debug.Log($"共生成了 {generatedPatterns.Count} 種連線方式");
+        Debug.Log($"共生成了 {generatedPatterns.Count} 种连接方式");
 
         return generatedPatterns;
     }
 
     /// <summary>
-    /// 遞歸生成連線方式
+    /// 递归生成连接方式
     /// </summary>
-    /// <param name="currentColumn">當前列</param>
-    /// <param name="currentPath">當前路徑</param>
-    /// <param name="patterns">存儲生成的連線方式</param>
+    /// <param name="currentColumn">当前列</param>
+    /// <param name="currentPath">当前路径</param>
+    /// <param name="patterns">存储生成的连接方式</param>
     void GeneratePatternsRecursive(int currentColumn, List<int> currentPath, List<ConnectionPattern> patterns)
     {
         if (currentColumn >= columns)
         {
-            // 已經到達最後一列，儲存當前的連線方式
+            // 已经到达最后一列，保存当前的连接方式
             List<string> pattern = CreatePatternFromPath(currentPath);
             ConnectionPattern connectionPattern = new ConnectionPattern
             {
-                name = $"連線方式 {patterns.Count + 1}",
+                name = $"连接方式 {patterns.Count + 1}",
                 pattern = pattern,
-                isUnlocked = false // 預設為未解鎖
+                isUnlocked = false // 预设为未解锁
             };
+            connectionPattern.InitializePositions();
             patterns.Add(connectionPattern);
             return;
         }
 
-        // 獲取當前行
+        // 获取当前行
         int currentRow = currentPath[currentPath.Count - 1];
 
-        // 獲取下一列可能的行（相鄰或對角相鄰）
+        // 获取下一列可能的行（相邻或对角相邻）
         List<int> nextRows = GetAdjacentRows(currentRow);
 
         foreach (int nextRow in nextRows)
@@ -100,10 +101,10 @@ public class ConnectionPatternGenerator : MonoBehaviour
     }
 
     /// <summary>
-    /// 獲取相鄰或對角相鄰的行索引
+    /// 获取相邻或对角相邻的行索引
     /// </summary>
-    /// <param name="currentRow">當前行索引</param>
-    /// <returns>相鄰行的列表</returns>
+    /// <param name="currentRow">当前行索引</param>
+    /// <returns>相邻行的列表</returns>
     List<int> GetAdjacentRows(int currentRow)
     {
         List<int> adjacentRows = new List<int>();
@@ -114,7 +115,7 @@ public class ConnectionPatternGenerator : MonoBehaviour
             adjacentRows.Add(currentRow - 1);
         }
 
-        // 當前行
+        // 当前行
         adjacentRows.Add(currentRow);
 
         // 下一行
@@ -127,13 +128,13 @@ public class ConnectionPatternGenerator : MonoBehaviour
     }
 
     /// <summary>
-    /// 根據路徑創建連線模式
+    /// 根据路径创建连接模式
     /// </summary>
-    /// <param name="path">路徑（每列的行索引）</param>
-    /// <returns>連線模式的列表，每個字符串代表一行的連線狀態</returns>
+    /// <param name="path">路径（每列的行索引）</param>
+    /// <returns>连接模式的列表，每个字符串代表一行的连接状态</returns>
     List<string> CreatePatternFromPath(List<int> path)
     {
-        // 初始化模式列表，所有位置設為 "X"
+        // 初始化模式列表，所有位置设为 "X"
         List<string> pattern = new List<string>();
         for (int row = 0; row < rows; row++)
         {
@@ -145,7 +146,7 @@ public class ConnectionPatternGenerator : MonoBehaviour
             pattern.Add(rowPattern);
         }
 
-        // 根據路徑設置 "O"
+        // 根据路径设置 "O"
         for (int col = 0; col < path.Count; col++)
         {
             int row = path[col];
@@ -156,50 +157,45 @@ public class ConnectionPatternGenerator : MonoBehaviour
 
         return pattern;
     }
-
-    /// <summary>
-    /// 解鎖指定名稱的連線模式
-    /// </summary>
-    /// <param name="patternName">連線模式名稱</param>
-    public void UnlockConnectionPattern(string patternName)
-    {
-        string outputPath = Path.Combine(Application.dataPath, "Resources", outputFileName);
-        if (!File.Exists(outputPath))
-        {
-            Debug.LogError($"連線方式文件不存在: {outputPath}");
-            return;
-        }
-
-        string json = File.ReadAllText(outputPath);
-        ConnectionList connectionList = JsonUtility.FromJson<ConnectionList>(json);
-
-        foreach (var pattern in connectionList.connections)
-        {
-            if (pattern.name == patternName)
-            {
-                pattern.isUnlocked = true;
-                Debug.Log($"已解鎖連線方式: {pattern.name}");
-                break;
-            }
-        }
-
-        // 序列化並保存
-        string updatedJson = JsonUtility.ToJson(connectionList, true);
-        File.WriteAllText(outputPath, updatedJson);
-    }
 }
 
 
-
 /// <summary>
-/// 連線模式的數據結構
+/// 连接模式的数据结构
 /// </summary>
 [System.Serializable]
 public class ConnectionPattern
 {
     public string name;
-    public List<string> pattern; // 每個字符串代表一行的連線模式，例如 "OXXXXX"
-    public bool isUnlocked;      // 是否已解鎖
+    public List<string> pattern; // 每个字符串代表一行的连接模式，例如 "OXXXXX"
+    public bool isUnlocked;      // 是否已解锁
+
+    // 存储 'O' 的位置
+    public List<Vector2Int> positions; // 格子的行和列
+
+    /// <summary>
+    /// 初始化 'O' 的位置并按列排序
+    /// </summary>
+    public void InitializePositions()
+    {
+        positions = new List<Vector2Int>();
+        int numRows = pattern.Count;
+        int numCols = pattern[0].Length;
+
+        for (int row = 0; row < numRows; row++)
+        {
+            for (int col = 0; col < numCols; col++)
+            {
+                if (pattern[row][col] == 'O')
+                {
+                    positions.Add(new Vector2Int(row, col));
+                }
+            }
+        }
+
+        // 按照列排序，确保连接顺序从左到右
+        positions.Sort((a, b) => a.y.CompareTo(b.y));
+    }
 }
 
 [System.Serializable]

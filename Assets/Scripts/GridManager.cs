@@ -7,7 +7,8 @@ using UnityEngine.Tilemaps;
 /// </summary>
 public class GridManager : MonoBehaviour
 {
-    public static GridManager Instance { get; private set; } // 单例模式
+    // 单例模式实现，确保全局唯一
+    public static GridManager Instance { get; private set; }
 
     [Header("Tilemaps")]
     public Tilemap battleTilemap; // 战斗区域的Tilemap
@@ -19,6 +20,7 @@ public class GridManager : MonoBehaviour
 
     [Header("Prefabs")]
     public GameObject unitPrefab;      // 单位的Prefab
+    public GameObject bossPrefab;      // Boss的Prefab
     public GameObject buildingPrefab;  // 建筑的Prefab
 
     [Header("Data")]
@@ -30,14 +32,14 @@ public class GridManager : MonoBehaviour
     public Transform unitsParent;      // 单位的父对象
     public Transform buildingsParent;  // 建筑的父对象
 
+    [Header("Grid Settings")]
     public int rows = 4;          // 行数
     public int columns = 6;       // 列数（战斗区域）
 
     private int totalColumns;     // 总列数 = 战斗区域列数 + 2（城墙）
 
     // 存储单位和建筑的位置
-    private Dictionary<Vector3Int, UnitController> unitPositions = new Dictionary<Vector3Int, UnitController>();
-    private Dictionary<Vector3Int, BuildingController> buildingPositions = new Dictionary<Vector3Int, BuildingController>();
+    private Dictionary<Vector3Int, ISkillUser> skillUsersPositions = new Dictionary<Vector3Int, ISkillUser>();
 
     void Awake()
     {
@@ -45,10 +47,11 @@ public class GridManager : MonoBehaviour
         if (Instance == null)
         {
             Instance = this;
+            DontDestroyOnLoad(gameObject); // 可选：保持在场景切换中不被销毁
         }
         else
         {
-            Destroy(this);
+            Destroy(this.gameObject);
         }
     }
 
@@ -59,22 +62,35 @@ public class GridManager : MonoBehaviour
         GenerateBattleArea();
         GenerateWallArea();
 
-        // 生成玩家单位
-        if (playerUnits.Count > 0)
+        /*
+        // 生成玩家单位（示例位置）
+        if (playerUnits != null && playerUnits.Count > 0)
         {
+            // 示例：在第1行第2列生成第一个玩家单位
             SpawnUnit(new Vector3Int(2, 1, 0), playerUnits[0]);
         }
 
-        // 生成建筑物
-        if (buildings.Count > 0)
+        // 生成敌方单位（包括Boss，示例位置）
+        if (enemyUnits != null && enemyUnits.Count > 0)
         {
-            SpawnBuilding(new Vector3Int(0, 1, 0), buildings[0]); // 城墙
-            SpawnBuilding(new Vector3Int(totalColumns - 1, 1, 0), buildings[1]); // 另一侧城墙或城镇
+            // 示例：在第1行第5列生成敌方Boss
+            SpawnBoss(new Vector3Int(5, 1, 0), enemyUnits[0]);
         }
+
+        // 生成建筑物（示例位置）
+        if (buildings != null && buildings.Count > 0)
+        {
+            SpawnBuilding(new Vector3Int(0, 1, 0), buildings[0]); // 左侧城墙
+            if (buildings.Count > 1)
+            {
+                SpawnBuilding(new Vector3Int(totalColumns - 1, 1, 0), buildings[1]); // 右侧城墙或城镇
+            }
+        }
+        */
     }
 
     /// <summary>
-    /// 生成战斗区域
+    /// 生成战斗区域的Tile
     /// </summary>
     void GenerateBattleArea()
     {
@@ -89,7 +105,7 @@ public class GridManager : MonoBehaviour
     }
 
     /// <summary>
-    /// 生成城墙区域（最左和最右）
+    /// 生成城墙区域的Tile（最左和最右）
     /// </summary>
     void GenerateWallArea()
     {
@@ -112,7 +128,7 @@ public class GridManager : MonoBehaviour
     /// <param name="unitData">单位数据</param>
     public void SpawnUnit(Vector3Int position, UnitData unitData)
     {
-        if (unitPositions.ContainsKey(position) || buildingPositions.ContainsKey(position))
+        if (skillUsersPositions.ContainsKey(position))
         {
             Debug.LogWarning($"位置 {position} 已经有单位或建筑存在！");
             return;
@@ -129,7 +145,34 @@ public class GridManager : MonoBehaviour
             unitGO.transform.SetParent(unitsParent);
         }
 
-        unitPositions.Add(position, unit);
+        skillUsersPositions.Add(position, unit);
+    }
+
+    /// <summary>
+    /// 生成Boss单位
+    /// </summary>
+    /// <param name="position">格子位置</param>
+    /// <param name="unitData">Boss单位数据</param>
+    public void SpawnBoss(Vector3Int position, UnitData unitData)
+    {
+        if (skillUsersPositions.ContainsKey(position))
+        {
+            Debug.LogWarning($"位置 {position} 已经有单位或建筑存在！");
+            return;
+        }
+
+        GameObject bossGO = Instantiate(bossPrefab);
+        BossController boss = bossGO.GetComponent<BossController>();
+        boss.unitData = unitData;
+        boss.SetPosition(position);
+
+        // 设置为 Units 父对象的子对象
+        if (unitsParent != null)
+        {
+            bossGO.transform.SetParent(unitsParent);
+        }
+
+        skillUsersPositions.Add(position, boss);
     }
 
     /// <summary>
@@ -139,7 +182,7 @@ public class GridManager : MonoBehaviour
     /// <param name="buildingData">建筑数据</param>
     public void SpawnBuilding(Vector3Int position, BuildingData buildingData)
     {
-        if (buildingPositions.ContainsKey(position) || unitPositions.ContainsKey(position))
+        if (skillUsersPositions.ContainsKey(position))
         {
             Debug.LogWarning($"位置 {position} 已经有建筑或单位存在！");
             return;
@@ -156,7 +199,7 @@ public class GridManager : MonoBehaviour
             buildingGO.transform.SetParent(buildingsParent);
         }
 
-        buildingPositions.Add(position, building);
+        skillUsersPositions.Add(position, building);
     }
 
     /// <summary>
@@ -164,9 +207,23 @@ public class GridManager : MonoBehaviour
     /// </summary>
     /// <param name="position">格子的位置</param>
     /// <returns>是否有角色</returns>
-    public bool HasUnitAt(Vector3Int position)
+    public bool HasSkillUserAt(Vector3Int position)
     {
-        return unitPositions.ContainsKey(position);
+        return skillUsersPositions.ContainsKey(position);
+    }
+
+    /// <summary>
+    /// 获取指定位置的技能用户（单位或建筑物）
+    /// </summary>
+    /// <param name="position">格子位置</param>
+    /// <returns>ISkillUser 或 null</returns>
+    public ISkillUser GetSkillUserAt(Vector3Int position)
+    {
+        if (skillUsersPositions.ContainsKey(position))
+        {
+            return skillUsersPositions[position];
+        }
+        return null;
     }
 
     /// <summary>
@@ -176,21 +233,11 @@ public class GridManager : MonoBehaviour
     /// <returns>UnitController 或 null</returns>
     public UnitController GetUnitAt(Vector3Int position)
     {
-        if (unitPositions.ContainsKey(position))
+        if (skillUsersPositions.ContainsKey(position))
         {
-            return unitPositions[position];
+            return skillUsersPositions[position] as UnitController;
         }
         return null;
-    }
-
-    /// <summary>
-    /// 判断城墙区域上的格子是否有建筑
-    /// </summary>
-    /// <param name="position">格子的位置</param>
-    /// <returns>是否有建筑</returns>
-    public bool HasBuildingAt(Vector3Int position)
-    {
-        return buildingPositions.ContainsKey(position);
     }
 
     /// <summary>
@@ -200,9 +247,9 @@ public class GridManager : MonoBehaviour
     /// <returns>BuildingController 或 null</returns>
     public BuildingController GetBuildingAt(Vector3Int position)
     {
-        if (buildingPositions.ContainsKey(position))
+        if (skillUsersPositions.ContainsKey(position))
         {
-            return buildingPositions[position];
+            return skillUsersPositions[position] as BuildingController;
         }
         return null;
     }
@@ -230,14 +277,34 @@ public class GridManager : MonoBehaviour
     }
 
     /// <summary>
+    /// 从指定位置移除技能用户
+    /// </summary>
+    /// <param name="position">格子位置</param>
+    public void RemoveSkillUserAt(Vector3Int position)
+    {
+        if (skillUsersPositions.ContainsKey(position))
+        {
+            skillUsersPositions.Remove(position);
+        }
+    }
+
+    /// <summary>
     /// 从指定位置移除单位
     /// </summary>
     /// <param name="position">格子位置</param>
     public void RemoveUnitAt(Vector3Int position)
     {
-        if (unitPositions.ContainsKey(position))
+        if (skillUsersPositions.ContainsKey(position))
         {
-            unitPositions.Remove(position);
+            ISkillUser user = skillUsersPositions[position];
+            if (user is UnitController)
+            {
+                skillUsersPositions.Remove(position);
+            }
+            else
+            {
+                Debug.LogWarning($"尝试移除的位置 {position} 上的不是单位！");
+            }
         }
     }
 
@@ -247,10 +314,54 @@ public class GridManager : MonoBehaviour
     /// <param name="position">格子位置</param>
     public void RemoveBuildingAt(Vector3Int position)
     {
-        if (buildingPositions.ContainsKey(position))
+        if (skillUsersPositions.ContainsKey(position))
         {
-            buildingPositions.Remove(position);
+            ISkillUser user = skillUsersPositions[position];
+            if (user is BuildingController)
+            {
+                skillUsersPositions.Remove(position);
+            }
+            else
+            {
+                Debug.LogWarning($"尝试移除的位置 {position} 上的不是建筑物！");
+            }
         }
+    }
+
+    /// <summary>
+    /// 移动单位从一个位置到另一个位置
+    /// </summary>
+    /// <param name="oldPosition">旧位置</param>
+    /// <param name="newPosition">新位置</param>
+    /// <returns>是否成功移动</returns>
+    public bool MoveUnit(Vector3Int oldPosition, Vector3Int newPosition)
+    {
+        if (!skillUsersPositions.ContainsKey(oldPosition))
+        {
+            Debug.LogWarning($"位置 {oldPosition} 没有单位存在，无法移动！");
+            return false;
+        }
+
+        if (skillUsersPositions.ContainsKey(newPosition))
+        {
+            Debug.LogWarning($"位置 {newPosition} 已经有单位或建筑存在，无法移动！");
+            return false;
+        }
+
+        ISkillUser user = skillUsersPositions[oldPosition];
+
+        if (!(user is UnitController unit))
+        {
+            Debug.LogWarning($"位置 {oldPosition} 上的技能用户不是单位，无法移动！");
+            return false;
+        }
+
+        // 移动单位
+        skillUsersPositions.Remove(oldPosition);
+        skillUsersPositions.Add(newPosition, unit);
+        unit.SetPosition(newPosition);
+
+        return true;
     }
 
     /// <summary>
@@ -262,7 +373,7 @@ public class GridManager : MonoBehaviour
     {
         if (unit == null)
         {
-            //Debug.LogError("传入的UnitController为null！");
+            Debug.LogError("传入的UnitController为null！");
             return null;
         }
 
@@ -275,8 +386,8 @@ public class GridManager : MonoBehaviour
                (unit.unitData.camp == Camp.Enemy && frontColumn >= 1))
         {
             Vector3Int currentPos = new Vector3Int(frontColumn, row, 0);
-            UnitController frontUnit = GetUnitAt(currentPos);
-            if (frontUnit != null && frontUnit.unitData.camp == unit.unitData.camp)
+            ISkillUser frontSkillUser = GetSkillUserAt(currentPos);
+            if (frontSkillUser is UnitController frontUnit && frontUnit.unitData.camp == unit.unitData.camp)
             {
                 return frontUnit;
             }
@@ -287,4 +398,123 @@ public class GridManager : MonoBehaviour
         return null;
     }
 
+    /// <summary>
+    /// 获取所有玩家建筑
+    /// </summary>
+    /// <returns>玩家建筑列表</returns>
+    public List<BuildingController> GetPlayerBuildings()
+    {
+        List<BuildingController> playerBuildings = new List<BuildingController>();
+        foreach (var skillUser in skillUsersPositions.Values)
+        {
+            if (skillUser is BuildingController building && building.buildingData.camp == Camp.Player)
+            {
+                playerBuildings.Add(building);
+            }
+        }
+        return playerBuildings;
+    }
+
+    /// <summary>
+    /// 获取所有建筑
+    /// </summary>
+    /// <returns>所有建筑列表</returns>
+    public List<BuildingController> GetAllBuildings()
+    {
+        List<BuildingController> allBuildings = new List<BuildingController>();
+        foreach (var skillUser in skillUsersPositions.Values)
+        {
+            if (skillUser is BuildingController building)
+            {
+                allBuildings.Add(building);
+            }
+        }
+        return allBuildings;
+    }
+
+    /// <summary>
+    /// 获取指定波次（列）的单位
+    /// </summary>
+    /// <param name="column">列号（1-6）</param>
+    /// <returns>单位列表</returns>
+    public List<UnitController> GetUnitsByColumn(int column)
+    {
+        List<UnitController> units = new List<UnitController>();
+        foreach (var skillUser in skillUsersPositions.Values)
+        {
+            if (skillUser is UnitController unit && unit.unitData.camp == Camp.Player && unit.gridPosition.x == column)
+            {
+                units.Add(unit);
+            }
+        }
+        return units;
+    }
+
+    /// <summary>
+    /// 获取所有敌方建筑的位置
+    /// </summary>
+    /// <returns>敌方建筑的位置列表</returns>
+    public List<Vector3Int> GetEnemyPositions()
+    {
+        List<Vector3Int> enemyPositions = new List<Vector3Int>();
+        foreach (var kvp in skillUsersPositions)
+        {
+            if (kvp.Value is BuildingController building && building.buildingData.camp == Camp.Enemy)
+            {
+                enemyPositions.Add(kvp.Key);
+            }
+        }
+        return enemyPositions;
+    }
+
+    /// <summary>
+    /// 获取Boss单位
+    /// </summary>
+    /// <returns>BossController 或 null</returns>
+    public BossController GetBossUnit()
+    {
+        foreach (var skillUser in skillUsersPositions.Values)
+        {
+            if (skillUser is BossController boss)
+            {
+                return boss;
+            }
+        }
+        return null;
+    }
+
+    /// <summary>
+    /// 获取战斗区域所有格子的位置
+    /// </summary>
+    /// <returns>格子位置列表</returns>
+    public List<Vector3Int> GetBattleAreaPositions()
+    {
+        List<Vector3Int> positions = new List<Vector3Int>();
+        for (int row = 0; row < rows; row++)
+        {
+            for (int col = 1; col <= columns; col++)
+            {
+                positions.Add(new Vector3Int(col, row, 0));
+            }
+        }
+        return positions;
+    }
+
+    /// <summary>
+    /// 获取指定阵营的所有单位
+    /// </summary>
+    /// <param name="camp">阵营</param>
+    /// <returns>单位列表</returns>
+    public List<UnitController> GetUnitsByCamp(Camp camp)
+    {
+        List<UnitController> units = new List<UnitController>();
+        foreach (var skillUser in skillUsersPositions.Values)
+        {
+            if (skillUser is UnitController unit && unit.unitData.camp == camp)
+            {
+                units.Add(unit);
+            }
+        }
+        return units;
+    }
 }

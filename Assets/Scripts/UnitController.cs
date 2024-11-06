@@ -1,19 +1,12 @@
 using UnityEngine;
 
-public class UnitController : MonoBehaviour
+public class UnitController : MonoBehaviour, ISkillUser
 {
     public UnitData unitData;       // 单位的数据
 
     public Vector3Int gridPosition; // 单位在格子上的位置
 
     private int defensePoints = 0;  // 防卫点数
-
-    // 引用 SkillManager
-    private SkillManager skillManager;
-
-    [Header("Skills")]
-    public SkillSO mainSkillSO;      // 主技能
-    public SkillSO supportSkillSO;   // 支援技能
 
     [HideInInspector]
     public Skill currentSkill;       // 当前技能的运行时实例
@@ -24,21 +17,23 @@ public class UnitController : MonoBehaviour
         InitializeUnit();
 
         // 获取 SkillManager 引用
-        skillManager = FindObjectOfType<SkillManager>();
-        if (skillManager == null)
+        if (SkillManager.Instance == null)
         {
-            Debug.LogError("未找到 SkillManager！");
+            Debug.LogError("UnitController: 未找到 SkillManager！");
         }
 
         // 初始化当前技能为主技能的克隆
-        if (mainSkillSO != null)
+        if (unitData.mainSkillSO != null)
         {
-            currentSkill = Skill.FromSkillSO(mainSkillSO);
+            currentSkill = Skill.FromSkillSO(unitData.mainSkillSO);
         }
         else
         {
-            Debug.LogWarning($"{unitData.unitName} 没有配置主技能！");
+            Debug.LogWarning($"UnitController: 单位 {unitData.unitName} 没有配置主技能！");
         }
+
+        // 调用初始化方法
+        Init();
     }
 
     /// <summary>
@@ -50,11 +45,26 @@ public class UnitController : MonoBehaviour
         if (unitData.unitSprite != null)
         {
             SpriteRenderer sr = GetComponent<SpriteRenderer>();
-            sr.sprite = unitData.unitSprite;
+            if (sr != null)
+            {
+                sr.sprite = unitData.unitSprite;
+            }
+            else
+            {
+                Debug.LogWarning("UnitController: 未找到 SpriteRenderer 组件！");
+            }
         }
 
         // 根据单位数据设置其他属性
         // 例如，设置速度、攻击范围等
+    }
+
+    /// <summary>
+    /// 虚拟初始化方法，允许派生类重写
+    /// </summary>
+    protected virtual void Init()
+    {
+        // 基类的初始化逻辑（如果有的话）
     }
 
     /// <summary>
@@ -70,44 +80,14 @@ public class UnitController : MonoBehaviour
 
         transform.position = cellWorldPosition;
 
-        Debug.Log($"单位 {unitData.unitName} 放置在格子中心: {cellWorldPosition}");
-    }
-
-    /// <summary>
-    /// 移动单位到前方一格
-    /// </summary>
-    public void MoveForward()
-    {
-        Vector3Int direction = unitData.camp == Camp.Player ? Vector3Int.right : Vector3Int.left;
-        Vector3Int newPosition = gridPosition + direction;
-
-        // 检查新位置是否在战斗区域
-        if (!GridManager.Instance.IsWithinBattleArea(newPosition))
-        {
-            Debug.Log($"{unitData.unitName} 无法移动，超出战斗区域！");
-            return;
-        }
-
-        // 检查新位置是否被占据
-        if (GridManager.Instance.HasUnitAt(newPosition) || GridManager.Instance.HasBuildingAt(newPosition))
-        {
-            Debug.Log($"{unitData.unitName} 无法移动，前方已被占据！");
-            return;
-        }
-
-        // 移动单位
-        GridManager.Instance.RemoveUnitAt(gridPosition);
-        SetPosition(newPosition);
-        GridManager.Instance.SpawnUnit(newPosition, unitData);
-
-        Debug.Log($"{unitData.unitName} 向前移动到 {newPosition}");
+        Debug.Log($"UnitController: 单位 {unitData.unitName} 放置在格子中心: {cellWorldPosition}");
     }
 
     /// <summary>
     /// 检查单位是否可以继续向前移动
     /// </summary>
     /// <returns>是否可以移动</returns>
-    public bool CanMoveForward()
+    public virtual bool CanMoveForward()
     {
         Vector3Int direction = unitData.camp == Camp.Player ? Vector3Int.right : Vector3Int.left;
         Vector3Int newPosition = gridPosition + direction;
@@ -119,7 +99,7 @@ public class UnitController : MonoBehaviour
         }
 
         // 检查新位置是否被占据
-        if (GridManager.Instance.HasUnitAt(newPosition) || GridManager.Instance.HasBuildingAt(newPosition))
+        if (GridManager.Instance.HasSkillUserAt(newPosition))
         {
             return false;
         }
@@ -128,9 +108,30 @@ public class UnitController : MonoBehaviour
     }
 
     /// <summary>
+    /// 移动单位到前方一格
+    /// </summary>
+    public virtual void MoveForward()
+    {
+        Vector3Int direction = unitData.camp == Camp.Player ? Vector3Int.right : Vector3Int.left;
+        Vector3Int newPosition = gridPosition + direction;
+
+        // 尝试通过 GridManager 移动单位
+        bool moved = GridManager.Instance.MoveUnit(gridPosition, newPosition);
+        if (moved)
+        {
+            gridPosition = newPosition;
+            Debug.Log($"UnitController: 单位 {unitData.unitName} 向前移动到 {newPosition}");
+        }
+        else
+        {
+            Debug.Log($"UnitController: 单位 {unitData.unitName} 无法移动到 {newPosition}");
+        }
+    }
+
+    /// <summary>
     /// 执行近战攻击
     /// </summary>
-    public void PerformMeleeAttack()
+    public virtual void PerformMeleeAttack()
     {
         Vector3Int attackDirection = unitData.camp == Camp.Player ? Vector3Int.right : Vector3Int.left;
         Vector3Int targetPosition = gridPosition + attackDirection;
@@ -142,23 +143,23 @@ public class UnitController : MonoBehaviour
         if (targetUnit != null)
         {
             targetUnit.TakeDamage(1);
-            Debug.Log($"{unitData.unitName} 对 {targetUnit.unitData.unitName} 进行近战攻击，造成1点伤害！");
+            Debug.Log($"UnitController: 单位 {unitData.unitName} 对 {targetUnit.unitData.unitName} 进行近战攻击，造成1点伤害！");
         }
         else if (targetBuilding != null)
         {
             targetBuilding.TakeDamage(1);
-            Debug.Log($"{unitData.unitName} 对建筑 {targetBuilding.buildingData.buildingName} 进行近战攻击，造成1点伤害！");
+            Debug.Log($"UnitController: 单位 {unitData.unitName} 对建筑 {targetBuilding.buildingData.buildingName} 进行近战攻击，造成1点伤害！");
         }
         else
         {
-            Debug.Log($"{unitData.unitName} 近战攻击无目标！");
+            Debug.Log($"UnitController: 单位 {unitData.unitName} 近战攻击无目标！");
         }
     }
 
     /// <summary>
     /// 执行远程攻击
     /// </summary>
-    public void PerformRangedAttack()
+    public virtual void PerformRangedAttack()
     {
         Vector3Int attackDirection = unitData.camp == Camp.Player ? Vector3Int.right : Vector3Int.left;
         Vector3Int currentPos = gridPosition + attackDirection;
@@ -173,14 +174,14 @@ public class UnitController : MonoBehaviour
             if (targetUnit != null)
             {
                 targetUnit.TakeDamage(1);
-                Debug.Log($"{unitData.unitName} 对 {targetUnit.unitData.unitName} 进行远程攻击，造成1点伤害！");
+                Debug.Log($"UnitController: 单位 {unitData.unitName} 对 {targetUnit.unitData.unitName} 进行远程攻击，造成1点伤害！");
                 hasAttacked = true;
                 break; // 只攻击第一个目标
             }
             else if (targetBuilding != null)
             {
                 targetBuilding.TakeDamage(1);
-                Debug.Log($"{unitData.unitName} 对建筑 {targetBuilding.buildingData.buildingName} 进行远程攻击，造成1点伤害！");
+                Debug.Log($"UnitController: 单位 {unitData.unitName} 对建筑 {targetBuilding.buildingData.buildingName} 进行远程攻击，造成1点伤害！");
                 hasAttacked = true;
                 break; // 只攻击第一个目标
             }
@@ -190,7 +191,7 @@ public class UnitController : MonoBehaviour
 
         if (!hasAttacked)
         {
-            Debug.Log($"{unitData.unitName} 远程攻击无目标！");
+            Debug.Log($"UnitController: 单位 {unitData.unitName} 远程攻击无目标！");
         }
     }
 
@@ -198,30 +199,30 @@ public class UnitController : MonoBehaviour
     /// 增加防卫点数
     /// </summary>
     /// <param name="value">增加的防卫点数</param>
-    public void IncreaseDefense(int value)
+    public virtual void IncreaseDefense(int value)
     {
         defensePoints += value;
-        Debug.Log($"{unitData.unitName} 防卫点数增加 {value}，当前防卫点数：{defensePoints}");
+        Debug.Log($"UnitController: 单位 {unitData.unitName} 防卫点数增加 {value}，当前防卫点数：{defensePoints}");
     }
 
     /// <summary>
     /// 接受伤害
     /// </summary>
     /// <param name="damage">伤害值</param>
-    public void TakeDamage(int damage)
+    public virtual void TakeDamage(int damage)
     {
         // 首先扣除防卫点数
         int remainingDamage = damage - defensePoints;
         if (remainingDamage > 0)
         {
             unitData.health -= remainingDamage;
-            Debug.Log($"单位 {unitData.unitName} 接受 {remainingDamage} 点伤害，当前生命值: {unitData.health}");
+            Debug.Log($"UnitController: 单位 {unitData.unitName} 接受 {remainingDamage} 点伤害，当前生命值: {unitData.health}");
         }
         else
         {
             // 防卫点数足以抵消所有伤害
             defensePoints -= damage;
-            Debug.Log($"单位 {unitData.unitName} 防卫点数抵消了 {damage} 点伤害，剩余防卫点数: {defensePoints}");
+            Debug.Log($"UnitController: 单位 {unitData.unitName} 防卫点数抵消了 {damage} 点伤害，剩余防卫点数: {defensePoints}");
         }
 
         if (unitData.health <= 0)
@@ -231,56 +232,113 @@ public class UnitController : MonoBehaviour
     }
 
     /// <summary>
+    /// 治疗单位
+    /// </summary>
+    /// <param name="amount">治疗量</param>
+    public virtual void Heal(int amount)
+    {
+        if (unitData.maxHealth > 0)
+        {
+            unitData.health = Mathf.Min(unitData.health + amount, unitData.maxHealth);
+        }
+        else
+        {
+            unitData.health += amount;
+        }
+        Debug.Log($"UnitController: 单位 {unitData.unitName} 恢复了 {amount} 点生命值，当前生命值: {unitData.health}");
+    }
+
+    /// <summary>
     /// 销毁单位
     /// </summary>
     void DestroyUnit()
     {
         // 根据需求，可以添加单位销毁的动画或效果
-        Debug.Log($"单位 {unitData.unitName} 被销毁");
+        Debug.Log($"UnitController: 单位 {unitData.unitName} 被销毁");
         Destroy(gameObject);
         GridManager.Instance.RemoveUnitAt(gridPosition);
     }
 
     /// <summary>
-    /// 使用主技能
+    /// 使用主技能或支援技能
     /// </summary>
-    public void UseMainSkill()
+    public virtual void UseMainSkillOrSupport()
     {
-        if (mainSkillSO != null)
+        if (CanUseMainSkill())
         {
-            skillManager.ExecuteSkill(mainSkillSO, this);
+            UseMainSkill();
+        }
+        else if (CanUseSupportSkill())
+        {
+            UseSupportSkill();
         }
         else
         {
-            Debug.LogWarning($"{unitData.unitName} 没有配置主技能！");
+            Debug.Log($"UnitController: 单位 {unitData.unitName} 无法使用任何技能！");
+        }
+    }
+
+    /// <summary>
+    /// 判断是否可以使用主技能
+    /// </summary>
+    /// <returns></returns>
+    private bool CanUseMainSkill()
+    {
+        // 判断条件，例如是否有目标
+        Vector3Int attackDirection = unitData.camp == Camp.Player ? Vector3Int.right : Vector3Int.left;
+        Vector3Int targetPosition = gridPosition + attackDirection;
+
+        UnitController targetUnit = GridManager.Instance.GetUnitAt(targetPosition);
+        BuildingController targetBuilding = GridManager.Instance.GetBuildingAt(targetPosition);
+
+        return targetUnit != null || targetBuilding != null;
+    }
+
+    /// <summary>
+    /// 判断是否可以使用支援技能
+    /// </summary>
+    /// <returns></returns>
+    private bool CanUseSupportSkill()
+    {
+        // 判断条件，例如前方有友方单位
+        UnitController frontUnit = GridManager.Instance.GetFrontUnitInRow(this);
+        return frontUnit != null && frontUnit.unitData.camp == this.unitData.camp;
+    }
+
+    /// <summary>
+    /// 使用主技能
+    /// </summary>
+    public virtual void UseMainSkill()
+    {
+        if (unitData.mainSkillSO != null)
+        {
+            unitData.mainSkillSO.Execute(this);
+        }
+        else
+        {
+            Debug.LogWarning($"UnitController: 单位 {unitData.unitName} 没有配置主技能！");
         }
     }
 
     /// <summary>
     /// 使用支援技能
     /// </summary>
-    /// <param name="skillSO">支援技能ScriptableObject</param>
-    public void ApplySupportSkill(SkillSO skillSO)
+    public virtual void UseSupportSkill()
     {
-        if (skillSO != null)
+        if (unitData.supportSkillSO != null)
         {
-            // 克隆支援技能动作并添加到当前技能
-            Skill supportSkill = Skill.FromSkillSO(skillSO);
-            foreach (var action in supportSkill.Actions)
-            {
-                currentSkill.AddAction(action);
-                Debug.Log($"{unitData.unitName} 的主技能增加了支援技能动作：{action.Type} {action.Value}");
-            }
-
-            // 重新执行当前技能
-            ExecuteCurrentSkill();
+            unitData.supportSkillSO.Execute(this);
+        }
+        else
+        {
+            Debug.LogWarning($"UnitController: 单位 {unitData.unitName} 没有配置支援技能！");
         }
     }
 
     /// <summary>
     /// 重新执行当前技能
     /// </summary>
-    public void ExecuteCurrentSkill()
+    public virtual void ExecuteCurrentSkill()
     {
         if (currentSkill != null)
         {
@@ -294,7 +352,7 @@ public class UnitController : MonoBehaviour
                         {
                             if (!CanMoveForward())
                             {
-                                Debug.Log($"{unitData.unitName} 无法继续移动，技能执行被阻挡！");
+                                Debug.Log($"UnitController: 单位 {unitData.unitName} 无法继续移动，技能执行被阻挡！");
                                 break;
                             }
                             MoveForward();
@@ -316,7 +374,7 @@ public class UnitController : MonoBehaviour
                         IncreaseDefense(action.Value);
                         break;
                     default:
-                        Debug.LogWarning($"未处理的技能类型：{action.Type}");
+                        Debug.LogWarning($"UnitController: 未处理的技能类型：{action.Type}");
                         break;
                 }
             }

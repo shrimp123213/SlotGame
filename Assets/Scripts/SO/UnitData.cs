@@ -6,10 +6,17 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "NewUnit", menuName = "ScriptableObjects/Unit")]
 public class UnitData : ScriptableObject
 {
-    public string unitName;
-    public Sprite unitSprite;
-    public int health;
-    public Camp camp; // 使用枚舉
+    public string unitName;               // 单位名称
+    public Sprite unitSprite;             // 单位的Sprite
+    public int health;                    // 单位的生命值
+    public int maxHealth;                 // 单位的最大生命值
+    public Camp camp;                     // 单位的阵营（玩家或敌人）
+
+    [Header("Skills")]
+    public SkillSO mainSkillSO;           // 主技能
+    public SkillSO supportSkillSO;        // 支援技能
+
+    // 可以根据需要添加更多属性，如速度、攻击范围等
 }
 
 public enum Camp

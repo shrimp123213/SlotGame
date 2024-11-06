@@ -13,10 +13,8 @@ MonoBehaviour:
   m_Name: 1_Warrior
   m_EditorClassIdentifier: 
   unitName: Warrior
-  description: 
   unitSprite: {fileID: -1831926203, guid: 87a16c9905dbfd5479cafebc438e47fc, type: 3}
-  attackRange: 0
-  attackDamage: 0
-  unitType: 0
-  profession: 0
-  speed: 0
+  health: 100
+  camp: 0
+  mainSkillSO: {fileID: 11400000, guid: 4f9a74477969eb84cb54e31f03402651, type: 2}
+  supportSkillSO: {fileID: 11400000, guid: 19f69ec6875a4a34aab3c1c8da23b1b0, type: 2}

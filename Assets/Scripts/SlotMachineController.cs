@@ -1,46 +1,66 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Tilemaps;
 
 /// <summary>
-/// 控制拉霸機（老虎機）的行為
+/// 控制拉霸机（老虎机）的行为
 /// </summary>
 public class SlotMachineController : MonoBehaviour
 {
     [Header("Grid Manager")]
-    public GridManager gridManager; // 引用GridManager
+    public GridManager gridManager; // 引用 GridManager
 
     [Header("Connection Manager")]
-    public ConnectionManager connectionManager; // 引用ConnectionManager
+    public ConnectionManager connectionManager; // 引用 ConnectionManager
 
     [Header("Cards")]
-    public List<UnitData> playerDeck; // 玩家牌組
-    public List<UnitData> enemyDeck;  // 敵人牌組
+    public List<UnitData> playerDeck; // 玩家牌组
+    public List<UnitData> enemyDeck;  // 敌人牌组
 
     [Header("Slot Machine Settings")]
-    public float spinDuration = 5f; // 轉動時間
-    public int maxCards = 24;        // 最大卡片數
+    public float spinDuration = 5f; // 旋转时间
+    public int maxCards = 24;        // 最大卡片数
+    public float spinSpeed = 10f;    // 旋转速度
 
-    private List<Vector3Int> battlePositions = new List<Vector3Int>(); // 戰鬥區域的所有格子位置
+    [Header("Visual Settings")]
+    public Tile[] spinTiles;         // 转盘使用的 Tile 集合
+
+    private List<Vector3Int> battlePositions = new List<Vector3Int>(); // 战斗区域的所有格子位置
     private List<UnitData> selectedCards = new List<UnitData>();        // 抽取的卡片
 
     private bool isSpinning = false;
 
     void Start()
     {
+        if (gridManager == null)
+        {
+            Debug.LogError("SlotMachineController: GridManager 未设置！");
+            return;
+        }
+
+        if (connectionManager == null)
+        {
+            Debug.LogError("SlotMachineController: ConnectionManager 未设置！");
+            return;
+        }
+
         InitializeBattlePositions();
-        // 您可以在此處調用 StartSpinning() 進行測試
-         StartSpinning();
+
+        // 可以在这里调用 StartSpinning() 进行测试
+        StartSpinning();
     }
 
     /// <summary>
-    /// 初始化戰鬥區域的所有格子位置
+    /// 初始化战斗区域的所有格子位置
     /// </summary>
     void InitializeBattlePositions()
     {
+        battlePositions.Clear();
         for (int row = 0; row < gridManager.rows; row++)
         {
-            for (int col = 1; col <= gridManager.columns; col++) // 列從1到6
+            // 将列索引从 1 开始
+            for (int col = 1; col <= gridManager.columns; col++) // 列从 1 到 columns
             {
                 battlePositions.Add(new Vector3Int(col, row, 0));
             }
@@ -48,7 +68,7 @@ public class SlotMachineController : MonoBehaviour
     }
 
     /// <summary>
-    /// 開始轉動拉霸機
+    /// 开始转动拉霸机
     /// </summary>
     public void StartSpinning()
     {
@@ -58,33 +78,43 @@ public class SlotMachineController : MonoBehaviour
     }
 
     /// <summary>
-    /// 拉霸機的轉動協程
+    /// 拉霸机的转动协程
     /// </summary>
-    /// <returns></returns>
     IEnumerator SpinRoutine()
     {
         isSpinning = true;
 
-        // 抽取卡片
-        selectedCards = DrawCards();
+        float elapsed = 0f;
+        float spinInterval = 1f / spinSpeed;
 
-        // 隨機放置卡片
-        ShuffleAndPlaceCards();
+        // 清空之前的单位和 Tile
+        ClearBattleAreaUnits();
+        //ClearSpinTiles();
 
-        // 轉動持續時間
-        yield return new WaitForSeconds(spinDuration);
+        // 开始旋转视觉效果
+        while (elapsed < spinDuration)
+        {
+            //UpdateSpinTiles(); // 更新 Tile 以模拟旋转
+            elapsed += spinInterval;
+            yield return new WaitForSeconds(spinInterval);
+        }
 
         isSpinning = false;
 
-        // 停止轉動後的處理
-        Debug.Log("拉霸機停止，進入連線階段");
+        // 停止旋转视觉效果
+        //ClearSpinTiles();
 
-        // 檢查連線
+        // 进行游戏逻辑
+        selectedCards = DrawCards();
+        ShuffleAndPlaceCards();
+
+        // 检查连线
+        Debug.Log("拉霸机停止，进入连线阶段");
         connectionManager.CheckConnections();
     }
 
     /// <summary>
-    /// 抽取卡片，總數不超過24張，不重複
+    /// 抽取卡片，数量不超过 maxCards 张，不重复
     /// </summary>
     /// <returns>抽取的卡片列表</returns>
     List<UnitData> DrawCards()
@@ -105,7 +135,7 @@ public class SlotMachineController : MonoBehaviour
             deck[rnd] = temp;
         }
 
-        // 抽取前maxCards張
+        // 抽取前 maxCards 张
         for (int i = 0; i < drawCount; i++)
         {
             drawnCards.Add(deck[i]);
@@ -115,22 +145,28 @@ public class SlotMachineController : MonoBehaviour
     }
 
     /// <summary>
-    /// 隨機放置卡片到戰鬥區域的格子上，卡片不重複，若不足24張，用空白格填充
+    /// 随机放置卡片到战斗区域的格子上，卡片不重复，若不足 maxCards 张，用空白格填充
     /// </summary>
     void ShuffleAndPlaceCards()
     {
-        // 清空之前的單位
+        // 清空之前的单位
         ClearBattleAreaUnits();
 
-        // 隨機選擇24個位置
-        List<Vector3Int> availablePositions = new List<Vector3Int>(battlePositions);
-        for (int i = 0; i < maxCards; i++)
+        // 随机排列 battlePositions
+        List<Vector3Int> shuffledPositions = new List<Vector3Int>(battlePositions);
+        for (int i = shuffledPositions.Count - 1; i > 0; i--)
         {
-            if (availablePositions.Count == 0) break;
+            int rnd = Random.Range(0, i + 1);
+            Vector3Int temp = shuffledPositions[i];
+            shuffledPositions[i] = shuffledPositions[rnd];
+            shuffledPositions[rnd] = temp;
+        }
 
-            int rndIndex = Random.Range(0, availablePositions.Count);
-            Vector3Int selectedPos = availablePositions[rndIndex];
-            availablePositions.RemoveAt(rndIndex);
+        int positionCount = Mathf.Min(maxCards, shuffledPositions.Count);
+
+        for (int i = 0; i < positionCount; i++)
+        {
+            Vector3Int selectedPos = shuffledPositions[i];
 
             if (i < selectedCards.Count)
             {
@@ -139,26 +175,69 @@ public class SlotMachineController : MonoBehaviour
             }
             else
             {
-                // 用空白格填充（可選擇不做任何操作或顯示空白圖）
-                // 例如，可以在此處設置一個空的Tile或顯示空白圖
+                // 用空白格填充（可选择不做任何操作或显示空白图）
+                // 此处暂不处理
             }
         }
     }
 
     /// <summary>
-    /// 清空戰鬥區域上的所有單位
+    /// 清空战斗区域上的所有单位
     /// </summary>
     void ClearBattleAreaUnits()
     {
-        // 遍歷所有戰鬥區域格子，銷毀存在的單位
+        // 遍历所有战斗区域格子，销毁存在的单位
         foreach (var pos in battlePositions)
         {
-            if (gridManager.HasUnitAt(pos))
+            if (gridManager.HasSkillUserAt(pos))
             {
                 UnitController unit = gridManager.GetUnitAt(pos);
-                Destroy(unit.gameObject);
-                gridManager.RemoveUnitAt(pos); // 確保從字典中移除
+                if (unit != null)
+                {
+                    Destroy(unit.gameObject);
+                }
+                gridManager.RemoveUnitAt(pos); // 确保从字典中移除
             }
+        }
+    }
+
+    /// <summary>
+    /// 更新转盘上的 Tile 以模拟旋转
+    /// </summary>
+    private void UpdateSpinTiles()
+    {
+        Tilemap battleTilemap = gridManager.battleTilemap;
+        if (battleTilemap == null)
+        {
+            Debug.LogError("SlotMachineController: battleTilemap 未设置！");
+            return;
+        }
+
+        foreach (var position in battlePositions)
+        {
+            if (spinTiles.Length > 0)
+            {
+                int randomIndex = Random.Range(0, spinTiles.Length);
+                //battleTilemap.SetTile(position, spinTiles[randomIndex]);
+            }
+        }
+    }
+
+    /// <summary>
+    /// 清除转盘上的 Tile
+    /// </summary>
+    private void ClearSpinTiles()
+    {
+        Tilemap battleTilemap = gridManager.battleTilemap;
+        if (battleTilemap == null)
+        {
+            Debug.LogError("SlotMachineController: battleTilemap 未设置！");
+            return;
+        }
+
+        foreach (var position in battlePositions)
+        {
+            //battleTilemap.SetTile(position, null);
         }
     }
 }

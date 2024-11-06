@@ -7,10 +7,10 @@ using UnityEngine;
 public class ConnectionManager : MonoBehaviour
 {
     [Header("Grid Manager")]
-    public GridManager gridManager; // 引用GridManager
+    public GridManager gridManager; // 引用 GridManager
 
     [Header("Connection Patterns")]
-    public TextAsset connectionPatternsJson; // 连接方式的JSON文件
+    public TextAsset connectionPatternsJson; // 连接方式的 JSON 文件
 
     private List<ConnectionPattern> connectionPatterns = new List<ConnectionPattern>();
 
@@ -35,7 +35,7 @@ public class ConnectionManager : MonoBehaviour
     {
         if (connectionPatternsJson == null)
         {
-            Debug.LogError("ConnectionManager: 未指定连接方式的JSON文件！");
+            Debug.LogError("ConnectionManager: 未指定连接方式的 JSON 文件！");
             return;
         }
 
@@ -44,7 +44,7 @@ public class ConnectionManager : MonoBehaviour
         ConnectionList connectionList = JsonUtility.FromJson<ConnectionList>(json);
         if (connectionList == null || connectionList.connections == null)
         {
-            Debug.LogError("ConnectionManager: 无法解析连接方式的JSON文件！");
+            Debug.LogError("ConnectionManager: 无法解析连接方式的 JSON 文件！");
             return;
         }
 
@@ -66,21 +66,21 @@ public class ConnectionManager : MonoBehaviour
     {
         int rows = gridManager.rows;
         int cols = gridManager.columns;
-        gridCells = new UnitController[rows, cols];
+        gridCells = new UnitController[cols, rows]; // 索引顺序调整为 [col, row]
 
         // 遍历 GridManager 中的单位，填充 gridCells
-        for (int row = 0; row < rows; row++)
+        for (int col = 0; col < cols; col++)
         {
-            for (int col = 0; col < cols; col++)
+            for (int row = 0; row < rows; row++)
             {
-                Vector3Int pos = new Vector3Int(col + 1, row, 0); // 列从1开始
+                Vector3Int pos = new Vector3Int(col + 1, row, 0); // 列从 1 开始，行从 0 开始
                 if (gridManager.HasSkillUserAt(pos))
                 {
-                    gridCells[row, col] = gridManager.GetUnitAt(pos);
+                    gridCells[col, row] = gridManager.GetUnitAt(pos);
                 }
                 else
                 {
-                    gridCells[row, col] = null;
+                    gridCells[col, row] = null;
                 }
             }
         }
@@ -176,18 +176,20 @@ public class ConnectionManager : MonoBehaviour
 
         foreach (var pos in pattern.positions)
         {
-            int col = pos.x; // x 表示列
-            int row = pos.y; // y 表示行
+            int col = pos.y; 
+            int row = pos.x;
 
             // 检查边界
-            if (row < 0 || row >= gridManager.rows || col < 1 || col > gridManager.columns)
+            if (col < 0 || col >= gridManager.columns || row < 0 || row >= gridManager.rows)
             {
-                Debug.LogWarning($"ConnectionManager: 位置 ({row}, {col}) 超出棋盘范围！");
+                Debug.LogWarning($"ConnectionManager: 位置 ({col + 1}, {row}) 超出棋盘范围！");
                 return false;
             }
 
-            // gridCells[row, col - 1] 因为 gridCells 的列索引从0开始，对应实际列从1开始
-            UnitController unit = gridCells[row, col - 1];
+            // 访问 gridCells[col, row]
+            UnitController unit = gridCells[col, row];
+
+            Debug.Log($"检查位置：列 {col + 1}, 行 {row} (数组索引：{col}, {row}), 单位：{(unit != null ? unit.unitData.unitName : "空")}");
 
             if (unit == null || unit.unitData.camp != camp)
             {
@@ -222,8 +224,8 @@ public class ConnectionManager : MonoBehaviour
         List<Vector3> linePositions = new List<Vector3>();
         foreach (var pos in positions)
         {
-            int col = pos.x; // x 表示列
-            int row = pos.y; // y 表示行
+            int col = pos.y; 
+            int row = pos.x;
             Vector3Int gridPos = new Vector3Int(col, row, 0);
             Vector3 worldPos = gridManager.GetCellCenterWorld(gridPos);
             linePositions.Add(worldPos);
@@ -243,12 +245,6 @@ public class ConnectionManager : MonoBehaviour
         lr.startColor = lineColor; // 可以根据需要调整颜色
         lr.endColor = lineColor;
         lr.sortingOrder = 10;
-
-        // 使用 Debug.DrawLine 从左到右连接
-        for (int i = 0; i < linePositions.Count - 1; i++)
-        {
-            Debug.DrawLine(linePositions[i], linePositions[i + 1], lineColor, 5f);
-        }
 
         // 可选：自动删除连接线条
         Destroy(lineGO, 5f); // 5 秒后删除
@@ -277,31 +273,11 @@ public class ConnectionManager : MonoBehaviour
         {
             Debug.Log($"ConnectionManager: 玩家触发了连接模式 {pattern.name}，连接单位数量：{linkedUnitCount}，对敌人造成伤害！");
             // 实现对敌方的具体伤害逻辑，例如调用敌方城镇的伤害方法
-            // 示例：
-            /*EnemyBuildingController enemyBuilding = FindObjectOfType<EnemyBuildingController>();
-            if (enemyBuilding != null)
-            {
-                enemyBuilding.TakeDamage(linkedUnitCount * damagePerUnit);
-            }
-            else
-            {
-                Debug.LogWarning("ConnectionManager: 未找到 EnemyBuildingController！");
-            }*/
         }
         else if (camp == Camp.Enemy)
         {
             Debug.Log($"ConnectionManager: 敌人触发了连接模式 {pattern.name}，连接单位数量：{linkedUnitCount}，对玩家造成伤害！");
             // 实现对玩家的具体伤害逻辑，例如调用玩家城镇的伤害方法
-            // 示例：
-            /*PlayerBuildingController playerBuilding = FindObjectOfType<PlayerBuildingController>();
-            if (playerBuilding != null)
-            {
-                playerBuilding.TakeDamage(linkedUnitCount * damagePerUnit);
-            }
-            else
-            {
-                Debug.LogWarning("ConnectionManager: 未找到 PlayerBuildingController！");
-            }*/
         }
     }
 }

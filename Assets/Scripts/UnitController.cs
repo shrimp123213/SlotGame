@@ -2,11 +2,12 @@ using UnityEngine;
 
 public class UnitController : MonoBehaviour, ISkillUser
 {
-    public UnitData unitData;       // 单位的数据
+    public UnitData unitData;       // 单位的静态数据
 
     public Vector3Int gridPosition; // 单位在格子上的位置
 
-    private int defensePoints = 0;  // 防卫点数
+    protected int currentHealth;      // 单位的当前生命值
+    private int defensePoints = 0;  // 防御点数
 
     [HideInInspector]
     public Skill currentSkill;       // 当前技能的运行时实例
@@ -31,6 +32,9 @@ public class UnitController : MonoBehaviour, ISkillUser
         {
             Debug.LogWarning($"UnitController: 单位 {unitData.unitName} 没有配置主技能！");
         }
+
+        // 初始化实例变量
+        currentHealth = unitData.maxHealth;
 
         // 调用初始化方法
         Init();
@@ -215,8 +219,8 @@ public class UnitController : MonoBehaviour, ISkillUser
         int remainingDamage = damage - defensePoints;
         if (remainingDamage > 0)
         {
-            unitData.health -= remainingDamage;
-            Debug.Log($"UnitController: 单位 {unitData.unitName} 接受 {remainingDamage} 点伤害，当前生命值: {unitData.health}");
+            currentHealth -= remainingDamage;
+            Debug.Log($"UnitController: 单位 {unitData.unitName} 接受 {remainingDamage} 点伤害，当前生命值: {currentHealth}");
         }
         else
         {
@@ -225,7 +229,7 @@ public class UnitController : MonoBehaviour, ISkillUser
             Debug.Log($"UnitController: 单位 {unitData.unitName} 防卫点数抵消了 {damage} 点伤害，剩余防卫点数: {defensePoints}");
         }
 
-        if (unitData.health <= 0)
+        if (currentHealth <= 0)
         {
             DestroyUnit();
         }
@@ -239,13 +243,13 @@ public class UnitController : MonoBehaviour, ISkillUser
     {
         if (unitData.maxHealth > 0)
         {
-            unitData.health = Mathf.Min(unitData.health + amount, unitData.maxHealth);
+            currentHealth = Mathf.Min(currentHealth + amount, unitData.maxHealth);
         }
         else
         {
-            unitData.health += amount;
+            currentHealth += amount;
         }
-        Debug.Log($"UnitController: 单位 {unitData.unitName} 恢复了 {amount} 点生命值，当前生命值: {unitData.health}");
+        Debug.Log($"UnitController: 单位 {unitData.unitName} 恢复了 {amount} 点生命值，当前生命值: {currentHealth}");
     }
 
     /// <summary>

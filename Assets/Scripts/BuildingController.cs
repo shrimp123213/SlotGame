@@ -5,14 +5,15 @@ using UnityEngine;
 /// </summary>
 public class BuildingController : MonoBehaviour, ISkillUser
 {
-    public BuildingData buildingData; // 建筑物的数据
+    public BuildingData buildingData; // 建筑物的静态数据
 
-    public Vector3Int gridPosition; // 建筑物在格子上的位置
+    public Vector3Int gridPosition;   // 建筑物在格子上的位置
 
-    private int defensePoints = 0;  // 防卫点数
+    private int currentHealth;        // 建筑物的当前生命值
+    private int defensePoints = 0;    // 防卫点数
 
     [HideInInspector]
-    public Skill currentSkill;       // 当前技能的运行时实例
+    public Skill currentSkill;        // 当前技能的运行时实例
 
     void Start()
     {
@@ -32,8 +33,11 @@ public class BuildingController : MonoBehaviour, ISkillUser
         }
         else
         {
-            Debug.LogWarning($"建筑物 {buildingData.buildingName} 没有配置行动技能！");
+            Debug.LogWarning($"BuildingController: 建筑物 {buildingData.buildingName} 没有配置行动技能！");
         }
+
+        // 初始化实例变量
+        currentHealth = buildingData.maxHealth;
 
         // 调用初始化方法
         Init();
@@ -157,17 +161,17 @@ public class BuildingController : MonoBehaviour, ISkillUser
         int remainingDamage = damage - defensePoints;
         if (remainingDamage > 0)
         {
-            buildingData.health -= remainingDamage;
-            Debug.Log($"建筑物 {buildingData.buildingName} 接受 {remainingDamage} 点伤害，当前生命值: {buildingData.health}");
+            currentHealth -= remainingDamage;
+            Debug.Log($"BuildingController: 建筑物 {buildingData.buildingName} 接受 {remainingDamage} 点伤害，当前生命值: {currentHealth}");
         }
         else
         {
             // 防卫点数足以抵消所有伤害
             defensePoints -= damage;
-            Debug.Log($"建筑物 {buildingData.buildingName} 防卫点数抵消了 {damage} 点伤害，剩余防卫点数: {defensePoints}");
+            Debug.Log($"BuildingController: 建筑物 {buildingData.buildingName} 防卫点数抵消了 {damage} 点伤害，剩余防卫点数: {defensePoints}");
         }
 
-        if (buildingData.health <= 0)
+        if (currentHealth <= 0)
         {
             DestroyBuilding();
         }
@@ -179,8 +183,15 @@ public class BuildingController : MonoBehaviour, ISkillUser
     /// <param name="amount">治疗量</param>
     public virtual void Heal(int amount)
     {
-        buildingData.health += amount;
-        Debug.Log($"建筑物 {buildingData.buildingName} 恢复了 {amount} 点生命值，当前生命值: {buildingData.health}");
+        if (buildingData.maxHealth > 0)
+        {
+            currentHealth = Mathf.Min(currentHealth + amount, buildingData.maxHealth);
+        }
+        else
+        {
+            currentHealth += amount;
+        }
+        Debug.Log($"BuildingController: 建筑物 {buildingData.buildingName} 恢复了 {amount} 点生命值，当前生命值: {currentHealth}");
     }
 
     /// <summary>
@@ -189,9 +200,9 @@ public class BuildingController : MonoBehaviour, ISkillUser
     void DestroyBuilding()
     {
         // 根据需求，可以添加建筑物销毁的动画或效果
-        Debug.Log($"建筑物 {buildingData.buildingName} 被销毁");
+        Debug.Log($"BuildingController: 建筑物 {buildingData.buildingName} 被销毁");
         Destroy(gameObject);
-        GridManager.Instance.RemoveBuildingAt(gridPosition);
+        GridManager.Instance.RemoveSkillUserAt(gridPosition);
     }
 
     /// <summary>

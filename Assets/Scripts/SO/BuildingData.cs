@@ -8,7 +8,6 @@ public class BuildingData : ScriptableObject
 {
     public string buildingName;         // 建筑物名称
     public Sprite buildingSprite;       // 建筑物的Sprite
-    public int health;                  // 建筑物生命值
     public int maxHealth;               // 建筑物的最大生命值
 
     [Header("Skills")]

@@ -8,7 +8,6 @@ public class UnitData : ScriptableObject
 {
     public string unitName;               // 单位名称
     public Sprite unitSprite;             // 单位的Sprite
-    public int health;                    // 单位的生命值
     public int maxHealth;                 // 单位的最大生命值
     public Camp camp;                     // 单位的阵营（玩家或敌人）
 

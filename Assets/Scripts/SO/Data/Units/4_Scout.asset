@@ -13,10 +13,8 @@ MonoBehaviour:
   m_Name: 4_Scout
   m_EditorClassIdentifier: 
   unitName: Scout
-  description: 
   unitSprite: {fileID: -1245206565, guid: 87a16c9905dbfd5479cafebc438e47fc, type: 3}
-  attackRange: 0
-  attackDamage: 0
-  unitType: 0
-  profession: 0
-  speed: 0
+  maxHealth: 10
+  camp: 0
+  mainSkillSO: {fileID: 0}
+  supportSkillSO: {fileID: 0}

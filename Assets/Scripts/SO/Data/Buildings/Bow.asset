@@ -14,4 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   buildingName: bow
   buildingSprite: {fileID: -2569119218762868166, guid: 3befdc5bc2446bf4c82fc58c6d1bcc38, type: 3}
-  health: 1
+  maxHealth: 10
+  defenseSkillSO: {fileID: 0}
+  actionSkillSO: {fileID: 0}
+  camp: 0

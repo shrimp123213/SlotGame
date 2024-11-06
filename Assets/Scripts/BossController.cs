@@ -50,7 +50,7 @@ public class BossController : UnitController
     {
         // 定义Boss使用特有能力的条件，例如生命值低于一定值
         // 这里以生命值低于50%为例
-        return unitData.health <= unitData.maxHealth / 2 && bossAbilitySkillSO != null;
+        return currentHealth <= unitData.maxHealth / 2 && bossAbilitySkillSO != null;
     }
 
     /// <summary>

@@ -13,10 +13,8 @@ MonoBehaviour:
   m_Name: 1_Goblin_0
   m_EditorClassIdentifier: 
   unitName: Goblin_0
-  description: 
   unitSprite: {fileID: -1514293508, guid: 197bcfde909abe1469ab49fe7764a45b, type: 3}
-  attackRange: 0
-  attackDamage: 0
-  profession: 0
-  speed: 0
+  maxHealth: 10
   camp: 1
+  mainSkillSO: {fileID: 0}
+  supportSkillSO: {fileID: 0}

@@ -6,12 +6,31 @@ public class UnitController : MonoBehaviour, ISkillUser
 
     public Vector3Int gridPosition; // 单位在格子上的位置
 
+    [SerializeField]
     protected int currentHealth;      // 单位的当前生命值
+    
+    [SerializeField]
     private int defensePoints = 0;  // 防御点数
-
-    [HideInInspector]
+    
     public Skill currentSkill;       // 当前技能的运行时实例
+    
+    // 新增一個公共變量，用於引用子物件的 SpriteRenderer
+    public SpriteRenderer spriteRenderer;
 
+    
+    void Awake()
+    {
+        // 如果沒有在 Inspector 中手動設置 spriteRenderer，則自動查找
+        if (spriteRenderer == null)
+        {
+            spriteRenderer = GetComponentInChildren<SpriteRenderer>();
+            if (spriteRenderer == null)
+            {
+                Debug.LogError("UnitController: 未找到子物件的 SpriteRenderer！");
+            }
+        }
+    }
+    
     void Start()
     {
         // 初始化单位属性
@@ -48,14 +67,9 @@ public class UnitController : MonoBehaviour, ISkillUser
         // 设置单位的图片
         if (unitData.unitSprite != null)
         {
-            SpriteRenderer sr = GetComponent<SpriteRenderer>();
-            if (sr != null)
+            if (spriteRenderer != null)
             {
-                sr.sprite = unitData.unitSprite;
-            }
-            else
-            {
-                Debug.LogWarning("UnitController: 未找到 SpriteRenderer 组件！");
+                spriteRenderer.sprite = unitData.unitSprite;
             }
         }
 
@@ -69,6 +83,9 @@ public class UnitController : MonoBehaviour, ISkillUser
     protected virtual void Init()
     {
         // 基类的初始化逻辑（如果有的话）
+        var scale = spriteRenderer.GetComponent<Transform>().localScale;
+        scale.x = unitData.camp == Camp.Player ? 1 : -1;
+        spriteRenderer.GetComponent<Transform>().localScale = scale;
     }
 
     /// <summary>

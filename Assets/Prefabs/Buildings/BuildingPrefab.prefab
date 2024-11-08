@@ -101,3 +101,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   buildingData: {fileID: 0}
+  gridPosition: {x: 0, y: 0, z: 0}
+  currentSkill:
+    Actions: []

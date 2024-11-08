@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// 管理连接方式的读取与检查
+/// 管理連線方式的讀取與檢查
 /// </summary>
 public class ConnectionManager : MonoBehaviour
 {
@@ -10,11 +10,11 @@ public class ConnectionManager : MonoBehaviour
     public GridManager gridManager; // 引用 GridManager
 
     [Header("Connection Patterns")]
-    public TextAsset connectionPatternsJson; // 连接方式的 JSON 文件
+    public TextAsset connectionPatternsJson; // 連線方式的 JSON 文件
 
     private List<ConnectionPattern> connectionPatterns = new List<ConnectionPattern>();
 
-    private UnitController[,] gridCells; // 棋盘格子矩阵
+    private UnitController[,] gridCells; // 棋盤格子矩陣，索引順序為 [col, row]
 
     void Start()
     {
@@ -29,13 +29,13 @@ public class ConnectionManager : MonoBehaviour
     }
 
     /// <summary>
-    /// 加载连接方式
+    /// 加載連線方式
     /// </summary>
     void LoadConnections()
     {
         if (connectionPatternsJson == null)
         {
-            Debug.LogError("ConnectionManager: 未指定连接方式的 JSON 文件！");
+            Debug.LogError("ConnectionManager: 未指定連線方式的 JSON 文件！");
             return;
         }
 
@@ -44,36 +44,36 @@ public class ConnectionManager : MonoBehaviour
         ConnectionList connectionList = JsonUtility.FromJson<ConnectionList>(json);
         if (connectionList == null || connectionList.connections == null)
         {
-            Debug.LogError("ConnectionManager: 无法解析连接方式的 JSON 文件！");
+            Debug.LogError("ConnectionManager: 無法解析連線方式的 JSON 文件！");
             return;
         }
 
         connectionPatterns = connectionList.connections;
 
-        // 初始化 positions
+        // 初始化每個連線模式的位置
         foreach (var pattern in connectionPatterns)
         {
             pattern.InitializePositions();
         }
 
-        Debug.Log($"ConnectionManager: 已加载 {connectionPatterns.Count} 种连接方式");
+        Debug.Log($"ConnectionManager: 已加載 {connectionPatterns.Count} 種連線方式");
     }
 
     /// <summary>
-    /// 初始化 GridCells
+    /// 初始化 GridCells，填充棋盤上的單位
     /// </summary>
     void InitializeGridCells()
     {
         int rows = gridManager.rows;
         int cols = gridManager.columns;
-        gridCells = new UnitController[cols, rows]; // 索引顺序调整为 [col, row]
+        gridCells = new UnitController[cols, rows]; // 索引順序為 [col, row]
 
-        // 遍历 GridManager 中的单位，填充 gridCells
+        // 遍歷 GridManager 中的單位，填充 gridCells
         for (int col = 0; col < cols; col++)
         {
             for (int row = 0; row < rows; row++)
             {
-                Vector3Int pos = new Vector3Int(col + 1, row, 0); // 列从 1 开始，行从 0 开始
+                Vector3Int pos = new Vector3Int(col + 1, row, 0); // 列從 1 開始，行從 0 開始
                 if (gridManager.HasSkillUserAt(pos))
                 {
                     gridCells[col, row] = gridManager.GetUnitAt(pos);
@@ -84,73 +84,75 @@ public class ConnectionManager : MonoBehaviour
                 }
             }
         }
+
+        Debug.Log("ConnectionManager: GridCells 已初始化");
     }
 
     /// <summary>
-    /// 检查并触发连接效果
+    /// 檢查並觸發連線效果
     /// </summary>
     public void CheckConnections()
     {
         if (gridManager == null)
         {
-            Debug.LogError("ConnectionManager: GridManager 实例为空！");
+            Debug.LogError("ConnectionManager: GridManager 實例為空！");
             return;
         }
 
-        // 每次检查前更新 gridCells
+        // 每次檢查前更新 gridCells
         InitializeGridCells();
 
         bool anyConnectionTriggered = false;
 
-        // 分别检查玩家和敌人的连接
+        // 分別檢查玩家和敵人的連線
         bool playerLinked = CheckLinksForSide(Camp.Player);
         bool enemyLinked = CheckLinksForSide(Camp.Enemy);
 
         if (playerLinked)
         {
-            Debug.Log("ConnectionManager: 玩家连接成功！");
+            Debug.Log("ConnectionManager: 玩家連線成功！");
             anyConnectionTriggered = true;
         }
 
         if (enemyLinked)
         {
-            Debug.Log("ConnectionManager: 敌人连接成功！");
+            Debug.Log("ConnectionManager: 敵人連線成功！");
             anyConnectionTriggered = true;
         }
 
         if (!anyConnectionTriggered)
         {
-            Debug.Log("ConnectionManager: 没有触发任何连接");
+            Debug.Log("ConnectionManager: 沒有觸發任何連線");
         }
     }
 
     /// <summary>
-    /// 检查特定阵营的连接
+    /// 檢查特定陣營的連線
     /// </summary>
-    /// <param name="camp">要检查的阵营</param>
-    /// <returns>是否有连接</returns>
+    /// <param name="camp">要檢查的陣營</param>
+    /// <returns>是否有連線</returns>
     private bool CheckLinksForSide(Camp camp)
     {
         bool hasLink = false;
 
-        // 遍历所有连接模式
+        // 遍歷所有連線模式
         foreach (var pattern in connectionPatterns)
         {
             if (!pattern.isUnlocked)
                 continue;
 
-            // 检查棋盘是否匹配该模式
+            // 檢查棋盤是否匹配該模式
             if (MatchesPatternForCamp(pattern, camp))
             {
                 hasLink = true;
 
-                // 绘制连接
+                // 繪製連線
                 DrawConnection(pattern.positions);
 
-                // 触发连接效果
+                // 觸發連線效果
                 TriggerLinkEffect(pattern, camp);
 
-                // 如果只需要一个连接，可以在此处添加 break
+                // 如果只需要檢查一個連線，可以在此處添加 break
                 // break;
             }
         }
@@ -159,16 +161,16 @@ public class ConnectionManager : MonoBehaviour
     }
 
     /// <summary>
-    /// 检查给定的模式是否匹配指定阵营
+    /// 檢查給定的模式是否匹配指定陣營
     /// </summary>
-    /// <param name="pattern">连接模式</param>
-    /// <param name="camp">阵营</param>
+    /// <param name="pattern">連線模式</param>
+    /// <param name="camp">陣營</param>
     /// <returns>是否匹配</returns>
     private bool MatchesPatternForCamp(ConnectionPattern pattern, Camp camp)
     {
         if (pattern.positions == null || pattern.positions.Count == 0)
         {
-            Debug.LogWarning($"ConnectionManager: 连接模式 {pattern.name} 的位置列表为空！");
+            Debug.LogWarning($"ConnectionManager: 連線模式 {pattern.name} 的位置列表為空！");
             return false;
         }
 
@@ -176,29 +178,38 @@ public class ConnectionManager : MonoBehaviour
 
         foreach (var pos in pattern.positions)
         {
-            int col = pos.y; 
-            int row = pos.x;
+            int row = pos.x;     // x 表示行，假設從 0 開始
+            int col = pos.y; // y 表示列，從 1 調整為 0 索引
 
-            // 检查边界
+            // 調試輸出
+            Debug.Log($"檢查位置：行 {row}, 列 {col + 1} (pos.x: {pos.x}, pos.y: {pos.y})");
+
+            // 檢查邊界
             if (col < 0 || col >= gridManager.columns || row < 0 || row >= gridManager.rows)
             {
-                Debug.LogWarning($"ConnectionManager: 位置 ({col + 1}, {row}) 超出棋盘范围！");
+                Debug.LogWarning($"ConnectionManager: 位置 ({row}, {col + 1}) 超出棋盤範圍！");
                 return false;
             }
 
-            // 访问 gridCells[col, row]
+            // 訪問 gridCells[col, row]
             UnitController unit = gridCells[col, row];
 
-            Debug.Log($"检查位置：列 {col + 1}, 行 {row} (数组索引：{col}, {row}), 单位：{(unit != null ? unit.unitData.unitName : "空")}");
-
-            if (unit == null || unit.unitData.camp != camp)
+            if (unit == null)
             {
+                Debug.Log($"ConnectionManager: 位置 ({row}, {col + 1}) 無單位");
+                return false;
+            }
+
+            if (unit.unitData.camp != camp)
+            {
+                Debug.Log($"ConnectionManager: 位置 ({row}, {col + 1}) 的單位不屬於 {camp} 陣營");
                 return false;
             }
 
             if (columnsWithUnit.Contains(col))
             {
-                // 同一列中有多个单位，返回 false
+                // 同一列中有多個單位，返回 false
+                Debug.Log($"ConnectionManager: 列 {col + 1} 中已有單位，無法重複");
                 return false;
             }
             else
@@ -211,9 +222,9 @@ public class ConnectionManager : MonoBehaviour
     }
 
     /// <summary>
-    /// 绘制连接
+    /// 繪製連線
     /// </summary>
-    /// <param name="positions">连接包含的格子位置列表</param>
+    /// <param name="positions">連線包含的格子位置列表</param>
     private void DrawConnection(List<Vector2Int> positions)
     {
         if (positions == null || positions.Count < 2)
@@ -224,9 +235,9 @@ public class ConnectionManager : MonoBehaviour
         List<Vector3> linePositions = new List<Vector3>();
         foreach (var pos in positions)
         {
-            int col = pos.y; 
-            int row = pos.x;
-            Vector3Int gridPos = new Vector3Int(col, row, 0);
+            int row = pos.x; // x 表示行，假設從 0 開始
+            int col = pos.y; // y 表示列，從 1 開始
+            Vector3Int gridPos = new Vector3Int(col + 1, row, 0);
             Vector3 worldPos = gridManager.GetCellCenterWorld(gridPos);
             linePositions.Add(worldPos);
         }
@@ -234,7 +245,7 @@ public class ConnectionManager : MonoBehaviour
         if (linePositions.Count < 2)
             return;
 
-        // 创建一个新的 GameObject 用于 LineRenderer
+        // 創建一個新的 GameObject 用於 LineRenderer
         GameObject lineGO = new GameObject("ConnectionLine");
         LineRenderer lr = lineGO.AddComponent<LineRenderer>();
         lr.positionCount = linePositions.Count;
@@ -242,42 +253,73 @@ public class ConnectionManager : MonoBehaviour
         lr.startWidth = 0.1f;
         lr.endWidth = 0.1f;
         lr.material = new Material(Shader.Find("Sprites/Default"));
-        lr.startColor = lineColor; // 可以根据需要调整颜色
+        lr.startColor = lineColor; // 可以根據需要調整顏色
         lr.endColor = lineColor;
+        lr.sortingLayerName = "LR"; // 可以根據需要調整排序層
         lr.sortingOrder = 10;
 
-        // 可选：自动删除连接线条
-        Destroy(lineGO, 5f); // 5 秒后删除
+        // 使用 Debug.DrawLine 從左到右連接
+        for (int i = 0; i < linePositions.Count - 1; i++)
+        {
+            Debug.DrawLine(linePositions[i], linePositions[i + 1], lineColor, 5f);
+        }
+
+        // 可選：自動刪除連線線條
+        Destroy(lineGO, 5f); // 5 秒後刪除
     }
 
     /// <summary>
-    /// 触发连接效果，例如造成伤害等
+    /// 觸發連線效果，例如造成傷害等
     /// </summary>
-    /// <param name="pattern">匹配的连接模式</param>
-    /// <param name="camp">阵营</param>
+    /// <param name="pattern">匹配的連線模式</param>
+    /// <param name="camp">陣營</param>
     private void TriggerLinkEffect(ConnectionPattern pattern, Camp camp)
     {
         if (pattern == null)
         {
-            Debug.LogWarning("ConnectionManager: 匹配的连接模式为空！");
+            Debug.LogWarning("ConnectionManager: 匹配的連線模式為空！");
             return;
         }
 
         int linkedUnitCount = pattern.positions.Count;
 
-        // 定义每个单位造成的伤害值
-        int damagePerUnit = 1; // 可以根据需要调整
+        // 定義每個單位造成的傷害值
+        int damagePerUnit = 1; // 可以根據需要調整
 
-        // 在这里实现连接效果，例如对敌方城镇造成伤害
+        // 在此實現連線效果，例如對敵方城鎮造成傷害
         if (camp == Camp.Player)
         {
-            Debug.Log($"ConnectionManager: 玩家触发了连接模式 {pattern.name}，连接单位数量：{linkedUnitCount}，对敌人造成伤害！");
-            // 实现对敌方的具体伤害逻辑，例如调用敌方城镇的伤害方法
+            Debug.Log($"ConnectionManager: 玩家觸發了連線模式 {pattern.name}，連線單位數量：{linkedUnitCount}，對敵人造成傷害！");
+            // 實現對敵方的具體傷害邏輯，例如調用敵方城鎮的傷害方法
+            // 例如：
+            /*
+            EnemyBuildingController enemyBuilding = FindObjectOfType<EnemyBuildingController>();
+            if (enemyBuilding != null)
+            {
+                enemyBuilding.TakeDamage(linkedUnitCount * damagePerUnit);
+            }
+            else
+            {
+                Debug.LogWarning("ConnectionManager: 未找到 EnemyBuildingController！");
+            }
+            */
         }
         else if (camp == Camp.Enemy)
         {
-            Debug.Log($"ConnectionManager: 敌人触发了连接模式 {pattern.name}，连接单位数量：{linkedUnitCount}，对玩家造成伤害！");
-            // 实现对玩家的具体伤害逻辑，例如调用玩家城镇的伤害方法
+            Debug.Log($"ConnectionManager: 敵人觸發了連線模式 {pattern.name}，連線單位數量：{linkedUnitCount}，對玩家造成傷害！");
+            // 實現對玩家的具體傷害邏輯，例如調用玩家城鎮的傷害方法
+            // 例如：
+            /*
+            PlayerBuildingController playerBuilding = FindObjectOfType<PlayerBuildingController>();
+            if (playerBuilding != null)
+            {
+                playerBuilding.TakeDamage(linkedUnitCount * damagePerUnit);
+            }
+            else
+            {
+                Debug.LogWarning("ConnectionManager: 未找到 PlayerBuildingController！");
+            }
+            */
         }
     }
 }

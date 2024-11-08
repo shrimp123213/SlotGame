@@ -24,9 +24,9 @@ public class GridManager : MonoBehaviour
     public GameObject buildingPrefab;  // 建筑的Prefab
 
     [Header("Data")]
-    public List<UnitData> playerUnits;    // 玩家单位的数据
-    public List<UnitData> enemyUnits;     // 敌方单位的数据
-    public List<BuildingData> buildings;  // 建筑的数据
+    //public List<UnitData> playerUnits;    // 玩家单位的数据
+    //public List<UnitData> enemyUnits;     // 敌方单位的数据
+    //public List<BuildingData> buildings;  // 建筑的数据
 
     [Header("Parent Objects")]
     public Transform unitsParent;      // 单位的父对象

@@ -138,3 +138,4 @@ MonoBehaviour:
   defensePoints: 0
   currentSkill:
     Actions: []
+  spriteRenderer: {fileID: 0}

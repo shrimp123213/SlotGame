@@ -75,7 +75,7 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: -830620753
-  m_SortingLayer: 2
+  m_SortingLayer: -2
   m_SortingOrder: 0
   m_Sprite: {fileID: -286642221, guid: 284273b124f859f43abb5c06f69f930b, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -102,6 +102,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   unitData: {fileID: 0}
   gridPosition: {x: 0, y: 0, z: 0}
+  currentHealth: 0
+  defensePoints: 0
   currentSkill:
     Actions: []
+  spriteRenderer: {fileID: 0}
   bossAbilitySkillSO: {fileID: 0}

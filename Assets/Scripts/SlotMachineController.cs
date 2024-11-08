@@ -29,7 +29,11 @@ public class SlotMachineController : MonoBehaviour
     private List<Vector3Int> battlePositions = new List<Vector3Int>(); // 战斗区域的所有格子位置
     private List<UnitData> selectedCards = new List<UnitData>();        // 抽取的卡片
 
-    private bool isSpinning = false;
+    public bool isSpinning = false;
+
+    // 定义转盘完成的事件
+    public delegate void SpinCompleted(int selectedColumn);
+    public event SpinCompleted OnSpinCompleted;
 
     void Start()
     {
@@ -48,7 +52,7 @@ public class SlotMachineController : MonoBehaviour
         InitializeBattlePositions();
 
         // 可以在这里调用 StartSpinning() 进行测试
-        StartSpinning();
+        // StartSpinning();
     }
 
     /// <summary>
@@ -60,7 +64,7 @@ public class SlotMachineController : MonoBehaviour
         for (int row = 0; row < gridManager.rows; row++)
         {
             // 将列索引从 1 开始
-            for (int col = 1; col <= gridManager.columns; col++) // 列从 1 到 columns
+            for (int col = 1; col <= gridManager.columns; col++) // 列从1到6
             {
                 battlePositions.Add(new Vector3Int(col, row, 0));
             }
@@ -108,9 +112,16 @@ public class SlotMachineController : MonoBehaviour
         selectedCards = DrawCards();
         ShuffleAndPlaceCards();
 
+        // 选取一列作为转盘选择的列（示例逻辑）
+        int selectedColumn = Random.Range(1, gridManager.columns + 1);
+        Debug.Log($"SlotMachineController: 选择的列为 {selectedColumn}");
+
+        // 触发转盘完成事件
+        OnSpinCompleted?.Invoke(selectedColumn);
+
         // 检查连线
-        Debug.Log("拉霸机停止，进入连线阶段");
-        connectionManager.CheckConnections();
+        Debug.Log("SlotMachineController: 拉霸机停止，进入连线阶段");
+        // connectionManager.CheckConnections(); // 已由 BattleManager 负责
     }
 
     /// <summary>

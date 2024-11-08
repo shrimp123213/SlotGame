@@ -55,6 +55,7 @@ public class SkillActionData
 {
     public SkillType Type;
     public int Value;
+    public TargetType TargetType;
 }
 
 public enum SkillType
@@ -64,4 +65,11 @@ public enum SkillType
     Ranged,
     Defense,
     // 可以根据需要添加更多的技能类型
+}
+
+public enum TargetType
+{
+    Self,       // 只對自身生效
+    Enemy,      // 只對敵方生效
+    Friendly    // 只對友方生效
 }

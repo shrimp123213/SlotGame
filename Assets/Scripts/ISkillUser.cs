@@ -2,9 +2,9 @@ public interface ISkillUser
 {
     bool CanMoveForward();
     void MoveForward();
-    void PerformMeleeAttack();
-    void PerformRangedAttack();
-    void IncreaseDefense(int value);
+    void PerformMeleeAttack(TargetType targetType);
+    void PerformRangedAttack(TargetType targetType);
+    void IncreaseDefense(int value, TargetType targetType);
     void TakeDamage(int damage);
     void Heal(int amount);
 }

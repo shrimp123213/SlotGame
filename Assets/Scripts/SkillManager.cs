@@ -1,5 +1,4 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
@@ -56,6 +55,32 @@ public class SkillManager : MonoBehaviour
             yield break;
         }
 
+        // 验证每个SkillAction的TargetType是否与SkillType匹配
+        foreach (var action in runtimeSkill.Actions)
+        {
+            switch (action.Type)
+            {
+                case SkillType.Melee:
+                case SkillType.Ranged:
+                    if (action.TargetType != TargetType.Enemy)
+                    {
+                        Debug.LogWarning($"SkillManager: SkillAction {action.Type} 应该只对敌方生效。强制设置为 Enemy。");
+                        action.TargetType = TargetType.Enemy;
+                    }
+                    break;
+                case SkillType.Defense:
+                    if (action.TargetType != TargetType.Friendly && action.TargetType != TargetType.Self)
+                    {
+                        Debug.LogWarning($"SkillManager: SkillAction {action.Type} 应该只对友方或自身生效。强制设置为 Friendly。");
+                        action.TargetType = TargetType.Friendly;
+                    }
+                    break;
+                // 可以为更多SkillType添加验证逻辑
+                default:
+                    break;
+            }
+        }
+
         bool movementBlocked = false;
 
         // 按动作的顺序执行
@@ -81,23 +106,17 @@ public class SkillManager : MonoBehaviour
                     break;
 
                 case SkillType.Melee:
-                    for (int i = 0; i < action.Value; i++)
-                    {
-                        user.PerformMeleeAttack();
-                        yield return new WaitForSeconds(0.1f); // 可根据需要调整攻击间隔
-                    }
+                    user.PerformMeleeAttack(action.TargetType);
+                    yield return new WaitForSeconds(0.1f); // 可根据需要调整攻击间隔
                     break;
 
                 case SkillType.Ranged:
-                    for (int i = 0; i < action.Value; i++)
-                    {
-                        user.PerformRangedAttack();
-                        yield return new WaitForSeconds(0.1f); // 可根据需要调整攻击间隔
-                    }
+                    user.PerformRangedAttack(action.TargetType);
+                    yield return new WaitForSeconds(0.1f); // 可根据需要调整攻击间隔
                     break;
 
                 case SkillType.Defense:
-                    user.IncreaseDefense(action.Value);
+                    user.IncreaseDefense(action.Value, action.TargetType);
                     yield return null; // 防御动作通常是即时的
                     break;
 
@@ -109,35 +128,31 @@ public class SkillManager : MonoBehaviour
             // 如果移动被阻挡，跳出动作执行循环
             if (movementBlocked)
             {
-                break;
-            }
-        }
-
-        if (movementBlocked)
-        {
-            // 查找前方的友方单位（仅适用于单位，建筑物通常不会有友方单位）
-            if (user is UnitController unit)
-            {
-                UnitController frontUnit = GridManager.Instance.GetFrontUnitInRow(unit);
-                if (frontUnit != null && frontUnit.unitData.camp == unit.unitData.camp)
+                if (user is UnitController unit)
                 {
-                    Debug.Log($"SkillManager: {unit.unitData.unitName} 被阻挡，应用支援技能到前方单位 {frontUnit.unitData.unitName}。");
-                    ApplySupportSkill(unit.unitData.supportSkillSO, frontUnit);
+                    UnitController frontUnit = GridManager.Instance.GetFrontUnitInRow(unit);
+                    if (frontUnit != null && frontUnit.unitData.camp == unit.unitData.camp)
+                    {
+                        Debug.Log($"SkillManager: {unit.unitData.unitName} 被阻挡，应用支援技能到前方单位 {frontUnit.unitData.unitName}。");
+                        ApplySupportSkill(unit.unitData.supportSkillSO, frontUnit);
+                    }
+                    else
+                    {
+                        Debug.Log($"SkillManager: {unit.unitData.unitName} 被阻挡，前方无友方单位，执行主技能的剩余动作。");
+                        // 执行主技能的剩余动作
+                        StartCoroutine(ExecuteRemainingSkillActionsCoroutine(runtimeSkill, user));
+                    }
                 }
                 else
                 {
-                    Debug.Log($"SkillManager: {unit.unitData.unitName} 被阻挡，前方无友方单位，执行主技能的剩余动作。");
-                    // 执行主技能的剩余动作
+                    // 对于建筑物，直接执行剩余的技能动作
                     StartCoroutine(ExecuteRemainingSkillActionsCoroutine(runtimeSkill, user));
                 }
-            }
-            else
-            {
-                // 对于建筑物，直接执行剩余的技能动作
-                StartCoroutine(ExecuteRemainingSkillActionsCoroutine(runtimeSkill, user));
+                break; // Exit the action loop
             }
         }
-        else
+
+        if (!movementBlocked)
         {
             // 移动未被阻挡，执行主技能的非移动动作
             StartCoroutine(ExecuteRemainingSkillActionsCoroutine(runtimeSkill, user));
@@ -163,28 +178,20 @@ public class SkillManager : MonoBehaviour
             switch (action.Type)
             {
                 case SkillType.Melee:
-                    for (int i = 0; i < action.Value; i++)
-                    {
-                        user.PerformMeleeAttack();
-                        yield return new WaitForSeconds(0.1f); // 可根据需要调整攻击间隔
-                    }
-                    break;
-
                 case SkillType.Ranged:
-                    for (int i = 0; i < action.Value; i++)
-                    {
-                        user.PerformRangedAttack();
-                        yield return new WaitForSeconds(0.1f); // 可根据需要调整攻击间隔
-                    }
-                    break;
-
                 case SkillType.Defense:
-                    user.IncreaseDefense(action.Value);
-                    yield return null; // 防御动作通常是即时的
+                    // 这些已经在主协程中处理过
                     break;
-
                 default:
-                    Debug.LogWarning($"SkillManager: 未处理的技能类型：{action.Type}");
+                    switch (action.Type)
+                    {
+                        case SkillType.Move:
+                            // 已在主协程中处理
+                            break;
+                        default:
+                            Debug.LogWarning($"SkillManager: 未处理的技能类型：{action.Type}");
+                            break;
+                    }
                     break;
             }
         }
@@ -207,39 +214,5 @@ public class SkillManager : MonoBehaviour
 
         // 执行支援技能
         ExecuteSkill(supportSkillSO, targetUser);
-    }
-
-    /// <summary>
-    /// 执行技能的非移动动作（同步方法，用于特定情况）
-    /// </summary>
-    /// <param name="runtimeSkill">运行时Skill实例</param>
-    /// <param name="user">执行技能的用户（单位或建筑物）</param>
-    private void ExecuteRemainingSkillActions(Skill runtimeSkill, ISkillUser user)
-    {
-        if (runtimeSkill == null || runtimeSkill.Actions == null)
-        {
-            Debug.LogError("SkillManager: 运行时Skill实例或其动作列表为 null！");
-            return;
-        }
-
-        foreach (var action in runtimeSkill.Actions)
-        {
-            switch (action.Type)
-            {
-                case SkillType.Melee:
-                    user.PerformMeleeAttack();
-                    break;
-                case SkillType.Ranged:
-                    user.PerformRangedAttack();
-                    break;
-                case SkillType.Defense:
-                    user.IncreaseDefense(action.Value);
-                    break;
-                // 可以根据需要添加更多的技能类型
-                default:
-                    Debug.LogWarning($"SkillManager: 未处理的技能类型：{action.Type}");
-                    break;
-            }
-        }
     }
 }

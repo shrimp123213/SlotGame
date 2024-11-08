@@ -13,7 +13,7 @@ public class BossController : UnitController
     protected override void Init()
     {
         base.Init(); // 调用UnitController的Init方法
-        
+
         // 初始化Boss特有的技能
         if (bossAbilitySkillSO != null)
         {
@@ -31,7 +31,7 @@ public class BossController : UnitController
     /// </summary>
     public override void UseMainSkillOrSupport()
     {
-        // Boss在使用技能时，优先执行Boss特有的能力
+        // Boss优先使用特有技能
         if (CanUseBossAbility())
         {
             ExecuteBossAbility();

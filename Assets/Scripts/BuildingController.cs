@@ -111,7 +111,7 @@ public class BuildingController : MonoBehaviour, ISkillUser
         {
             if (buildingData.actionSkillSO != null)
             {
-                SkillManager.Instance.ExecuteSkill(buildingData.actionSkillSO, this);
+                buildingData.actionSkillSO.Execute(this);
                 Debug.Log($"建筑物 {buildingData.buildingName} 执行了行动技能！");
             }
             else
@@ -132,7 +132,7 @@ public class BuildingController : MonoBehaviour, ISkillUser
     {
         if (buildingData.defenseSkillSO != null)
         {
-            SkillManager.Instance.ExecuteSkill(buildingData.defenseSkillSO, this);
+            buildingData.defenseSkillSO.Execute(this);
             Debug.Log($"建筑物 {buildingData.buildingName} 执行了防卫技能！");
         }
         else
@@ -142,13 +142,111 @@ public class BuildingController : MonoBehaviour, ISkillUser
     }
 
     /// <summary>
+    /// 执行近战攻击
+    /// </summary>
+    public virtual void PerformMeleeAttack(TargetType targetType)
+    {
+        if (targetType == TargetType.Enemy)
+        {
+            Vector3Int attackDirection = buildingData.camp == Camp.Player ? Vector3Int.right : Vector3Int.left;
+            Vector3Int targetPosition = gridPosition + attackDirection;
+
+            UnitController targetUnit = GridManager.Instance.GetUnitAt(targetPosition);
+            BuildingController targetBuilding = GridManager.Instance.GetBuildingAt(targetPosition);
+
+            if (targetUnit != null && targetUnit.unitData.camp != buildingData.camp)
+            {
+                targetUnit.TakeDamage(1);
+                Debug.Log($"BuildingController: 建筑物 {buildingData.buildingName} 对 {targetUnit.unitData.unitName} 进行近战攻击，造成1点伤害！");
+            }
+            else if (targetBuilding != null && targetBuilding.buildingData.camp != buildingData.camp)
+            {
+                targetBuilding.TakeDamage(1);
+                Debug.Log($"BuildingController: 建筑物 {buildingData.buildingName} 对建筑物 {targetBuilding.buildingData.buildingName} 进行近战攻击，造成1点伤害！");
+            }
+            else
+            {
+                Debug.Log($"BuildingController: 建筑物 {buildingData.buildingName} 近战攻击无目标或目标为友方！");
+            }
+        }
+        else if (targetType == TargetType.Friendly || targetType == TargetType.Self)
+        {
+            // 防卫技能，只对自身或友方生效
+            IncreaseDefense(1, targetType);
+        }
+        else
+        {
+            Debug.LogWarning($"BuildingController: 未处理的 TargetType：{targetType}");
+        }
+    }
+
+    /// <summary>
+    /// 执行远程攻击
+    /// </summary>
+    public virtual void PerformRangedAttack(TargetType targetType)
+    {
+        if (targetType == TargetType.Enemy)
+        {
+            Vector3Int attackDirection = buildingData.camp == Camp.Player ? Vector3Int.right : Vector3Int.left;
+            Vector3Int currentPos = gridPosition + attackDirection;
+
+            bool hasAttacked = false;
+
+            while (GridManager.Instance.IsWithinBattleArea(currentPos))
+            {
+                UnitController targetUnit = GridManager.Instance.GetUnitAt(currentPos);
+                BuildingController targetBuilding = GridManager.Instance.GetBuildingAt(currentPos);
+
+                if (targetUnit != null && targetUnit.unitData.camp != buildingData.camp)
+                {
+                    targetUnit.TakeDamage(1);
+                    Debug.Log($"BuildingController: 建筑物 {buildingData.buildingName} 对 {targetUnit.unitData.unitName} 进行远程攻击，造成1点伤害！");
+                    hasAttacked = true;
+                    break; // 只攻击第一个目标
+                }
+                else if (targetBuilding != null && targetBuilding.buildingData.camp != buildingData.camp)
+                {
+                    targetBuilding.TakeDamage(1);
+                    Debug.Log($"BuildingController: 建筑物 {buildingData.buildingName} 对建筑物 {targetBuilding.buildingData.buildingName} 进行远程攻击，造成1点伤害！");
+                    hasAttacked = true;
+                    break; // 只攻击第一个目标
+                }
+
+                currentPos += attackDirection;
+            }
+
+            if (!hasAttacked)
+            {
+                Debug.Log($"BuildingController: 建筑物 {buildingData.buildingName} 远程攻击无目标或目标为友方！");
+            }
+        }
+        else if (targetType == TargetType.Friendly || targetType == TargetType.Self)
+        {
+            // 防卫技能，只对自身或友方生效
+            IncreaseDefense(1, targetType);
+        }
+        else
+        {
+            Debug.LogWarning($"BuildingController: 未处理的 TargetType：{targetType}");
+        }
+    }
+
+    /// <summary>
     /// 增加防卫点数
     /// </summary>
     /// <param name="value">增加的防卫点数</param>
-    public virtual void IncreaseDefense(int value)
+    /// <param name="targetType">目标类型</param>
+    public virtual void IncreaseDefense(int value, TargetType targetType)
     {
-        defensePoints += value;
-        Debug.Log($"建筑物 {buildingData.buildingName} 防卫点数增加 {value}，当前防卫点数：{defensePoints}");
+        if (targetType == TargetType.Friendly || targetType == TargetType.Self)
+        {
+            defensePoints += value;
+            Debug.Log($"BuildingController: 建筑物 {buildingData.buildingName} 防卫点数增加 {value}，当前防卫点数：{defensePoints}");
+        }
+        else
+        {
+            Debug.LogWarning($"BuildingController: 建筑物 {buildingData.buildingName} 尝试对非友方进行防卫！");
+        }
     }
 
     /// <summary>
@@ -212,11 +310,11 @@ public class BuildingController : MonoBehaviour, ISkillUser
     {
         if (buildingData.actionSkillSO != null)
         {
-            SkillManager.Instance.ExecuteSkill(buildingData.actionSkillSO, this);
+            buildingData.actionSkillSO.Execute(this);
         }
         else
         {
-            Debug.LogWarning($"建筑物 {buildingData.buildingName} 没有配置行动技能！");
+            Debug.LogWarning($"BuildingController: 建筑物 {buildingData.buildingName} 没有配置行动技能！");
         }
     }
 
@@ -227,11 +325,11 @@ public class BuildingController : MonoBehaviour, ISkillUser
     {
         if (buildingData.defenseSkillSO != null)
         {
-            SkillManager.Instance.ExecuteSkill(buildingData.defenseSkillSO, this);
+            buildingData.defenseSkillSO.Execute(this);
         }
         else
         {
-            Debug.LogWarning($"建筑物 {buildingData.buildingName} 没有配置防卫技能！");
+            Debug.LogWarning($"BuildingController: 建筑物 {buildingData.buildingName} 没有配置防卫技能！");
         }
     }
 
@@ -248,21 +346,27 @@ public class BuildingController : MonoBehaviour, ISkillUser
                 switch (action.Type)
                 {
                     case SkillType.Move:
-                        // 建筑物通常不会移动，忽略此类技能
-                        Debug.LogWarning($"建筑物 {buildingData.buildingName} 无法执行移动技能！");
+                        for (int i = 0; i < action.Value; i++)
+                        {
+                            if (!CanMoveForward())
+                            {
+                                Debug.Log($"BuildingController: 建筑物 {buildingData.buildingName} 无法继续移动，技能执行被阻挡！");
+                                break;
+                            }
+                            MoveForward();
+                        }
                         break;
                     case SkillType.Melee:
-                        PerformMeleeAttack();
+                        PerformMeleeAttack(action.TargetType);
                         break;
                     case SkillType.Ranged:
-                        PerformRangedAttack();
+                        PerformRangedAttack(action.TargetType);
                         break;
                     case SkillType.Defense:
-                        IncreaseDefense(action.Value);
+                        IncreaseDefense(action.Value, action.TargetType);
                         break;
-                    // 可以根据需要添加更多的技能类型
                     default:
-                        Debug.LogWarning($"未处理的技能类型：{action.Type}");
+                        Debug.LogWarning($"BuildingController: 未处理的技能类型：{action.Type}");
                         break;
                 }
             }
@@ -272,95 +376,13 @@ public class BuildingController : MonoBehaviour, ISkillUser
         }
     }
 
+    public virtual void MoveForward()
+    {
+        Debug.Log("建築物無法移動！");
+    }
+
     public virtual bool CanMoveForward()
     {
         return false;
-    }
-
-    public virtual void MoveForward()
-    {
-        // 建筑物通常不会移动，忽略此方法
-        Debug.LogWarning($"建筑物 {buildingData.buildingName} 无法移动！");
-    }
-
-    /// <summary>
-    /// 执行近战攻击（如果适用）
-    /// </summary>
-    public virtual void PerformMeleeAttack()
-    {
-        // 定义建筑物的近战攻击逻辑
-        // 例如，攻击附近的单位或建筑
-        Debug.Log($"建筑物 {buildingData.buildingName} 执行了近战攻击！");
-        // 示例：攻击前方单位
-        Vector3Int attackDirection = buildingData.camp == Camp.Player ? Vector3Int.right : Vector3Int.left;
-        Vector3Int targetPosition = gridPosition + attackDirection;
-
-        UnitController targetUnit = GridManager.Instance.GetUnitAt(targetPosition);
-        BuildingController targetBuilding = GridManager.Instance.GetBuildingAt(targetPosition);
-
-        if (targetUnit != null)
-        {
-            targetUnit.TakeDamage(1);
-            Debug.Log($"建筑物 {buildingData.buildingName} 对单位 {targetUnit.unitData.unitName} 进行近战攻击，造成1点伤害！");
-        }
-        else if (targetBuilding != null)
-        {
-            targetBuilding.TakeDamage(1);
-            Debug.Log($"建筑物 {buildingData.buildingName} 对建筑物 {targetBuilding.buildingData.buildingName} 进行近战攻击，造成1点伤害！");
-        }
-        else
-        {
-            Debug.Log($"建筑物 {buildingData.buildingName} 近战攻击无目标！");
-        }
-    }
-
-    /// <summary>
-    /// 执行远程攻击（如果适用）
-    /// </summary>
-    public virtual void PerformRangedAttack()
-    {
-        // 定义建筑物的远程攻击逻辑
-        // 例如，攻击更远范围内的单位或建筑
-        Debug.Log($"建筑物 {buildingData.buildingName} 执行了远程攻击！");
-        Vector3Int attackDirection = buildingData.camp == Camp.Player ? Vector3Int.right : Vector3Int.left;
-        Vector3Int currentPos = gridPosition + attackDirection;
-
-        bool hasAttacked = false;
-
-        while (GridManager.Instance.IsWithinBattleArea(currentPos))
-        {
-            UnitController targetUnit = GridManager.Instance.GetUnitAt(currentPos);
-            BuildingController targetBuilding = GridManager.Instance.GetBuildingAt(currentPos);
-
-            if (targetUnit != null)
-            {
-                targetUnit.TakeDamage(1);
-                Debug.Log($"建筑物 {buildingData.buildingName} 对单位 {targetUnit.unitData.unitName} 进行远程攻击，造成1点伤害！");
-                hasAttacked = true;
-                break; // 只攻击第一个目标
-            }
-            else if (targetBuilding != null)
-            {
-                targetBuilding.TakeDamage(1);
-                Debug.Log($"建筑物 {buildingData.buildingName} 对建筑物 {targetBuilding.buildingData.buildingName} 进行远程攻击，造成1点伤害！");
-                hasAttacked = true;
-                break; // 只攻击第一个目标
-            }
-
-            currentPos += attackDirection;
-        }
-
-        if (!hasAttacked)
-        {
-            Debug.Log($"建筑物 {buildingData.buildingName} 远程攻击无目标！");
-        }
-    }
-
-    /// <summary>
-    /// 使用当前技能或其他逻辑
-    /// </summary>
-    public virtual void UseCurrentSkill()
-    {
-        ExecuteCurrentSkill();
     }
 }

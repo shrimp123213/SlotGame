@@ -251,9 +251,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1404537742}
-        m_TargetAssemblyTypeName: SlotMachineController, Assembly-CSharp
-        m_MethodName: StartSpinning
+      - m_Target: {fileID: 1013848473}
+        m_TargetAssemblyTypeName: BattleManager, Assembly-CSharp
+        m_MethodName: StartBattleSequence
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -1138,11 +1138,10 @@ MonoBehaviour:
   - {fileID: 11400000, guid: f286fff2bf9f76347b793dab44a2f37c, type: 2}
   - {fileID: 11400000, guid: 3d26e0ecdf457a44ab75cbb14ce24087, type: 2}
   - {fileID: 11400000, guid: b114754a8846348469110839ddf09117, type: 2}
-  - {fileID: 11400000, guid: 232ff39822cc9af4688264eb202623ed, type: 2}
-  - {fileID: 11400000, guid: 2f0dd851c7e746f4486d2f55353d7da8, type: 2}
-  - {fileID: 11400000, guid: f286fff2bf9f76347b793dab44a2f37c, type: 2}
-  - {fileID: 11400000, guid: 3d26e0ecdf457a44ab75cbb14ce24087, type: 2}
-  - {fileID: 11400000, guid: b114754a8846348469110839ddf09117, type: 2}
+  - {fileID: 11400000, guid: cb1c334de2811a54e835aac8ed1bad66, type: 2}
+  - {fileID: 11400000, guid: 361f8ffa698006a489576df815e656bf, type: 2}
+  - {fileID: 11400000, guid: d085bfd9e528a414e8f4a5b39aa305bc, type: 2}
+  - {fileID: 11400000, guid: 402227f40a7a66645bea6205d7028860, type: 2}
   enemyDeck:
   - {fileID: 11400000, guid: 1d9477d87ba96b142a6dacbcd325059d, type: 2}
   - {fileID: 11400000, guid: cd4fd988818b1ce48b17cde2d9bab8f1, type: 2}
@@ -1348,7 +1347,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Button
+  m_text: Restart
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}

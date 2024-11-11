@@ -14,6 +14,9 @@ public class UnitData : ScriptableObject
     [Header("Skills")]
     public SkillSO mainSkillSO;           // 主技能
     public SkillSO supportSkillSO;        // 支援技能
+    
+    [Header("Preferred Position")]
+    public PreferredPosition preferredPosition; // 新增：单元的偏好位置
 
     // 可以根据需要添加更多属性，如速度、攻击范围等
 }
@@ -22,4 +25,11 @@ public enum Camp
 {
     Player,
     Enemy
+}
+
+public enum PreferredPosition
+{
+    Left,
+    Any,
+    Right
 }

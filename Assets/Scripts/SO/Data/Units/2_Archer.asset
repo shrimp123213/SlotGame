@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   unitName: Archer
   unitSprite: {fileID: 274142388, guid: 87a16c9905dbfd5479cafebc438e47fc, type: 3}
-  maxHealth: 10
+  maxHealth: 2
   camp: 0
-  mainSkillSO: {fileID: 0}
+  mainSkillSO: {fileID: 11400000, guid: 0e203fdcd5fa9f441980c18578fc493d, type: 2}
   supportSkillSO: {fileID: 0}

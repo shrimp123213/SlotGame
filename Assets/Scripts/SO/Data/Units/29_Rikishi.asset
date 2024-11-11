@@ -10,11 +10,11 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 154b13b9e80b44744be4ba91457e8c5a, type: 3}
-  m_Name: 4_Scout
+  m_Name: 29_Rikishi
   m_EditorClassIdentifier: 
-  unitName: Scout
-  unitSprite: {fileID: -1245206565, guid: 87a16c9905dbfd5479cafebc438e47fc, type: 3}
+  unitName: Rikishi
+  unitSprite: {fileID: 1319552534, guid: 87a16c9905dbfd5479cafebc438e47fc, type: 3}
   maxHealth: 2
   camp: 0
-  mainSkillSO: {fileID: 11400000, guid: b6e55469147e1a34d89313d318a356fa, type: 2}
-  supportSkillSO: {fileID: 11400000, guid: 9cfdab8c07e353348899e7e4a7dab304, type: 2}
+  mainSkillSO: {fileID: 11400000, guid: 5ee40107b0fd5884bb8206d731cab21e, type: 2}
+  supportSkillSO: {fileID: 11400000, guid: abc36e552d95a1740ae1e55665b9399e, type: 2}

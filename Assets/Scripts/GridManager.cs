@@ -135,6 +135,7 @@ public class GridManager : MonoBehaviour
         }
 
         GameObject unitGO = Instantiate(unitPrefab);
+        unitGO.name = unitData.unitName+"_"+position.x+"_"+position.y;
         UnitController unit = unitGO.GetComponent<UnitController>();
         unit.unitData = unitData;
         unit.SetPosition(position);

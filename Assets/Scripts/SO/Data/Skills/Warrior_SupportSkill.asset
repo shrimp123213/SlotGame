@@ -16,3 +16,4 @@ MonoBehaviour:
   actions:
   - Type: 1
     Value: 1
+    TargetType: 1

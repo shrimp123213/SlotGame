@@ -48,7 +48,7 @@ public static class ComboCalculator
         Debug.Log($"连线 COMBO 计数：{comboCount}");
 
         // 根据 comboCount 应用奖励或效果
-        ApplyComboEffects(comboCount, gridManager);
+        //ApplyComboEffects(comboCount, gridManager);
     }
 
     /// <summary>

@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   unitName: Goblin_3
   unitSprite: {fileID: -441852951, guid: 197bcfde909abe1469ab49fe7764a45b, type: 3}
-  maxHealth: 10
+  maxHealth: 2
   camp: 1
   mainSkillSO: {fileID: 0}
   supportSkillSO: {fileID: 0}

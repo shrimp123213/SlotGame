@@ -57,12 +57,12 @@ public class GameManager : MonoBehaviour
         {
             case GameState.MainMenu:
                 // 加載主菜單場景
-                SceneManager.LoadScene("MainMenu");
+                //SceneManager.LoadScene("MainMenu");
                 break;
 
             case GameState.Playing:
                 // 開始遊戲，載入戰鬥場景
-                SceneManager.LoadScene("BattleScene");
+                //SceneManager.LoadScene("BattleScene");
                 break;
 
             case GameState.Paused:

@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   unitName: Mason
   unitSprite: {fileID: -1030650046, guid: 87a16c9905dbfd5479cafebc438e47fc, type: 3}
-  maxHealth: 10
+  maxHealth: 2
   camp: 0
   mainSkillSO: {fileID: 0}
   supportSkillSO: {fileID: 0}

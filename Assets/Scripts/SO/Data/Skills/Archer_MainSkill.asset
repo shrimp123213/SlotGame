@@ -9,12 +9,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 154b13b9e80b44744be4ba91457e8c5a, type: 3}
-  m_Name: 1_Goblin_0
+  m_Script: {fileID: 11500000, guid: ff217bcea079e4e41b5eecd87066fc92, type: 3}
+  m_Name: Archer_MainSkill
   m_EditorClassIdentifier: 
-  unitName: Goblin_0
-  unitSprite: {fileID: -1514293508, guid: 197bcfde909abe1469ab49fe7764a45b, type: 3}
-  maxHealth: 2
-  camp: 1
-  mainSkillSO: {fileID: 0}
-  supportSkillSO: {fileID: 0}
+  skillName: 
+  actions:
+  - Type: 2
+    Value: 1
+    TargetType: 1

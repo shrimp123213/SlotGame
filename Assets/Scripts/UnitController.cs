@@ -231,6 +231,7 @@ public class UnitController : MonoBehaviour, ISkillUser
         {
             // 防卫技能，只对自身或友方生效
             IncreaseDefense(1, targetType);
+            
         }
         else
         {
@@ -279,6 +280,7 @@ public class UnitController : MonoBehaviour, ISkillUser
         if (currentHealth <= 0)
         {
             DestroyUnit();
+            Debug.Log($"UnitController: 单位 {unitData.unitName} 被击败！");
         }
     }
 

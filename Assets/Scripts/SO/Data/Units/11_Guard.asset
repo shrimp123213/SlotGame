@@ -10,11 +10,11 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 154b13b9e80b44744be4ba91457e8c5a, type: 3}
-  m_Name: 4_Scout
+  m_Name: 11_Guard
   m_EditorClassIdentifier: 
-  unitName: Scout
-  unitSprite: {fileID: -1245206565, guid: 87a16c9905dbfd5479cafebc438e47fc, type: 3}
+  unitName: Guard
+  unitSprite: {fileID: 729123160, guid: 87a16c9905dbfd5479cafebc438e47fc, type: 3}
   maxHealth: 2
   camp: 0
-  mainSkillSO: {fileID: 11400000, guid: b6e55469147e1a34d89313d318a356fa, type: 2}
-  supportSkillSO: {fileID: 11400000, guid: 9cfdab8c07e353348899e7e4a7dab304, type: 2}
+  mainSkillSO: {fileID: 11400000, guid: 5218baa5327446145befcff92ee55ff9, type: 2}
+  supportSkillSO: {fileID: 11400000, guid: 605f0133e945cba4cb2929089badabc7, type: 2}

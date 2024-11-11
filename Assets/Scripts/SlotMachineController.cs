@@ -248,7 +248,7 @@ public class SlotMachineController : MonoBehaviour
 
         foreach (var position in battlePositions)
         {
-            //battleTilemap.SetTile(position, null);
+            battleTilemap.SetTile(position, null);
         }
     }
 }

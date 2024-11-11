@@ -2,7 +2,7 @@ using System.Collections;
 using UnityEngine;
 
 /// <summary>
-/// 管理戰鬥流程的主控制器
+/// 管理战斗流程的主控制器
 /// </summary>
 public class BattleManager : MonoBehaviour
 {
@@ -127,6 +127,9 @@ public class BattleManager : MonoBehaviour
     /// <returns></returns>
     private IEnumerator ContinueBattleAfterSlotMachine(int selectedColumn)
     {
+        // 根据选中的列进行加权抽取并放置卡片
+        slotMachine.WeightedDrawAndPlaceCards(selectedColumn);
+
         // 2.2 战斗画面 防卫
         ExecuteDefenseEffects();
 
@@ -139,7 +142,7 @@ public class BattleManager : MonoBehaviour
             yield return StartCoroutine(ExecuteUnitActionsByWave(wave));
         }
 
-        // 2.8 战斗画面 波次8 敵方部位行动
+        // 2.8 战斗画面 波次8 敌方部位行动
         yield return StartCoroutine(ExecuteEnemyPositionActions());
 
         // 2.9 战斗画面 波次9 敌方Boss行动

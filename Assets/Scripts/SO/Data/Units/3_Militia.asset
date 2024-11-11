@@ -18,3 +18,4 @@ MonoBehaviour:
   camp: 0
   mainSkillSO: {fileID: 0}
   supportSkillSO: {fileID: 11400000, guid: 8c425b0e4d26c064c9e14f6c706d9d1a, type: 2}
+  preferredPosition: 1

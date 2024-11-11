@@ -248,7 +248,79 @@ public class SlotMachineController : MonoBehaviour
 
         foreach (var position in battlePositions)
         {
-            battleTilemap.SetTile(position, null);
+            //battleTilemap.SetTile(position, null);
         }
+    }
+
+    /// <summary>
+    /// 执行加权抽取，根据选中的列和单元的偏好位置
+    /// </summary>
+    /// <param name="selectedColumn">转盘选择的列</param>
+    public void WeightedDrawAndPlaceCards(int selectedColumn)
+    {
+        // 根据选中的列确定加权策略
+        bool isLeftSide = selectedColumn >= 1 && selectedColumn <= 3;
+        // bool isRightSide = selectedColumn >=4 && selectedColumn <=6;
+
+        // 定义权重
+        Dictionary<PreferredPosition, int> weightMap = new Dictionary<PreferredPosition, int>();
+
+        if (isLeftSide)
+        {
+            weightMap[PreferredPosition.Left] = 4;
+            weightMap[PreferredPosition.Any] = 2;
+            weightMap[PreferredPosition.Right] = 1;
+        }
+        else // selectedColumn 4-6
+        {
+            weightMap[PreferredPosition.Right] = 4;
+            weightMap[PreferredPosition.Any] = 2;
+            weightMap[PreferredPosition.Left] = 1;
+        }
+
+        // 获取所有可抽取的单位
+        List<UnitData> availableUnits = new List<UnitData>();
+        availableUnits.AddRange(playerDeck);
+        availableUnits.AddRange(enemyDeck);
+
+        // 创建加权列表
+        List<UnitData> weightedList = new List<UnitData>();
+        foreach (var unit in availableUnits)
+        {
+            if (weightMap.ContainsKey(unit.preferredPosition))
+            {
+                int weight = weightMap[unit.preferredPosition];
+                for (int w = 0; w < weight; w++)
+                {
+                    weightedList.Add(unit);
+                }
+            }
+            else
+            {
+                // 如果单位没有指定偏好位置，默认为 Any
+                int weight = weightMap[PreferredPosition.Any];
+                for (int w = 0; w < weight; w++)
+                {
+                    weightedList.Add(unit);
+                }
+            }
+        }
+
+        // 随机抽取 maxCards 张
+        selectedCards = new List<UnitData>();
+        for (int i = 0; i < maxCards && weightedList.Count > 0; i++)
+        {
+            int rndIndex = Random.Range(0, weightedList.Count);
+            UnitData selectedUnit = weightedList[rndIndex];
+            selectedCards.Add(selectedUnit);
+            // 移除所有与 selectedUnit 相同的实例，以避免重复
+            weightedList.RemoveAll(u => u == selectedUnit);
+        }
+
+        // 如果抽取的卡片少于 maxCards，用空白格填充（可选择不做任何操作或显示空白图）
+        // 此处暂不处理
+
+        // 放置卡片到战斗区域
+        ShuffleAndPlaceCards();
     }
 }

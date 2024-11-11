@@ -190,6 +190,7 @@ public class GridManager : MonoBehaviour
         }
 
         GameObject buildingGO = Instantiate(buildingPrefab);
+        buildingGO.name = buildingData.buildingName+"_"+position.x+"_"+position.y;
         BuildingController building = buildingGO.GetComponent<BuildingController>();
         building.buildingData = buildingData;
         building.SetPosition(position);

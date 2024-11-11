@@ -280,7 +280,6 @@ public class UnitController : MonoBehaviour, ISkillUser
         if (currentHealth <= 0)
         {
             DestroyUnit();
-            Debug.Log($"UnitController: 单位 {unitData.unitName} 被击败！");
         }
     }
 

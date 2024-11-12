@@ -463,6 +463,23 @@ public class GridManager : MonoBehaviour
         }
         return allBuildings;
     }
+    
+    /// <summary>
+    /// 获取所有單位
+    /// </summary>
+    /// <returns>所有單位列表</returns>
+    public List<UnitController> GetAllUnits()
+    {
+        List<UnitController> allUnits = new List<UnitController>();
+        foreach (var skillUser in skillUsersPositions.Values)
+        {
+            if (skillUser is UnitController unit)
+            {
+                allUnits.Add(unit);
+            }
+        }
+        return allUnits;
+    }
 
     /// <summary>
     /// 获取指定波次（列）的单位

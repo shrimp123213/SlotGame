@@ -251,6 +251,26 @@ public class BattleManager : MonoBehaviour
         // 实现连线计算逻辑
         ComboCalculator.CalculateCombo(gridManager);
     }
+    
+    /// <summary>
+    /// 结束回合，移除所有单位的无敌状态
+    /// </summary>
+    public void EndTurn()
+    {
+        Debug.Log("BattleManager: 回合结束，移除无敌状态");
+        var allUnits = gridManager.GetAllUnits();
+
+        foreach (var unit in allUnits)
+        {
+            if (unit.HasState<InvincibleState>())
+            {
+                unit.RemoveState<InvincibleState>();
+                Debug.Log($"BattleManager: 移除 {unit.unitData.unitName} 的无敌状态");
+            }
+        }
+
+        // 继续处理其他回合结束逻辑，如计时、敌方回合等
+    }
 
     /// <summary>
     /// 检查战斗结果并结束战斗

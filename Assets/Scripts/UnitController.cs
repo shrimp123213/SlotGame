@@ -16,6 +16,16 @@ public class UnitController : MonoBehaviour, ISkillUser
 
     // 新增一个公共变量，用于引用子物件的 SpriteRenderer
     public SpriteRenderer spriteRenderer;
+    
+    // 新增状态管理字段
+    private List<IUnitState> currentStates = new List<IUnitState>();
+
+    [Header("UI Elements")]
+    public Transform statusIconsParent; // 状态图标的父对象
+    public GameObject statusIconPrefab; // 状态图标预制体
+
+    private Dictionary<string, GameObject> activeStatusIcons = new Dictionary<string, GameObject>();
+
 
 
     void Awake()
@@ -320,6 +330,12 @@ public class UnitController : MonoBehaviour, ISkillUser
     /// <param name="damage">伤害值</param>
     public virtual void TakeDamage(int damage)
     {
+        if (HasState<InvincibleState>())
+        {
+            Debug.Log($"{unitData.unitName} 处于无敌状态，免疫伤害");
+            return;
+        }
+        
         // 首先扣除防卫点数
         int remainingDamage = damage - defensePoints;
         if (remainingDamage > 0)
@@ -336,10 +352,50 @@ public class UnitController : MonoBehaviour, ISkillUser
 
         if (currentHealth <= 0)
         {
-            DestroyUnit();
+            if (HasState<InjuredState>())
+            {
+                // 负伤状态下再次死亡，进入墓地
+                Debug.Log($"UnitController: 单位 {unitData.unitName} 在负伤状态下再次死亡，进入墓地");
+                MoveToGraveyard();
+            }
+            else
+            {
+                // 第一次死亡，进入负伤状态并返回牌库
+                Debug.Log($"UnitController: 单位 {unitData.unitName} 第一次死亡，进入负伤状态并返回牌库");
+                AddState<InjuredState>();
+                MoveToDeck();
+            }
         }
     }
+    
+    /// <summary>
+    /// 将单位移动回牌库
+    /// </summary>
+    private void MoveToDeck()
+    {
+        // 从战场移除
+        GridManager.Instance.RemoveSkillUserAt(gridPosition);
 
+        // 将单位返回到牌库（具体实现根据您的牌库管理方式）
+        // 例如，将单位对象禁用或移动到牌库位置
+        gameObject.SetActive(false);
+        Debug.Log($"{unitData.unitName} 返回牌库");
+    }
+
+    /// <summary>
+    /// 将单位移动到墓地
+    /// </summary>
+    private void MoveToGraveyard()
+    {
+        // 从战场移除
+        GridManager.Instance.RemoveSkillUserAt(gridPosition);
+
+        // 将单位移动到墓地（具体实现根据您的墓地管理方式）
+        // 例如，将单位对象禁用或移动到墓地位置
+        gameObject.SetActive(false);
+        Debug.Log($"{unitData.unitName} 移动到墓地");
+    }
+    
     /// <summary>
     /// 治疗单位
     /// </summary>
@@ -355,6 +411,12 @@ public class UnitController : MonoBehaviour, ISkillUser
             currentHealth += amount;
         }
         Debug.Log($"UnitController: 单位 {unitData.unitName} 恢复了 {amount} 点生命值，当前生命值: {currentHealth}");
+
+        // 如果单位处于负伤状态，触发治疗
+        if (HasState<InjuredState>())
+        {
+            AddState<HealedState>();
+        }
     }
 
     /// <summary>
@@ -470,5 +532,115 @@ public class UnitController : MonoBehaviour, ISkillUser
             // 清空当前技能动作，防止重复执行
             currentSkill.Actions.Clear();
         }
+    }
+    
+    
+    /// <summary>
+    /// 添加一个状态到单位
+    /// </summary>
+    /// <typeparam name="T">状态类型</typeparam>
+    public void AddState<T>() where T : ScriptableObject, IUnitState
+    {
+        // 查找是否已经存在该类型的状态
+        foreach (var state in currentStates)
+        {
+            if (state.GetType() == typeof(T))
+            {
+                Debug.LogWarning($"{unitData.unitName} 已经拥有 {state.StateName} 状态");
+                return;
+            }
+        }
+
+        // 加载状态资源
+        T newState = Resources.Load<T>($"UnitStates/{typeof(T).Name}");
+        if (newState != null)
+        {
+            currentStates.Add(newState);
+            newState.OnEnter(this);
+            AddStatusIcon(newState);
+        }
+        else
+        {
+            Debug.LogError($"无法加载状态类型: {typeof(T).Name}");
+        }
+    }
+
+    /// <summary>
+    /// 移除一个状态从单位
+    /// </summary>
+    /// <typeparam name="T">状态类型</typeparam>
+    public void RemoveState<T>() where T : ScriptableObject, IUnitState
+    {
+        IUnitState stateToRemove = null;
+        foreach (var state in currentStates)
+        {
+            if (state.GetType() == typeof(T))
+            {
+                stateToRemove = state;
+                break;
+            }
+        }
+
+        if (stateToRemove != null)
+        {
+            stateToRemove.OnExit(this);
+            currentStates.Remove(stateToRemove);
+            RemoveStatusIcon(stateToRemove);
+        }
+        else
+        {
+            Debug.LogWarning($"{unitData.unitName} 不存在 {typeof(T).Name} 状态");
+        }
+    }
+
+    /// <summary>
+    /// 检查单位是否拥有某个状态
+    /// </summary>
+    /// <typeparam name="T">状态类型</typeparam>
+    /// <returns>是否拥有该状态</returns>
+    public bool HasState<T>() where T : ScriptableObject, IUnitState
+    {
+        foreach (var state in currentStates)
+        {
+            if (state.GetType() == typeof(T))
+                return true;
+        }
+        return false;
+    }
+
+    /// <summary>
+    /// 添加状态图标到UI
+    /// </summary>
+    /// <param name="state">要添加的状态</param>
+    private void AddStatusIcon(IUnitState state)
+    {
+        if (statusIconsParent != null && statusIconPrefab != null)
+        {
+            GameObject iconGO = Instantiate(statusIconPrefab, statusIconsParent);
+            iconGO.GetComponent<UnityEngine.UI.Image>().sprite = state.Icon;
+            activeStatusIcons[state.StateName] = iconGO;
+        }
+    }
+
+    /// <summary>
+    /// 从UI移除状态图标
+    /// </summary>
+    /// <param name="state">要移除的状态</param>
+    private void RemoveStatusIcon(IUnitState state)
+    {
+        if (activeStatusIcons.ContainsKey(state.StateName))
+        {
+            Destroy(activeStatusIcons[state.StateName]);
+            activeStatusIcons.Remove(state.StateName);
+        }
+    }
+
+    /// <summary>
+    /// 更新单位的UI（如状态图标）
+    /// </summary>
+    public void UpdateUnitUI()
+    {
+        // 此方法可用于更新其他UI元素，如状态图标
+        // 这里我们已经在 AddState 和 RemoveState 中处理了状态图标
     }
 }

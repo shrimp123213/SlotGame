@@ -4,7 +4,8 @@ using UnityEngine;
 public class HealedState : ScriptableObject, IUnitState
 {
     public string StateName => "Healed";
-    public Sprite Icon { get; }
+    [SerializeField] private Sprite icon;
+    public Sprite Icon => icon;    
 
     public void OnEnter(UnitController unit)
     {

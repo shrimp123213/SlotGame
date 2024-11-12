@@ -4,8 +4,8 @@ using UnityEngine;
 public class InvincibleState : ScriptableObject, IUnitState
 {
     public string StateName => "Invincible";
-    public Sprite Icon { get; }
-
+    [SerializeField] private Sprite icon;
+    public Sprite Icon => icon;
     public void OnEnter(UnitController unit)
     {
         Debug.Log($"{unit.unitData.unitName} 进入无敌状态");

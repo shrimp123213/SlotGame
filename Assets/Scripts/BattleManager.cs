@@ -17,6 +17,7 @@ public class BattleManager : MonoBehaviour
     [Header("Battle Settings")]
     public float slotMachineSpinTime = 5f;    // 转盘旋转时间
     public float slotMachineSpinSpeed = 10f;  // 转盘旋转速度
+    
 
     private void Awake()
     {
@@ -179,7 +180,7 @@ public class BattleManager : MonoBehaviour
         foreach (var building in buildings)
         {
             building.ExecuteAction();
-            yield return new WaitForSeconds(0.5f); // 每个建筑间隔执行
+            yield return new WaitForSeconds(0.1f); // 每个建筑间隔执行
         }
     }
 
@@ -197,10 +198,10 @@ public class BattleManager : MonoBehaviour
             if (unit != null && unit.gameObject.activeSelf)
             {
                 unit.UseMainSkillOrSupport();
-                yield return new WaitForSeconds(0.5f); // 每个单位间隔执行
+                yield return new WaitForSeconds(0.1f); // 每个单位间隔执行
             }
         }
-        yield return new WaitForSeconds(1f); // 每个波次间隔
+        yield return new WaitForSeconds(0.2f); // 每个波次间隔
     }
 
     /// <summary>
@@ -217,7 +218,7 @@ public class BattleManager : MonoBehaviour
             if (building != null && building.gameObject.activeSelf)
             {
                 building.ExecuteAction();
-                yield return new WaitForSeconds(0.5f); // 每个部位间隔执行
+                yield return new WaitForSeconds(0.1f); // 每个部位间隔执行
             }
         }
         yield return null;
@@ -234,7 +235,7 @@ public class BattleManager : MonoBehaviour
         if (boss != null && boss.gameObject.activeSelf)
         {
             boss.ExecuteBossAbility();
-            yield return new WaitForSeconds(1f); // 等待Boss行动完成
+            yield return new WaitForSeconds(0.2f); // 等待Boss行动完成
         }
         yield return null;
     }
@@ -245,6 +246,8 @@ public class BattleManager : MonoBehaviour
     private void ExecuteComboCalculation()
     {
         Debug.Log("BattleManager: 计算连线 COMBO！");
+        connectionManager.CheckConnections();
+        
         // 实现连线计算逻辑
         ComboCalculator.CalculateCombo(gridManager);
     }

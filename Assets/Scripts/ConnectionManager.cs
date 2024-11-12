@@ -182,7 +182,7 @@ public class ConnectionManager : MonoBehaviour
             int col = pos.y; // y 表示列，從 1 調整為 0 索引
 
             // 調試輸出
-            Debug.Log($"檢查位置：行 {row}, 列 {col + 1} (pos.x: {pos.x}, pos.y: {pos.y})");
+            //Debug.Log($"檢查位置：行 {row}, 列 {col + 1} (pos.x: {pos.x}, pos.y: {pos.y})");
 
             // 檢查邊界
             if (col < 0 || col >= gridManager.columns || row < 0 || row >= gridManager.rows)
@@ -196,13 +196,13 @@ public class ConnectionManager : MonoBehaviour
 
             if (unit == null)
             {
-                Debug.Log($"ConnectionManager: 位置 ({row}, {col + 1}) 無單位");
+                //Debug.Log($"ConnectionManager: 位置 ({row}, {col + 1}) 無單位");
                 return false;
             }
 
             if (unit.unitData.camp != camp)
             {
-                Debug.Log($"ConnectionManager: 位置 ({row}, {col + 1}) 的單位不屬於 {camp} 陣營");
+                //Debug.Log($"ConnectionManager: 位置 ({row}, {col + 1}) 的單位不屬於 {camp} 陣營");
                 return false;
             }
 

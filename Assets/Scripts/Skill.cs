@@ -5,6 +5,7 @@ using UnityEngine;
 public class Skill
 {
     public List<SkillActionData> Actions = new List<SkillActionData>();
+    public string skillName;
 
     /// <summary>
     /// 从 SkillSO 克隆技能
@@ -13,25 +14,33 @@ public class Skill
     /// <returns>克隆的 Skill 实例</returns>
     public static Skill FromSkillSO(SkillSO skillSO)
     {
-        if (skillSO == null || skillSO.actions == null)
+        if (skillSO == null)
         {
-            Debug.LogError("Skill: SkillSO 或其动作列表为 null！");
+            Debug.LogError("Skill: 无法从 null SkillSO 创建 Skill 实例！");
             return null;
         }
 
-        Skill skill = new Skill();
-        // 克隆动作列表，避免引用相同的动作数据
+        Skill newSkill = new Skill
+        {
+            skillName = skillSO.skillName,
+            Actions = new List<SkillActionData>()
+        };
+
         foreach (var action in skillSO.actions)
         {
-            SkillActionData clonedAction = new SkillActionData
+            // 创建 SkillActionData 的深拷贝
+            SkillActionData newAction = new SkillActionData
             {
                 Type = action.Type,
-                Value = action.Value
+                Value = action.Value,
+                TargetType = action.TargetType
             };
-            skill.Actions.Add(clonedAction);
+            newSkill.Actions.Add(newAction);
         }
-        return skill;
+
+        return newSkill;
     }
+
 
     /// <summary>
     /// 添加技能动作

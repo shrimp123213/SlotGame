@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections.Generic;
 
 public class UnitController : MonoBehaviour, ISkillUser
 {
@@ -15,7 +16,6 @@ public class UnitController : MonoBehaviour, ISkillUser
 
     // 新增一個公共變量，用於引用子物件的 SpriteRenderer
     public SpriteRenderer spriteRenderer;
-
 
     void Awake()
     {
@@ -40,7 +40,7 @@ public class UnitController : MonoBehaviour, ISkillUser
         {
             Debug.LogError("UnitController: 未找到 SkillManager！");
         }
-
+        
         // 初始化当前技能为主技能的克隆
         if (unitData.mainSkillSO != null)
         {
@@ -149,6 +149,73 @@ public class UnitController : MonoBehaviour, ISkillUser
     }
 
     /// <summary>
+    /// 判断是否可以使用主技能，依据技能的TargetType检查是否有有效目标
+    /// </summary>
+    /// <returns>是否可以使用主技能</returns>
+    public bool CanUseMainSkill()
+    {
+        if (currentSkill == null || currentSkill.Actions == null)
+        {
+            Debug.LogWarning("UnitController: currentSkill 或其动作列表为 null！");
+            return false;
+        }
+
+        foreach (var action in currentSkill.Actions)
+        {
+            switch (action.Type)
+            {
+                case SkillType.Melee:
+                case SkillType.Ranged:
+                    if (action.TargetType == TargetType.Enemy)
+                    {
+                        // 检查相应方向是否有敌方单位或建筑
+                        Vector3Int attackDirection = unitData.camp == Camp.Player ? Vector3Int.right : Vector3Int.left;
+                        Vector3Int targetPosition = gridPosition + attackDirection;
+
+                        UnitController targetUnit = GridManager.Instance.GetUnitAt(targetPosition);
+                        BuildingController targetBuilding = GridManager.Instance.GetBuildingAt(targetPosition);
+
+                        if ((targetUnit != null && targetUnit.unitData.camp != unitData.camp) ||
+                            (targetBuilding != null && targetBuilding.buildingData.camp != unitData.camp))
+                        {
+                            // 有有效的敌方目标
+                            return true;
+                        }
+                    }
+                    break;
+
+                case SkillType.Defense:
+                    if (action.TargetType == TargetType.Friendly)
+                    {
+                        // 检查是否有友方单位需要防卫（例如，低生命值）
+                        List<UnitController> friendlyUnits = GridManager.Instance.GetUnitsByCamp(unitData.camp);
+                        foreach (var friendly in friendlyUnits)
+                        {
+                            if (friendly.currentHealth < friendly.unitData.maxHealth)
+                            {
+                                return true;
+                            }
+                        }
+                    }
+                    else if (action.TargetType == TargetType.Self)
+                    {
+                        // 自身防卫，总是可以使用
+                        return true;
+                    }
+                    break;
+
+                // 处理其他 SkillType，如需要
+
+                default:
+                    break;
+            }
+        }
+
+        // 如果所有动作都没有找到有效目标，则不能使用主技能
+        return false;
+    }
+
+    /// <summary>
     /// 执行近战攻击
     /// </summary>
     public virtual void PerformMeleeAttack(TargetType targetType)
@@ -231,7 +298,6 @@ public class UnitController : MonoBehaviour, ISkillUser
         {
             // 防卫技能，只对自身或友方生效
             IncreaseDefense(1, targetType);
-            
         }
         else
         {
@@ -332,22 +398,6 @@ public class UnitController : MonoBehaviour, ISkillUser
 
     /// <summary>
     /// 判断是否可以使用主技能
-    /// </summary>
-    /// <returns></returns>
-    private bool CanUseMainSkill()
-    {
-        // 判断条件，例如是否有目标
-        Vector3Int attackDirection = unitData.camp == Camp.Player ? Vector3Int.right : Vector3Int.left;
-        Vector3Int targetPosition = gridPosition + attackDirection;
-
-        UnitController targetUnit = GridManager.Instance.GetUnitAt(targetPosition);
-        BuildingController targetBuilding = GridManager.Instance.GetBuildingAt(targetPosition);
-
-        return targetUnit != null || targetBuilding != null;
-    }
-
-    /// <summary>
-    /// 判断是否可以使用支援技能
     /// </summary>
     /// <returns></returns>
     private bool CanUseSupportSkill()

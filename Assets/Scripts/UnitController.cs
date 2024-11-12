@@ -14,12 +14,13 @@ public class UnitController : MonoBehaviour, ISkillUser
 
     public Skill currentSkill;       // 当前技能的运行时实例
 
-    // 新增一個公共變量，用於引用子物件的 SpriteRenderer
+    // 新增一个公共变量，用于引用子物件的 SpriteRenderer
     public SpriteRenderer spriteRenderer;
+
 
     void Awake()
     {
-        // 如果沒有在 Inspector 中手動設置 spriteRenderer，則自動查找
+        // 如果没有在 Inspector 中手动设置 spriteRenderer，则自动查找
         if (spriteRenderer == null)
         {
             spriteRenderer = GetComponentInChildren<SpriteRenderer>();
@@ -39,16 +40,6 @@ public class UnitController : MonoBehaviour, ISkillUser
         if (SkillManager.Instance == null)
         {
             Debug.LogError("UnitController: 未找到 SkillManager！");
-        }
-        
-        // 初始化当前技能为主技能的克隆
-        if (unitData.mainSkillSO != null)
-        {
-            currentSkill = Skill.FromSkillSO(unitData.mainSkillSO);
-        }
-        else
-        {
-            Debug.LogWarning($"UnitController: 单位 {unitData.unitName} 没有配置主技能！");
         }
 
         // 初始化实例变量
@@ -101,51 +92,6 @@ public class UnitController : MonoBehaviour, ISkillUser
         transform.position = cellWorldPosition;
 
         Debug.Log($"UnitController: 单位 {unitData.unitName} 放置在格子中心: {cellWorldPosition}");
-    }
-
-    /// <summary>
-    /// 检查单位是否可以继续向前移动
-    /// </summary>
-    /// <returns>是否可以移动</returns>
-    public virtual bool CanMoveForward()
-    {
-        Vector3Int direction = unitData.camp == Camp.Player ? Vector3Int.right : Vector3Int.left;
-        Vector3Int newPosition = gridPosition + direction;
-
-        // 检查新位置是否在战斗区域
-        if (!GridManager.Instance.IsWithinBattleArea(newPosition))
-        {
-            return false;
-        }
-
-        // 检查新位置是否被占据
-        if (GridManager.Instance.HasSkillUserAt(newPosition))
-        {
-            return false;
-        }
-
-        return true;
-    }
-
-    /// <summary>
-    /// 移动单位到前方一格
-    /// </summary>
-    public virtual void MoveForward()
-    {
-        Vector3Int direction = unitData.camp == Camp.Player ? Vector3Int.right : Vector3Int.left;
-        Vector3Int newPosition = gridPosition + direction;
-
-        // 尝试通过 GridManager 移动单位
-        bool moved = GridManager.Instance.MoveUnit(gridPosition, newPosition);
-        if (moved)
-        {
-            gridPosition = newPosition;
-            Debug.Log($"UnitController: 单位 {unitData.unitName} 向前移动到 {newPosition}");
-        }
-        else
-        {
-            Debug.Log($"UnitController: 单位 {unitData.unitName} 无法移动到 {newPosition}");
-        }
     }
 
     /// <summary>
@@ -213,6 +159,51 @@ public class UnitController : MonoBehaviour, ISkillUser
 
         // 如果所有动作都没有找到有效目标，则不能使用主技能
         return false;
+    }
+
+    /// <summary>
+    /// 检查单位是否可以继续向前移动
+    /// </summary>
+    /// <returns>是否可以移动</returns>
+    public virtual bool CanMoveForward()
+    {
+        Vector3Int direction = unitData.camp == Camp.Player ? Vector3Int.right : Vector3Int.left;
+        Vector3Int newPosition = gridPosition + direction;
+
+        // 检查新位置是否在战斗区域
+        if (!GridManager.Instance.IsWithinBattleArea(newPosition))
+        {
+            return false;
+        }
+
+        // 检查新位置是否被占据
+        if (GridManager.Instance.HasSkillUserAt(newPosition))
+        {
+            return false;
+        }
+
+        return true;
+    }
+
+    /// <summary>
+    /// 移动单位到前方一格
+    /// </summary>
+    public virtual void MoveForward()
+    {
+        Vector3Int direction = unitData.camp == Camp.Player ? Vector3Int.right : Vector3Int.left;
+        Vector3Int newPosition = gridPosition + direction;
+
+        // 尝试通过 GridManager 移动单位
+        bool moved = GridManager.Instance.MoveUnit(gridPosition, newPosition);
+        if (moved)
+        {
+            gridPosition = newPosition;
+            Debug.Log($"UnitController: 单位 {unitData.unitName} 向前移动到 {newPosition}");
+        }
+        else
+        {
+            Debug.Log($"UnitController: 单位 {unitData.unitName} 无法移动到 {newPosition}");
+        }
     }
 
     /// <summary>
@@ -397,7 +388,7 @@ public class UnitController : MonoBehaviour, ISkillUser
     }
 
     /// <summary>
-    /// 判断是否可以使用主技能
+    /// 判断是否可以使用支援技能
     /// </summary>
     /// <returns></returns>
     private bool CanUseSupportSkill()
@@ -447,6 +438,7 @@ public class UnitController : MonoBehaviour, ISkillUser
             // 执行当前技能的所有动作
             foreach (var action in currentSkill.Actions)
             {
+                Debug.Log($"Action Type: {action.Type}, TargetType: {action.TargetType}, Value: {action.Value}");
                 switch (action.Type)
                 {
                     case SkillType.Move:

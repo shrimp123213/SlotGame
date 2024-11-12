@@ -23,11 +23,6 @@ public class GridManager : MonoBehaviour
     public GameObject bossPrefab;      // Boss的Prefab
     public GameObject buildingPrefab;  // 建筑的Prefab
 
-    [Header("Data")]
-    //public List<UnitData> playerUnits;    // 玩家单位的数据
-    //public List<UnitData> enemyUnits;     // 敌方单位的数据
-    //public List<BuildingData> buildings;  // 建筑的数据
-
     [Header("Parent Objects")]
     public Transform unitsParent;      // 单位的父对象
     public Transform buildingsParent;  // 建筑的父对象
@@ -130,13 +125,27 @@ public class GridManager : MonoBehaviour
     {
         if (skillUsersPositions.ContainsKey(position))
         {
-            Debug.LogWarning($"位置 {position} 已经有单位或建筑存在！");
+            Debug.LogWarning($"GridManager: 位置 {position} 已经有单位或建筑存在！");
             return;
         }
 
+        if (unitData == null)
+        {
+            Debug.LogError("GridManager: 尝试生成的 UnitData 为 null！");
+            return;
+        }
+
+        // 直接实例化单位，无需检查 cardCount
         GameObject unitGO = Instantiate(unitPrefab);
-        unitGO.name = unitData.unitName+"_"+position.x+"_"+position.y;
+        unitGO.name = unitData.unitName + "_" + position.x + "_" + position.y;
         UnitController unit = unitGO.GetComponent<UnitController>();
+        if (unit == null)
+        {
+            Debug.LogError("GridManager: UnitPrefab 没有 UnitController 组件！");
+            Destroy(unitGO);
+            return;
+        }
+
         unit.unitData = unitData;
         unit.SetPosition(position);
 
@@ -145,9 +154,15 @@ public class GridManager : MonoBehaviour
         {
             unitGO.transform.SetParent(unitsParent);
         }
+        else
+        {
+            Debug.LogWarning("GridManager: unitsParent 未设置！");
+        }
 
         skillUsersPositions.Add(position, unit);
+        Debug.Log($"GridManager: 在位置 {position} 生成单位 {unitData.unitName}");
     }
+
 
     /// <summary>
     /// 生成Boss单位
@@ -163,7 +178,15 @@ public class GridManager : MonoBehaviour
         }
 
         GameObject bossGO = Instantiate(bossPrefab);
+        bossGO.name = unitData.unitName + "_" + position.x + "_" + position.y;
         BossController boss = bossGO.GetComponent<BossController>();
+        if (boss == null)
+        {
+            Debug.LogError("GridManager: BossPrefab 没有 BossController 组件！");
+            Destroy(bossGO);
+            return;
+        }
+
         boss.unitData = unitData;
         boss.SetPosition(position);
 
@@ -190,8 +213,15 @@ public class GridManager : MonoBehaviour
         }
 
         GameObject buildingGO = Instantiate(buildingPrefab);
-        buildingGO.name = buildingData.buildingName+"_"+position.x+"_"+position.y;
+        buildingGO.name = buildingData.buildingName + "_" + position.x + "_" + position.y;
         BuildingController building = buildingGO.GetComponent<BuildingController>();
+        if (building == null)
+        {
+            Debug.LogError("GridManager: BuildingPrefab 没有 BuildingController 组件！");
+            Destroy(buildingGO);
+            return;
+        }
+
         building.buildingData = buildingData;
         building.SetPosition(position);
 

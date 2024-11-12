@@ -17,7 +17,6 @@ public class BattleManager : MonoBehaviour
     [Header("Battle Settings")]
     public float slotMachineSpinTime = 5f;    // 转盘旋转时间
     public float slotMachineSpinSpeed = 10f;  // 转盘旋转速度
-    
 
     private void Awake()
     {
@@ -57,16 +56,16 @@ public class BattleManager : MonoBehaviour
             return;
         }
 
-        // 訂閱 SlotMachine 的轉動完成事件
+        // 订阅 SlotMachine 的转动完成事件
         slotMachine.OnSpinCompleted += OnSlotMachineSpun;
 
-        // 開始戰鬥流程
+        // 开始战斗流程
         StartBattleSequence();
     }
 
     private void OnDestroy()
     {
-        // 取消訂閱事件，防止記憶體洩漏
+        // 取消订阅事件，防止内存泄漏
         if (slotMachine != null)
         {
             slotMachine.OnSpinCompleted -= OnSlotMachineSpun;
@@ -90,7 +89,7 @@ public class BattleManager : MonoBehaviour
         // 2.1 战斗画面 转盘
         yield return StartCoroutine(ExecuteSlotMachine());
 
-        // 以下流程将由转盘完成後的回调继续
+        // 以下流程将由转盘完成后的回调继续
     }
 
     /// <summary>
@@ -108,7 +107,7 @@ public class BattleManager : MonoBehaviour
             yield return null;
         }
 
-        // 转盘完成後，流程將由 OnSlotMachineSpun 回调继续
+        // 转盘完成后，流程将由 OnSlotMachineSpun 回调继续
     }
 
     /// <summary>
@@ -128,9 +127,10 @@ public class BattleManager : MonoBehaviour
     /// <returns></returns>
     private IEnumerator ContinueBattleAfterSlotMachine(int selectedColumn)
     {
-        // 根据选中的列进行加权抽取并放置卡片
+        // 仅调用一次 WeightedDrawAndPlaceCards
         slotMachine.WeightedDrawAndPlaceCards(selectedColumn);
 
+        // 继续后续战斗流程
         // 2.2 战斗画面 防卫
         ExecuteDefenseEffects();
 

@@ -14,9 +14,9 @@ public class SlotMachineController : MonoBehaviour
     [Header("Connection Manager")]
     public ConnectionManager connectionManager; // 引用 ConnectionManager
 
-    [Header("Cards")]
-    public List<UnitData> playerDeck; // 玩家牌组
-    public List<UnitData> enemyDeck;  // 敌人牌组
+    [Header("Decks")]
+    public Deck playerDeck; // 玩家牌组
+    public Deck enemyDeck;  // 敌人牌组
 
     [Header("Slot Machine Settings")]
     public float spinDuration = 5f; // 旋转时间
@@ -49,6 +49,12 @@ public class SlotMachineController : MonoBehaviour
             return;
         }
 
+        if (playerDeck == null || enemyDeck == null)
+        {
+            Debug.LogError("SlotMachineController: 玩家牌组或敌人牌组未设置！");
+            return;
+        }
+
         InitializeBattlePositions();
 
         // 可以在这里调用 StartSpinning() 进行测试
@@ -76,7 +82,11 @@ public class SlotMachineController : MonoBehaviour
     /// </summary>
     public void StartSpinning()
     {
-        if (isSpinning) return;
+        if (isSpinning) 
+        {
+            Debug.LogWarning("SlotMachineController: 已经在旋转中！");
+            return;
+        }
 
         StartCoroutine(SpinRoutine());
     }
@@ -108,10 +118,6 @@ public class SlotMachineController : MonoBehaviour
         // 停止旋转视觉效果
         //ClearSpinTiles();
 
-        // 进行游戏逻辑
-        selectedCards = DrawCards();
-        ShuffleAndPlaceCards();
-
         // 选取一列作为转盘选择的列（示例逻辑）
         int selectedColumn = Random.Range(1, gridManager.columns + 1);
         Debug.Log($"SlotMachineController: 选择的列为 {selectedColumn}");
@@ -119,49 +125,144 @@ public class SlotMachineController : MonoBehaviour
         // 触发转盘完成事件
         OnSpinCompleted?.Invoke(selectedColumn);
 
-        // 检查连线
-        Debug.Log("SlotMachineController: 拉霸机停止，进入连线阶段");
-        // connectionManager.CheckConnections(); // 已由 BattleManager 负责
+        // 不再在这里调用 WeightedDrawAndPlaceCards
+        // 因为 BattleManager 会通过事件处理
+        Debug.Log("SlotMachineController: 拉霸机停止，等待 BattleManager 处理后续流程");
     }
 
+
     /// <summary>
-    /// 抽取卡片，数量不超过 maxCards 张，不重复
+    /// 执行加权抽取，根据选中的列和单元的偏好位置
     /// </summary>
-    /// <returns>抽取的卡片列表</returns>
-    List<UnitData> DrawCards()
+    /// <param name="selectedColumn">转盘选择的列</param>
+    public void WeightedDrawAndPlaceCards(int selectedColumn)
     {
-        List<UnitData> deck = new List<UnitData>();
-        deck.AddRange(playerDeck);
-        deck.AddRange(enemyDeck);
+        Debug.Log($"WeightedDrawAndPlaceCards: 开始，选中的列: {selectedColumn}");
 
-        List<UnitData> drawnCards = new List<UnitData>();
-        int drawCount = Mathf.Min(maxCards, deck.Count);
+        // 根据选中的列确定加权策略
+        var isLeftSide = selectedColumn >= 1 && selectedColumn <= 3;
 
-        // 洗牌
-        for (int i = deck.Count - 1; i > 0; i--)
+        // 定义权重
+        var weightMap = new Dictionary<PreferredPosition, int>();
+
+        if (isLeftSide)
         {
-            int rnd = Random.Range(0, i + 1);
-            UnitData temp = deck[i];
-            deck[i] = deck[rnd];
-            deck[rnd] = temp;
+            weightMap[PreferredPosition.Left] = 4;
+            weightMap[PreferredPosition.Any] = 2;
+            weightMap[PreferredPosition.Right] = 1;
+        }
+        else // selectedColumn 4-6
+        {
+            weightMap[PreferredPosition.Right] = 4;
+            weightMap[PreferredPosition.Any] = 2;
+            weightMap[PreferredPosition.Left] = 1;
         }
 
-        // 抽取前 maxCards 张
-        for (int i = 0; i < drawCount; i++)
+        // 获取所有可抽取的单位
+        var availableEntries = new List<DeckEntry>();
+        availableEntries.AddRange(playerDeck.entries);
+        availableEntries.AddRange(enemyDeck.entries);
+
+        Debug.Log($"WeightedDrawAndPlaceCards: 可用的 DeckEntry 数量: {availableEntries.Count}");
+
+        // 初始化抽取的卡片列表
+        selectedCards = new List<UnitData>();
+
+        // 计算可用的总卡片数量
+        var totalAvailableCards = 0;
+        foreach (var entry in availableEntries)
+            if (entry.unitData != null && entry.quantity > 0)
+                totalAvailableCards += entry.quantity;
+
+        Debug.Log($"WeightedDrawAndPlaceCards: 总可用卡片数量: {totalAvailableCards}");
+
+        // 如果总可用卡片数量小于 maxCards，调整 cardsToDraw
+        var cardsToDraw = Mathf.Min(maxCards, totalAvailableCards);
+
+        // 开始抽取过程
+        for (var i = 0; i < cardsToDraw; i++)
         {
-            drawnCards.Add(deck[i]);
+            // 更新当前可用的 DeckEntry（quantity > 0）
+            var currentAvailableEntries = new List<DeckEntry>();
+            foreach (var entry in availableEntries)
+                if (entry.unitData != null && entry.quantity > 0)
+                    currentAvailableEntries.Add(entry);
+
+            if (currentAvailableEntries.Count == 0)
+            {
+                Debug.Log("WeightedDrawAndPlaceCards: 没有更多可抽取的卡牌！");
+                break;
+            }
+
+            // 计算总权重
+            var totalWeight = 0;
+            foreach (var entry in currentAvailableEntries)
+            {
+                var pos = entry.unitData.preferredPosition;
+                if (weightMap.ContainsKey(pos))
+                    totalWeight += weightMap[pos];
+                else
+                    // 默认权重，如果没有指定
+                    totalWeight += weightMap.ContainsKey(PreferredPosition.Any) ? weightMap[PreferredPosition.Any] : 1;
+            }
+
+            if (totalWeight <= 0)
+            {
+                Debug.LogWarning("WeightedDrawAndPlaceCards: 总权重为0，无法继续抽取！");
+                break;
+            }
+
+            // 生成一个随机数
+            var randomWeight = Random.Range(0, totalWeight);
+            Debug.Log($"WeightedDrawAndPlaceCards: 随机数: {randomWeight}，总权重: {totalWeight}");
+
+            // 选择对应的 DeckEntry
+            var cumulativeWeight = 0;
+            DeckEntry selectedEntry = null;
+            foreach (var entry in currentAvailableEntries)
+            {
+                var pos = entry.unitData.preferredPosition;
+                var entryWeight = weightMap.ContainsKey(pos) ? weightMap[pos] :
+                    weightMap.ContainsKey(PreferredPosition.Any) ? weightMap[PreferredPosition.Any] : 1;
+                cumulativeWeight += entryWeight;
+                if (randomWeight < cumulativeWeight)
+                {
+                    selectedEntry = entry;
+                    break;
+                }
+            }
+
+            if (selectedEntry == null)
+            {
+                Debug.LogWarning("WeightedDrawAndPlaceCards: 没有选中的 DeckEntry！");
+                break;
+            }
+
+            // 添加到 selectedCards 并减少 quantity
+            selectedCards.Add(selectedEntry.unitData);
+            Debug.Log($"WeightedDrawAndPlaceCards: 抽取卡牌: {selectedEntry.unitData.unitName}");
+
+            selectedEntry.quantity -= 1;
+            Debug.Log($"WeightedDrawAndPlaceCards: {selectedEntry.unitData.unitName} 剩余数量: {selectedEntry.quantity}");
         }
 
-        return drawnCards;
+        Debug.Log($"WeightedDrawAndPlaceCards: 抽取的卡牌数量: {selectedCards.Count}");
+
+        // 放置卡片到战斗区域
+        ShuffleAndPlaceCards();
     }
 
+
+
     /// <summary>
-    /// 随机放置卡片到战斗区域的格子上，卡片不重复，若不足 maxCards 张，用空白格填充
+    /// 随机放置卡片到战斗区域的格子上，若不足 maxCards 张，用空白格填充
     /// </summary>
     void ShuffleAndPlaceCards()
     {
-        // 清空之前的单位
-        ClearBattleAreaUnits();
+        Debug.Log("ShuffleAndPlaceCards: 开始放置卡牌到战斗区域");
+
+        // 不再调用 ClearBattleAreaUnits()
+        // ClearBattleAreaUnits();
 
         // 随机排列 battlePositions
         List<Vector3Int> shuffledPositions = new List<Vector3Int>(battlePositions);
@@ -174,6 +275,7 @@ public class SlotMachineController : MonoBehaviour
         }
 
         int positionCount = Mathf.Min(maxCards, shuffledPositions.Count);
+        Debug.Log($"ShuffleAndPlaceCards: 需要放置的格子数量: {positionCount}");
 
         for (int i = 0; i < positionCount; i++)
         {
@@ -182,34 +284,46 @@ public class SlotMachineController : MonoBehaviour
             if (i < selectedCards.Count)
             {
                 // 放置卡片
-                gridManager.SpawnUnit(selectedPos, selectedCards[i]);
+                UnitData unitDataToSpawn = selectedCards[i];
+                Debug.Log($"ShuffleAndPlaceCards: 在位置 {selectedPos} 放置单位 {unitDataToSpawn.unitName}");
+                gridManager.SpawnUnit(selectedPos, unitDataToSpawn);
             }
             else
             {
                 // 用空白格填充（可选择不做任何操作或显示空白图）
                 // 此处暂不处理
+                Debug.Log($"ShuffleAndPlaceCards: 在位置 {selectedPos} 放置空白格");
             }
         }
     }
+
 
     /// <summary>
     /// 清空战斗区域上的所有单位
     /// </summary>
     void ClearBattleAreaUnits()
     {
+        Debug.Log("ClearBattleAreaUnits: 开始清空战斗区域的单位");
+
         // 遍历所有战斗区域格子，销毁存在的单位
         foreach (var pos in battlePositions)
         {
             if (gridManager.HasSkillUserAt(pos))
             {
-                UnitController unit = gridManager.GetUnitAt(pos);
-                if (unit != null)
+                ISkillUser user = gridManager.GetSkillUserAt(pos);
+                if (user != null)
                 {
-                    Destroy(unit.gameObject);
+                    if (user is MonoBehaviour monoUser)
+                    {
+                        Debug.Log($"ClearBattleAreaUnits: 销毁位置 {pos} 上的 {monoUser.gameObject.name}");
+                        Destroy(monoUser.gameObject);
+                    }
+                    gridManager.RemoveSkillUserAt(pos); // 确保从字典中移除
                 }
-                gridManager.RemoveUnitAt(pos); // 确保从字典中移除
             }
         }
+
+        Debug.Log("ClearBattleAreaUnits: 战斗区域的单位已清空");
     }
 
     /// <summary>
@@ -250,77 +364,5 @@ public class SlotMachineController : MonoBehaviour
         {
             //battleTilemap.SetTile(position, null);
         }
-    }
-
-    /// <summary>
-    /// 执行加权抽取，根据选中的列和单元的偏好位置
-    /// </summary>
-    /// <param name="selectedColumn">转盘选择的列</param>
-    public void WeightedDrawAndPlaceCards(int selectedColumn)
-    {
-        // 根据选中的列确定加权策略
-        bool isLeftSide = selectedColumn >= 1 && selectedColumn <= 3;
-        // bool isRightSide = selectedColumn >=4 && selectedColumn <=6;
-
-        // 定义权重
-        Dictionary<PreferredPosition, int> weightMap = new Dictionary<PreferredPosition, int>();
-
-        if (isLeftSide)
-        {
-            weightMap[PreferredPosition.Left] = 4;
-            weightMap[PreferredPosition.Any] = 2;
-            weightMap[PreferredPosition.Right] = 1;
-        }
-        else // selectedColumn 4-6
-        {
-            weightMap[PreferredPosition.Right] = 4;
-            weightMap[PreferredPosition.Any] = 2;
-            weightMap[PreferredPosition.Left] = 1;
-        }
-
-        // 获取所有可抽取的单位
-        List<UnitData> availableUnits = new List<UnitData>();
-        availableUnits.AddRange(playerDeck);
-        availableUnits.AddRange(enemyDeck);
-
-        // 创建加权列表
-        List<UnitData> weightedList = new List<UnitData>();
-        foreach (var unit in availableUnits)
-        {
-            if (weightMap.ContainsKey(unit.preferredPosition))
-            {
-                int weight = weightMap[unit.preferredPosition];
-                for (int w = 0; w < weight; w++)
-                {
-                    weightedList.Add(unit);
-                }
-            }
-            else
-            {
-                // 如果单位没有指定偏好位置，默认为 Any
-                int weight = weightMap[PreferredPosition.Any];
-                for (int w = 0; w < weight; w++)
-                {
-                    weightedList.Add(unit);
-                }
-            }
-        }
-
-        // 随机抽取 maxCards 张
-        selectedCards = new List<UnitData>();
-        for (int i = 0; i < maxCards && weightedList.Count > 0; i++)
-        {
-            int rndIndex = Random.Range(0, weightedList.Count);
-            UnitData selectedUnit = weightedList[rndIndex];
-            selectedCards.Add(selectedUnit);
-            // 移除所有与 selectedUnit 相同的实例，以避免重复
-            weightedList.RemoveAll(u => u == selectedUnit);
-        }
-
-        // 如果抽取的卡片少于 maxCards，用空白格填充（可选择不做任何操作或显示空白图）
-        // 此处暂不处理
-
-        // 放置卡片到战斗区域
-        ShuffleAndPlaceCards();
     }
 }

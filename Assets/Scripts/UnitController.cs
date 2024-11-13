@@ -547,6 +547,14 @@ public class UnitController : MonoBehaviour, ISkillUser
     /// <typeparam name="T">狀態類型</typeparam>
     public void AddState<T>() where T : ScriptableObject, IUnitState
     {
+        // 先檢查是否有互斥的狀態
+        if (typeof(T) == typeof(InvincibleState))
+        {
+            // 移除所有可能與無敵狀態互斥的狀態
+            //RemoveState<InjuredState>();
+            //RemoveState<HealedState>();
+        }
+        
         // 查找是否已經存在該類型的狀態
         foreach (var state in currentStates)
         {

@@ -17,6 +17,9 @@ public class BattleManager : MonoBehaviour
     [Header("Battle Settings")]
     public float slotMachineSpinTime = 5f;    // 转盘旋转时间
     public float slotMachineSpinSpeed = 10f;  // 转盘旋转速度
+    
+    private bool choiceMade = false;
+
 
     private void Awake()
     {
@@ -61,6 +64,21 @@ public class BattleManager : MonoBehaviour
 
         // 开始战斗流程
         StartBattleSequence();
+    }
+    
+    private void OnEnable()
+    {
+        // 訂閱選擇完成事件
+        DeckChoiceUI.Instance.OnChoiceMade += OnPlayerChoiceMade;
+    }
+    
+    private void OnDisable()
+    {
+        // 取消訂閱事件
+        if (DeckChoiceUI.Instance != null)
+        {
+            DeckChoiceUI.Instance.OnChoiceMade -= OnPlayerChoiceMade;
+        }
     }
 
     private void OnDestroy()
@@ -281,21 +299,52 @@ public class BattleManager : MonoBehaviour
         bool playerAlive = gridManager.GetUnitsByCamp(Camp.Player).Count > 0 || gridManager.GetPlayerBuildings().Count > 0;
         bool enemyAlive = gridManager.GetUnitsByCamp(Camp.Enemy).Count > 0 || gridManager.GetAllBuildings().Count > 0;
 
-        if (!playerAlive)
+        if (playerAlive && enemyAlive)
+        {
+            // 戰鬥未結束，進行下一回合
+            StartCoroutine(NextTurnRoutine());
+        }
+        else if (!playerAlive)
         {
             // 玩家全部阵亡，敌方胜利
             GameManager.Instance.EndGame("你输了！");
         }
-        else if (!enemyAlive)
+        else
         {
             // 敌方全部阵亡，玩家胜利
             GameManager.Instance.EndGame("你赢了！");
         }
-        else
+    }
+    
+    /// <summary>
+    /// 當玩家完成選擇後觸發的回調方法
+    /// </summary>
+    private void OnPlayerChoiceMade()
+    {
+        choiceMade = true;
+    }
+    
+    /// <summary>
+    /// 下一回合的流程協程
+    /// </summary>
+    /// <returns></returns>
+    private IEnumerator NextTurnRoutine()
+    {
+        // 可以添加回合開始前的邏輯，如準備階段
+
+        // 觸發選擇面板讓玩家選擇增加卡牌
+        yield return new WaitForSeconds(1f); // 延遲以確保 UI 更新順序
+
+        choiceMade = false;
+        DeckChoiceUI.Instance.ShowChoicePanel();
+
+        // 等待玩家做出選擇
+        while (!choiceMade)
         {
-            // 战斗未结束，可以根据需要继续下一轮战斗
-            Debug.Log("BattleManager: 战斗未结束，可以继续下一轮战斗！");
-            // 例如，重新启动战斗流程或等待玩家操作
+            yield return null;
         }
+
+        // 進行下一回合的邏輯
+        StartBattleSequence(); // 或其他相關方法
     }
 }

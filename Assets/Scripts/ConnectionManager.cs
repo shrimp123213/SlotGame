@@ -304,7 +304,7 @@ public class ConnectionManager : MonoBehaviour
             }
             */
         }
-        else if (camp == Camp.Enemy)
+        /*else if (camp == Camp.Enemy)
         {
             Debug.Log($"ConnectionManager: 敵人觸發了連線模式 {pattern.name}，連線單位數量：{linkedUnitCount}，對玩家造成傷害！");
             // 實現對玩家的具體傷害邏輯，例如調用玩家城鎮的傷害方法
@@ -319,7 +319,7 @@ public class ConnectionManager : MonoBehaviour
             {
                 Debug.LogWarning("ConnectionManager: 未找到 PlayerBuildingController！");
             }
-            */
-        }
+            
+        }*/
     }
 }

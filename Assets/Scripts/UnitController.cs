@@ -57,6 +57,10 @@ public class UnitController : MonoBehaviour, ISkillUser
 
         // 调用初始化方法
         Init();
+        
+        // 添加初始状态
+        //AddState<InvincibleState>();
+        //AddState<InjuredState>();
     }
 
     /// <summary>
@@ -342,6 +346,8 @@ public class UnitController : MonoBehaviour, ISkillUser
         {
             currentHealth -= remainingDamage;
             Debug.Log($"UnitController: 单位 {unitData.unitName} 接受 {remainingDamage} 点伤害，当前生命值: {currentHealth}");
+            if(!HasState<InjuredState>())
+                AddState<InjuredState>();
         }
         else
         {
@@ -536,22 +542,22 @@ public class UnitController : MonoBehaviour, ISkillUser
     
     
     /// <summary>
-    /// 添加一个状态到单位
+    /// 添加一個狀態到單位
     /// </summary>
-    /// <typeparam name="T">状态类型</typeparam>
+    /// <typeparam name="T">狀態類型</typeparam>
     public void AddState<T>() where T : ScriptableObject, IUnitState
     {
-        // 查找是否已经存在该类型的状态
+        // 查找是否已經存在該類型的狀態
         foreach (var state in currentStates)
         {
             if (state.GetType() == typeof(T))
             {
-                Debug.LogWarning($"{unitData.unitName} 已经拥有 {state.StateName} 状态");
+                Debug.LogWarning($"{unitData.unitName} 已經擁有 {state.StateName} 狀態");
                 return;
             }
         }
 
-        // 加载状态资源
+        // 加載狀態資源
         T newState = Resources.Load<T>($"UnitStates/{typeof(T).Name}");
         if (newState != null)
         {
@@ -561,14 +567,14 @@ public class UnitController : MonoBehaviour, ISkillUser
         }
         else
         {
-            Debug.LogError($"无法加载状态类型: {typeof(T).Name}");
+            Debug.LogError($"無法加載狀態類型: {typeof(T).Name}");
         }
     }
 
     /// <summary>
-    /// 移除一个状态从单位
+    /// 移除一個狀態從單位
     /// </summary>
-    /// <typeparam name="T">状态类型</typeparam>
+    /// <typeparam name="T">狀態類型</typeparam>
     public void RemoveState<T>() where T : ScriptableObject, IUnitState
     {
         IUnitState stateToRemove = null;
@@ -589,15 +595,15 @@ public class UnitController : MonoBehaviour, ISkillUser
         }
         else
         {
-            Debug.LogWarning($"{unitData.unitName} 不存在 {typeof(T).Name} 状态");
+            Debug.LogWarning($"{unitData.unitName} 不存在 {typeof(T).Name} 狀態");
         }
     }
 
     /// <summary>
-    /// 检查单位是否拥有某个状态
+    /// 檢查單位是否擁有某個狀態
     /// </summary>
-    /// <typeparam name="T">状态类型</typeparam>
-    /// <returns>是否拥有该状态</returns>
+    /// <typeparam name="T">狀態類型</typeparam>
+    /// <returns>是否擁有該狀態</returns>
     public bool HasState<T>() where T : ScriptableObject, IUnitState
     {
         foreach (var state in currentStates)
@@ -609,38 +615,82 @@ public class UnitController : MonoBehaviour, ISkillUser
     }
 
     /// <summary>
-    /// 添加状态图标到UI
+    /// 添加狀態圖標到 Unit 的子物件
     /// </summary>
-    /// <param name="state">要添加的状态</param>
+    /// <param name="state">要添加的狀態</param>
     private void AddStatusIcon(IUnitState state)
     {
-        if (statusIconsParent != null && statusIconPrefab != null)
+        if (statusIconsParent != null && StatusIconPool.Instance != null)
         {
-            GameObject iconGO = Instantiate(statusIconPrefab, statusIconsParent);
-            iconGO.GetComponent<UnityEngine.UI.Image>().sprite = state.Icon;
+            // 從對象池中獲取一個狀態圖標
+            GameObject iconGO = StatusIconPool.Instance.GetStatusIcon();
+            SpriteRenderer iconSpriteRenderer = iconGO.GetComponent<SpriteRenderer>();
+            if (iconSpriteRenderer != null)
+            {
+                iconSpriteRenderer.sprite = state.Icon;
+                iconSpriteRenderer.enabled = true;
+
+                // 設置圖標的父對象為 statusIconsParent
+                iconGO.transform.SetParent(statusIconsParent, false);
+
+                // 設置圖標的位置，根據當前活躍圖標數量
+                int iconCount = activeStatusIcons.Count;
+                iconGO.transform.localPosition = new Vector3(iconCount * 0.2f, 0, 0); // 水平排列，每個圖標間隔0.2單位
+            }
+            else
+            {
+                Debug.LogError("StatusIconPrefab 沒有 SpriteRenderer 組件！");
+            }
             activeStatusIcons[state.StateName] = iconGO;
+        }
+        else
+        {
+            Debug.LogError("UnitController: statusIconsParent 或 StatusIconPool.Instance 未設置！");
         }
     }
 
     /// <summary>
-    /// 从UI移除状态图标
+    /// 從 Unit 的子物件移除狀態圖標
     /// </summary>
-    /// <param name="state">要移除的状态</param>
+    /// <param name="state">要移除的狀態</param>
     private void RemoveStatusIcon(IUnitState state)
     {
         if (activeStatusIcons.ContainsKey(state.StateName))
         {
-            Destroy(activeStatusIcons[state.StateName]);
+            GameObject iconGO = activeStatusIcons[state.StateName];
+            // 將圖標返回對象池
+            StatusIconPool.Instance.ReturnStatusIcon(iconGO);
             activeStatusIcons.Remove(state.StateName);
+
+            // 重新排列剩餘的圖標位置
+            RepositionStatusIcons();
+        }
+        else
+        {
+            Debug.LogWarning($"UnitController: 狀態圖標 {state.StateName} 不存在於 activeStatusIcons 中");
         }
     }
 
     /// <summary>
-    /// 更新单位的UI（如状态图标）
+    /// 重新排列狀態圖標的位置，避免重疊
+    /// </summary>
+    private void RepositionStatusIcons()
+    {
+        int index = 0;
+        foreach (var kvp in activeStatusIcons)
+        {
+            GameObject iconGO = kvp.Value;
+            iconGO.transform.localPosition = new Vector3(index * 0.2f, 0, 0); // 水平排列，每個圖標間隔0.2單位
+            index++;
+        }
+    }
+
+    /// <summary>
+    /// 更新單位的 UI（如狀態圖標）
     /// </summary>
     public void UpdateUnitUI()
     {
-        // 此方法可用于更新其他UI元素，如状态图标
-        // 这里我们已经在 AddState 和 RemoveState 中处理了状态图标
+        // 此方法可用於更新其他 UI 元素，如狀態圖標
+        // 目前已在 AddState 和 RemoveState 中處理了狀態圖標
     }
 }

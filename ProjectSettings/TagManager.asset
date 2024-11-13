@@ -44,6 +44,9 @@ TagManager:
   - name: Units
     uniqueID: 3464346543
     locked: 0
+  - name: StatusIcons
+    uniqueID: 2764757853
+    locked: 0
   - name: LR
     uniqueID: 2526015731
     locked: 0

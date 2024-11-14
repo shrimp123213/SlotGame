@@ -3992,7 +3992,7 @@ MonoBehaviour:
   spinSpeed: 30
   spinLoopCount: 5
   extraRows: 10
-  spinEaseType: 28
+  spinEaseType: 27
   spinTiles:
   - {fileID: 11400000, guid: 5f6a326bc5e593040ad559f8504cd2b2, type: 2}
   - {fileID: 11400000, guid: 35d4c6d21f0b8cb4ca93afa3e77d2a02, type: 2}

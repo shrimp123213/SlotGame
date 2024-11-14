@@ -23,6 +23,9 @@ public class UnitController : MonoBehaviour, ISkillUser
     [Header("UI Elements")]
     public Transform statusIconsParent; // 状态图标的父对象
     public GameObject statusIconPrefab; // 状态图标预制体
+    
+    [HideInInspector]
+    public int columnIndex; // 新增：单位所在的列索引
 
     private Dictionary<string, GameObject> activeStatusIcons = new Dictionary<string, GameObject>();
 

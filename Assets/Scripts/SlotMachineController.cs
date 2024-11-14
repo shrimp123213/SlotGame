@@ -26,7 +26,7 @@ public class SlotMachineController : MonoBehaviour
     public int spinLoopCount = 3;         // 旋转的循环次数
     public int extraRows = 2;             // 额外的行数，用于旋转效果
     public Ease spinEaseType = Ease.Linear; // 旋转的缓动类型
-
+    
     [Header("Visual Settings")]
     public Tile[] spinTiles;         // 转盘使用的 Tile 集合
 
@@ -121,26 +121,36 @@ public class SlotMachineController : MonoBehaviour
         InitializeSpinningUnits();
 
         // 计算总的移动距离
-        float totalMovementDistance = cellSize.y * (gridManager.rows + extraRows * 2);
+        float totalMovementDistance = cellSize.y * (gridManager.rows + extraRows); //*2
 
         // 计算单次循环的时间
         float singleSpinTime = totalMovementDistance / spinSpeed;
+
+        // 设置每列之间的延迟（您可以调整此值）
+        float columnDelay = 0.2f; // 每列延迟0.2秒
 
         // 使用 DOTween 控制旋转
         List<Tweener> tweens = new List<Tweener>();
 
         foreach (var unitGO in spinningUnits)
         {
+            UnitController unitController = unitGO.GetComponent<UnitController>();
+
+            // 计算单位的延迟时间
+            float delay = (unitController.columnIndex - 1) * columnDelay;
+
             // 移动单位向下
             Tweener tween = unitGO.transform.DOMoveY(unitGO.transform.position.y - totalMovementDistance, singleSpinTime)
                 .SetEase(Ease.Linear)
-                .SetLoops(-1, LoopType.Restart);
+                .SetLoops(-1, LoopType.Restart)
+                .SetDelay(delay); // 添加延迟
 
             tweens.Add(tween);
         }
 
-        // 等待旋转持续时间
-        yield return new WaitForSeconds(spinDuration);
+        // 等待旋转持续时间加上最大延迟
+        float totalDelay = (gridManager.columns - 1) * columnDelay;
+        yield return new WaitForSeconds(spinDuration + totalDelay);
 
         // 停止所有旋转
         foreach (var tween in tweens)
@@ -157,8 +167,6 @@ public class SlotMachineController : MonoBehaviour
         OnSpinCompleted?.Invoke(0);
     }
 
-
-
     private void InitializeSpinningUnits()
     {
         // 清理之前的单位
@@ -167,13 +175,13 @@ public class SlotMachineController : MonoBehaviour
             Destroy(unitGO);
         }
         spinningUnits.Clear();
-        
+
         // 获取格子大小
         Vector3 cellSize = gridManager.battleTilemap.cellSize;
 
         // 计算开始和结束的行索引
         int startRow = gridManager.rows - 1 + extraRows;
-        int endRow = -extraRows;
+        int endRow = 0;//-extraRows;
 
         // 遍历每一列和每一行（包括额外的行）
         for (int col = 1; col <= gridManager.columns; col++)
@@ -185,15 +193,22 @@ public class SlotMachineController : MonoBehaviour
 
                 // 创建单位实例
                 UnitData unitData = GetRandomUnitData();
+                if (unitData == null)
+                    continue;
+
                 GameObject unitGO = Instantiate(gridManager.unitPrefab, worldPos, Quaternion.identity, gridManager.unitsParent);
                 UnitController unitController = unitGO.GetComponent<UnitController>();
                 unitController.unitData = unitData;
                 unitController.InitializeUnitSprite();
 
+                // 设置单位的列索引
+                unitController.columnIndex = col;
+
                 spinningUnits.Add(unitGO);
             }
         }
     }
+
     
     private UnitData GetRandomUnitData()
     {

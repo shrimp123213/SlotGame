@@ -738,7 +738,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.11111112, y: 0.16666667, z: 1}
+  m_LocalScale: {x: 0.083333336, y: 0.16666667, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1985622067}
@@ -3989,10 +3989,10 @@ MonoBehaviour:
   enemyDeck: {fileID: 11400000, guid: 2425500e63d020e40a0ec70dedd43c24, type: 2}
   spinDuration: 1
   maxCards: 24
-  spinSpeed: 90
+  spinSpeed: 30
   spinLoopCount: 5
-  extraRows: 2
-  spinEaseType: 3
+  extraRows: 10
+  spinEaseType: 28
   spinTiles:
   - {fileID: 11400000, guid: 5f6a326bc5e593040ad559f8504cd2b2, type: 2}
   - {fileID: 11400000, guid: 35d4c6d21f0b8cb4ca93afa3e77d2a02, type: 2}
@@ -5953,7 +5953,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 9, y: 6, z: 1}
+  m_LocalScale: {x: 12, y: 6, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 138967820}

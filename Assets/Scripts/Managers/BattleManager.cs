@@ -1,5 +1,6 @@
 using System.Collections;
 using UnityEngine;
+using System;
 
 /// <summary>
 /// 管理战斗流程的主控制器
@@ -19,8 +20,7 @@ public class BattleManager : MonoBehaviour
     public float slotMachineSpinSpeed = 10f;  // 转盘旋转速度
     
     private bool choiceMade = false;
-
-
+    
     private void Awake()
     {
         // 单例模式实现
@@ -131,11 +131,9 @@ public class BattleManager : MonoBehaviour
     /// <summary>
     /// SlotMachine旋转完成后的回调
     /// </summary>
-    /// <param name="selectedColumn">转盘选择的列</param>
-    public void OnSlotMachineSpun(int selectedColumn)
+    public void OnSlotMachineSpun()
     {
-        Debug.Log($"BattleManager: 转盘选择的列为 {selectedColumn}");
-        StartCoroutine(ContinueBattleAfterSlotMachine(selectedColumn));
+        StartCoroutine(ContinueBattleAfterSlotMachine());
     }
 
     /// <summary>
@@ -143,11 +141,10 @@ public class BattleManager : MonoBehaviour
     /// </summary>
     /// <param name="selectedColumn">转盘选择的列</param>
     /// <returns></returns>
-    private IEnumerator ContinueBattleAfterSlotMachine(int selectedColumn)
+    private IEnumerator ContinueBattleAfterSlotMachine()
     {
-        // 仅调用一次 WeightedDrawAndPlaceCards
-        slotMachine.WeightedDrawAndPlaceCards(selectedColumn);
-
+        // 已经在 SlotMachineController 内部调用了 WeightedDrawAndPlaceCards，不需要再次调用
+        
         // 继续后续战斗流程
         // 2.2 战斗画面 防卫
         ExecuteDefenseEffects();

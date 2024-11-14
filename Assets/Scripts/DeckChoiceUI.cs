@@ -151,6 +151,7 @@ public class DeckChoiceUI : MonoBehaviour
     public void CloseChoicePanel(Button _toggleButton)
     {
         OnChoiceMade?.Invoke();
+        Debug.Log("DeckChoiceUI: 玩家選擇完成！");
 
         choicePanel.SetActive(false);
         isPanelOpen = false;

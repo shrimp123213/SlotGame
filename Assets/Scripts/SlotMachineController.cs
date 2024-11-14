@@ -214,7 +214,7 @@ public class SlotMachineController : MonoBehaviour
 
             // 生成一个随机数
             var randomWeight = Random.Range(0, totalWeight);
-            Debug.Log($"WeightedDrawAndPlaceCards: 随机数: {randomWeight}，总权重: {totalWeight}");
+            //Debug.Log($"WeightedDrawAndPlaceCards: 随机数: {randomWeight}，总权重: {totalWeight}");
 
             // 选择对应的 DeckEntry
             var cumulativeWeight = 0;
@@ -240,13 +240,13 @@ public class SlotMachineController : MonoBehaviour
 
             // 添加到 selectedCards 并减少 quantity
             selectedCards.Add(selectedEntry.unitData);
-            Debug.Log($"WeightedDrawAndPlaceCards: 抽取卡牌: {selectedEntry.unitData.unitName}");
+            //Debug.Log($"WeightedDrawAndPlaceCards: 抽取卡牌: {selectedEntry.unitData.unitName}");
 
             selectedEntry.quantity -= 1;
-            Debug.Log($"WeightedDrawAndPlaceCards: {selectedEntry.unitData.unitName} 剩余数量: {selectedEntry.quantity}");
+            //Debug.Log($"WeightedDrawAndPlaceCards: {selectedEntry.unitData.unitName} 剩余数量: {selectedEntry.quantity}");
         }
 
-        Debug.Log($"WeightedDrawAndPlaceCards: 抽取的卡牌数量: {selectedCards.Count}");
+        //Debug.Log($"WeightedDrawAndPlaceCards: 抽取的卡牌数量: {selectedCards.Count}");
 
         // 放置卡片到战斗区域
         ShuffleAndPlaceCards();
@@ -285,14 +285,14 @@ public class SlotMachineController : MonoBehaviour
             {
                 // 放置卡片
                 UnitData unitDataToSpawn = selectedCards[i];
-                Debug.Log($"ShuffleAndPlaceCards: 在位置 {selectedPos} 放置单位 {unitDataToSpawn.unitName}");
+                //Debug.Log($"ShuffleAndPlaceCards: 在位置 {selectedPos} 放置单位 {unitDataToSpawn.unitName}");
                 gridManager.SpawnUnit(selectedPos, unitDataToSpawn);
             }
             else
             {
                 // 用空白格填充（可选择不做任何操作或显示空白图）
                 // 此处暂不处理
-                Debug.Log($"ShuffleAndPlaceCards: 在位置 {selectedPos} 放置空白格");
+                //Debug.Log($"ShuffleAndPlaceCards: 在位置 {selectedPos} 放置空白格");
             }
         }
     }

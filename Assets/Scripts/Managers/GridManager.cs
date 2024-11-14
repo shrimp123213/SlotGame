@@ -160,7 +160,7 @@ public class GridManager : MonoBehaviour
         }
 
         skillUsersPositions.Add(position, unit);
-        Debug.Log($"GridManager: 在位置 {position} 生成单位 {unitData.unitName}");
+        //Debug.Log($"GridManager: 在位置 {position} 生成单位 {unitData.unitName}");
     }
 
 

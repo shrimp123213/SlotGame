@@ -105,7 +105,7 @@ public class UnitController : MonoBehaviour, ISkillUser
 
         transform.position = cellWorldPosition;
 
-        Debug.Log($"UnitController: 单位 {unitData.unitName} 放置在格子中心: {cellWorldPosition}");
+        //Debug.Log($"UnitController: 单位 {unitData.unitName} 放置在格子中心: {cellWorldPosition}");
     }
 
     /// <summary>

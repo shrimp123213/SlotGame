@@ -289,7 +289,7 @@ public class ConnectionManager : MonoBehaviour
         // 在此實現連線效果，例如對敵方城鎮造成傷害
         if (camp == Camp.Player)
         {
-            Debug.Log($"ConnectionManager: 玩家觸發了連線模式 {pattern.name}，連線單位數量：{linkedUnitCount}，對敵人造成傷害！");
+            //Debug.Log($"ConnectionManager: 玩家觸發了連線模式 {pattern.name}，連線單位數量：{linkedUnitCount}，對敵人造成傷害！");
             // 實現對敵方的具體傷害邏輯，例如調用敵方城鎮的傷害方法
             // 例如：
             /*

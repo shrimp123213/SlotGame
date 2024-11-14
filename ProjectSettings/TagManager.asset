@@ -11,7 +11,7 @@ TagManager:
   - 
   - Water
   - UI
-  - 
+  - Units
   - 
   - 
   - 
@@ -55,3 +55,4 @@ TagManager:
     locked: 0
   m_RenderingLayers:
   - Default
+  - Units

@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
+using DG.Tweening;
 
 /// <summary>
 /// 控制拉霸机（老虎机）的行为
@@ -22,14 +23,22 @@ public class SlotMachineController : MonoBehaviour
     public float spinDuration = 5f; // 旋转时间
     public int maxCards = 24;        // 最大卡片数
     public float spinSpeed = 10f;    // 旋转速度
+    public int spinLoopCount = 3;         // 旋转的循环次数
+    public int extraRows = 2;             // 额外的行数，用于旋转效果
+    public Ease spinEaseType = Ease.Linear; // 旋转的缓动类型
 
     [Header("Visual Settings")]
     public Tile[] spinTiles;         // 转盘使用的 Tile 集合
+
+    private List<GameObject> spinningUnits = new List<GameObject>(); // 存储正在旋转的单位
 
     private List<Vector3Int> battlePositions = new List<Vector3Int>(); // 战斗区域的所有格子位置
     private List<UnitData> selectedCards = new List<UnitData>();        // 抽取的卡片
 
     public bool isSpinning = false;
+    
+    private Vector3 cellSize;
+
 
     // 定义转盘完成的事件
     public delegate void SpinCompleted(int selectedColumn);
@@ -56,6 +65,9 @@ public class SlotMachineController : MonoBehaviour
         }
 
         InitializeBattlePositions();
+        
+        // 获取格子大小
+        cellSize = gridManager.battleTilemap.cellSize;
 
         // 可以在这里调用 StartSpinning() 进行测试
         // StartSpinning();
@@ -87,47 +99,191 @@ public class SlotMachineController : MonoBehaviour
             Debug.LogWarning("SlotMachineController: 已经在旋转中！");
             return;
         }
+        
+        // 清空之前的单位
+        ClearBattleAreaUnits();
 
+        // 抽取卡片
+        WeightedDrawCards();
+
+        // 开始旋转
         StartCoroutine(SpinRoutine());
     }
 
     /// <summary>
     /// 拉霸机的转动协程
     /// </summary>
-    IEnumerator SpinRoutine()
+    private IEnumerator SpinRoutine()
     {
         isSpinning = true;
 
-        float elapsed = 0f;
-        float spinInterval = 1f / spinSpeed;
+        // 初始化旋转单位
+        InitializeSpinningUnits();
 
-        // 清空之前的单位和 Tile
-        ClearBattleAreaUnits();
-        //ClearSpinTiles();
+        // 计算总的移动距离
+        float totalMovementDistance = cellSize.y * (gridManager.rows + extraRows * 2);
 
-        // 开始旋转视觉效果
-        while (elapsed < spinDuration)
+        // 计算单次循环的时间
+        float singleSpinTime = totalMovementDistance / spinSpeed;
+
+        // 使用 DOTween 控制旋转
+        List<Tweener> tweens = new List<Tweener>();
+
+        foreach (var unitGO in spinningUnits)
         {
-            //UpdateSpinTiles(); // 更新 Tile 以模拟旋转
-            elapsed += spinInterval;
-            yield return new WaitForSeconds(spinInterval);
+            // 移动单位向下
+            Tweener tween = unitGO.transform.DOMoveY(unitGO.transform.position.y - totalMovementDistance, singleSpinTime)
+                .SetEase(Ease.Linear)
+                .SetLoops(-1, LoopType.Restart);
+
+            tweens.Add(tween);
         }
+
+        // 等待旋转持续时间
+        yield return new WaitForSeconds(spinDuration);
+
+        // 停止所有旋转
+        foreach (var tween in tweens)
+        {
+            tween.Kill();
+        }
+
+        // 将单位固定到格子上
+        PlaceSpunUnits();
 
         isSpinning = false;
 
-        // 停止旋转视觉效果
-        //ClearSpinTiles();
+        // 触发旋转完成事件
+        OnSpinCompleted?.Invoke(0);
+    }
 
-        // 选取一列作为转盘选择的列（示例逻辑）
-        int selectedColumn = Random.Range(1, gridManager.columns + 1);
-        Debug.Log($"SlotMachineController: 选择的列为 {selectedColumn}");
 
-        // 触发转盘完成事件
-        OnSpinCompleted?.Invoke(selectedColumn);
 
-        // 不再在这里调用 WeightedDrawAndPlaceCards
-        // 因为 BattleManager 会通过事件处理
-        Debug.Log("SlotMachineController: 拉霸机停止，等待 BattleManager 处理后续流程");
+    private void InitializeSpinningUnits()
+    {
+        // 清理之前的单位
+        foreach (var unitGO in spinningUnits)
+        {
+            Destroy(unitGO);
+        }
+        spinningUnits.Clear();
+        
+        // 获取格子大小
+        Vector3 cellSize = gridManager.battleTilemap.cellSize;
+
+        // 计算开始和结束的行索引
+        int startRow = gridManager.rows - 1 + extraRows;
+        int endRow = -extraRows;
+
+        // 遍历每一列和每一行（包括额外的行）
+        for (int col = 1; col <= gridManager.columns; col++)
+        {
+            for (int row = startRow; row >= endRow; row--)
+            {
+                Vector3Int gridPos = new Vector3Int(col, row, 0);
+                Vector3 worldPos = gridManager.GetCellCenterWorld(gridPos);
+
+                // 创建单位实例
+                UnitData unitData = GetRandomUnitData();
+                GameObject unitGO = Instantiate(gridManager.unitPrefab, worldPos, Quaternion.identity, gridManager.unitsParent);
+                UnitController unitController = unitGO.GetComponent<UnitController>();
+                unitController.unitData = unitData;
+                unitController.InitializeUnitSprite();
+
+                spinningUnits.Add(unitGO);
+            }
+        }
+    }
+    
+    private UnitData GetRandomUnitData()
+    {
+        List<DeckEntry> allEntries = new List<DeckEntry>();
+        allEntries.AddRange(playerDeck.entries);
+        allEntries.AddRange(enemyDeck.entries);
+
+        // 过滤掉数量为0的卡牌
+        allEntries.RemoveAll(entry => entry.quantity <= 0);
+
+        if (allEntries.Count == 0)
+            return null;
+
+        int index = Random.Range(0, allEntries.Count);
+        return allEntries[index].unitData;
+    }
+
+
+    private void PlaceSpunUnits()
+    {
+        // 清空战斗区域内的单位
+        ClearBattleAreaUnits();
+
+        // 遍历所有旋转的单位
+        foreach (var unitGO in spinningUnits)
+        {
+            UnitController unitController = unitGO.GetComponent<UnitController>();
+
+            // 获取单位当前位置对应的格子坐标
+            Vector3 worldPos = unitGO.transform.position;
+            Vector3Int gridPos = gridManager.battleTilemap.WorldToCell(worldPos);
+
+            // 调整格子坐标以匹配战斗区域
+            gridPos.x += gridManager.battleTilemap.cellBounds.xMin;
+            gridPos.y += gridManager.battleTilemap.cellBounds.yMin;
+
+            // 检查位置是否在战斗区域内
+            if (gridManager.IsWithinBattleArea(gridPos))
+            {
+                unitController.SetPosition(gridPos);
+
+                // 将单位添加到 GridManager
+                gridManager.AddUnitAt(gridPos, unitController);
+            }
+            else
+            {
+                // 销毁不在战斗区域内的单位
+                Destroy(unitGO);
+            }
+        }
+
+        // 清空旋转单位列表
+        spinningUnits.Clear();
+    }
+    
+    private void WeightedDrawCards()
+    {
+        // 您可以保留现有的抽卡逻辑，但不立即放置卡片
+        // 这里简化为随机选择一些单位数据
+        selectedCards.Clear();
+
+        // 假设每列一个单位，总共 columns 个单位
+        int cardsToDraw = gridManager.columns;
+
+        for (int i = 0; i < cardsToDraw; i++)
+        {
+            // 从玩家和敌人牌组中随机抽取
+            DeckEntry entry = GetRandomDeckEntry();
+            if (entry != null)
+            {
+                selectedCards.Add(entry.unitData);
+            }
+        }
+    }
+
+    // 随机获取一个 DeckEntry
+    private DeckEntry GetRandomDeckEntry()
+    {
+        List<DeckEntry> allEntries = new List<DeckEntry>();
+        allEntries.AddRange(playerDeck.entries);
+        allEntries.AddRange(enemyDeck.entries);
+
+        // 过滤掉数量为0的
+        allEntries.RemoveAll(entry => entry.quantity <= 0);
+
+        if (allEntries.Count == 0)
+            return null;
+
+        int index = Random.Range(0, allEntries.Count);
+        return allEntries[index];
     }
 
 

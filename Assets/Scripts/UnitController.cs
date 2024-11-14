@@ -701,4 +701,22 @@ public class UnitController : MonoBehaviour, ISkillUser
         // 此方法可用於更新其他 UI 元素，如狀態圖標
         // 目前已在 AddState 和 RemoveState 中處理了狀態圖標
     }
+    
+    public void InitializeUnitSprite()
+    {
+        // 设置单位的图片
+        if (unitData.unitSprite != null)
+        {
+            if (spriteRenderer != null)
+            {
+                spriteRenderer.sprite = unitData.unitSprite;
+            }
+        }
+
+        // 设置朝向
+        var scale = spriteRenderer.GetComponent<Transform>().localScale;
+        scale.x = unitData.camp == Camp.Player ? 1 : -1;
+        spriteRenderer.GetComponent<Transform>().localScale = scale;
+    }
+
 }

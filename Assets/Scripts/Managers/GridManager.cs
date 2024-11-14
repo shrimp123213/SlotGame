@@ -233,6 +233,19 @@ public class GridManager : MonoBehaviour
 
         skillUsersPositions.Add(position, building);
     }
+    
+    public void AddUnitAt(Vector3Int position, UnitController unit)
+    {
+        if (skillUsersPositions.ContainsKey(position))
+        {
+            Debug.LogWarning($"GridManager: 位置 {position} 已经有单位或建筑存在！");
+            return;
+        }
+
+        skillUsersPositions.Add(position, unit);
+        unit.SetPosition(position);
+    }
+
 
     /// <summary>
     /// 判断战斗区域上的格子是否有玩家或敌人角色

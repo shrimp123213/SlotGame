@@ -1,10 +1,346 @@
 fileFormatVersion: 2
-guid: 3befdc5bc2446bf4c82fc58c6d1bcc38
+guid: ca67dc21e4549414caa24969d1273b91
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -2569119218762868166
-    second: building_0
+      213: 6934086728263231946
+    second: icon_0
+  - first:
+      213: -229256013063241344
+    second: icon_1
+  - first:
+      213: -3885610455112514396
+    second: icon_2
+  - first:
+      213: -7441382367286639308
+    second: icon_3
+  - first:
+      213: 1618293649664528702
+    second: icon_4
+  - first:
+      213: 8049885976776599914
+    second: icon_5
+  - first:
+      213: 4014287730522540239
+    second: icon_6
+  - first:
+      213: 4743126897691936252
+    second: icon_7
+  - first:
+      213: -4764484233546665588
+    second: icon_8
+  - first:
+      213: -5290367587390873264
+    second: icon_9
+  - first:
+      213: -770413965161706305
+    second: icon_10
+  - first:
+      213: 5426972220834646583
+    second: icon_11
+  - first:
+      213: -3349645178535924709
+    second: icon_12
+  - first:
+      213: 3111377950246234702
+    second: icon_13
+  - first:
+      213: 4797985456115717453
+    second: icon_14
+  - first:
+      213: 2159787861337585587
+    second: icon_15
+  - first:
+      213: -1716160622732779056
+    second: icon_16
+  - first:
+      213: -1526501209924749334
+    second: icon_17
+  - first:
+      213: -924327008972603792
+    second: icon_18
+  - first:
+      213: -7199854994828347765
+    second: icon_19
+  - first:
+      213: -1837473001184885940
+    second: icon_20
+  - first:
+      213: 7621616821842055696
+    second: icon_21
+  - first:
+      213: 546032832440536679
+    second: icon_22
+  - first:
+      213: 4611804096804191474
+    second: icon_23
+  - first:
+      213: -2878611675290672999
+    second: icon_24
+  - first:
+      213: 2012603403740337808
+    second: icon_25
+  - first:
+      213: 4037386846454389401
+    second: icon_26
+  - first:
+      213: 3131462886605394980
+    second: icon_27
+  - first:
+      213: -7891146628521642482
+    second: icon_28
+  - first:
+      213: -6816452762887876926
+    second: icon_29
+  - first:
+      213: 5934751610709005063
+    second: icon_30
+  - first:
+      213: -8770669887257262683
+    second: icon_31
+  - first:
+      213: 2848703626835829184
+    second: icon_32
+  - first:
+      213: 2217700674121979931
+    second: icon_33
+  - first:
+      213: 8784748321381093978
+    second: icon_34
+  - first:
+      213: -107017877920308700
+    second: icon_35
+  - first:
+      213: 8108817586207554404
+    second: icon_36
+  - first:
+      213: -184344643626652581
+    second: icon_37
+  - first:
+      213: 5296625000953886181
+    second: icon_38
+  - first:
+      213: -2797863517705874178
+    second: icon_39
+  - first:
+      213: 1598861958287286395
+    second: icon_40
+  - first:
+      213: 961341161114665051
+    second: icon_41
+  - first:
+      213: 6486822007602913870
+    second: icon_42
+  - first:
+      213: -5102674690984291919
+    second: icon_43
+  - first:
+      213: -6978210826525416454
+    second: icon_44
+  - first:
+      213: -7122343688644831495
+    second: icon_45
+  - first:
+      213: 318902631733109550
+    second: icon_46
+  - first:
+      213: -7908086550202134589
+    second: icon_47
+  - first:
+      213: -483051780649511166
+    second: icon_48
+  - first:
+      213: -6215579143488269388
+    second: icon_49
+  - first:
+      213: 8265795547982450223
+    second: icon_50
+  - first:
+      213: 8260489618747276431
+    second: icon_51
+  - first:
+      213: -8556222564715788543
+    second: icon_52
+  - first:
+      213: -5346968513893012664
+    second: icon_53
+  - first:
+      213: 1557369486814040597
+    second: icon_54
+  - first:
+      213: 5871476789121330003
+    second: icon_55
+  - first:
+      213: -3880464647801180534
+    second: icon_56
+  - first:
+      213: -6907229443390180988
+    second: icon_57
+  - first:
+      213: -674690339440975900
+    second: icon_58
+  - first:
+      213: -8450085832163554618
+    second: icon_59
+  - first:
+      213: 5649456371208689661
+    second: icon_60
+  - first:
+      213: -8775255934355559568
+    second: icon_61
+  - first:
+      213: -2126967884414511514
+    second: icon_62
+  - first:
+      213: 6348147748878046198
+    second: icon_63
+  - first:
+      213: -7452054717920679433
+    second: icon_64
+  - first:
+      213: 5020932839866294903
+    second: icon_65
+  - first:
+      213: -8332354050944156342
+    second: icon_66
+  - first:
+      213: -615038323351539499
+    second: icon_67
+  - first:
+      213: -6888709434326676788
+    second: icon_68
+  - first:
+      213: -6148233492340197790
+    second: icon_69
+  - first:
+      213: 4402289063958767102
+    second: icon_70
+  - first:
+      213: 8172389424442211114
+    second: icon_71
+  - first:
+      213: -5804490749463610629
+    second: icon_72
+  - first:
+      213: -1409954863871982896
+    second: icon_73
+  - first:
+      213: -2640173872217149559
+    second: icon_74
+  - first:
+      213: 8040469664292803843
+    second: icon_75
+  - first:
+      213: 8912255413367707951
+    second: icon_76
+  - first:
+      213: 236892776172281949
+    second: icon_77
+  - first:
+      213: -4472925305128777450
+    second: icon_78
+  - first:
+      213: -9131140966591227683
+    second: icon_79
+  - first:
+      213: -2882005465459478741
+    second: icon_80
+  - first:
+      213: -6132657980292356179
+    second: icon_81
+  - first:
+      213: 4934282456014638625
+    second: icon_82
+  - first:
+      213: -4137955234826873704
+    second: icon_83
+  - first:
+      213: 29567881777305944
+    second: icon_84
+  - first:
+      213: -227690813440315548
+    second: icon_85
+  - first:
+      213: 3308682458247303384
+    second: icon_86
+  - first:
+      213: 3939576127641066194
+    second: icon_87
+  - first:
+      213: 8254890077814759500
+    second: icon_88
+  - first:
+      213: 7452839051267525277
+    second: icon_89
+  - first:
+      213: -3483304229868306205
+    second: icon_90
+  - first:
+      213: 8926536011035145912
+    second: icon_91
+  - first:
+      213: -7530584594002756295
+    second: icon_92
+  - first:
+      213: -7872413457820161358
+    second: icon_93
+  - first:
+      213: 6283985906541101984
+    second: icon_94
+  - first:
+      213: -8640841057204151037
+    second: icon_95
+  - first:
+      213: 3295507350314382357
+    second: icon_96
+  - first:
+      213: 8737453853647954896
+    second: icon_97
+  - first:
+      213: 3580539146858299261
+    second: icon_98
+  - first:
+      213: 6200874120767557504
+    second: icon_99
+  - first:
+      213: -446929059569426554
+    second: icon_100
+  - first:
+      213: -4500364512901026752
+    second: icon_101
+  - first:
+      213: -5471621424490855535
+    second: icon_102
+  - first:
+      213: 5401812631841824691
+    second: icon_103
+  - first:
+      213: -7415226294450939768
+    second: icon_104
+  - first:
+      213: -2496878305258886954
+    second: icon_105
+  - first:
+      213: -7749532346070853644
+    second: icon_106
+  - first:
+      213: 2905169196780963323
+    second: icon_107
+  - first:
+      213: 3713152026600955945
+    second: icon_108
+  - first:
+      213: 2265641900217923473
+    second: icon_109
+  - first:
+      213: -1344370366154752360
+    second: icon_110
+  - first:
+      213: 1319236244826509854
+    second: icon_111
+  - first:
+      213: 8793399860916734134
+    second: icon_112
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -100,7 +436,7 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: building_0
+      name: icon_0
       rect:
         serializedVersion: 2
         x: 0
@@ -113,16 +449,16 @@ TextureImporter:
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: a3a920caea7a85cd0800000000000000
-      internalID: -2569119218762868166
+      spriteID: 1c21fc4ac9281c842b5819de2c13f368
+      internalID: 933216417
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: building_1
+      name: icon_1
       rect:
         serializedVersion: 2
         x: 128
@@ -137,14 +473,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: b70cf86b1e59b0345b8fca882b6680de
-      internalID: -146527003
+      spriteID: 2d580d2f74ed13c44b385ab17c66ef00
+      internalID: 687019102
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: building_2
+      name: icon_2
       rect:
         serializedVersion: 2
         x: 256
@@ -159,14 +495,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: ac67682158996c640adae201e7f517f5
-      internalID: 1744898305
+      spriteID: 5cbc2748b13b32243b28e676093b926d
+      internalID: 771343101
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: building_3
+      name: icon_3
       rect:
         serializedVersion: 2
         x: 384
@@ -181,14 +517,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: b95e8fa68cf56764a8238639fd7e60f4
-      internalID: -1111800718
+      spriteID: 4a82e9feeb2fa314e87db39f2bbff94b
+      internalID: 963090382
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: building_4
+      name: icon_4
       rect:
         serializedVersion: 2
         x: 512
@@ -203,14 +539,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 243626df32e617c46bdfa0baa747b5f8
-      internalID: 1055409165
+      spriteID: 5bd78f33aab4289419c7ba3db9752762
+      internalID: -1701845907
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: building_5
+      name: icon_5
       rect:
         serializedVersion: 2
         x: 640
@@ -225,14 +561,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: d416699b90343bd4c9c5f7037cc05342
-      internalID: -851313781
+      spriteID: 5d53bdf5acceb4d40b410dc0906966c3
+      internalID: -1501682774
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: building_6
+      name: icon_6
       rect:
         serializedVersion: 2
         x: 768
@@ -247,14 +583,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: dcb1c74224371a04f9b7badea37ee9e9
-      internalID: 364453066
+      spriteID: 3deae35d427413e4aaa2c6e0be175820
+      internalID: 1988355666
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: building_7
+      name: icon_7
       rect:
         serializedVersion: 2
         x: 896
@@ -269,14 +605,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: f10f6205fa9600d4c89c8ce00249c073
-      internalID: -325220064
+      spriteID: 6bd11bf68064fa8438b66475a812c1e0
+      internalID: 2088550419
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: building_8
+      name: icon_8
       rect:
         serializedVersion: 2
         x: 0
@@ -291,14 +627,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: cdbb7a36296b0f34dbfce166daaa167d
-      internalID: -1510283662
+      spriteID: abf98329c97ffad44956309d0aae3f89
+      internalID: 554672954
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: building_9
+      name: icon_9
       rect:
         serializedVersion: 2
         x: 128
@@ -313,14 +649,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: af03eae85cc29ab498204454ca87353b
-      internalID: -2022637386
+      spriteID: 0f78b541e8be9644796f4420b3a4e7d2
+      internalID: 273198534
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: building_10
+      name: icon_10
       rect:
         serializedVersion: 2
         x: 256
@@ -335,14 +671,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 5d8fb720998965a4d950400e95d0baca
-      internalID: 352922856
+      spriteID: 7fdc25159cd681448a75122bf6451584
+      internalID: -1570474331
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: building_11
+      name: icon_11
       rect:
         serializedVersion: 2
         x: 384
@@ -357,14 +693,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 1f03b66dad0e5e74c971af61acf819c7
-      internalID: 1836337329
+      spriteID: 478fb40f804086e46908452f85f379a8
+      internalID: -1298240710
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: building_12
+      name: icon_12
       rect:
         serializedVersion: 2
         x: 512
@@ -379,14 +715,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 6cc69c7b0ea5a494087649387afa5eda
-      internalID: -1703868871
+      spriteID: 18518eec4a8b49040bb596ac1e0f8575
+      internalID: 1157658368
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: building_13
+      name: icon_13
       rect:
         serializedVersion: 2
         x: 640
@@ -401,14 +737,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 124f6d9717028bf499f36ff1079cf4c9
-      internalID: -1527822015
+      spriteID: 68f37998790fde84e9ec5d03ac67967f
+      internalID: -318065515
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: building_14
+      name: icon_14
       rect:
         serializedVersion: 2
         x: 768
@@ -423,14 +759,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 7dcf607139387b344832cdacb5b74210
-      internalID: -1701309641
+      spriteID: a20ec87c11cb39847b95e3f5dbb61f4d
+      internalID: -1199620451
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: building_15
+      name: icon_15
       rect:
         serializedVersion: 2
         x: 896
@@ -445,14 +781,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 6e5db31cc06f7854884b243dade6ce92
-      internalID: 764484816
+      spriteID: 787bf62cc3ac4094ea111ebf0ed01dc0
+      internalID: -178384527
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: building_16
+      name: icon_16
       rect:
         serializedVersion: 2
         x: 0
@@ -467,14 +803,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 7d73c083c633cd642bd7f78b16cc0b31
-      internalID: -1380263244
+      spriteID: c957e9374970b0840988011185d48625
+      internalID: -636992336
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: building_17
+      name: icon_17
       rect:
         serializedVersion: 2
         x: 128
@@ -489,14 +825,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 9c3c9275bc5f0084f9183efc83897897
-      internalID: -1435369187
+      spriteID: 39c085f3302d76947aa74927f41fac57
+      internalID: 911467048
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: building_18
+      name: icon_18
       rect:
         serializedVersion: 2
         x: 256
@@ -511,14 +847,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 9ad779921453e4c43a3be2e2d23ce690
-      internalID: -1563160042
+      spriteID: 1e8cb229eae630b4ebf1b7bb4de13bad
+      internalID: 1310979793
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: building_19
+      name: icon_19
       rect:
         serializedVersion: 2
         x: 384
@@ -533,14 +869,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 58202d624c29cd448bb3fdb7fe84a195
-      internalID: 1546340810
+      spriteID: a09240c88545e234f8340d4af2fcda9d
+      internalID: -1891659946
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: building_20
+      name: icon_20
       rect:
         serializedVersion: 2
         x: 512
@@ -555,14 +891,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 2e0b0ac0ff044054f8520aaabe65b414
-      internalID: -1466582371
+      spriteID: d8186623aba3c4d46a44c25c651d25c1
+      internalID: 556105547
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: building_21
+      name: icon_21
       rect:
         serializedVersion: 2
         x: 640
@@ -577,14 +913,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 758a05058de48db4f87f5b70512a53e6
-      internalID: -1076518483
+      spriteID: 822d2ceeae449d64d8f9ec67e3a344ad
+      internalID: -69731787
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: building_22
+      name: icon_22
       rect:
         serializedVersion: 2
         x: 768
@@ -599,14 +935,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: facafced8e7ed3f48a9e061799506222
-      internalID: -1616253982
+      spriteID: 2579df54b8dc0a44f8dd8b8ad6c4a805
+      internalID: -969128489
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: building_23
+      name: icon_23
       rect:
         serializedVersion: 2
         x: 896
@@ -621,14 +957,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 4d075753923fa094ea40286025b2cb50
-      internalID: 1716929833
+      spriteID: df668fc14ae105b4db0bd2fb8b4dff0c
+      internalID: 722097452
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: building_24
+      name: icon_24
       rect:
         serializedVersion: 2
         x: 0
@@ -643,14 +979,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 9f1d274d118f26d498cf80078ebb606f
-      internalID: -2060784863
+      spriteID: 2b90f3e4941e3e546b93febdec4b19ec
+      internalID: -255512749
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: building_25
+      name: icon_25
       rect:
         serializedVersion: 2
         x: 128
@@ -665,14 +1001,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: afd752e764c2c8b41be3174267c21d71
-      internalID: 1803510311
+      spriteID: 5af0b55800bcc5e46b1fab67c6e5429d
+      internalID: 180122483
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: building_26
+      name: icon_26
       rect:
         serializedVersion: 2
         x: 256
@@ -687,14 +1023,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 4dea1917e0c4b264aaf89d9ffe8862f2
-      internalID: 1567615783
+      spriteID: b73b4453eab4dae439cdf575ad13fa02
+      internalID: -1332692308
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: building_27
+      name: icon_27
       rect:
         serializedVersion: 2
         x: 384
@@ -709,14 +1045,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: e8e6900f5720fce43a39321ce72d54b1
-      internalID: -363671798
+      spriteID: 0a107f7b32644434ab451de6f0c758f2
+      internalID: 653173750
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: building_28
+      name: icon_28
       rect:
         serializedVersion: 2
         x: 512
@@ -731,14 +1067,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: a567e481e24aa784586caaa5ac093761
-      internalID: 609468223
+      spriteID: b805b3de5ef3a074a8a92a7786fb70f4
+      internalID: 233245344
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: building_29
+      name: icon_29
       rect:
         serializedVersion: 2
         x: 640
@@ -753,14 +1089,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: f58ea1b17358a5345bc6f6469cc2e9ef
-      internalID: -1344762268
+      spriteID: 44ad00aacf95d634482867242942076f
+      internalID: -361989650
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: building_30
+      name: icon_30
       rect:
         serializedVersion: 2
         x: 768
@@ -775,14 +1111,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 03c6999fc505c1241812ad40551fa047
-      internalID: 1325628748
+      spriteID: fbb3fbd30444be04a892e4aae32e131e
+      internalID: -521976697
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: building_31
+      name: icon_31
       rect:
         serializedVersion: 2
         x: 896
@@ -797,14 +1133,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 19d925a22516db845a216ab447582bda
-      internalID: 266935386
+      spriteID: 8dfb371797f9f7844a335fbf2dab83a5
+      internalID: -443193913
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: building_32
+      name: icon_32
       rect:
         serializedVersion: 2
         x: 0
@@ -819,14 +1155,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 1c426b8c1e702bf49bdbd0bf38d19f3d
-      internalID: -1263466686
+      spriteID: e3084bea77190c44b905d2588a8c19d6
+      internalID: -760798234
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: building_33
+      name: icon_33
       rect:
         serializedVersion: 2
         x: 128
@@ -841,206 +1177,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 9e7f4b6e83debab4283ce270d3896896
-      internalID: 1430927538
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: building_34
-      rect:
-        serializedVersion: 2
-        x: 256
-        y: 384
-        width: 128
-        height: 128
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 269ca6c1cc756104faf8bead7b54b7f6
-      internalID: -1508542742
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: building_35
-      rect:
-        serializedVersion: 2
-        x: 384
-        y: 384
-        width: 128
-        height: 128
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 4cc12856346330b4da24a898bc0bdb78
-      internalID: 1674722533
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: building_36
-      rect:
-        serializedVersion: 2
-        x: 512
-        y: 384
-        width: 128
-        height: 128
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 68953a068c5569e458e7c56495799068
-      internalID: 1113331094
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: building_37
-      rect:
-        serializedVersion: 2
-        x: 640
-        y: 384
-        width: 128
-        height: 128
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: eef6ff58c85b242429baf18c30dd9f30
-      internalID: 1207406147
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: building_38
-      rect:
-        serializedVersion: 2
-        x: 768
-        y: 384
-        width: 128
-        height: 128
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: a6963d6a69e37c1479f537a31e99626b
-      internalID: -331406538
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: building_39
-      rect:
-        serializedVersion: 2
-        x: 896
-        y: 384
-        width: 128
-        height: 128
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 12554b110d927d242bee303c403e5856
-      internalID: -66356117
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: building_40
-      rect:
-        serializedVersion: 2
-        x: 0
-        y: 256
-        width: 128
-        height: 128
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: ab89bab2f80a4174e8a7bb8ebf5e0d64
-      internalID: -1148929392
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: building_41
-      rect:
-        serializedVersion: 2
-        x: 128
-        y: 256
-        width: 128
-        height: 128
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: ce514c1c2758dd94ebec91810881f5ba
-      internalID: -818562200
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: building_42
-      rect:
-        serializedVersion: 2
-        x: 256
-        y: 256
-        width: 128
-        height: 128
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 475e9fa859f41c44ea88a84f381e89db
-      internalID: -418099084
+      spriteID: e7900d1c1a824044b8d8d545c8230845
+      internalID: 3227484
       vertices: []
       indices: 
       edges: []
@@ -1049,7 +1187,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: a411dbd2c47a72d4286b63b4307b6502
+    spriteID: e053834933c944e4e939a06857026f78
     internalID: 0
     vertices: []
     indices: 
@@ -1059,49 +1197,40 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      building_0: -2569119218762868166
-      building_1: -146527003
-      building_10: 352922856
-      building_11: 1836337329
-      building_12: -1703868871
-      building_13: -1527822015
-      building_14: -1701309641
-      building_15: 764484816
-      building_16: -1380263244
-      building_17: -1435369187
-      building_18: -1563160042
-      building_19: 1546340810
-      building_2: 1744898305
-      building_20: -1466582371
-      building_21: -1076518483
-      building_22: -1616253982
-      building_23: 1716929833
-      building_24: -2060784863
-      building_25: 1803510311
-      building_26: 1567615783
-      building_27: -363671798
-      building_28: 609468223
-      building_29: -1344762268
-      building_3: -1111800718
-      building_30: 1325628748
-      building_31: 266935386
-      building_32: -1263466686
-      building_33: 1430927538
-      building_34: -1508542742
-      building_35: 1674722533
-      building_36: 1113331094
-      building_37: 1207406147
-      building_38: -331406538
-      building_39: -66356117
-      building_4: 1055409165
-      building_40: -1148929392
-      building_41: -818562200
-      building_42: -418099084
-      building_5: -851313781
-      building_6: 364453066
-      building_7: -325220064
-      building_8: -1510283662
-      building_9: -2022637386
+      icon_0: 933216417
+      icon_1: 687019102
+      icon_10: -1570474331
+      icon_11: -1298240710
+      icon_12: 1157658368
+      icon_13: -318065515
+      icon_14: -1199620451
+      icon_15: -178384527
+      icon_16: -636992336
+      icon_17: 911467048
+      icon_18: 1310979793
+      icon_19: -1891659946
+      icon_2: 771343101
+      icon_20: 556105547
+      icon_21: -69731787
+      icon_22: -969128489
+      icon_23: 722097452
+      icon_24: -255512749
+      icon_25: 180122483
+      icon_26: -1332692308
+      icon_27: 653173750
+      icon_28: 233245344
+      icon_29: -361989650
+      icon_3: 963090382
+      icon_30: -521976697
+      icon_31: -443193913
+      icon_32: -760798234
+      icon_33: 3227484
+      icon_4: -1701845907
+      icon_5: -1501682774
+      icon_6: 1988355666
+      icon_7: 2088550419
+      icon_8: 554672954
+      icon_9: 273198534
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

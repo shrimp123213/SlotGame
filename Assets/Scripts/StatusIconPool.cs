@@ -7,7 +7,7 @@ public class StatusIconPool : MonoBehaviour
 
     [Header("Pool Settings")]
     public GameObject statusIconPrefab; // 狀態圖標預製體
-    public int poolSize = 20;           // 初始池大小
+    public int poolSize = 24;           // 初始池大小
 
     private Queue<GameObject> poolQueue = new Queue<GameObject>();
 

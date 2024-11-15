@@ -110,4 +110,5 @@ MonoBehaviour:
   spriteRenderer: {fileID: 0}
   statusIconsParent: {fileID: 0}
   statusIconPrefab: {fileID: 0}
+  columnIndex: 0
   bossAbilitySkillSO: {fileID: 0}

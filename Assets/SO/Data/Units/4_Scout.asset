@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   unitName: Scout
   unitSprite: {fileID: -1245206565, guid: 87a16c9905dbfd5479cafebc438e47fc, type: 3}
-  maxHealth: 2
+  maxHealth: 1
   camp: 0
   mainSkillSO: {fileID: 11400000, guid: b6e55469147e1a34d89313d318a356fa, type: 2}
   supportSkillSO: {fileID: 11400000, guid: 9cfdab8c07e353348899e7e4a7dab304, type: 2}

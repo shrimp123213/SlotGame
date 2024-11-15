@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   unitName: Guard
   unitSprite: {fileID: 729123160, guid: 87a16c9905dbfd5479cafebc438e47fc, type: 3}
-  maxHealth: 2
+  maxHealth: 1
   camp: 0
   mainSkillSO: {fileID: 11400000, guid: 5218baa5327446145befcff92ee55ff9, type: 2}
   supportSkillSO: {fileID: 11400000, guid: 605f0133e945cba4cb2929089badabc7, type: 2}

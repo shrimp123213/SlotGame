@@ -3,7 +3,6 @@ using UnityEngine;
 using System;
 using Random = UnityEngine.Random;
 
-
 /// <summary>
 /// 管理牌组的类
 /// </summary>
@@ -15,12 +14,11 @@ public class Deck : ScriptableObject
     public List<DeckEntry> entries = new List<DeckEntry>();
     
     public event Action OnDeckChanged;
-
-
+    
     /// <summary>
     /// 添加卡牌到牌组
     /// </summary>
-    public void AddCard(UnitData unitData, int quantity = 1)
+    public void AddCard(UnitData unitData, int quantity = 1, bool isInjured = false)
     {
         if (unitData == null)
         {
@@ -31,38 +29,51 @@ public class Deck : ScriptableObject
         DeckEntry existingEntry = entries.Find(entry => entry.unitData == unitData);
         if (existingEntry != null)
         {
-            existingEntry.quantity += quantity;
+            if (isInjured)
+                existingEntry.injuredQuantity += quantity;
+            else
+                existingEntry.quantity += quantity;
         }
         else
         {
-            entries.Add(new DeckEntry(unitData, quantity));
+            DeckEntry newEntry = new DeckEntry(unitData, isInjured ? 0 : quantity);
+            newEntry.injuredQuantity = isInjured ? quantity : 0;
+            entries.Add(newEntry);
         }
+
+        // 触发事件
+        OnDeckChanged?.Invoke();
     }
 
     /// <summary>
     /// 移除卡牌从牌组
     /// </summary>
-    public void RemoveUnitQuantity(UnitData unitData, int amount = 1)
+    public void RemoveCard(UnitData unitData, int quantity = 1, bool isInjured = false)
     {
         if (unitData == null)
         {
-            Debug.LogWarning("Deck: 嘗試移除 null UnitData 的數量！");
+            Debug.LogWarning("Deck: 尝试移除 null UnitData 的数量！");
             return;
         }
 
         DeckEntry existingEntry = entries.Find(entry => entry.unitData == unitData);
         if (existingEntry != null)
         {
-            existingEntry.quantity -= amount;
-            if (existingEntry.quantity < 0)
+            if (isInjured)
             {
-                existingEntry.quantity = 0;
+                existingEntry.injuredQuantity -= quantity;
+                if (existingEntry.injuredQuantity < 0)
+                    existingEntry.injuredQuantity = 0;
+            }
+            else
+            {
+                existingEntry.quantity -= quantity;
+                if (existingEntry.quantity < 0)
+                    existingEntry.quantity = 0;
             }
         }
 
-        Debug.Log($"Deck: 移除 {unitData.unitName} 的數量至 {(existingEntry != null ? existingEntry.quantity : 0)}");
-
-        // 觸發事件
+        // 触发事件
         OnDeckChanged?.Invoke();
     }
 
@@ -152,12 +163,14 @@ public class Deck : ScriptableObject
 [System.Serializable]
 public class DeckEntry
 {
-    public UnitData unitData; // 卡牌类型
-    public int quantity;      // 该类型卡牌的数量
+    public UnitData unitData;      // 卡牌类型
+    public int quantity;           // 正常状态的卡牌数量
+    public int injuredQuantity;    // 负伤状态的卡牌数量
 
     public DeckEntry(UnitData unitData, int quantity)
     {
         this.unitData = unitData;
         this.quantity = quantity;
+        this.injuredQuantity = 0; // 初始为0
     }
 }

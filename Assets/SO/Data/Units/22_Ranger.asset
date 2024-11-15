@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   unitName: Ranger
   unitSprite: {fileID: -1745748232, guid: 87a16c9905dbfd5479cafebc438e47fc, type: 3}
-  maxHealth: 2
+  maxHealth: 1
   camp: 0
   mainSkillSO: {fileID: 11400000, guid: 25f2a167249dae441997446d0ff5cb52, type: 2}
   supportSkillSO: {fileID: 11400000, guid: ec92445c6245bca4d9a7ae9cc0d1bebe, type: 2}

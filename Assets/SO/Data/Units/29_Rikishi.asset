@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   unitName: Rikishi
   unitSprite: {fileID: 1319552534, guid: 87a16c9905dbfd5479cafebc438e47fc, type: 3}
-  maxHealth: 2
+  maxHealth: 1
   camp: 0
   mainSkillSO: {fileID: 11400000, guid: 5ee40107b0fd5884bb8206d731cab21e, type: 2}
   supportSkillSO: {fileID: 11400000, guid: abc36e552d95a1740ae1e55665b9399e, type: 2}

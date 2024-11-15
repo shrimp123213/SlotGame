@@ -29,7 +29,7 @@ public class UnitController : MonoBehaviour, ISkillUser
 
     private Dictionary<string, GameObject> activeStatusIcons = new Dictionary<string, GameObject>();
 
-
+    public bool isInjured => HasState<InjuredState>();
 
     void Awake()
     {
@@ -71,14 +71,7 @@ public class UnitController : MonoBehaviour, ISkillUser
     /// </summary>
     void InitializeUnit()
     {
-        // 设置单位的图片
-        if (unitData.unitSprite != null)
-        {
-            if (spriteRenderer != null)
-            {
-                spriteRenderer.sprite = unitData.unitSprite;
-            }
-        }
+        InitializeUnitSprite();
 
         // 根据单位数据设置其他属性
         // 例如，设置速度、攻击范围等
@@ -349,7 +342,7 @@ public class UnitController : MonoBehaviour, ISkillUser
         {
             currentHealth -= remainingDamage;
             Debug.Log($"UnitController: 单位 {unitData.unitName} 接受 {remainingDamage} 点伤害，当前生命值: {currentHealth}");
-            if(!HasState<InjuredState>())
+            if(!isInjured)
                 AddState<InjuredState>();
         }
         else
@@ -374,6 +367,7 @@ public class UnitController : MonoBehaviour, ISkillUser
                 AddState<InjuredState>();
                 MoveToDeck();
             }
+            Destroy(gameObject);
         }
     }
     
@@ -387,8 +381,8 @@ public class UnitController : MonoBehaviour, ISkillUser
 
         // 将单位返回到牌库（具体实现根据您的牌库管理方式）
         // 例如，将单位对象禁用或移动到牌库位置
-        gameObject.SetActive(false);
-        Debug.Log($"{unitData.unitName} 返回牌库");
+        DeckManager.Instance.AddCardToPlayerDeck(unitData, 1, isInjured);
+        Debug.Log($"{unitData.unitName}負傷，返回牌库");
     }
 
     /// <summary>
@@ -401,7 +395,7 @@ public class UnitController : MonoBehaviour, ISkillUser
 
         // 将单位移动到墓地（具体实现根据您的墓地管理方式）
         // 例如，将单位对象禁用或移动到墓地位置
-        gameObject.SetActive(false);
+        DeckManager.Instance.HandleUnitDeath(unitData, isInjured);
         Debug.Log($"{unitData.unitName} 移动到墓地");
     }
     

@@ -9,6 +9,7 @@ public class DeckEditor : Editor
 
     // 新增字段：用于输入设置所有卡片数量
     private string setAllQuantityInput = "1"; // 默认值
+    private string setAllInjuredQuantityInput = "0"; // 默认值
     private const string SetAllQuantityLabel = "Set All Quantities";
 
     private void OnEnable()
@@ -19,7 +20,17 @@ public class DeckEditor : Editor
 
         reorderableList.drawHeaderCallback = (Rect rect) =>
         {
-            EditorGUI.LabelField(rect, "Deck Entries");
+            float unitWidth = rect.width * 0.4f;
+            float qtyWidth = rect.width * 0.3f;
+            float injuredQtyWidth = rect.width * 0.3f;
+
+            Rect unitRect = new Rect(rect.x, rect.y, unitWidth - 10, EditorGUIUtility.singleLineHeight);
+            Rect qtyRect = new Rect(rect.x + unitWidth, rect.y, qtyWidth - 10, EditorGUIUtility.singleLineHeight);
+            Rect injuredQtyRect = new Rect(rect.x + unitWidth + qtyWidth, rect.y, injuredQtyWidth, EditorGUIUtility.singleLineHeight);
+
+            EditorGUI.LabelField(unitRect, "Unit Data");
+            EditorGUI.LabelField(qtyRect, "Quantity");
+            EditorGUI.LabelField(injuredQtyRect, "Injured Qty");
         };
 
         reorderableList.drawElementCallback = (Rect rect, int index, bool isActive, bool isFocused) =>
@@ -30,12 +41,15 @@ public class DeckEditor : Editor
 
             DeckEntry entry = deckObj.entries[index];
 
-            float unitWidth = rect.width * 0.6f;
-            float qtyWidth = rect.width * 0.4f;
+            float unitWidth = rect.width * 0.4f;
+            float qtyWidth = rect.width * 0.3f;
+            float injuredQtyWidth = rect.width * 0.3f;
 
             Rect unitRect = new Rect(rect.x, rect.y, unitWidth - 10, EditorGUIUtility.singleLineHeight);
-            Rect qtyRect = new Rect(rect.x + unitWidth, rect.y, qtyWidth, EditorGUIUtility.singleLineHeight);
+            Rect qtyRect = new Rect(rect.x + unitWidth, rect.y, qtyWidth - 10, EditorGUIUtility.singleLineHeight);
+            Rect injuredQtyRect = new Rect(rect.x + unitWidth + qtyWidth, rect.y, injuredQtyWidth, EditorGUIUtility.singleLineHeight);
 
+            // 编辑 unitData
             EditorGUI.BeginChangeCheck();
             entry.unitData = (UnitData)EditorGUI.ObjectField(unitRect, entry.unitData, typeof(UnitData), false);
             if (EditorGUI.EndChangeCheck())
@@ -49,6 +63,7 @@ public class DeckEditor : Editor
                 }
             }
 
+            // 编辑 quantity
             EditorGUI.BeginChangeCheck();
             int newQuantity = EditorGUI.IntField(qtyRect, entry.quantity);
             if (EditorGUI.EndChangeCheck())
@@ -56,6 +71,17 @@ public class DeckEditor : Editor
                 if (newQuantity < 0)
                     newQuantity = 0;
                 entry.quantity = newQuantity;
+                EditorUtility.SetDirty(deckObj);
+            }
+
+            // 编辑 injuredQuantity
+            EditorGUI.BeginChangeCheck();
+            int newInjuredQuantity = EditorGUI.IntField(injuredQtyRect, entry.injuredQuantity);
+            if (EditorGUI.EndChangeCheck())
+            {
+                if (newInjuredQuantity < 0)
+                    newInjuredQuantity = 0;
+                entry.injuredQuantity = newInjuredQuantity;
                 EditorUtility.SetDirty(deckObj);
             }
         };
@@ -96,9 +122,17 @@ public class DeckEditor : Editor
         EditorGUILayout.BeginVertical("box");
         EditorGUILayout.LabelField(SetAllQuantityLabel, EditorStyles.boldLabel);
 
-        // 输入字段：设置所有卡片的数量
+        // 输入字段：设置所有卡片的正常数量
         EditorGUI.BeginChangeCheck();
-        setAllQuantityInput = EditorGUILayout.TextField("Quantity", setAllQuantityInput);
+        setAllQuantityInput = EditorGUILayout.TextField("Normal Quantity", setAllQuantityInput);
+        if (EditorGUI.EndChangeCheck())
+        {
+            // 可选：实时验证输入
+        }
+
+        // 输入字段：设置所有卡片的负伤数量
+        EditorGUI.BeginChangeCheck();
+        setAllInjuredQuantityInput = EditorGUILayout.TextField("Injured Quantity", setAllInjuredQuantityInput);
         if (EditorGUI.EndChangeCheck())
         {
             // 可选：实时验证输入
@@ -107,20 +141,23 @@ public class DeckEditor : Editor
         // 按钮：设置所有卡片数量
         if (GUILayout.Button("Apply to All"))
         {
-            if (int.TryParse(setAllQuantityInput, out int newQuantity))
+            bool validNormal = int.TryParse(setAllQuantityInput, out int newQuantity);
+            bool validInjured = int.TryParse(setAllInjuredQuantityInput, out int newInjuredQuantity);
+
+            if (validNormal && validInjured)
             {
-                if (newQuantity < 0)
+                if (newQuantity < 0 || newInjuredQuantity < 0)
                 {
                     EditorUtility.DisplayDialog("Invalid Quantity", "Quantity cannot be negative.", "OK");
                 }
                 else
                 {
-                    SetAllDeckEntriesQuantity(deck, newQuantity);
+                    SetAllDeckEntriesQuantity(deck, newQuantity, newInjuredQuantity);
                 }
             }
             else
             {
-                EditorUtility.DisplayDialog("Invalid Input", "Please enter a valid integer for quantity.", "OK");
+                EditorUtility.DisplayDialog("Invalid Input", "Please enter valid integers for quantities.", "OK");
             }
         }
 
@@ -130,7 +167,7 @@ public class DeckEditor : Editor
         {
             if (entry.unitData != null)
             {
-                totalQuantity += entry.quantity;
+                totalQuantity += entry.quantity + entry.injuredQuantity;
             }
         }
         EditorGUILayout.LabelField($"Total Quantity: {totalQuantity}");
@@ -146,11 +183,12 @@ public class DeckEditor : Editor
     }
 
     /// <summary>
-    /// 设置所有 DeckEntry 的 quantity 为指定值
+    /// 设置所有 DeckEntry 的 quantity 和 injuredQuantity 为指定值
     /// </summary>
     /// <param name="deck">目标 Deck</param>
-    /// <param name="newQuantity">新的数量值</param>
-    private void SetAllDeckEntriesQuantity(Deck deck, int newQuantity)
+    /// <param name="newQuantity">新的正常数量值</param>
+    /// <param name="newInjuredQuantity">新的负伤数量值</param>
+    private void SetAllDeckEntriesQuantity(Deck deck, int newQuantity, int newInjuredQuantity)
     {
         Undo.RecordObject(deck, "Set All Quantities");
 
@@ -159,7 +197,8 @@ public class DeckEditor : Editor
             if (entry.unitData != null)
             {
                 entry.quantity = newQuantity;
-                Debug.Log($"DeckEditor: 设置 {entry.unitData.unitName} 的数量为 {newQuantity}");
+                entry.injuredQuantity = newInjuredQuantity;
+                Debug.Log($"DeckEditor: 设置 {entry.unitData.unitName} 的数量为 正常：{newQuantity}，负伤：{newInjuredQuantity}");
             }
         }
 

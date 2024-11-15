@@ -342,8 +342,6 @@ public class UnitController : MonoBehaviour, ISkillUser
         {
             currentHealth -= remainingDamage;
             Debug.Log($"UnitController: 单位 {unitData.unitName} 接受 {remainingDamage} 点伤害，当前生命值: {currentHealth}");
-            if(!isInjured)
-                AddState<InjuredState>();
         }
         else
         {
@@ -381,7 +379,22 @@ public class UnitController : MonoBehaviour, ISkillUser
 
         // 将单位返回到牌库（具体实现根据您的牌库管理方式）
         // 例如，将单位对象禁用或移动到牌库位置
-        DeckManager.Instance.AddCardToPlayerDeck(unitData, 1, isInjured);
+        if (unitData.camp == Camp.Player)
+        {
+            // 将玩家单位返回到玩家的牌库
+            DeckManager.Instance.AddCardToPlayerDeck(unitData, 1, isInjured);
+            Debug.Log($"{unitData.unitName} 负伤，返回玩家牌库");
+        }
+        else if (unitData.camp == Camp.Enemy)
+        {
+            // 将敌人单位返回到敌人的牌库（如果需要）
+            DeckManager.Instance.AddCardToEnemyDeck(unitData, 1, isInjured);
+            Debug.Log($"{unitData.unitName} 负伤，返回敌人牌库");
+        }
+        else
+        {
+            Debug.LogWarning($"{unitData.unitName} 的阵营未知，无法返回牌库");
+        }
         Debug.Log($"{unitData.unitName}負傷，返回牌库");
     }
 
@@ -393,11 +406,27 @@ public class UnitController : MonoBehaviour, ISkillUser
         // 从战场移除
         GridManager.Instance.RemoveSkillUserAt(gridPosition);
 
-        // 将单位移动到墓地（具体实现根据您的墓地管理方式）
-        // 例如，将单位对象禁用或移动到墓地位置
-        DeckManager.Instance.HandleUnitDeath(unitData, isInjured);
-        Debug.Log($"{unitData.unitName} 移动到墓地");
+        if (unitData.camp == Camp.Player)
+        {
+            // 将玩家单位添加到玩家的墓地
+            DeckManager.Instance.HandleUnitDeath(unitData, isInjured, isPlayerUnit: true);
+            Debug.Log($"{unitData.unitName} 移动到玩家墓地");
+        }
+        else if (unitData.camp == Camp.Enemy)
+        {
+            // 将敌人单位添加到敌人的墓地（如果需要）
+            DeckManager.Instance.HandleUnitDeath(unitData, isInjured, isPlayerUnit: false);
+            Debug.Log($"{unitData.unitName} 移动到敌人墓地");
+        }
+        else
+        {
+            Debug.LogWarning($"{unitData.unitName} 的阵营未知，无法移动到墓地");
+        }
+
+        // 销毁单位的游戏对象
+        Destroy(gameObject);
     }
+
     
     /// <summary>
     /// 治疗单位

@@ -231,36 +231,13 @@ public class SlotMachineController : MonoBehaviour
     private void PlaceSpunUnits()
     {
         // 清空战斗区域内的单位
-        ClearBattleAreaUnits();
+        //ClearBattleAreaUnits();
 
-        // 遍历所有旋转的单位
+        // 如果需要，在此销毁所有旋转的单位
         foreach (var unitGO in spinningUnits)
         {
-            UnitController unitController = unitGO.GetComponent<UnitController>();
-
-            // 获取单位当前位置对应的格子坐标
-            Vector3 worldPos = unitGO.transform.position;
-            Vector3Int gridPos = gridManager.battleTilemap.WorldToCell(worldPos);
-
-            // 调整格子坐标以匹配战斗区域
-            gridPos.x += gridManager.battleTilemap.cellBounds.xMin;
-            gridPos.y += gridManager.battleTilemap.cellBounds.yMin;
-
-            // 检查位置是否在战斗区域内
-            if (gridManager.IsWithinBattleArea(gridPos))
-            {
-                unitController.SetPosition(gridPos);
-
-                // 将单位添加到 GridManager
-                gridManager.AddUnitAt(gridPos, unitController);
-            }
-            else
-            {
-                // 销毁不在战斗区域内的单位
-                Destroy(unitGO);
-            }
+            Destroy(unitGO);
         }
-
         // 清空旋转单位列表
         spinningUnits.Clear();
     }

@@ -3381,7 +3381,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 0, y: 91.5}
+  m_AnchoredPosition: {x: 0, y: 15.299988}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 0.5}
 --- !u!114 &1381632711
@@ -3416,11 +3416,11 @@ MonoBehaviour:
     m_Top: 0
     m_Bottom: 0
   m_ChildAlignment: 3
-  m_Spacing: 0
+  m_Spacing: 5
   m_ChildForceExpandWidth: 0
   m_ChildForceExpandHeight: 0
-  m_ChildControlWidth: 1
-  m_ChildControlHeight: 1
+  m_ChildControlWidth: 0
+  m_ChildControlHeight: 0
   m_ChildScaleWidth: 0
   m_ChildScaleHeight: 0
   m_ReverseArrangement: 0
@@ -3477,12 +3477,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7183b3efbf4f2874e936111a895411bb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  deckEntriesParent: {fileID: 1387925901}
+  deckEntriesParent: {fileID: 1381632710}
   deckEntryPrefab: {fileID: 1188829520631101802, guid: a646606f7ee53554a8313bafc0d52c87, type: 3}
-  totalCardCountText: {fileID: 0}
-  graveyardCountText: {fileID: 0}
-  graveyardTooltipPanel: {fileID: 0}
-  graveyardTooltipText: {fileID: 0}
+  totalCardCountText: {fileID: 1137576144}
+  graveyardCountText: {fileID: 1069773089}
+  graveyardTooltipPanel: {fileID: 1556623907}
+  graveyardTooltipText: {fileID: 419440053}
 --- !u!114 &1387925905
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -87,7 +87,7 @@ public class DeckUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 
         // 更新总卡牌数
         if (totalCardCountText != null)
-            totalCardCountText.text = $"总卡牌数：{totalCardCount}";
+            totalCardCountText.text = $"{totalCardCount}";
 
         // 更新墓地卡牌数
         if (graveyardCountText != null)

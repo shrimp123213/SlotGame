@@ -1,5 +1,7 @@
 using UnityEngine;
+using System;
 using System.Collections.Generic;
+using DG.Tweening;
 
 public class UnitController : MonoBehaviour, ISkillUser
 {
@@ -30,6 +32,9 @@ public class UnitController : MonoBehaviour, ISkillUser
     private Dictionary<string, GameObject> activeStatusIcons = new Dictionary<string, GameObject>();
 
     public bool isInjured => HasState<InjuredState>();
+    
+    // 添加对 Sprite 子对象的引用
+    private Transform spriteTransform;
 
     void Awake()
     {
@@ -41,6 +46,16 @@ public class UnitController : MonoBehaviour, ISkillUser
             {
                 Debug.LogError("UnitController: 未找到子物件的 SpriteRenderer！");
             }
+        }
+        
+        // 获取 Sprite 子对象的 Transform
+        if (spriteRenderer != null)
+        {
+            spriteTransform = spriteRenderer.transform;
+        }
+        else
+        {
+            Debug.LogError("UnitController: 无法获取 SpriteRenderer 的 Transform！");
         }
     }
 
@@ -221,38 +236,43 @@ public class UnitController : MonoBehaviour, ISkillUser
     /// </summary>
     public virtual void PerformMeleeAttack(TargetType targetType)
     {
-        if (targetType == TargetType.Enemy)
+        PlayAttackAnimation(() =>
         {
-            Vector3Int attackDirection = unitData.camp == Camp.Player ? Vector3Int.right : Vector3Int.left;
-            Vector3Int targetPosition = gridPosition + attackDirection;
-
-            UnitController targetUnit = GridManager.Instance.GetUnitAt(targetPosition);
-            BuildingController targetBuilding = GridManager.Instance.GetBuildingAt(targetPosition);
-
-            if (targetUnit != null && targetUnit.unitData.camp != unitData.camp)
+            if (targetType == TargetType.Enemy)
             {
-                targetUnit.TakeDamage(1);
-                Debug.Log($"UnitController: 单位 {unitData.unitName} 对 {targetUnit.unitData.unitName} 进行近战攻击，造成1点伤害！");
+                Vector3Int attackDirection = unitData.camp == Camp.Player ? Vector3Int.right : Vector3Int.left;
+                Vector3Int targetPosition = gridPosition + attackDirection;
+
+                UnitController targetUnit = GridManager.Instance.GetUnitAt(targetPosition);
+                BuildingController targetBuilding = GridManager.Instance.GetBuildingAt(targetPosition);
+
+                if (targetUnit != null && targetUnit.unitData.camp != unitData.camp)
+                {
+                    targetUnit.TakeDamage(1);
+                    Debug.Log(
+                        $"UnitController: 单位 {unitData.unitName} 对 {targetUnit.unitData.unitName} 进行近战攻击，造成1点伤害！");
+                }
+                else if (targetBuilding != null && targetBuilding.buildingData.camp != unitData.camp)
+                {
+                    targetBuilding.TakeDamage(1);
+                    Debug.Log(
+                        $"UnitController: 单位 {unitData.unitName} 对建筑 {targetBuilding.buildingData.buildingName} 进行近战攻击，造成1点伤害！");
+                }
+                else
+                {
+                    Debug.Log($"UnitController: 单位 {unitData.unitName} 近战攻击无目标或目标为友方！");
+                }
             }
-            else if (targetBuilding != null && targetBuilding.buildingData.camp != unitData.camp)
+            else if (targetType == TargetType.Friendly || targetType == TargetType.Self)
             {
-                targetBuilding.TakeDamage(1);
-                Debug.Log($"UnitController: 单位 {unitData.unitName} 对建筑 {targetBuilding.buildingData.buildingName} 进行近战攻击，造成1点伤害！");
+                // 防卫技能，只对自身或友方生效
+                IncreaseDefense(1, targetType);
             }
             else
             {
-                Debug.Log($"UnitController: 单位 {unitData.unitName} 近战攻击无目标或目标为友方！");
+                Debug.LogWarning($"UnitController: 未处理的 TargetType：{targetType}");
             }
-        }
-        else if (targetType == TargetType.Friendly || targetType == TargetType.Self)
-        {
-            // 防卫技能，只对自身或友方生效
-            IncreaseDefense(1, targetType);
-        }
-        else
-        {
-            Debug.LogWarning($"UnitController: 未处理的 TargetType：{targetType}");
-        }
+        });
     }
 
     /// <summary>
@@ -260,50 +280,55 @@ public class UnitController : MonoBehaviour, ISkillUser
     /// </summary>
     public virtual void PerformRangedAttack(TargetType targetType)
     {
-        if (targetType == TargetType.Enemy)
+        PlayAttackAnimation(() =>
         {
-            Vector3Int attackDirection = unitData.camp == Camp.Player ? Vector3Int.right : Vector3Int.left;
-            Vector3Int currentPos = gridPosition + attackDirection;
-
-            bool hasAttacked = false;
-
-            while (GridManager.Instance.IsWithinBattleArea(currentPos))
+            if (targetType == TargetType.Enemy)
             {
-                UnitController targetUnit = GridManager.Instance.GetUnitAt(currentPos);
-                BuildingController targetBuilding = GridManager.Instance.GetBuildingAt(currentPos);
+                Vector3Int attackDirection = unitData.camp == Camp.Player ? Vector3Int.right : Vector3Int.left;
+                Vector3Int currentPos = gridPosition + attackDirection;
 
-                if (targetUnit != null && targetUnit.unitData.camp != unitData.camp)
+                bool hasAttacked = false;
+
+                while (GridManager.Instance.IsWithinBattleArea(currentPos))
                 {
-                    targetUnit.TakeDamage(1);
-                    Debug.Log($"UnitController: 单位 {unitData.unitName} 对 {targetUnit.unitData.unitName} 进行远程攻击，造成1点伤害！");
-                    hasAttacked = true;
-                    break; // 只攻击第一个目标
-                }
-                else if (targetBuilding != null && targetBuilding.buildingData.camp != unitData.camp)
-                {
-                    targetBuilding.TakeDamage(1);
-                    Debug.Log($"UnitController: 单位 {unitData.unitName} 对建筑 {targetBuilding.buildingData.buildingName} 进行远程攻击，造成1点伤害！");
-                    hasAttacked = true;
-                    break; // 只攻击第一个目标
+                    UnitController targetUnit = GridManager.Instance.GetUnitAt(currentPos);
+                    BuildingController targetBuilding = GridManager.Instance.GetBuildingAt(currentPos);
+
+                    if (targetUnit != null && targetUnit.unitData.camp != unitData.camp)
+                    {
+                        targetUnit.TakeDamage(1);
+                        Debug.Log(
+                            $"UnitController: 单位 {unitData.unitName} 对 {targetUnit.unitData.unitName} 进行远程攻击，造成1点伤害！");
+                        hasAttacked = true;
+                        break; // 只攻击第一个目标
+                    }
+                    else if (targetBuilding != null && targetBuilding.buildingData.camp != unitData.camp)
+                    {
+                        targetBuilding.TakeDamage(1);
+                        Debug.Log(
+                            $"UnitController: 单位 {unitData.unitName} 对建筑 {targetBuilding.buildingData.buildingName} 进行远程攻击，造成1点伤害！");
+                        hasAttacked = true;
+                        break; // 只攻击第一个目标
+                    }
+
+                    currentPos += attackDirection;
                 }
 
-                currentPos += attackDirection;
+                if (!hasAttacked)
+                {
+                    Debug.Log($"UnitController: 单位 {unitData.unitName} 远程攻击无目标或目标为友方！");
+                }
             }
-
-            if (!hasAttacked)
+            else if (targetType == TargetType.Friendly || targetType == TargetType.Self)
             {
-                Debug.Log($"UnitController: 单位 {unitData.unitName} 远程攻击无目标或目标为友方！");
+                // 防卫技能，只对自身或友方生效
+                IncreaseDefense(1, targetType);
             }
-        }
-        else if (targetType == TargetType.Friendly || targetType == TargetType.Self)
-        {
-            // 防卫技能，只对自身或友方生效
-            IncreaseDefense(1, targetType);
-        }
-        else
-        {
-            Debug.LogWarning($"UnitController: 未处理的 TargetType：{targetType}");
-        }
+            else
+            {
+                Debug.LogWarning($"UnitController: 未处理的 TargetType：{targetType}");
+            }
+        });
     }
 
     /// <summary>
@@ -330,43 +355,48 @@ public class UnitController : MonoBehaviour, ISkillUser
     /// <param name="damage">伤害值</param>
     public virtual void TakeDamage(int damage)
     {
-        if (HasState<InvincibleState>())
+        // 先播放受击动画，然后处理伤害
+        PlayHitAnimation(() =>
         {
-            Debug.Log($"{unitData.unitName} 处于无敌状态，免疫伤害");
-            return;
-        }
-        
-        // 首先扣除防卫点数
-        int remainingDamage = damage - defensePoints;
-        if (remainingDamage > 0)
-        {
-            currentHealth -= remainingDamage;
-            Debug.Log($"UnitController: 单位 {unitData.unitName} 接受 {remainingDamage} 点伤害，当前生命值: {currentHealth}");
-        }
-        else
-        {
-            // 防卫点数足以抵消所有伤害
-            defensePoints -= damage;
-            Debug.Log($"UnitController: 单位 {unitData.unitName} 防卫点数抵消了 {damage} 点伤害，剩余防卫点数: {defensePoints}");
-        }
-
-        if (currentHealth <= 0)
-        {
-            if (HasState<InjuredState>())
+            if (HasState<InvincibleState>())
             {
-                // 负伤状态下再次死亡，进入墓地
-                Debug.Log($"UnitController: 单位 {unitData.unitName} 在负伤状态下再次死亡，进入墓地");
-                MoveToGraveyard();
+                Debug.Log($"{unitData.unitName} 处于无敌状态，免疫伤害");
+                return;
+            }
+
+            // 首先扣除防卫点数
+            int remainingDamage = damage - defensePoints;
+            if (remainingDamage > 0)
+            {
+                currentHealth -= remainingDamage;
+                Debug.Log($"UnitController: 单位 {unitData.unitName} 接受 {remainingDamage} 点伤害，当前生命值: {currentHealth}");
             }
             else
             {
-                // 第一次死亡，进入负伤状态并返回牌库
-                Debug.Log($"UnitController: 单位 {unitData.unitName} 第一次死亡，进入负伤状态并返回牌库");
-                AddState<InjuredState>();
-                MoveToDeck();
+                // 防卫点数足以抵消所有伤害
+                defensePoints -= damage;
+                Debug.Log($"UnitController: 单位 {unitData.unitName} 防卫点数抵消了 {damage} 点伤害，剩余防卫点数: {defensePoints}");
             }
-            Destroy(gameObject);
-        }
+
+            if (currentHealth <= 0)
+            {
+                if (HasState<InjuredState>())
+                {
+                    // 负伤状态下再次死亡，进入墓地
+                    Debug.Log($"UnitController: 单位 {unitData.unitName} 在负伤状态下再次死亡，进入墓地");
+                    MoveToGraveyard();
+                }
+                else
+                {
+                    // 第一次死亡，进入负伤状态并返回牌库
+                    Debug.Log($"UnitController: 单位 {unitData.unitName} 第一次死亡，进入负伤状态并返回牌库");
+                    AddState<InjuredState>();
+                    MoveToDeck();
+                }
+
+                Destroy(gameObject);
+            }
+        });
     }
     
     /// <summary>
@@ -743,5 +773,78 @@ public class UnitController : MonoBehaviour, ISkillUser
         scale.x = unitData.camp == Camp.Player ? 1 : -1;
         spriteRenderer.GetComponent<Transform>().localScale = scale;
     }
+    
+    /// <summary>
+    /// 播放攻击动画
+    /// </summary>
+    public void PlayAttackAnimation(Action onComplete = null)
+    {
+        if (spriteTransform == null)
+        {
+            Debug.LogWarning("UnitController: spriteTransform 未设置，无法播放攻击动画！");
+            onComplete?.Invoke();
+            return;
+        }
 
+        float moveDistance = 0.5f; // 向前移动的距离
+        float animationDuration = 0.2f; // 动画持续时间
+
+        // 计算移动方向
+        Vector3 direction = unitData.camp == Camp.Player ? Vector3.right : Vector3.left;
+
+        // 停止当前动画
+        spriteTransform.DOKill();
+
+        // 动画序列
+        Sequence attackSequence = DOTween.Sequence();
+
+        // 向前移动
+        attackSequence.Append(spriteTransform.DOMove(spriteTransform.position + direction * moveDistance, animationDuration));
+
+        // 返回原位
+        attackSequence.Append(spriteTransform.DOMove(spriteTransform.position, animationDuration));
+
+        // 动画完成回调
+        if (onComplete != null)
+        {
+            attackSequence.OnComplete(() => onComplete());
+        }
+    }
+    
+    /// <summary>
+    /// 播放受击动画
+    /// </summary>
+    public void PlayHitAnimation(Action onComplete = null)
+    {
+        if (spriteTransform == null)
+        {
+            Debug.LogWarning("UnitController: spriteTransform 未设置，无法播放受击动画！");
+            onComplete?.Invoke();
+            return;
+        }
+
+        float moveDistance = 0.2f; // 向后移动的距离
+        float animationDuration = 0.1f; // 动画持续时间
+
+        // 计算移动方向
+        Vector3 direction = unitData.camp == Camp.Player ? Vector3.left : Vector3.right;
+
+        // 停止当前动画
+        spriteTransform.DOKill();
+
+        // 动画序列
+        Sequence hitSequence = DOTween.Sequence();
+
+        // 向后移动
+        hitSequence.Append(spriteTransform.DOMove(spriteTransform.position + direction * moveDistance, animationDuration));
+
+        // 返回原位
+        hitSequence.Append(spriteTransform.DOMove(spriteTransform.position, animationDuration));
+
+        // 动画完成回调
+        if (onComplete != null)
+        {
+            hitSequence.OnComplete(() => onComplete());
+        }
+    }
 }

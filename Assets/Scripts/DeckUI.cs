@@ -145,6 +145,7 @@ public class DeckUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
             {
                 graveyardTooltipPanel.SetActive(true);
                 graveyardTooltipText.text = GetGraveyardDetails();
+                Debug.Log("显示墓地卡片列表");
             }
         }
     }
@@ -157,6 +158,7 @@ public class DeckUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
             if (graveyardTooltipPanel != null)
             {
                 graveyardTooltipPanel.SetActive(false);
+                Debug.Log("隐藏墓地卡片列表");
             }
         }
     }

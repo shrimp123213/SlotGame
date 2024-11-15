@@ -67,7 +67,7 @@ public class DeckEntryUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
     private string GetUnitDetails()
     {
         // 根据 unitData 获取详细信息
-        string status = isInjured ? "负伤" : "正常";
-        return $"名称：{unitData.unitName}\n生命值：{unitData.maxHealth}\n状态：{status}\n其他属性：...";
+        string status = isInjured ? "Injured" : "";
+        return $"{unitData.unitName}\nHP:{unitData.maxHealth}\n{status}\n";
     }
 }

@@ -395,7 +395,6 @@ public class UnitController : MonoBehaviour, ISkillUser
         {
             Debug.LogWarning($"{unitData.unitName} 的阵营未知，无法返回牌库");
         }
-        Debug.Log($"{unitData.unitName}負傷，返回牌库");
     }
 
     /// <summary>

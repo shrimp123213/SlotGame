@@ -2070,16 +2070,24 @@ MonoBehaviour:
   connectionManager: {fileID: 1393951770}
   slotMachineSpinTime: 3
   slotMachineSpinSpeed: 10
-  enemyBuildings: []
-  playerBuildings:
-  - buildingData: {fileID: 11400000, guid: 815769911316e214b8da5b128533c74b, type: 2}
-    position: {x: 0, y: 0, z: 0}
-  - buildingData: {fileID: 11400000, guid: 1aa90f3ad7fa02443b323468051678de, type: 2}
+  enemyBuildings:
+  - buildingData: {fileID: 11400000, guid: 15f7035016d4af74395b1bc666b25abe, type: 2}
+    position: {x: 0, y: 3, z: 0}
+  - buildingData: {fileID: 11400000, guid: 8fa7eefc649917646802b2681f27f501, type: 2}
+    position: {x: 0, y: 2, z: 0}
+  - buildingData: {fileID: 11400000, guid: 7e27e892c1b613340bd89c81be38919e, type: 2}
     position: {x: 0, y: 1, z: 0}
+  - buildingData: {fileID: 11400000, guid: d58b891a22030e5499904c8d7cbe4514, type: 2}
+    position: {x: 0, y: 0, z: 0}
+  playerBuildings:
+  - buildingData: {fileID: 11400000, guid: 1aa90f3ad7fa02443b323468051678de, type: 2}
+    position: {x: 0, y: 3, z: 0}
   - buildingData: {fileID: 11400000, guid: 1aa90f3ad7fa02443b323468051678de, type: 2}
     position: {x: 0, y: 2, z: 0}
   - buildingData: {fileID: 11400000, guid: 1aa90f3ad7fa02443b323468051678de, type: 2}
-    position: {x: 0, y: 3, z: 0}
+    position: {x: 0, y: 1, z: 0}
+  - buildingData: {fileID: 11400000, guid: 815769911316e214b8da5b128533c74b, type: 2}
+    position: {x: 0, y: 0, z: 0}
 --- !u!4 &1013848474
 Transform:
   m_ObjectHideFlags: 0

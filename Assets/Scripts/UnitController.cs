@@ -268,21 +268,9 @@ public class UnitController : MonoBehaviour, ISkillUser
                 }
                 else
                 {
-                    // 检查是否可以攻击 Boss
-                    int row = gridPosition.y;
-                    if (GridManager.Instance.CanRowAttackBoss(row))
+                    if (!TryAttackBoss(damage))
                     {
-                        // 执行对 Boss 的攻击逻辑
-                        BossController boss = GridManager.Instance.GetBossUnit();
-                        if (boss != null)
-                        {
-                            boss.TakeDamage(damage);
-                            Debug.Log($"UnitController: {unitData.unitName} 对 Boss 进行近战攻击，造成 {damage} 点伤害！");
-                        }
-                    }
-                    else
-                    {
-                        Debug.Log($"UnitController: {unitData.unitName} 近战攻击无目标，且无法攻击 Boss！");
+                        Debug.Log($"UnitController: {unitData.unitName} 攻击无目标，且无法攻击 Boss！");
                     }
                 }
             }
@@ -338,21 +326,9 @@ public class UnitController : MonoBehaviour, ISkillUser
 
                 if (!hasAttacked)
                 {
-                    // 检查是否可以攻击 Boss
-                    int row = gridPosition.y;
-                    if (GridManager.Instance.CanRowAttackBoss(row))
+                    if (!TryAttackBoss(damage))
                     {
-                        // 执行对 Boss 的攻击逻辑
-                        BossController boss = GridManager.Instance.GetBossUnit();
-                        if (boss != null)
-                        {
-                            boss.TakeDamage(damage);
-                            Debug.Log($"UnitController: {unitData.unitName} 对 Boss 进行近战攻击，造成 {damage} 点伤害！");
-                        }
-                    }
-                    else
-                    {
-                        Debug.Log($"UnitController: {unitData.unitName} 近战攻击无目标，且无法攻击 Boss！");
+                        Debug.Log($"UnitController: {unitData.unitName} 攻击无目标，且无法攻击 Boss！");
                     }
                 }
             }
@@ -366,6 +342,22 @@ public class UnitController : MonoBehaviour, ISkillUser
                 Debug.LogWarning($"UnitController: 未处理的 TargetType：{targetType}");
             }
         });
+    }
+    
+    private bool TryAttackBoss(int damage)
+    {
+        int row = gridPosition.y;
+        if (GridManager.Instance.CanRowAttackBoss(row))
+        {
+            BossController boss = GridManager.Instance.GetBossUnit();
+            if (boss != null)
+            {
+                boss.TakeDamage(damage);
+                Debug.Log($"UnitController: {unitData.unitName} 对 Boss 进行攻击，造成 {damage} 点伤害！");
+                return true;
+            }
+        }
+        return false;
     }
 
     /// <summary>
@@ -385,38 +377,85 @@ public class UnitController : MonoBehaviour, ISkillUser
             Debug.LogWarning($"UnitController: 单位 {unitData.unitName} 尝试对非友方进行防卫！");
         }
     }
-    
+
     public virtual void RepairRuin(int value, TargetType targetType)
     {
-        Vector3Int attackDirection = unitData.camp == Camp.Player ? Vector3Int.right : Vector3Int.left;
-        Vector3Int targetPosition = gridPosition + attackDirection;
-        
-        BuildingController targetBuilding = GridManager.Instance.GetBuildingAt(targetPosition);
-        if (targetBuilding.isRuin)
+        // 根据目标类型确定搜索方向
+        Vector3Int searchDirection;
+        if (targetType == TargetType.Enemy)
         {
-            // 恢复建筑物的生命值
-            targetBuilding.currentHealth = targetBuilding.buildingData.maxHealth;
-            targetBuilding.isRuin = false;
-
-            // 恢复建筑物的外观
-            if (targetBuilding.buildingData.buildingSprite != null)
-            {
-                SpriteRenderer sr = targetBuilding.GetComponent<SpriteRenderer>();
-                if (sr != null)
-                {
-                    sr.sprite = targetBuilding.buildingData.buildingSprite;
-                }
-            }
-
-            Debug.Log($"UnitController: {unitData.unitName} 修复了废墟 {targetBuilding.buildingData.buildingName}！");
+            // 攻击敌方建筑物，搜索前方
+            searchDirection = unitData.camp == Camp.Player ? Vector3Int.right : Vector3Int.left;
+        }
+        else if (targetType == TargetType.Friendly)
+        {
+            // 修复友方建筑物，搜索后方
+            searchDirection = unitData.camp == Camp.Player ? Vector3Int.left : Vector3Int.right;
         }
         else
         {
-            Debug.Log($"UnitController: {targetBuilding.buildingData.buildingName} 不是废墟，无法修复！");
+            Debug.LogWarning($"UnitController: 未处理的 TargetType：{targetType}");
+            return;
+        }
+
+        Vector3Int currentPos = gridPosition + searchDirection;
+        bool actionPerformed = false;
+
+        while (GridManager.Instance.IsWithinBattleArea(currentPos, includeBuildings: true))
+        {
+            BuildingController targetBuilding = GridManager.Instance.GetBuildingAt(currentPos);
+
+            if (targetBuilding != null)
+            {
+                if (targetType == TargetType.Enemy && targetBuilding.buildingData.camp != unitData.camp)
+                {
+                    // 攻击敌方建筑物
+                    int damage = value; // 您可以根据需要设置伤害值
+                    targetBuilding.TakeDamage(damage);
+                    Debug.Log($"UnitController: {unitData.unitName} 对敌方建筑 {targetBuilding.buildingData.buildingName} 造成了 {damage} 点伤害！");
+                    actionPerformed = true;
+                    break; // 攻击后停止搜索
+                }
+                else if (targetType == TargetType.Friendly && targetBuilding.buildingData.camp == unitData.camp)
+                {
+                    if (!targetBuilding.isRuin)
+                    {
+                        // 修复友方建築
+                        targetBuilding.currentHealth += value;
+                        
+                        // 如果生命值超过最大值，将其设置为最大值
+                        targetBuilding.currentHealth = Mathf.Min(targetBuilding.currentHealth, targetBuilding.buildingData.maxHealth);
+                        Debug.Log($"UnitController: {unitData.unitName} 修复了废墟 {targetBuilding.buildingData.buildingName}！");
+                        actionPerformed = true;
+                    }
+                    else
+                    {
+                        BossController boss = GridManager.Instance.GetBossUnit();
+                        if (boss != null && boss.bossData.camp == unitData.camp)
+                        {
+                            boss.currentHealth += value;
+                            // 如果生命值超过最大值，将其设置为最大值
+                            boss.currentHealth = Mathf.Min(boss.currentHealth, boss.bossData.maxHealth);
+                            Debug.Log($"UnitController: {unitData.unitName} 修复了 Boss！");
+                            actionPerformed = true;
+                        }
+                    }
+                    break; // 修复后停止搜索
+                }
+            }
+
+            // 前进到下一个位置
+            currentPos += searchDirection;
+        }
+
+        if (!actionPerformed)
+        {
+            string action = targetType == TargetType.Enemy ? "攻击的敌方建筑" : "修复的友方建筑";
+            Debug.Log($"UnitController: {unitData.unitName} 没有找到可以{action}。");
         }
     }
 
-
+    
     /// <summary>
     /// 接受伤害
     /// </summary>

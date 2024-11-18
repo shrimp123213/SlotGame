@@ -16,6 +16,6 @@ MonoBehaviour:
   unitSprite: {fileID: -1030650046, guid: 87a16c9905dbfd5479cafebc438e47fc, type: 3}
   maxHealth: 1
   camp: 0
-  mainSkillSO: {fileID: 0}
+  mainSkillSO: {fileID: 11400000, guid: 713f937fd82409744a22b4f021b5f25a, type: 2}
   supportSkillSO: {fileID: 0}
   preferredPosition: 0

@@ -333,13 +333,13 @@ public class BuildingController : MonoBehaviour, ISkillUser
             defensePoints -= damage;
             Debug.Log($"BuildingController: 建筑物 {buildingData.buildingName} 防卫点数抵消了 {damage} 点伤害，剩余防卫点数: {defensePoints}");
         }
-
+        
+        UpdateHealthBar();
+        
         if (currentHealth <= 0)
         {
             DestroyBuilding();
         }
-        
-        UpdateHealthBar();
     }
 
     /// <summary>

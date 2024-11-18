@@ -33,6 +33,15 @@ public class GridManager : MonoBehaviour
     public int columns = 6;       // 列数（战斗区域）
 
     private int totalColumns;     // 总列数 = 战斗区域列数 + 2（城墙）
+    
+    [Header("Boss Data")]
+    public BossData playerBossData; // 玩家 BOSS 的数据
+    public BossData enemyBossData;  // 敌方 BOSS 的数据
+    
+    // 添加 BOSS 所在的列
+    private int playerBossColumn; // 例如 -1
+    private int enemyBossColumn;  // 例如 columns + 2
+
 
     // 存储单位和建筑的位置
     private Dictionary<Vector3Int, ISkillUser> skillUsersPositions = new Dictionary<Vector3Int, ISkillUser>();
@@ -66,7 +75,10 @@ public class GridManager : MonoBehaviour
 
     void Start()
     {
-        totalColumns = columns + 2; // 加上两侧的城墙
+        totalColumns = columns + 2; // 原来的列数，包括建筑物的列
+
+        playerBossColumn = -2;
+        enemyBossColumn = columns + 3;
 
         GenerateBattleArea();
         GenerateWallArea();
@@ -75,32 +87,6 @@ public class GridManager : MonoBehaviour
         {
             rowCanAttackBoss[row] = false;
         }
-
-        /*
-        // 生成玩家单位（示例位置）
-        if (playerUnits != null && playerUnits.Count > 0)
-        {
-            // 示例：在第1行第2列生成第一个玩家单位
-            SpawnUnit(new Vector3Int(2, 1, 0), playerUnits[0]);
-        }
-
-        // 生成敌方单位（包括Boss，示例位置）
-        if (enemyUnits != null && enemyUnits.Count > 0)
-        {
-            // 示例：在第1行第5列生成敌方Boss
-            SpawnBoss(new Vector3Int(5, 1, 0), enemyUnits[0]);
-        }
-
-        // 生成建筑物（示例位置）
-        if (buildings != null && buildings.Count > 0)
-        {
-            SpawnBuilding(new Vector3Int(0, 1, 0), buildings[0]); // 左侧城墙
-            if (buildings.Count > 1)
-            {
-                SpawnBuilding(new Vector3Int(totalColumns - 1, 1, 0), buildings[1]); // 右侧城墙或城镇
-            }
-        }
-        */
     }
     
     /// <summary>
@@ -121,7 +107,22 @@ public class GridManager : MonoBehaviour
         {
             CreateBuilding(enemyBuildingInfo.buildingData, enemyBuildingInfo.position, Camp.Enemy);
         }
+
+        // 生成玩家 BOSS
+        if (playerBossData != null)
+        {
+            Vector3Int bossPosition = new Vector3Int(playerBossColumn, 1, 0);
+            SpawnBoss(playerBossData, bossPosition, Camp.Player);
+        }
+
+        // 生成敌方 BOSS
+        if (enemyBossData != null)
+        {
+            Vector3Int bossPosition = new Vector3Int(enemyBossColumn, 1, 0);
+            SpawnBoss(enemyBossData, bossPosition, Camp.Enemy);
+        }
     }
+
     
     // 设置指定行是否可以攻击 Boss
     public void SetRowCanAttackBoss(int row, bool canAttack)
@@ -222,36 +223,68 @@ public class GridManager : MonoBehaviour
     /// 生成Boss单位
     /// </summary>
     /// <param name="position">格子位置</param>
-    /// <param name="unitData">Boss单位数据</param>
-    public void SpawnBoss(Vector3Int position, UnitData unitData)
+    /// <param name="bossData">Boss单位数据</param>
+    /// <param name="camp">Boss陣營</param>
+    public void SpawnBoss(BossData bossData, Vector3Int position, Camp camp)
     {
-        if (skillUsersPositions.ContainsKey(position))
+        if (bossData == null)
         {
-            Debug.LogWarning($"位置 {position} 已经有单位或建筑存在！");
+            Debug.LogError("GridManager: BossData 为空，无法生成 BOSS！");
             return;
         }
 
-        GameObject bossGO = Instantiate(bossPrefab);
-        bossGO.name = unitData.unitName + "_" + position.x + "_" + position.y;
-        BossController boss = bossGO.GetComponent<BossController>();
-        if (boss == null)
+        // 检查位置是否已被占用
+        if (skillUsersPositions.ContainsKey(position))
         {
-            Debug.LogError("GridManager: BossPrefab 没有 BossController 组件！");
+            Debug.LogWarning($"GridManager: 位置 {position} 已被占用，无法生成 BOSS！");
+            return;
+        }
+
+        // 实例化 BOSS 预制件
+        GameObject bossGO = Instantiate(bossPrefab);
+        bossGO.name = bossData.bossName + "_" + position.x + "_" + position.y;
+
+        // 获取 BossController 组件
+        BossController bossController = bossGO.GetComponent<BossController>();
+        if (bossController == null)
+        {
+            Debug.LogError("GridManager: BOSS 预制件缺少 BossController 组件！");
             Destroy(bossGO);
             return;
         }
 
-        //boss.unitData = unitData;
-        //boss.SetPosition(position);
+        // 设置 BOSS 的数据
+        bossController.bossData = bossData;
+        bossController.bossData.camp = camp; // 设置阵营
+        bossController.SetPosition(position);
 
         // 设置为 Units 父对象的子对象
         if (unitsParent != null)
         {
-            bossGO.transform.SetParent(unitsParent);
+            bossGO.transform.SetParent(buildingsParent);
         }
 
-        //skillUsersPositions.Add(position, boss);
+        // 添加到 skillUsersPositions 字典
+        skillUsersPositions.Add(position, bossController);
     }
+    
+    /// <summary>
+    /// 获取指定阵营的 BOSS
+    /// </summary>
+    /// <param name="camp">阵营</param>
+    /// <returns>BossController 或 null</returns>
+    public BossController GetBossUnit(Camp camp)
+    {
+        foreach (var skillUser in skillUsersPositions.Values)
+        {
+            if (skillUser is BossController boss && boss.bossData.camp == camp)
+            {
+                return boss;
+            }
+        }
+        return null;
+    }
+
 
     // 添加建筑物到指定位置
     public void AddBuildingAt(Vector3Int position, BuildingController building)
@@ -394,7 +427,10 @@ public class GridManager : MonoBehaviour
         return null;
     }
 
-
+    public bool IsWithinAccessibleArea(Vector3Int position)
+    {
+        return position.x >= playerBossColumn && position.x <= enemyBossColumn && position.y >= 0 && position.y < rows;
+    }
 
     /// <summary>
     /// 获取格子中心的世界坐标

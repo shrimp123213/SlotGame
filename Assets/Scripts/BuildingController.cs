@@ -320,25 +320,19 @@ public class BuildingController : MonoBehaviour, ISkillUser
     /// <param name="damage">伤害值</param>
     public virtual void TakeDamage(int damage)
     {
-        // 首先扣除防卫点数
-        int remainingDamage = damage - defensePoints;
-        if (remainingDamage > 0)
-        {
-            currentHealth -= remainingDamage;
-            Debug.Log($"BuildingController: 建筑物 {buildingData.buildingName} 接受 {remainingDamage} 点伤害，当前生命值: {currentHealth}");
-        }
-        else
-        {
-            // 防卫点数足以抵消所有伤害
-            defensePoints -= damage;
-            Debug.Log($"BuildingController: 建筑物 {buildingData.buildingName} 防卫点数抵消了 {damage} 点伤害，剩余防卫点数: {defensePoints}");
-        }
-        
+        currentHealth -= damage;
+        Debug.Log($"BuildingController: 建筑物 {buildingData.buildingName} 受到 {damage} 点伤害，当前生命值：{currentHealth}");
+
         UpdateHealthBar();
         
         if (currentHealth <= 0)
         {
             DestroyBuilding();
+            // 通知 GridManager 更新行的状态
+            //int row = gridPosition.y;
+            //GridManager.Instance.SetRowCanAttackBoss(row, true);
+
+            Debug.Log($"BuildingController: 建筑物 {buildingData.buildingName} 被摧毁，变为废墟！");
         }
     }
 
@@ -356,6 +350,8 @@ public class BuildingController : MonoBehaviour, ISkillUser
         {
             currentHealth += amount;
         }
+
+        UpdateHealthBar();
         Debug.Log($"BuildingController: 建筑物 {buildingData.buildingName} 恢复了 {amount} 点生命值，当前生命值: {currentHealth}");
     }
 
@@ -384,7 +380,8 @@ public class BuildingController : MonoBehaviour, ISkillUser
 
             // 通知 BattleManager，建筑物已变为废墟
             int row = gridPosition.y;
-            BattleManager.Instance.OnBuildingDestroyed(this, row);
+            GridManager.Instance.SetRowCanAttackBoss(row, true);
+            //BattleManager.Instance.OnBuildingDestroyed(this, row);
         }
         /*else
         {

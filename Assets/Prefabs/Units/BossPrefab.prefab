@@ -53,7 +53,7 @@ SpriteRenderer:
   m_RayTracingAccelStructBuildFlagsOverride: 0
   m_RayTracingAccelStructBuildFlags: 1
   m_SmallMeshCulling: 1
-  m_RenderingLayerMask: 1
+  m_RenderingLayerMask: 4
   m_RendererPriority: 0
   m_Materials:
   - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
@@ -74,7 +74,7 @@ SpriteRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: -830620753
+  m_SortingLayerID: -987276531
   m_SortingLayer: -3
   m_SortingOrder: 0
   m_Sprite: {fileID: -286642221, guid: 284273b124f859f43abb5c06f69f930b, type: 3}
@@ -100,15 +100,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 63694447ce5816946a38741d1851de33, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  unitData: {fileID: 0}
-  gridPosition: {x: 0, y: 0, z: 0}
+  bossData: {fileID: 0}
   currentHealth: 0
-  defensePoints: 0
+  maxHealth: 0
+  gridPosition: {x: 0, y: 0, z: 0}
   currentSkill:
     Actions: []
     skillName: 
-  spriteRenderer: {fileID: 0}
-  statusIconsParent: {fileID: 0}
-  statusIconPrefab: {fileID: 0}
-  columnIndex: 0
-  bossAbilitySkillSO: {fileID: 0}
+  healthBar: {fileID: 0}
+  healthBarFrame: {fileID: 0}

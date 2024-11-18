@@ -44,6 +44,9 @@ TagManager:
   - name: Units
     uniqueID: 3464346543
     locked: 0
+  - name: Boss
+    uniqueID: 3307690765
+    locked: 0
   - name: StatusIcons
     uniqueID: 2764757853
     locked: 0
@@ -56,3 +59,5 @@ TagManager:
   m_RenderingLayers:
   - Default
   - Units
+  - Boss
+  - UI

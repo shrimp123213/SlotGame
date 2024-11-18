@@ -153,18 +153,6 @@ PrefabInstance:
       value: 37
       objectReference: {fileID: 0}
     - target: {fileID: 5017416188553223891, guid: 271cbf3c09bc24447aefc5a6fa9c09ff, type: 3}
-      propertyPath: m_LocalScale.x
-      value: 0.01
-      objectReference: {fileID: 0}
-    - target: {fileID: 5017416188553223891, guid: 271cbf3c09bc24447aefc5a6fa9c09ff, type: 3}
-      propertyPath: m_LocalScale.y
-      value: 0.01
-      objectReference: {fileID: 0}
-    - target: {fileID: 5017416188553223891, guid: 271cbf3c09bc24447aefc5a6fa9c09ff, type: 3}
-      propertyPath: m_LocalScale.z
-      value: 0.01
-      objectReference: {fileID: 0}
-    - target: {fileID: 5017416188553223891, guid: 271cbf3c09bc24447aefc5a6fa9c09ff, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
       objectReference: {fileID: 0}
@@ -212,21 +200,18 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 5017416188553223891, guid: 271cbf3c09bc24447aefc5a6fa9c09ff, type: 3}
-      propertyPath: m_ConstrainProportionsScale
-      value: 1
-      objectReference: {fileID: 0}
     - target: {fileID: 5903160277731328765, guid: 271cbf3c09bc24447aefc5a6fa9c09ff, type: 3}
       propertyPath: m_Name
       value: HealthBarPrefab
       objectReference: {fileID: 0}
+    - target: {fileID: 5903160277731328765, guid: 271cbf3c09bc24447aefc5a6fa9c09ff, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 5903160277731328765, guid: 271cbf3c09bc24447aefc5a6fa9c09ff, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 3442971972252179989}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 271cbf3c09bc24447aefc5a6fa9c09ff, type: 3}
 --- !u!114 &5758900093694717294 stripped
 MonoBehaviour:
@@ -255,31 +240,3 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!1 &8771630691482917005 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 5903160277731328765, guid: 271cbf3c09bc24447aefc5a6fa9c09ff, type: 3}
-  m_PrefabInstance: {fileID: 2906839761926724208}
-  m_PrefabAsset: {fileID: 0}
---- !u!223 &3442971972252179989
-Canvas:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8771630691482917005}
-  m_Enabled: 1
-  serializedVersion: 3
-  m_RenderMode: 2
-  m_Camera: {fileID: 0}
-  m_PlaneDistance: 100
-  m_PixelPerfect: 0
-  m_ReceivesEvents: 1
-  m_OverrideSorting: 0
-  m_OverridePixelPerfect: 0
-  m_SortingBucketNormalizedSize: 0
-  m_VertexColorAlwaysGammaSpace: 0
-  m_AdditionalShaderChannelsFlag: 0
-  m_UpdateRectTransformForStandalone: 0
-  m_SortingLayerID: -830620753
-  m_SortingOrder: 20
-  m_TargetDisplay: 0

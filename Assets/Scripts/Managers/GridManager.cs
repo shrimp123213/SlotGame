@@ -601,7 +601,7 @@ public class GridManager : MonoBehaviour
         List<UnitController> units = new List<UnitController>();
         foreach (var skillUser in skillUsersPositions.Values)
         {
-            if (skillUser is UnitController unit && unit.unitData.camp == Camp.Player && unit.gridPosition.x == column)
+            if (skillUser is UnitController unit && unit.gridPosition.x == column)
             {
                 units.Add(unit);
             }

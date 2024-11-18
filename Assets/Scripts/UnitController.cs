@@ -125,13 +125,13 @@ public class UnitController : MonoBehaviour, ISkillUser
     /// <returns>是否可以使用主技能</returns>
     public bool CanUseMainSkill()
     {
-        if (currentSkill == null || currentSkill.Actions == null)
+        if (unitData.mainSkillSO == null || unitData.mainSkillSO.actions == null)
         {
-            Debug.LogWarning("UnitController: currentSkill 或其动作列表为 null！");
+            Debug.LogWarning("UnitController: mainSkillSO 或其动作列表为 null！");
             return false;
         }
 
-        foreach (var action in currentSkill.Actions)
+        foreach (var action in unitData.mainSkillSO.actions)
         {
             switch (action.Type)
             {
@@ -180,11 +180,7 @@ public class UnitController : MonoBehaviour, ISkillUser
                     BuildingController ruin = GridManager.Instance.GetBuildingAt(gridPosition);
                     if (ruin != null && ruin.isRuin)
                     {
-                        RepairRuin(ruin);
-                    }
-                    else
-                    {
-                        Debug.Log($"UnitController: {unitData.unitName} 未找到可修复的废墟！");
+                        return true;
                     }
                     break;
 
@@ -293,7 +289,7 @@ public class UnitController : MonoBehaviour, ISkillUser
             else if (targetType == TargetType.Friendly || targetType == TargetType.Self)
             {
                 // 防卫技能，只对自身或友方生效
-                IncreaseDefense(1, targetType);
+                //IncreaseDefense(1, targetType);
             }
             else
             {
@@ -313,22 +309,34 @@ public class UnitController : MonoBehaviour, ISkillUser
             {
                 int damage = 1; // 暂时设定为造成1点伤害
                 Vector3Int attackDirection = unitData.camp == Camp.Player ? Vector3Int.right : Vector3Int.left;
-                Vector3Int targetPosition = gridPosition + attackDirection;
-
-                UnitController targetUnit = GridManager.Instance.GetUnitAt(targetPosition);
-                BuildingController targetBuilding = GridManager.Instance.GetBuildingAt(targetPosition);
-
-                if (targetUnit != null && targetUnit.unitData.camp != unitData.camp)
+                Vector3Int currentPos = gridPosition + attackDirection;
+                
+                bool hasAttacked = false;
+                
+                while (GridManager.Instance.IsWithinBattleArea(currentPos))
                 {
-                    targetUnit.TakeDamage(damage);
-                    Debug.Log($"UnitController: {unitData.unitName} 对 {targetUnit.unitData.unitName} 进行近战攻击，造成 {damage} 点伤害！");
+                    UnitController targetUnit = GridManager.Instance.GetUnitAt(currentPos);
+                    BuildingController targetBuilding = GridManager.Instance.GetBuildingAt(currentPos);
+
+                    if (targetUnit != null && targetUnit.unitData.camp != unitData.camp)
+                    {
+                        targetUnit.TakeDamage(damage);
+                        Debug.Log($"UnitController: 單位 {unitData.unitName} 對 {targetUnit.unitData.unitName} 進行遠程攻擊，造成1點傷害！");
+                        hasAttacked = true;
+                        break; // 只攻擊第一個目標
+                    }
+                    else if (targetBuilding != null && targetBuilding.buildingData.camp != unitData.camp)
+                    {
+                        targetBuilding.TakeDamage(damage);
+                        Debug.Log($"UnitController: 單位 {unitData.unitName} 對建築 {targetBuilding.buildingData.buildingName} 進行遠程攻擊，造成1點傷害！");
+                        hasAttacked = true;
+                        break; // 只攻擊第一個目標
+                    }
+                    
+                    currentPos += attackDirection;
                 }
-                else if (targetBuilding != null && targetBuilding.buildingData.camp != unitData.camp)
-                {
-                    targetBuilding.TakeDamage(damage);
-                    Debug.Log($"UnitController: {unitData.unitName} 对建筑物 {targetBuilding.buildingData.buildingName} 进行近战攻击，造成 {damage} 点伤害！");
-                }
-                else
+
+                if (!hasAttacked)
                 {
                     // 检查是否可以攻击 Boss
                     int row = gridPosition.y;
@@ -378,29 +386,33 @@ public class UnitController : MonoBehaviour, ISkillUser
         }
     }
     
-    public virtual void RepairRuin(BuildingController ruin)
+    public virtual void RepairRuin(int value, TargetType targetType)
     {
-        if (ruin.isRuin)
+        Vector3Int attackDirection = unitData.camp == Camp.Player ? Vector3Int.right : Vector3Int.left;
+        Vector3Int targetPosition = gridPosition + attackDirection;
+        
+        BuildingController targetBuilding = GridManager.Instance.GetBuildingAt(targetPosition);
+        if (targetBuilding.isRuin)
         {
             // 恢复建筑物的生命值
-            ruin.currentHealth = ruin.buildingData.maxHealth;
-            ruin.isRuin = false;
+            targetBuilding.currentHealth = targetBuilding.buildingData.maxHealth;
+            targetBuilding.isRuin = false;
 
             // 恢复建筑物的外观
-            if (ruin.buildingData.buildingSprite != null)
+            if (targetBuilding.buildingData.buildingSprite != null)
             {
-                SpriteRenderer sr = ruin.GetComponent<SpriteRenderer>();
+                SpriteRenderer sr = targetBuilding.GetComponent<SpriteRenderer>();
                 if (sr != null)
                 {
-                    sr.sprite = ruin.buildingData.buildingSprite;
+                    sr.sprite = targetBuilding.buildingData.buildingSprite;
                 }
             }
 
-            Debug.Log($"UnitController: {unitData.unitName} 修复了废墟 {ruin.buildingData.buildingName}！");
+            Debug.Log($"UnitController: {unitData.unitName} 修复了废墟 {targetBuilding.buildingData.buildingName}！");
         }
         else
         {
-            Debug.Log($"UnitController: {ruin.buildingData.buildingName} 不是废墟，无法修复！");
+            Debug.Log($"UnitController: {targetBuilding.buildingData.buildingName} 不是废墟，无法修复！");
         }
     }
 
@@ -602,7 +614,11 @@ public class UnitController : MonoBehaviour, ISkillUser
     {
         if (unitData.mainSkillSO != null)
         {
-            unitData.mainSkillSO.Execute(this);
+            // 为 currentSkill 赋值
+            currentSkill = Skill.FromSkillSO(unitData.mainSkillSO);
+
+            // 执行当前技能
+            ExecuteCurrentSkill();
         }
         else
         {
@@ -617,7 +633,11 @@ public class UnitController : MonoBehaviour, ISkillUser
     {
         if (unitData.supportSkillSO != null)
         {
-            unitData.supportSkillSO.Execute(this);
+            // 为 currentSkill 赋值
+            currentSkill = Skill.FromSkillSO(unitData.supportSkillSO);
+
+            // 执行当前技能
+            ExecuteCurrentSkill();
         }
         else
         {
@@ -635,7 +655,7 @@ public class UnitController : MonoBehaviour, ISkillUser
             // 执行当前技能的所有动作
             foreach (var action in currentSkill.Actions)
             {
-                Debug.Log($"Action Type: {action.Type}, TargetType: {action.TargetType}, Value: {action.Value}");
+                //Debug.Log($"Action Type: {action.Type}, TargetType: {action.TargetType}, Value: {action.Value}");
                 switch (action.Type)
                 {
                     case SkillType.Move:
@@ -656,7 +676,10 @@ public class UnitController : MonoBehaviour, ISkillUser
                         PerformRangedAttack(action.TargetType);
                         break;
                     case SkillType.Defense:
-                        IncreaseDefense(action.Value, action.TargetType);
+                        //IncreaseDefense(action.Value, action.TargetType);
+                        break;
+                    case SkillType.Repair:
+                        RepairRuin(action.Value, action.TargetType);
                         break;
                     default:
                         Debug.LogWarning($"UnitController: 未处理的技能类型：{action.Type}");

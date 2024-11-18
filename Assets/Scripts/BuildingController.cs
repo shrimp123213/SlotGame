@@ -97,7 +97,8 @@ public class BuildingController : MonoBehaviour, ISkillUser
 
             // 设置生命值条的位置
             RectTransform rt = healthBarInstance.GetComponent<RectTransform>();
-            rt.anchoredPosition = new Vector2(0, -50); // 根据需要调整位置
+            rt.anchoredPosition = new Vector2(0, -0.45f); // 根据需要调整位置
+            rt.localScale = Vector3.one * 0.01f; // 根据需要调整大小
         }
         else
         {
@@ -236,7 +237,7 @@ public class BuildingController : MonoBehaviour, ISkillUser
         else if (targetType == TargetType.Friendly || targetType == TargetType.Self)
         {
             // 防卫技能，只对自身或友方生效
-            IncreaseDefense(1, targetType);
+            //IncreaseDefense(1, targetType);
         }
         else
         {
@@ -287,7 +288,7 @@ public class BuildingController : MonoBehaviour, ISkillUser
         else if (targetType == TargetType.Friendly || targetType == TargetType.Self)
         {
             // 防卫技能，只对自身或友方生效
-            IncreaseDefense(1, targetType);
+            //IncreaseDefense(1, targetType);
         }
         else
         {
@@ -337,6 +338,8 @@ public class BuildingController : MonoBehaviour, ISkillUser
         {
             DestroyBuilding();
         }
+        
+        UpdateHealthBar();
     }
 
     /// <summary>
@@ -452,7 +455,7 @@ public class BuildingController : MonoBehaviour, ISkillUser
                         PerformRangedAttack(action.TargetType);
                         break;
                     case SkillType.Defense:
-                        IncreaseDefense(action.Value, action.TargetType);
+                        //IncreaseDefense(action.Value, action.TargetType);
                         break;
                     default:
                         Debug.LogWarning($"BuildingController: 未处理的技能类型：{action.Type}");

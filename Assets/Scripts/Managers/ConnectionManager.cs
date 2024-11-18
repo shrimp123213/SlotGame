@@ -106,7 +106,7 @@ public class ConnectionManager : MonoBehaviour
 
         // 分別檢查玩家和敵人的連線
         bool playerLinked = CheckLinksForSide(Camp.Player);
-        bool enemyLinked = CheckLinksForSide(Camp.Enemy);
+        bool enemyLinked = false; //= CheckLinksForSide(Camp.Enemy);
 
         if (playerLinked)
         {

@@ -2074,11 +2074,11 @@ MonoBehaviour:
   playerBuildings:
   - buildingData: {fileID: 11400000, guid: 815769911316e214b8da5b128533c74b, type: 2}
     position: {x: 0, y: 0, z: 0}
-  - buildingData: {fileID: 11400000, guid: 815769911316e214b8da5b128533c74b, type: 2}
+  - buildingData: {fileID: 11400000, guid: 1aa90f3ad7fa02443b323468051678de, type: 2}
     position: {x: 0, y: 1, z: 0}
-  - buildingData: {fileID: 11400000, guid: 815769911316e214b8da5b128533c74b, type: 2}
+  - buildingData: {fileID: 11400000, guid: 1aa90f3ad7fa02443b323468051678de, type: 2}
     position: {x: 0, y: 2, z: 0}
-  - buildingData: {fileID: 11400000, guid: 815769911316e214b8da5b128533c74b, type: 2}
+  - buildingData: {fileID: 11400000, guid: 1aa90f3ad7fa02443b323468051678de, type: 2}
     position: {x: 0, y: 3, z: 0}
 --- !u!4 &1013848474
 Transform:

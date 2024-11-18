@@ -174,6 +174,19 @@ public class UnitController : MonoBehaviour, ISkillUser
                         return true;
                     }
                     break;
+                
+                case SkillType.Repair:
+                    // 查找目标废墟
+                    BuildingController ruin = GridManager.Instance.GetBuildingAt(gridPosition);
+                    if (ruin != null && ruin.isRuin)
+                    {
+                        RepairRuin(ruin);
+                    }
+                    else
+                    {
+                        Debug.Log($"UnitController: {unitData.unitName} 未找到可修复的废墟！");
+                    }
+                    break;
 
                 // 处理其他 SkillType，如需要
 
@@ -240,6 +253,7 @@ public class UnitController : MonoBehaviour, ISkillUser
         {
             if (targetType == TargetType.Enemy)
             {
+                int damage = 1; // 暂时设定为造成1点伤害
                 Vector3Int attackDirection = unitData.camp == Camp.Player ? Vector3Int.right : Vector3Int.left;
                 Vector3Int targetPosition = gridPosition + attackDirection;
 
@@ -248,19 +262,32 @@ public class UnitController : MonoBehaviour, ISkillUser
 
                 if (targetUnit != null && targetUnit.unitData.camp != unitData.camp)
                 {
-                    targetUnit.TakeDamage(1);
-                    Debug.Log(
-                        $"UnitController: 单位 {unitData.unitName} 对 {targetUnit.unitData.unitName} 进行近战攻击，造成1点伤害！");
+                    targetUnit.TakeDamage(damage);
+                    Debug.Log($"UnitController: {unitData.unitName} 对 {targetUnit.unitData.unitName} 进行近战攻击，造成 {damage} 点伤害！");
                 }
                 else if (targetBuilding != null && targetBuilding.buildingData.camp != unitData.camp)
                 {
-                    targetBuilding.TakeDamage(1);
-                    Debug.Log(
-                        $"UnitController: 单位 {unitData.unitName} 对建筑 {targetBuilding.buildingData.buildingName} 进行近战攻击，造成1点伤害！");
+                    targetBuilding.TakeDamage(damage);
+                    Debug.Log($"UnitController: {unitData.unitName} 对建筑物 {targetBuilding.buildingData.buildingName} 进行近战攻击，造成 {damage} 点伤害！");
                 }
                 else
                 {
-                    Debug.Log($"UnitController: 单位 {unitData.unitName} 近战攻击无目标或目标为友方！");
+                    // 检查是否可以攻击 Boss
+                    int row = gridPosition.y;
+                    if (GridManager.Instance.CanRowAttackBoss(row))
+                    {
+                        // 执行对 Boss 的攻击逻辑
+                        BossController boss = GridManager.Instance.GetBossUnit();
+                        if (boss != null)
+                        {
+                            boss.TakeDamage(damage);
+                            Debug.Log($"UnitController: {unitData.unitName} 对 Boss 进行近战攻击，造成 {damage} 点伤害！");
+                        }
+                    }
+                    else
+                    {
+                        Debug.Log($"UnitController: {unitData.unitName} 近战攻击无目标，且无法攻击 Boss！");
+                    }
                 }
             }
             else if (targetType == TargetType.Friendly || targetType == TargetType.Self)
@@ -284,45 +311,47 @@ public class UnitController : MonoBehaviour, ISkillUser
         {
             if (targetType == TargetType.Enemy)
             {
+                int damage = 1; // 暂时设定为造成1点伤害
                 Vector3Int attackDirection = unitData.camp == Camp.Player ? Vector3Int.right : Vector3Int.left;
-                Vector3Int currentPos = gridPosition + attackDirection;
+                Vector3Int targetPosition = gridPosition + attackDirection;
 
-                bool hasAttacked = false;
+                UnitController targetUnit = GridManager.Instance.GetUnitAt(targetPosition);
+                BuildingController targetBuilding = GridManager.Instance.GetBuildingAt(targetPosition);
 
-                while (GridManager.Instance.IsWithinBattleArea(currentPos))
+                if (targetUnit != null && targetUnit.unitData.camp != unitData.camp)
                 {
-                    UnitController targetUnit = GridManager.Instance.GetUnitAt(currentPos);
-                    BuildingController targetBuilding = GridManager.Instance.GetBuildingAt(currentPos);
-
-                    if (targetUnit != null && targetUnit.unitData.camp != unitData.camp)
-                    {
-                        targetUnit.TakeDamage(1);
-                        Debug.Log(
-                            $"UnitController: 单位 {unitData.unitName} 对 {targetUnit.unitData.unitName} 进行远程攻击，造成1点伤害！");
-                        hasAttacked = true;
-                        break; // 只攻击第一个目标
-                    }
-                    else if (targetBuilding != null && targetBuilding.buildingData.camp != unitData.camp)
-                    {
-                        targetBuilding.TakeDamage(1);
-                        Debug.Log(
-                            $"UnitController: 单位 {unitData.unitName} 对建筑 {targetBuilding.buildingData.buildingName} 进行远程攻击，造成1点伤害！");
-                        hasAttacked = true;
-                        break; // 只攻击第一个目标
-                    }
-
-                    currentPos += attackDirection;
+                    targetUnit.TakeDamage(damage);
+                    Debug.Log($"UnitController: {unitData.unitName} 对 {targetUnit.unitData.unitName} 进行近战攻击，造成 {damage} 点伤害！");
                 }
-
-                if (!hasAttacked)
+                else if (targetBuilding != null && targetBuilding.buildingData.camp != unitData.camp)
                 {
-                    Debug.Log($"UnitController: 单位 {unitData.unitName} 远程攻击无目标或目标为友方！");
+                    targetBuilding.TakeDamage(damage);
+                    Debug.Log($"UnitController: {unitData.unitName} 对建筑物 {targetBuilding.buildingData.buildingName} 进行近战攻击，造成 {damage} 点伤害！");
+                }
+                else
+                {
+                    // 检查是否可以攻击 Boss
+                    int row = gridPosition.y;
+                    if (GridManager.Instance.CanRowAttackBoss(row))
+                    {
+                        // 执行对 Boss 的攻击逻辑
+                        BossController boss = GridManager.Instance.GetBossUnit();
+                        if (boss != null)
+                        {
+                            boss.TakeDamage(damage);
+                            Debug.Log($"UnitController: {unitData.unitName} 对 Boss 进行近战攻击，造成 {damage} 点伤害！");
+                        }
+                    }
+                    else
+                    {
+                        Debug.Log($"UnitController: {unitData.unitName} 近战攻击无目标，且无法攻击 Boss！");
+                    }
                 }
             }
             else if (targetType == TargetType.Friendly || targetType == TargetType.Self)
             {
                 // 防卫技能，只对自身或友方生效
-                IncreaseDefense(1, targetType);
+                //IncreaseDefense(1, targetType);
             }
             else
             {
@@ -348,6 +377,33 @@ public class UnitController : MonoBehaviour, ISkillUser
             Debug.LogWarning($"UnitController: 单位 {unitData.unitName} 尝试对非友方进行防卫！");
         }
     }
+    
+    public virtual void RepairRuin(BuildingController ruin)
+    {
+        if (ruin.isRuin)
+        {
+            // 恢复建筑物的生命值
+            ruin.currentHealth = ruin.buildingData.maxHealth;
+            ruin.isRuin = false;
+
+            // 恢复建筑物的外观
+            if (ruin.buildingData.buildingSprite != null)
+            {
+                SpriteRenderer sr = ruin.GetComponent<SpriteRenderer>();
+                if (sr != null)
+                {
+                    sr.sprite = ruin.buildingData.buildingSprite;
+                }
+            }
+
+            Debug.Log($"UnitController: {unitData.unitName} 修复了废墟 {ruin.buildingData.buildingName}！");
+        }
+        else
+        {
+            Debug.Log($"UnitController: {ruin.buildingData.buildingName} 不是废墟，无法修复！");
+        }
+    }
+
 
     /// <summary>
     /// 接受伤害
@@ -489,6 +545,24 @@ public class UnitController : MonoBehaviour, ISkillUser
         Debug.Log($"UnitController: 单位 {unitData.unitName} 被销毁");
         Destroy(gameObject);
         GridManager.Instance.RemoveUnitAt(gridPosition);
+    }
+    
+    public virtual void ExecuteDefense()
+    {
+        if (unitData.mainSkillSO!= null)
+        {
+            var action = unitData.mainSkillSO.actions.Find(action => action.Type == SkillType.Defense);
+            // 执行当前技能
+            if (action != null)
+            {
+                IncreaseDefense(action.Value, action.TargetType);
+                Debug.Log($"单位 {unitData.unitName} 执行了防卫技能！");
+            }
+        }
+        else
+        {
+            Debug.LogWarning($"单位 {unitData.unitName} 没有配置防卫技能！");
+        }
     }
 
     /// <summary>

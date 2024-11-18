@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: ArrowTower
   m_EditorClassIdentifier: 
   buildingName: ArrowTower
-  buildingSprite: {fileID: -2569119218762868166, guid: 3befdc5bc2446bf4c82fc58c6d1bcc38, type: 3}
+  buildingSprite: {fileID: 1744898305, guid: 3befdc5bc2446bf4c82fc58c6d1bcc38, type: 3}
   maxHealth: 10
   defenseSkillSO: {fileID: 0}
   actionSkillSO: {fileID: 11400000, guid: 0eaa97d20c8fbf540a804b01303bb929, type: 2}

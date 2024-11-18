@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
@@ -35,6 +36,19 @@ public class GridManager : MonoBehaviour
 
     // 存储单位和建筑的位置
     private Dictionary<Vector3Int, ISkillUser> skillUsersPositions = new Dictionary<Vector3Int, ISkillUser>();
+    
+    // 记录每一行是否可以攻击 Boss
+    private Dictionary<int, bool> rowCanAttackBoss = new Dictionary<int, bool>();
+    
+    // 存储建筑物的位置和对应的控制器
+    private Dictionary<Vector3Int, BuildingController> buildingPositions = new Dictionary<Vector3Int, BuildingController>();
+
+    // 存储所有建筑物
+    private List<BuildingController> allBuildings = new List<BuildingController>();
+
+    // 分别存储玩家和敌方的建筑物
+    private List<BuildingController> playerBuildings = new List<BuildingController>();
+    private List<BuildingController> enemyBuildings = new List<BuildingController>();
 
     void Awake()
     {
@@ -42,7 +56,7 @@ public class GridManager : MonoBehaviour
         if (Instance == null)
         {
             Instance = this;
-            DontDestroyOnLoad(gameObject); // 可选：保持在场景切换中不被销毁
+            //DontDestroyOnLoad(gameObject); // 可选：保持在场景切换中不被销毁
         }
         else
         {
@@ -56,6 +70,11 @@ public class GridManager : MonoBehaviour
 
         GenerateBattleArea();
         GenerateWallArea();
+        
+        for (int row = 0; row < rows; row++)
+        {
+            rowCanAttackBoss[row] = false;
+        }
 
         /*
         // 生成玩家单位（示例位置）
@@ -82,6 +101,41 @@ public class GridManager : MonoBehaviour
             }
         }
         */
+    }
+    
+    /// <summary>
+    /// 初始化建筑物
+    /// </summary>
+    /// <param name="playerBuildingInfos">玩家建筑物的信息列表</param>
+    /// <param name="enemyBuildingInfos">敌方建筑物的信息列表</param>
+    public void InitializeBuildings(List<PlayerBuildingInfo> playerBuildingInfos, List<EnemyBuildingInfo> enemyBuildingInfos)
+    {
+        // 初始化玩家建筑物
+        foreach (var buildingInfo in playerBuildingInfos)
+        {
+            CreateBuilding(buildingInfo.buildingData, buildingInfo.position, Camp.Player);
+        }
+
+        // 初始化敌方建筑物
+        foreach (var enemyBuildingInfo in enemyBuildingInfos)
+        {
+            CreateBuilding(enemyBuildingInfo.buildingData, enemyBuildingInfo.position, Camp.Enemy);
+        }
+    }
+    
+    // 设置指定行是否可以攻击 Boss
+    public void SetRowCanAttackBoss(int row, bool canAttack)
+    {
+        if (rowCanAttackBoss.ContainsKey(row))
+        {
+            rowCanAttackBoss[row] = canAttack;
+        }
+    }
+    
+    // 检查指定行是否可以攻击 Boss
+    public bool CanRowAttackBoss(int row)
+    {
+        return rowCanAttackBoss.ContainsKey(row) && rowCanAttackBoss[row];
     }
 
     /// <summary>
@@ -187,8 +241,8 @@ public class GridManager : MonoBehaviour
             return;
         }
 
-        boss.unitData = unitData;
-        boss.SetPosition(position);
+        //boss.unitData = unitData;
+        //boss.SetPosition(position);
 
         // 设置为 Units 父对象的子对象
         if (unitsParent != null)
@@ -196,34 +250,61 @@ public class GridManager : MonoBehaviour
             bossGO.transform.SetParent(unitsParent);
         }
 
-        skillUsersPositions.Add(position, boss);
+        //skillUsersPositions.Add(position, boss);
     }
 
-    /// <summary>
-    /// 生成建筑
-    /// </summary>
-    /// <param name="position">格子位置</param>
-    /// <param name="buildingData">建筑数据</param>
-    public void SpawnBuilding(Vector3Int position, BuildingData buildingData)
+    // 添加建筑物到指定位置
+    public void AddBuildingAt(Vector3Int position, BuildingController building)
     {
-        if (skillUsersPositions.ContainsKey(position))
+        if (!buildingPositions.ContainsKey(position))
         {
-            Debug.LogWarning($"位置 {position} 已经有建筑或单位存在！");
+            buildingPositions[position] = building;
+        }
+    }
+
+    // 根据阵营获取建筑物
+    public List<BuildingController> GetBuildingsByCamp(Camp camp)
+    {
+        return buildingPositions.Values.Where(b => b.buildingData.camp == camp).ToList();
+    }
+    
+    /// <summary>
+    /// 创建建筑物并添加到管理器
+    /// </summary>
+    /// <param name="buildingData">建筑物的数据</param>
+    /// <param name="position">放置的位置</param>
+    /// <param name="camp">阵营</param>
+    public void CreateBuilding(BuildingData buildingData, Vector3Int position, Camp camp)
+    {
+        if (buildingData == null)
+        {
+            Debug.LogWarning("GridManager: BuildingData 为空，无法创建建筑物。");
             return;
         }
 
+        if (buildingPositions.ContainsKey(position) || skillUsersPositions.ContainsKey(position))
+        {
+            Debug.LogWarning($"GridManager: 位置 {position} 已被其他建筑物或单位占用。");
+            return;
+        }
+
+        // 实例化建筑物预制件
         GameObject buildingGO = Instantiate(buildingPrefab);
         buildingGO.name = buildingData.buildingName + "_" + position.x + "_" + position.y;
-        BuildingController building = buildingGO.GetComponent<BuildingController>();
-        if (building == null)
+
+        // 获取 BuildingController 组件
+        BuildingController buildingController = buildingGO.GetComponent<BuildingController>();
+        if (buildingController == null)
         {
-            Debug.LogError("GridManager: BuildingPrefab 没有 BuildingController 组件！");
+            Debug.LogError("GridManager: 建筑物预制件缺少 BuildingController 组件！");
             Destroy(buildingGO);
             return;
         }
 
-        building.buildingData = buildingData;
-        building.SetPosition(position);
+        // 设置建筑物的数据
+        buildingController.buildingData = buildingData;
+        buildingController.buildingData.camp = camp; // 设置阵营
+        buildingController.SetPosition(position);
 
         // 设置为 Buildings 父对象的子对象
         if (buildingsParent != null)
@@ -231,7 +312,21 @@ public class GridManager : MonoBehaviour
             buildingGO.transform.SetParent(buildingsParent);
         }
 
-        skillUsersPositions.Add(position, building);
+        // 添加到管理器
+        buildingPositions.Add(position, buildingController);
+        allBuildings.Add(buildingController);
+
+        if (camp == Camp.Player)
+        {
+            playerBuildings.Add(buildingController);
+        }
+        else if (camp == Camp.Enemy)
+        {
+            enemyBuildings.Add(buildingController);
+        }
+
+        // 添加到 skillUsersPositions 字典
+        skillUsersPositions.Add(position, buildingController);
     }
     
     public void AddUnitAt(Vector3Int position, UnitController unit)
@@ -286,18 +381,20 @@ public class GridManager : MonoBehaviour
     }
 
     /// <summary>
-    /// 获取指定位置的建筑
+    /// 获取指定位置的建筑物
     /// </summary>
     /// <param name="position">格子位置</param>
     /// <returns>BuildingController 或 null</returns>
     public BuildingController GetBuildingAt(Vector3Int position)
     {
-        if (skillUsersPositions.ContainsKey(position))
+        if (skillUsersPositions.TryGetValue(position, out ISkillUser skillUser) && skillUser is BuildingController building)
         {
-            return skillUsersPositions[position] as BuildingController;
+            return building;
         }
         return null;
     }
+
+
 
     /// <summary>
     /// 获取格子中心的世界坐标
@@ -449,33 +546,33 @@ public class GridManager : MonoBehaviour
     /// <returns>玩家建筑列表</returns>
     public List<BuildingController> GetPlayerBuildings()
     {
-        List<BuildingController> playerBuildings = new List<BuildingController>();
-        foreach (var skillUser in skillUsersPositions.Values)
-        {
-            if (skillUser is BuildingController building && building.buildingData.camp == Camp.Player)
-            {
-                playerBuildings.Add(building);
-            }
-        }
-        return playerBuildings;
+        return skillUsersPositions.Values
+            .OfType<BuildingController>()
+            .Where(b => b.buildingData.camp == Camp.Player)
+            .ToList();
+    }
+    
+    /// <summary>
+    /// 获取所有敌方建筑
+    /// </summary>
+    /// <returns>敌方建筑列表</returns>
+    public List<BuildingController> GetEnemyBuildings()
+    {
+        return skillUsersPositions.Values
+            .OfType<BuildingController>()
+            .Where(b => b.buildingData.camp == Camp.Enemy)
+            .ToList();
     }
 
     /// <summary>
-    /// 获取所有建筑
+    /// 获取所有建筑物
     /// </summary>
-    /// <returns>所有建筑列表</returns>
+    /// <returns>所有建筑物列表</returns>
     public List<BuildingController> GetAllBuildings()
     {
-        List<BuildingController> allBuildings = new List<BuildingController>();
-        foreach (var skillUser in skillUsersPositions.Values)
-        {
-            if (skillUser is BuildingController building)
-            {
-                allBuildings.Add(building);
-            }
-        }
-        return allBuildings;
+        return skillUsersPositions.Values.OfType<BuildingController>().ToList();
     }
+
     
     /// <summary>
     /// 获取所有單位
@@ -579,4 +676,18 @@ public class GridManager : MonoBehaviour
         }
         return units;
     }
+}
+
+[System.Serializable]
+public class EnemyBuildingInfo
+{
+    public BuildingData buildingData;   // 建筑物的数据
+    public Vector3Int position;         // 放置的位置（网格坐标）
+}
+
+[System.Serializable]
+public class PlayerBuildingInfo
+{
+    public BuildingData buildingData;   // 建筑物的数据
+    public Vector3Int position;         // 放置的位置（网格坐标）
 }

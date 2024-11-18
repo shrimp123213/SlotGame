@@ -16,6 +16,9 @@ public class BuildingData : ScriptableObject
 
     [Header("Camp")]
     public Camp camp;                   // 建筑物的阵营（玩家或敌人）
+    
+    //[Header("Prefab")]
+    //public GameObject buildingPrefab;   // 建筑物的预制件
 
     // 可以根据需要添加更多属性，如建筑物类型、功能等
 }

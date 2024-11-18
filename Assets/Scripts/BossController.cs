@@ -1,74 +1,94 @@
 using UnityEngine;
+using UnityEngine.UI;
 
-/// <summary>
-/// 控制Boss单位的行为
-/// </summary>
-public class BossController : UnitController
+public class BossController : MonoBehaviour
 {
-    public SkillSO bossAbilitySkillSO; // Boss 特有的技能
+    public BossData bossData;
+    public int currentHealth;
 
-    /// <summary>
-    /// 初始化Boss单位
-    /// </summary>
-    protected override void Init()
+    public Image healthBar;       // 生命值条的填充部分
+    public Image healthBarFrame;  // 生命值条的框架
+
+    private void Start()
     {
-        base.Init(); // 调用UnitController的Init方法
+        InitializeBoss();
+        InitializeHealthBar();
+    }
 
-        // 初始化Boss特有的技能
-        if (bossAbilitySkillSO != null)
+    private void InitializeBoss()
+    {
+        // 设置当前生命值为最大生命值
+        currentHealth = bossData.maxHealth;
+
+        // 设置 BOSS 的精灵
+        SpriteRenderer spriteRenderer = GetComponent<SpriteRenderer>();
+        if (spriteRenderer != null && bossData.bossSprite != null)
         {
-            // 可以在这里添加额外的初始化逻辑
-            Debug.Log($"Boss单位 {unitData.unitName} 初始化Boss特有的技能！");
+            spriteRenderer.sprite = bossData.bossSprite;
         }
         else
         {
-            Debug.LogWarning($"Boss单位 {unitData.unitName} 没有配置Boss特有的能力技能！");
+            Debug.LogWarning("BossController: 未设置 SpriteRenderer 或 bossSprite。");
         }
-    }
 
-    /// <summary>
-    /// 使用主技能或支援技能
-    /// </summary>
-    public override void UseMainSkillOrSupport()
+        // 初始化生命值条
+        UpdateHealthBar();
+    }
+    
+    private void InitializeHealthBar()
     {
-        // Boss优先使用特有技能
-        if (CanUseBossAbility())
+        // 从 Resources 文件夹加载生命值条预制件
+        GameObject healthBarPrefab = Resources.Load<GameObject>("HealthBarPrefab");
+        if (healthBarPrefab != null)
         {
-            ExecuteBossAbility();
+            // 实例化生命值条预制件，作为建筑物的子对象
+            GameObject healthBarInstance = Instantiate(healthBarPrefab, transform);
+            healthBar = healthBarInstance.transform.Find("HealthBarFill").GetComponent<Image>();
+            healthBarFrame = healthBarInstance.transform.Find("HealthBarFrame").GetComponent<Image>();
+
+            // 设置生命值条的位置
+            RectTransform rt = healthBarInstance.GetComponent<RectTransform>();
+            rt.anchoredPosition = new Vector2(0, -128); // 根据需要调整位置
         }
         else
         {
-            base.UseMainSkillOrSupport();
+            Debug.LogWarning("BuildingController: 在 Resources 中未找到 HealthBarPrefab。");
         }
+
+        UpdateHealthBar();
     }
 
-    /// <summary>
-    /// 判断Boss是否可以使用其特有能力
-    /// </summary>
-    /// <returns></returns>
-    private bool CanUseBossAbility()
+    public void TakeDamage(int damage)
     {
-        // 定义Boss使用特有能力的条件，例如生命值低于一定值
-        // 这里以生命值低于50%为例
-        return currentHealth <= unitData.maxHealth / 2 && bossAbilitySkillSO != null;
+        currentHealth -= damage;
+        if (currentHealth < 0)
+        {
+            currentHealth = 0;
+        }
+
+        UpdateHealthBar();
+
+        if (currentHealth <= 0)
+        {
+            OnBossDefeated();
+        }
     }
 
-    /// <summary>
-    /// 执行Boss的特有能力
-    /// </summary>
-    public void ExecuteBossAbility()
+    private void UpdateHealthBar()
     {
-        if (bossAbilitySkillSO != null)
+        if (healthBar != null)
         {
-            // 使用SkillManager执行Boss的特有技能
-            SkillManager.Instance.ExecuteSkill(bossAbilitySkillSO, this);
-            Debug.Log($"{unitData.unitName} 执行了Boss特有的能力！");
-        }
-        else
-        {
-            Debug.LogWarning($"{unitData.unitName} 没有配置Boss特有的能力技能！");
+            float healthPercent = (float)currentHealth / bossData.maxHealth;
+            healthBar.fillAmount = healthPercent;
         }
     }
 
-    // 如果Boss有其他特有的方法，可以在这里添加
+    private void OnBossDefeated()
+    {
+        // 处理 BOSS 被击败的逻辑
+        Debug.Log($"{bossData.bossName} 被击败了！");
+
+        // 通知 BattleManager 或 GameManager
+        BattleManager.Instance.OnBossDefeated(this);
+    }
 }

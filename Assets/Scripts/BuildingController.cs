@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.UI;
 
 /// <summary>
 /// 控制建筑物的行为
@@ -9,8 +10,14 @@ public class BuildingController : MonoBehaviour, ISkillUser
 
     public Vector3Int gridPosition;   // 建筑物在格子上的位置
 
-    private int currentHealth;        // 建筑物的当前生命值
-    private int defensePoints = 0;    // 防卫点数
+    public int currentHealth;        // 建筑物的当前生命值
+    public int defensePoints = 0;    // 防卫点数
+    
+    public bool isRuin = false; // 是否是废墟状态
+    public Sprite ruinSprite;   // 废墟状态的精灵
+    
+    public Image healthBar;       // 生命值条的填充部分
+    public Image healthBarFrame;  // 生命值条的框架
 
     [HideInInspector]
     public Skill currentSkill;        // 当前技能的运行时实例
@@ -69,9 +76,44 @@ public class BuildingController : MonoBehaviour, ISkillUser
     /// <summary>
     /// 虚拟初始化方法，允许派生类重写
     /// </summary>
-    protected virtual void Init()
+    public void Init()
     {
-        // 基类的初始化逻辑（如果有的话）
+        // 初始化生命值条
+        InitializeHealthBar();
+
+        // 其他需要的初始化逻辑
+    }
+    
+    private void InitializeHealthBar()
+    {
+        // 从 Resources 文件夹加载生命值条预制件
+        GameObject healthBarPrefab = Resources.Load<GameObject>("HealthBarPrefab");
+        if (healthBarPrefab != null)
+        {
+            // 实例化生命值条预制件，作为建筑物的子对象
+            GameObject healthBarInstance = Instantiate(healthBarPrefab, transform);
+            healthBar = healthBarInstance.transform.Find("HealthBarFill").GetComponent<Image>();
+            healthBarFrame = healthBarInstance.transform.Find("HealthBarFrame").GetComponent<Image>();
+
+            // 设置生命值条的位置
+            RectTransform rt = healthBarInstance.GetComponent<RectTransform>();
+            rt.anchoredPosition = new Vector2(0, -50); // 根据需要调整位置
+        }
+        else
+        {
+            Debug.LogWarning("BuildingController: 在 Resources 中未找到 HealthBarPrefab。");
+        }
+
+        UpdateHealthBar();
+    }
+    
+    private void UpdateHealthBar()
+    {
+        if (healthBar != null)
+        {
+            float healthPercent = (float)currentHealth / buildingData.maxHealth;
+            healthBar.fillAmount = healthPercent;
+        }
     }
 
     /// <summary>
@@ -107,11 +149,22 @@ public class BuildingController : MonoBehaviour, ISkillUser
     /// </summary>
     public virtual void ExecuteAction()
     {
+        if (isRuin)
+        {
+            Debug.Log($"BuildingController: 废墟无法执行行动！");
+            return;
+        }
+        
         if (CanExecuteAction())
         {
             if (buildingData.actionSkillSO != null)
             {
-                buildingData.actionSkillSO.Execute(this);
+                // 初始化当前技能为行动技能的克隆
+                currentSkill = Skill.FromSkillSO(buildingData.actionSkillSO);
+
+                // 执行当前技能
+                ExecuteCurrentSkill();
+
                 Debug.Log($"建筑物 {buildingData.buildingName} 执行了行动技能！");
             }
             else
@@ -130,9 +183,20 @@ public class BuildingController : MonoBehaviour, ISkillUser
     /// </summary>
     public virtual void ExecuteDefense()
     {
+        if (isRuin)
+        {
+            Debug.Log($"BuildingController: 废墟无法执行防卫技能！");
+            return;
+        }
+        
         if (buildingData.defenseSkillSO != null)
         {
-            buildingData.defenseSkillSO.Execute(this);
+            // 初始化当前技能为防卫技能的克隆
+            currentSkill = Skill.FromSkillSO(buildingData.defenseSkillSO);
+
+            // 执行当前技能
+            ExecuteCurrentSkill();
+
             Debug.Log($"建筑物 {buildingData.buildingName} 执行了防卫技能！");
         }
         else
@@ -297,10 +361,35 @@ public class BuildingController : MonoBehaviour, ISkillUser
     /// </summary>
     void DestroyBuilding()
     {
-        // 根据需求，可以添加建筑物销毁的动画或效果
-        Debug.Log($"BuildingController: 建筑物 {buildingData.buildingName} 被销毁");
-        Destroy(gameObject);
-        GridManager.Instance.RemoveSkillUserAt(gridPosition);
+        if (!isRuin)
+        {
+            // 切换为废墟状态
+            isRuin = true;
+
+            // 更改建筑物的外观
+            if (ruinSprite != null)
+            {
+                SpriteRenderer sr = GetComponent<SpriteRenderer>();
+                if (sr != null)
+                {
+                    sr.sprite = ruinSprite;
+                }
+            }
+
+            // 禁用建筑物的功能（如行动和防卫）
+            // 可以设置一个标志位，或者根据 isRuin 状态在其他方法中判断
+
+            // 通知 BattleManager，建筑物已变为废墟
+            int row = gridPosition.y;
+            BattleManager.Instance.OnBuildingDestroyed(this, row);
+        }
+        /*else
+        {
+            // 已经是废墟状态，彻底销毁
+            Debug.Log($"BuildingController: 建筑物 {buildingData.buildingName} 的废墟被移除");
+            GridManager.Instance.RemoveSkillUserAt(gridPosition);
+            Destroy(gameObject);
+        }*/
     }
 
     /// <summary>

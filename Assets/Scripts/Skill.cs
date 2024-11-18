@@ -73,6 +73,7 @@ public enum SkillType
     Melee,
     Ranged,
     Defense,
+    Repair,
     // 可以根据需要添加更多的技能类型
 }
 

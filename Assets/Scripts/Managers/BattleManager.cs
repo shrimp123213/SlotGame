@@ -1,6 +1,7 @@
 using System.Collections;
 using UnityEngine;
 using System;
+using System.Collections.Generic;
 
 /// <summary>
 /// 管理战斗流程的主控制器
@@ -18,6 +19,12 @@ public class BattleManager : MonoBehaviour
     [Header("Battle Settings")]
     public float slotMachineSpinTime = 5f;    // 转盘旋转时间
     public float slotMachineSpinSpeed = 10f;  // 转盘旋转速度
+    
+    [Header("Enemy Buildings")]
+    public List<EnemyBuildingInfo> enemyBuildings = new List<EnemyBuildingInfo>();
+
+    [Header("Player Buildings")]
+    public List<PlayerBuildingInfo> playerBuildings = new List<PlayerBuildingInfo>();
     
     private bool choiceMade = false;
     
@@ -58,6 +65,8 @@ public class BattleManager : MonoBehaviour
             Debug.LogError("BattleManager: 未设置 ConnectionManager 组件！");
             return;
         }
+        // 初始化建筑物
+        GridManager.Instance.InitializeBuildings(playerBuildings, enemyBuildings);
 
         // 订阅 SlotMachine 的转动完成事件
         slotMachine.OnSpinCompleted += OnSlotMachineSpun;
@@ -89,7 +98,7 @@ public class BattleManager : MonoBehaviour
             slotMachine.OnSpinCompleted -= OnSlotMachineSpun;
         }
     }
-
+    
     /// <summary>
     /// 启动战斗流程
     /// </summary>
@@ -176,11 +185,11 @@ public class BattleManager : MonoBehaviour
     /// </summary>
     private void ExecuteDefenseEffects()
     {
-        Debug.Log("BattleManager: 执行所有防卫效果！");
-        var buildings = gridManager.GetAllBuildings();
-        foreach (var building in buildings)
+        Debug.Log("BattleManager: 执行所有单位的防卫效果！");
+        var allUnits = gridManager.GetAllUnits();
+        foreach (var unit in allUnits)
         {
-            building.ExecuteDefense();
+            unit.ExecuteDefense();
         }
     }
 
@@ -191,7 +200,7 @@ public class BattleManager : MonoBehaviour
     private IEnumerator ExecutePlayerBuildingActions()
     {
         Debug.Log("BattleManager: 执行我方建筑的行动！");
-        var buildings = gridManager.GetPlayerBuildings();
+        var buildings = GridManager.Instance.GetPlayerBuildings();
         foreach (var building in buildings)
         {
             building.ExecuteAction();
@@ -226,10 +235,9 @@ public class BattleManager : MonoBehaviour
     private IEnumerator ExecuteEnemyPositionActions()
     {
         Debug.Log("BattleManager: 执行敌方部位的行动！");
-        var enemyPositions = gridManager.GetEnemyPositions();
-        foreach (var position in enemyPositions)
+        var enemyBuildings = gridManager.GetEnemyBuildings();
+        foreach (var building in enemyBuildings)
         {
-            var building = gridManager.GetBuildingAt(position);
             if (building != null && building.gameObject.activeSelf)
             {
                 building.ExecuteAction();
@@ -249,7 +257,7 @@ public class BattleManager : MonoBehaviour
         var boss = gridManager.GetBossUnit();
         if (boss != null && boss.gameObject.activeSelf)
         {
-            boss.ExecuteBossAbility();
+            //boss.ExecuteBossAbility();
             yield return new WaitForSeconds(0.2f); // 等待Boss行动完成
         }
         yield return null;
@@ -294,7 +302,7 @@ public class BattleManager : MonoBehaviour
     {
         // 示例逻辑：检查是否有玩家或敌方单位存活
         bool playerAlive = gridManager.GetUnitsByCamp(Camp.Player).Count > 0 || gridManager.GetPlayerBuildings().Count > 0;
-        bool enemyAlive = gridManager.GetUnitsByCamp(Camp.Enemy).Count > 0 || gridManager.GetAllBuildings().Count > 0;
+        bool enemyAlive = gridManager.GetUnitsByCamp(Camp.Enemy).Count > 0 || gridManager.GetEnemyBuildings().Count > 0;
 
         if (playerAlive && enemyAlive)
         {
@@ -343,5 +351,39 @@ public class BattleManager : MonoBehaviour
 
         // 進行下一回合的邏輯
         StartBattleSequence(); // 或其他相關方法
+    }
+    
+    public void OnBuildingDestroyed(BuildingController building, int row)
+    {
+        // 检查是否是关键建筑物被摧毁，例如保护 Boss 的建筑物
+        if (building.buildingData.buildingName == "空塔" || building.buildingData.buildingName == "箭塔")
+        {
+            // 更新游戏状态，允许指定行的单位攻击 Boss
+            AllowUnitsAttackBoss(row);
+        }
+    }
+
+    
+    public void AllowUnitsAttackBoss(int row)
+    {
+        // 更新游戏状态，允许指定行的单位攻击 Boss
+        Debug.Log($"BattleManager: 第 {row} 行的单位现在可以攻击 Boss 了！");
+
+        // 在 GridManager 或其他地方更新状态
+        gridManager.SetRowCanAttackBoss(row, true);
+    }
+
+    public void OnBossDefeated(BossController boss)
+    {
+        if (boss.bossData.camp == Camp.Player)
+        {
+            // 玩家 BOSS 被击败，敌人胜利
+            GameManager.Instance.EndGame("失败！敌人摧毁了你的 BOSS。");
+        }
+        else
+        {
+            // 敌人 BOSS 被击败，玩家胜利
+            GameManager.Instance.EndGame("胜利！你击败了敌人的 BOSS。");
+        }
     }
 }

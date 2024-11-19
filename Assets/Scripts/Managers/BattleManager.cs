@@ -325,6 +325,7 @@ public class BattleManager : MonoBehaviour
         {
             // 戰鬥未結束，進行下一回合
             StartCoroutine(NextTurnRoutine());
+            Debug.Log("BattleManager: 战斗未结束，进入下一回合！");
         }
         else if (!playerBossAlive)
         {

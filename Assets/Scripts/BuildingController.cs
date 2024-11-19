@@ -265,14 +265,14 @@ public class BuildingController : MonoBehaviour, ISkillUser
                 if (targetUnit != null && targetUnit.unitData.camp != buildingData.camp)
                 {
                     targetUnit.TakeDamage(1);
-                    Debug.Log($"BuildingController: 建筑物 {buildingData.buildingName} 对 {targetUnit.unitData.unitName} 进行远程攻击，造成1点伤害！");
+                    Debug.Log($"BuildingController: 建筑物 {buildingData.buildingName} 对 {targetUnit.name} 进行远程攻击，造成1点伤害！");
                     hasAttacked = true;
                     break; // 只攻击第一个目标
                 }
                 else if (targetBuilding != null && targetBuilding.buildingData.camp != buildingData.camp)
                 {
                     targetBuilding.TakeDamage(1);
-                    Debug.Log($"BuildingController: 建筑物 {buildingData.buildingName} 对建筑物 {targetBuilding.buildingData.buildingName} 进行远程攻击，造成1点伤害！");
+                    Debug.Log($"BuildingController: 建筑物 {buildingData.buildingName} 对建筑物 {targetBuilding.name} 进行远程攻击，造成1点伤害！");
                     hasAttacked = true;
                     break; // 只攻击第一个目标
                 }

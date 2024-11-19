@@ -109,7 +109,7 @@ public class Deck : ScriptableObject
         // 收集所有可用的 UnitData（數量 > 0）
         foreach (var entry in entries)
         {
-            if (entry.unitData != null && entry.quantity > 0 && !availableUnits.Contains(entry.unitData))
+            if (entry.unitData != null && entry.quantity >= 0 && !availableUnits.Contains(entry.unitData))
             {
                 availableUnits.Add(entry.unitData);
             }

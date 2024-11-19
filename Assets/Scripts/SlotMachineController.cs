@@ -267,6 +267,9 @@ public class SlotMachineController : MonoBehaviour
     {
         Debug.Log("WeightedDrawAndPlaceCards: 开始抽取并放置卡牌");
 
+        // 清空之前的抽取记录
+        selectedCards.Clear();
+        
         // 定义权重映射，可以根据需要调整权重值
         var weightMap = new Dictionary<PreferredPosition, int>
         {
@@ -300,6 +303,9 @@ public class SlotMachineController : MonoBehaviour
                 availableUnits.Add(new UnitWithQuantity(unit.unitData, 1, unit.isInjured));
             }
         }
+
+        // 移除数量为零的单位
+        availableUnits.RemoveAll(unit => unit.quantity <= 0);
 
         // 计算可用的总卡片数量
         var totalAvailableCards = 0;
@@ -426,7 +432,7 @@ public class SlotMachineController : MonoBehaviour
         Debug.Log("ShuffleAndPlaceCards: 开始放置卡牌到战斗区域");
 
         // 清空战斗区域内的单位
-        ClearBattleAreaUnits();
+        //ClearBattleAreaUnits();
 
         // 随机排列 battlePositions
         List<Vector3Int> shuffledPositions = new List<Vector3Int>(battlePositions);
@@ -474,12 +480,29 @@ public class SlotMachineController : MonoBehaviour
                 ISkillUser user = gridManager.GetSkillUserAt(pos);
                 if (user != null)
                 {
-                    if (user is MonoBehaviour monoUser)
+                    if (user is UnitController unit)
                     {
-                        Debug.Log($"ClearBattleAreaUnits: 销毁位置 {pos} 上的 {monoUser.gameObject.name}");
-                        Destroy(monoUser.gameObject);
+                        Debug.Log($"ClearBattleAreaUnits: 销毁位置 {pos} 上的 {unit.gameObject.name}");
+                        var deck = unit.unitData.camp == Camp.Player ? playerDeck : enemyDeck;
+
+                        if (unit.currentHealth > 0)
+                        {
+                            // 单位仍然活着，添加回牌组
+                            deck.AddCard(unit.unitData, 1, unit.isInjured);
+                            Debug.Log($"ClearBattleAreaUnits: 单位 {unit.unitData.unitName} 添加回牌组");
+                        }
+                        else
+                        {
+                            // 单位已死亡，不处理（已经在 MoveToDeck 或 MoveToGraveyard 中处理过）
+                            Debug.Log($"ClearBattleAreaUnits: 单位 {unit.unitData.unitName} 已死亡，不添加回牌组");
+                        }
+
+                        // 销毁单位游戏对象
+                        Destroy(unit.gameObject);
+
+                        // 从 GridManager 中移除
+                        gridManager.RemoveSkillUserAt(pos);
                     }
-                    gridManager.RemoveSkillUserAt(pos); // 确保从字典中移除
                 }
             }
         }

@@ -7,9 +7,8 @@ public class UnitController : MonoBehaviour, ISkillUser
 {
     public UnitData unitData;       // 单位的静态数据
     public Vector3Int gridPosition; // 单位在格子上的位置
-
-    [SerializeField]
-    protected int currentHealth;      // 单位的当前生命值
+    
+    public int currentHealth;      // 单位的当前生命值
 
     [SerializeField]
     private int defensePoints = 0;  // 防御点数
@@ -32,6 +31,9 @@ public class UnitController : MonoBehaviour, ISkillUser
     private Dictionary<string, GameObject> activeStatusIcons = new Dictionary<string, GameObject>();
 
     public bool isInjured => HasState<InjuredState>();
+    
+    private bool isDead = false;
+    public bool IsDead => isDead;
     
     // 添加对 Sprite 子对象的引用
     private Transform spriteTransform;
@@ -115,6 +117,12 @@ public class UnitController : MonoBehaviour, ISkillUser
         Vector3 cellWorldPosition = GridManager.Instance.GetCellCenterWorld(position);
 
         transform.position = cellWorldPosition;
+
+        // 确保子物件的本地位置为零（保持相对位置不变）
+        if (spriteTransform != null)
+        {
+            spriteTransform.localPosition = Vector3.zero;
+        }
 
         //Debug.Log($"UnitController: 单位 {unitData.unitName} 放置在格子中心: {cellWorldPosition}");
     }
@@ -245,6 +253,12 @@ public class UnitController : MonoBehaviour, ISkillUser
     /// </summary>
     public virtual void PerformMeleeAttack(TargetType targetType)
     {
+        if (isDead)
+        {
+            Debug.Log($"UnitController: 单位 {unitData.unitName} 已死亡，无法进行近战攻击！");
+            return;
+        }
+        
         PlayAttackAnimation(() =>
         {
             if (targetType == TargetType.Enemy)
@@ -308,6 +322,12 @@ public class UnitController : MonoBehaviour, ISkillUser
     /// </summary>
     public virtual void PerformRangedAttack(TargetType targetType)
     {
+        if (isDead)
+        {
+            Debug.Log($"UnitController: 单位 {unitData.unitName} 已死亡，无法进行远程攻击！");
+            return;
+        }
+        
         PlayAttackAnimation(() =>
         {
             if (targetType == TargetType.Enemy)
@@ -496,49 +516,58 @@ public class UnitController : MonoBehaviour, ISkillUser
     /// <param name="damage">伤害值</param>
     public virtual void TakeDamage(int damage)
     {
-        // 先播放受击动画，然后处理伤害
-        PlayHitAnimation(() =>
+        if (HasState<InvincibleState>())
         {
-            if (HasState<InvincibleState>())
-            {
-                Debug.Log($"{unitData.unitName} 处于无敌状态，免疫伤害");
-                return;
-            }
+            Debug.Log($"{unitData.unitName} 处于无敌状态，免疫伤害");
+            return;
+        }
 
-            // 首先扣除防卫点数
-            int remainingDamage = damage - defensePoints;
-            if (remainingDamage > 0)
+        // 首先扣除防卫点数
+        int remainingDamage = damage - defensePoints;
+        if (remainingDamage > 0)
+        {
+            currentHealth -= remainingDamage;
+            Debug.Log($"UnitController: 单位 {unitData.unitName} 接受 {remainingDamage} 点伤害，当前生命值: {currentHealth}");
+        }
+        else
+        {
+            // 防卫点数足以抵消所有伤害
+            defensePoints -= damage;
+            Debug.Log($"UnitController: 单位 {unitData.unitName} 防卫点数抵消了 {damage} 点伤害，剩余防卫点数: {defensePoints}");
+        }
+
+        if (currentHealth <= 0 && !isDead)
+        {
+            isDead = true; // 设置死亡标志
+
+            if (HasState<InjuredState>())
             {
-                currentHealth -= remainingDamage;
-                Debug.Log($"UnitController: 单位 {unitData.unitName} 接受 {remainingDamage} 点伤害，当前生命值: {currentHealth}");
+                // 负伤状态下再次死亡，进入墓地
+                Debug.Log($"UnitController: 单位 {unitData.unitName} 在负伤状态下再次死亡，进入墓地");
+                MoveToGraveyard();
             }
             else
             {
-                // 防卫点数足以抵消所有伤害
-                defensePoints -= damage;
-                Debug.Log($"UnitController: 单位 {unitData.unitName} 防卫点数抵消了 {damage} 点伤害，剩余防卫点数: {defensePoints}");
+                // 第一次死亡，进入负伤状态并返回牌库
+                Debug.Log($"UnitController: 单位 {unitData.unitName} 第一次死亡，进入负伤状态并返回牌库");
+                AddState<InjuredState>();
+                MoveToDeck();
             }
 
-            if (currentHealth <= 0)
+            // 播放死亡动画后销毁
+            //PlayDeathAnimation(() =>
+            PlayHitAnimation(() =>
             {
-                if (HasState<InjuredState>())
-                {
-                    // 负伤状态下再次死亡，进入墓地
-                    Debug.Log($"UnitController: 单位 {unitData.unitName} 在负伤状态下再次死亡，进入墓地");
-                    MoveToGraveyard();
-                }
-                else
-                {
-                    // 第一次死亡，进入负伤状态并返回牌库
-                    Debug.Log($"UnitController: 单位 {unitData.unitName} 第一次死亡，进入负伤状态并返回牌库");
-                    AddState<InjuredState>();
-                    MoveToDeck();
-                }
-
                 Destroy(gameObject);
-            }
-        });
+            });
+        }
+        else
+        {
+            // 如果未死亡，播放受击动画
+            PlayHitAnimation();
+        }
     }
+
     
     /// <summary>
     /// 将单位移动回牌库
@@ -548,18 +577,19 @@ public class UnitController : MonoBehaviour, ISkillUser
         // 从战场移除
         GridManager.Instance.RemoveSkillUserAt(gridPosition);
 
-        // 将单位返回到牌库（具体实现根据您的牌库管理方式）
-        // 例如，将单位对象禁用或移动到牌库位置
+        // 将单位返回到牌库，并更新牌组数量
         if (unitData.camp == Camp.Player)
         {
-            // 将玩家单位返回到玩家的牌库
-            DeckManager.Instance.AddCardToPlayerDeck(unitData, 1, isInjured);
+            // 更新玩家牌组
+            Deck playerDeck = DeckManager.Instance.playerDeck;
+            playerDeck.AddCard(unitData, 1, isInjured);
             Debug.Log($"{unitData.unitName} 负伤，返回玩家牌库");
         }
         else if (unitData.camp == Camp.Enemy)
         {
-            // 将敌人单位返回到敌人的牌库（如果需要）
-            DeckManager.Instance.AddCardToEnemyDeck(unitData, 1, isInjured);
+            // 更新敌人牌组
+            Deck enemyDeck = DeckManager.Instance.enemyDeck;
+            enemyDeck.AddCard(unitData, 1, isInjured);
             Debug.Log($"{unitData.unitName} 负伤，返回敌人牌库");
         }
         else
@@ -576,16 +606,19 @@ public class UnitController : MonoBehaviour, ISkillUser
         // 从战场移除
         GridManager.Instance.RemoveSkillUserAt(gridPosition);
 
+        // 更新牌组，减少单位数量
         if (unitData.camp == Camp.Player)
         {
-            // 将玩家单位添加到玩家的墓地
-            DeckManager.Instance.HandleUnitDeath(unitData, isInjured, isPlayerUnit: true);
+            // 更新玩家牌组
+            Deck playerDeck = DeckManager.Instance.playerDeck;
+            playerDeck.RemoveCard(unitData, 1, isInjured);
             Debug.Log($"{unitData.unitName} 移动到玩家墓地");
         }
         else if (unitData.camp == Camp.Enemy)
         {
-            // 将敌人单位添加到敌人的墓地（如果需要）
-            DeckManager.Instance.HandleUnitDeath(unitData, isInjured, isPlayerUnit: false);
+            // 更新敌人牌组
+            Deck enemyDeck = DeckManager.Instance.enemyDeck;
+            enemyDeck.RemoveCard(unitData, 1, isInjured);
             Debug.Log($"{unitData.unitName} 移动到敌人墓地");
         }
         else
@@ -655,6 +688,12 @@ public class UnitController : MonoBehaviour, ISkillUser
     /// </summary>
     public virtual void UseMainSkillOrSupport()
     {
+        if (isDead)
+        {
+            Debug.Log($"UnitController: 单位 {unitData.unitName} 已死亡，无法使用任何技能！");
+            return;
+        }
+        
         if (CanUseMainSkill())
         {
             UseMainSkill();
@@ -939,9 +978,9 @@ public class UnitController : MonoBehaviour, ISkillUser
         }
 
         // 设置朝向
-        var scale = spriteTransform.localScale;
+        var scale = spriteRenderer.GetComponent<Transform>().localScale;
         scale.x = unitData.camp == Camp.Player ? 1 : -1;
-        spriteTransform.localScale = scale;
+        spriteRenderer.GetComponent<Transform>().localScale = scale;
     }
     
     /// <summary>
@@ -968,11 +1007,11 @@ public class UnitController : MonoBehaviour, ISkillUser
         // 动画序列
         Sequence attackSequence = DOTween.Sequence();
 
-        // 向前移动
-        attackSequence.Append(spriteTransform.DOMove(spriteTransform.position + direction * moveDistance, animationDuration));
+        // 向前移动（使用本地坐标）
+        attackSequence.Append(spriteTransform.DOLocalMove(spriteTransform.localPosition + direction * moveDistance, animationDuration));
 
-        // 返回原位
-        attackSequence.Append(spriteTransform.DOMove(spriteTransform.position, animationDuration));
+        // 返回原位（使用本地坐标）
+        attackSequence.Append(spriteTransform.DOLocalMove(Vector3.zero, animationDuration)); // 假设原位为本地坐标的 (0,0,0)
 
         // 动画完成回调
         if (onComplete != null)
@@ -1005,11 +1044,11 @@ public class UnitController : MonoBehaviour, ISkillUser
         // 动画序列
         Sequence hitSequence = DOTween.Sequence();
 
-        // 向后移动
-        hitSequence.Append(spriteTransform.DOMove(spriteTransform.position + direction * moveDistance, animationDuration));
+        // 向后移动（使用本地坐标）
+        hitSequence.Append(spriteTransform.DOLocalMove(spriteTransform.localPosition + direction * moveDistance, animationDuration));
 
-        // 返回原位
-        hitSequence.Append(spriteTransform.DOMove(spriteTransform.position, animationDuration));
+        // 返回原位（使用本地坐标）
+        hitSequence.Append(spriteTransform.DOLocalMove(Vector3.zero, animationDuration)); // 假设原位为本地坐标的 (0,0,0)
 
         // 动画完成回调
         if (onComplete != null)

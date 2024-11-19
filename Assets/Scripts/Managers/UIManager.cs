@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 /// <summary>
 /// 管理遊戲中的所有 UI 元件
@@ -43,6 +44,10 @@ public class UIManager : MonoBehaviour
         {
             quitButton.onClick.AddListener(QuitGame);
         }
+
+        HideGameOverScreen();
+        //HidePauseMenu();
+        //HideMainMenu();
     }
 
     /// <summary>
@@ -69,7 +74,7 @@ public class UIManager : MonoBehaviour
     {
         gameOverPanel.SetActive(true);
         // 假設有一個 Text 元件來顯示原因
-        gameOverPanel.transform.Find("ReasonText").GetComponent<Text>().text = reason;
+        gameOverPanel.transform.Find("ReasonText").GetComponent<TMP_Text>().text = reason;
     }
 
     /// <summary>

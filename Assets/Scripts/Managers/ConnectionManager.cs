@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 /// <summary>
@@ -269,57 +270,50 @@ public class ConnectionManager : MonoBehaviour
     }
 
     /// <summary>
-    /// 觸發連線效果，例如造成傷害等
+    /// 触发连线效果，例如造成伤害等
     /// </summary>
-    /// <param name="pattern">匹配的連線模式</param>
-    /// <param name="camp">陣營</param>
+    /// <param name="pattern">匹配的连线模式</param>
+    /// <param name="camp">阵营</param>
     private void TriggerLinkEffect(ConnectionPattern pattern, Camp camp)
     {
         if (pattern == null)
         {
-            Debug.LogWarning("ConnectionManager: 匹配的連線模式為空！");
+            Debug.LogWarning("ConnectionManager: 匹配的连线模式为空！");
             return;
         }
 
         int linkedUnitCount = pattern.positions.Count;
 
-        // 定義每個單位造成的傷害值
-        int damagePerUnit = 1; // 可以根據需要調整
+        // 定义每个单位造成的伤害值
+        int damagePerUnit = 1; // 可以根据需要调整
 
-        // 在此實現連線效果，例如對敵方城鎮造成傷害
-        if (camp == Camp.Player)
+        // 计算总伤害
+        int totalDamage = linkedUnitCount * damagePerUnit;
+
+        // 获取连线中最后一个单位的位置
+        Vector2Int lastUnitPos = pattern.positions[pattern.positions.Count - 1];
+        int lastUnitRow = lastUnitPos.x; // x 表示行（row）
+        int lastUnitCol = lastUnitPos.y; // y 表示列（column）
+
+        // 获取最后一个单位的实际格子位置
+        Vector3Int lastUnitGridPos = new Vector3Int(lastUnitCol + 1, lastUnitRow, 0); // 列从 1 开始
+
+        // 根据阵营，确定敌方建筑的位置
+        Vector3Int enemyBuildingPosition = gridManager.GetEnemyBuildingPositionInRow(lastUnitRow, camp);
+
+        // 获取敌方建筑
+        BuildingController enemyBuilding = gridManager.GetBuildingAt(enemyBuildingPosition);
+
+        if (enemyBuilding != null && enemyBuilding.buildingData.camp != camp)
         {
-            //Debug.Log($"ConnectionManager: 玩家觸發了連線模式 {pattern.name}，連線單位數量：{linkedUnitCount}，對敵人造成傷害！");
-            // 實現對敵方的具體傷害邏輯，例如調用敵方城鎮的傷害方法
-            // 例如：
-            /*
-            EnemyBuildingController enemyBuilding = FindObjectOfType<EnemyBuildingController>();
-            if (enemyBuilding != null)
-            {
-                enemyBuilding.TakeDamage(linkedUnitCount * damagePerUnit);
-            }
-            else
-            {
-                Debug.LogWarning("ConnectionManager: 未找到 EnemyBuildingController！");
-            }
-            */
+            // 对敌方建筑造成伤害
+            enemyBuilding.TakeDamage(totalDamage);
+            Debug.Log($"ConnectionManager: 对敌方建筑 {enemyBuilding.buildingData.buildingName} 造成 {totalDamage} 点伤害！");
         }
-        /*else if (camp == Camp.Enemy)
+        else
         {
-            Debug.Log($"ConnectionManager: 敵人觸發了連線模式 {pattern.name}，連線單位數量：{linkedUnitCount}，對玩家造成傷害！");
-            // 實現對玩家的具體傷害邏輯，例如調用玩家城鎮的傷害方法
-            // 例如：
-            /*
-            PlayerBuildingController playerBuilding = FindObjectOfType<PlayerBuildingController>();
-            if (playerBuilding != null)
-            {
-                playerBuilding.TakeDamage(linkedUnitCount * damagePerUnit);
-            }
-            else
-            {
-                Debug.LogWarning("ConnectionManager: 未找到 PlayerBuildingController！");
-            }
-            
-        }*/
+            Debug.Log($"ConnectionManager: 在位置 {enemyBuildingPosition} 未找到敌方建筑，无法造成伤害。");
+        }
     }
+
 }

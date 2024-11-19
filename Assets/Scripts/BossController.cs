@@ -13,11 +13,16 @@ public class BossController : MonoBehaviour, ISkillUser
 
     public Image healthBar;       // 生命值条的填充部分
     public Image healthBarFrame;  // 生命值条的框架
+    
+    private SpriteRenderer spriteRenderer;
 
     private void Start()
     {
         InitializeBoss();
         InitializeHealthBar();
+        InitializeUnitSprite();
+        
+        spriteRenderer = GetComponent<SpriteRenderer>();
         
         // 如果 BOSS 有初始技能，可以在这里赋值
         //if (bossData.initialSkill != null)
@@ -157,5 +162,22 @@ public class BossController : MonoBehaviour, ISkillUser
             // 执行技能逻辑
             // 类似于 UnitController 中的 ExecuteCurrentSkill
         }
+    }
+    
+    public void InitializeUnitSprite()
+    {
+        // 设置单位的图片
+        if (bossData.bossSprite != null)
+        {
+            if (spriteRenderer != null)
+            {
+                spriteRenderer.sprite = bossData.bossSprite;
+            }
+        }
+
+        // 设置朝向
+        var scale = transform.localScale;
+        scale.x = bossData.camp == Camp.Player ? 1 : -1;
+        transform.localScale = scale;
     }
 }

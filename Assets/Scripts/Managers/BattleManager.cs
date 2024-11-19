@@ -28,6 +28,12 @@ public class BattleManager : MonoBehaviour
     
     private bool choiceMade = false;
     
+    private bool playerBossAlive = false;
+    private bool enemyBossAlive = false;
+
+    private BossController playerBoss;
+    private BossController enemyBoss;
+    
     private void Awake()
     {
         // 单例模式实现
@@ -300,24 +306,35 @@ public class BattleManager : MonoBehaviour
     /// </summary>
     private void CheckBattleOutcome()
     {
-        // 示例逻辑：检查是否有玩家或敌方单位存活
-        bool playerAlive = gridManager.GetUnitsByCamp(Camp.Player).Count > 0 || gridManager.GetPlayerBuildings().Count > 0;
-        bool enemyAlive = gridManager.GetUnitsByCamp(Camp.Enemy).Count > 0 || gridManager.GetEnemyBuildings().Count > 0;
+        var playerBoss = gridManager.GetBossUnit(Camp.Player);
+        var enemyBoss = gridManager.GetBossUnit(Camp.Enemy);
+        
+        // 检查玩家 BOSS 的生命值
+        if (playerBoss != null && playerBoss.currentHealth > 0)
+        {
+            playerBossAlive = true;
+        }
 
-        if (playerAlive && enemyAlive)
+        // 检查敌方 BOSS 的生命值
+        if (enemyBoss != null && enemyBoss.currentHealth > 0)
+        {
+            enemyBossAlive = true;
+        }
+        
+        if (playerBossAlive && enemyBossAlive)
         {
             // 戰鬥未結束，進行下一回合
             StartCoroutine(NextTurnRoutine());
         }
-        else if (!playerAlive)
+        else if (!playerBossAlive)
         {
-            // 玩家全部阵亡，敌方胜利
-            GameManager.Instance.EndGame("你输了！");
+            // 玩家Boss阵亡，敌方胜利
+            //GameManager.Instance.EndGame("You Lose!");
         }
         else
         {
-            // 敌方全部阵亡，玩家胜利
-            GameManager.Instance.EndGame("你赢了！");
+            // 敌方Boss阵亡，玩家胜利
+            //GameManager.Instance.EndGame("You Win!");
         }
     }
     
@@ -378,12 +395,12 @@ public class BattleManager : MonoBehaviour
         if (boss.bossData.camp == Camp.Player)
         {
             // 玩家 BOSS 被击败，敌人胜利
-            GameManager.Instance.EndGame("失败！敌人摧毁了你的 BOSS。");
+            GameManager.Instance.EndGame("You Lose!");
         }
         else
         {
             // 敌人 BOSS 被击败，玩家胜利
-            GameManager.Instance.EndGame("胜利！你击败了敌人的 BOSS。");
+            GameManager.Instance.EndGame("You Win!");
         }
     }
 }

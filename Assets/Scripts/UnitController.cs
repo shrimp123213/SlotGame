@@ -259,30 +259,30 @@ public class UnitController : MonoBehaviour, ISkillUser
             if (targetUnit != null && targetUnit.unitData.camp != unitData.camp)
             {
                 targetUnit.TakeDamage(damage);
-                Debug.Log($"UnitController: {unitData.unitName} 对 {targetUnit.unitData.unitName} 进行近战攻击，造成 {damage} 点伤害！");
+                Debug.Log($"UnitController: {this.name} 对 {targetUnit.unitData.unitName} 进行近战攻击，造成 {damage} 点伤害！");
             }
-            else if (targetBuilding != null && targetBuilding.buildingData.camp != unitData.camp)
+            else if (targetBuilding != null && targetBuilding.buildingData.camp != unitData.camp && !targetBuilding.isRuin)
             {
                 targetBuilding.TakeDamage(damage);
-                Debug.Log($"UnitController: {unitData.unitName} 对建筑物 {targetBuilding.buildingData.buildingName} 进行近战攻击，造成 {damage} 点伤害！");
+                Debug.Log($"UnitController: {this.name} 对建筑物 {targetBuilding.buildingData.buildingName} 进行近战攻击，造成 {damage} 点伤害！");
             }
             else
             {
                 // 检查是否可以攻击 BOSS
                 int row = gridPosition.y;
-                if (GridManager.Instance.CanRowAttackBoss(row))
+                if (targetBuilding != null && targetBuilding.buildingData.camp != unitData.camp && GridManager.Instance.CanRowAttackBoss(row))
                 {
                     // 执行对 BOSS 的攻击逻辑
                     BossController boss = GridManager.Instance.GetBossUnit(unitData.camp == Camp.Player ? Camp.Enemy : Camp.Player);
                     if (boss != null)
                     {
                         boss.TakeDamage(damage);
-                        Debug.Log($"UnitController: {unitData.unitName} 对 BOSS 进行近战攻击，造成 {damage} 点伤害！");
+                        Debug.Log($"UnitController: {this.name} 对 BOSS 进行近战攻击，造成 {damage} 点伤害！");
                     }
                 }
                 else
                 {
-                    Debug.Log($"UnitController: {unitData.unitName} 近战攻击无目标，且无法攻击 BOSS！");
+                    Debug.Log($"UnitController: {this.name} 近战攻击无目标，且无法攻击 BOSS！");
                 }
             }
         }
@@ -326,7 +326,7 @@ public class UnitController : MonoBehaviour, ISkillUser
                     hasAttacked = true;
                     break; // 只攻击第一个目标
                 }
-                else if (targetBuilding != null && targetBuilding.buildingData.camp != unitData.camp)
+                else if (targetBuilding != null && targetBuilding.buildingData.camp != unitData.camp && !targetBuilding.isRuin)
                 {
                     targetBuilding.TakeDamage(damage);
                     Debug.Log($"UnitController: {unitData.unitName} 对建筑 {targetBuilding.buildingData.buildingName} 进行远程攻击，造成 {damage} 点伤害！");

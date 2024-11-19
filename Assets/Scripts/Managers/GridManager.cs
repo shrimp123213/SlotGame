@@ -284,6 +284,19 @@ public class GridManager : MonoBehaviour
         }
         return null;
     }
+    
+    public BossController GetBossUnitAt(Camp camp, Vector3Int position)
+    {
+        if (skillUsersPositions.ContainsKey(position))
+        {
+            ISkillUser skillUser = skillUsersPositions[position];
+            if (skillUser is BossController boss && boss.bossData.camp == camp)
+            {
+                return boss;
+            }
+        }
+        return null;
+    }
 
 
     // 添加建筑物到指定位置
@@ -583,6 +596,35 @@ public class GridManager : MonoBehaviour
 
         return null;
     }
+    
+    /// <summary>
+    /// 获取指定行中敌方建筑的位置
+    /// </summary>
+    /// <param name="row">行索引</param>
+    /// <param name="camp">己方阵营</param>
+    /// <returns>敌方建筑的位置</returns>
+    public Vector3Int GetEnemyBuildingPositionInRow(int row, Camp camp)
+    {
+        int buildingColumn;
+
+        // 假设敌方建筑位于棋盘的最右侧（对于玩家）或最左侧（对于敌人）
+        if (camp == Camp.Player)
+        {
+            // 玩家阵营，敌方建筑在右侧
+            buildingColumn = columns + 1; // 超出棋盘范围，用于放置建筑的位置
+        }
+        else
+        {
+            // 敌人阵营，敌方建筑在左侧
+            buildingColumn = 0; // 或 -1，取决于您的棋盘设计
+        }
+
+        // 建筑的格子位置
+        Vector3Int buildingPosition = new Vector3Int(buildingColumn, row, 0);
+
+        return buildingPosition;
+    }
+
 
     /// <summary>
     /// 获取所有玩家建筑

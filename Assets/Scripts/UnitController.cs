@@ -244,130 +244,138 @@ public class UnitController : MonoBehaviour, ISkillUser
     /// 执行近战攻击
     /// </summary>
     public virtual void PerformMeleeAttack(TargetType targetType)
-{
-    PlayAttackAnimation(() =>
     {
-        if (targetType == TargetType.Enemy)
+        PlayAttackAnimation(() =>
         {
-            int damage = 1; // 暂时设定为造成1点伤害
-            Vector3Int attackDirection = unitData.camp == Camp.Player ? Vector3Int.right : Vector3Int.left;
-            Vector3Int targetPosition = gridPosition + attackDirection;
+            if (targetType == TargetType.Enemy)
+            {
+                int damage = 1; // 暂时设定为造成1点伤害
+                Vector3Int attackDirection = unitData.camp == Camp.Player ? Vector3Int.right : Vector3Int.left;
+                Vector3Int targetPosition = gridPosition + attackDirection;
 
-            UnitController targetUnit = GridManager.Instance.GetUnitAt(targetPosition);
-            BuildingController targetBuilding = GridManager.Instance.GetBuildingAt(targetPosition);
+                UnitController targetUnit = GridManager.Instance.GetUnitAt(targetPosition);
+                BuildingController targetBuilding = GridManager.Instance.GetBuildingAt(targetPosition);
 
-            if (targetUnit != null && targetUnit.unitData.camp != unitData.camp)
-            {
-                targetUnit.TakeDamage(damage);
-                Debug.Log($"UnitController: {this.name} 对 {targetUnit.unitData.unitName} 进行近战攻击，造成 {damage} 点伤害！");
-            }
-            else if (targetBuilding != null && targetBuilding.buildingData.camp != unitData.camp && !targetBuilding.isRuin)
-            {
-                targetBuilding.TakeDamage(damage);
-                Debug.Log($"UnitController: {this.name} 对建筑物 {targetBuilding.buildingData.buildingName} 进行近战攻击，造成 {damage} 点伤害！");
-            }
-            else
-            {
-                // 检查是否可以攻击 BOSS
-                int row = gridPosition.y;
-                if (targetBuilding != null && targetBuilding.buildingData.camp != unitData.camp && GridManager.Instance.CanRowAttackBoss(row))
+                if (targetUnit != null && targetUnit.unitData.camp != unitData.camp)
                 {
-                    // 执行对 BOSS 的攻击逻辑
-                    BossController boss = GridManager.Instance.GetBossUnit(unitData.camp == Camp.Player ? Camp.Enemy : Camp.Player);
-                    if (boss != null)
-                    {
-                        boss.TakeDamage(damage);
-                        Debug.Log($"UnitController: {this.name} 对 BOSS 进行近战攻击，造成 {damage} 点伤害！");
-                    }
+                    targetUnit.TakeDamage(damage);
+                    Debug.Log($"UnitController: {this.name} 对 {targetUnit.unitData.unitName} 进行近战攻击，造成 {damage} 点伤害！");
+                }
+                else if (targetBuilding != null && targetBuilding.buildingData.camp != unitData.camp &&
+                         !targetBuilding.isRuin)
+                {
+                    targetBuilding.TakeDamage(damage);
+                    Debug.Log(
+                        $"UnitController: {this.name} 对建筑物 {targetBuilding.buildingData.buildingName} 进行近战攻击，造成 {damage} 点伤害！");
                 }
                 else
                 {
-                    Debug.Log($"UnitController: {this.name} 近战攻击无目标，且无法攻击 BOSS！");
+                    // 检查是否可以攻击 BOSS
+                    int row = gridPosition.y;
+                    if (targetBuilding != null && targetBuilding.buildingData.camp != unitData.camp &&
+                        GridManager.Instance.CanRowAttackBoss(row))
+                    {
+                        // 执行对 BOSS 的攻击逻辑
+                        BossController boss =
+                            GridManager.Instance.GetBossUnit(unitData.camp == Camp.Player ? Camp.Enemy : Camp.Player);
+                        if (boss != null)
+                        {
+                            boss.TakeDamage(damage);
+                            Debug.Log($"UnitController: {this.name} 对 BOSS 进行近战攻击，造成 {damage} 点伤害！");
+                        }
+                    }
+                    else
+                    {
+                        Debug.Log($"UnitController: {this.name} 近战攻击无目标，且无法攻击 BOSS！");
+                    }
                 }
             }
-        }
-        else if (targetType == TargetType.Friendly || targetType == TargetType.Self)
-        {
-            // 防卫技能，只对自身或友方生效
-            //IncreaseDefense(1, targetType);
-        }
-        else
-        {
-            Debug.LogWarning($"UnitController: 未处理的 TargetType：{targetType}");
-        }
-    });
-}
+            else if (targetType == TargetType.Friendly || targetType == TargetType.Self)
+            {
+                // 防卫技能，只对自身或友方生效
+                //IncreaseDefense(1, targetType);
+            }
+            else
+            {
+                Debug.LogWarning($"UnitController: 未处理的 TargetType：{targetType}");
+            }
+        });
+    }
 
 
     /// <summary>
     /// 执行远程攻击
     /// </summary>
     public virtual void PerformRangedAttack(TargetType targetType)
-{
-    PlayAttackAnimation(() =>
     {
-        if (targetType == TargetType.Enemy)
+        PlayAttackAnimation(() =>
         {
-            int damage = 1; // 暂时设定为造成1点伤害
-            Vector3Int attackDirection = unitData.camp == Camp.Player ? Vector3Int.right : Vector3Int.left;
-            Vector3Int currentPos = gridPosition + attackDirection;
-
-            bool hasAttacked = false;
-
-            while (GridManager.Instance.IsWithinAccessibleArea(currentPos))
+            if (targetType == TargetType.Enemy)
             {
-                UnitController targetUnit = GridManager.Instance.GetUnitAt(currentPos);
-                BuildingController targetBuilding = GridManager.Instance.GetBuildingAt(currentPos);
+                int damage = 1; // 暂时设定为造成1点伤害
+                Vector3Int attackDirection = unitData.camp == Camp.Player ? Vector3Int.right : Vector3Int.left;
+                Vector3Int currentPos = gridPosition + attackDirection;
 
-                if (targetUnit != null && targetUnit.unitData.camp != unitData.camp)
-                {
-                    targetUnit.TakeDamage(damage);
-                    Debug.Log($"UnitController: {unitData.unitName} 对 {targetUnit.unitData.unitName} 进行远程攻击，造成 {damage} 点伤害！");
-                    hasAttacked = true;
-                    break; // 只攻击第一个目标
-                }
-                else if (targetBuilding != null && targetBuilding.buildingData.camp != unitData.camp && !targetBuilding.isRuin)
-                {
-                    targetBuilding.TakeDamage(damage);
-                    Debug.Log($"UnitController: {unitData.unitName} 对建筑 {targetBuilding.buildingData.buildingName} 进行远程攻击，造成 {damage} 点伤害！");
-                    hasAttacked = true;
-                    break; // 只攻击第一个目标
-                }
+                bool hasAttacked = false;
 
-                currentPos += attackDirection;
-            }
-
-            if (!hasAttacked)
-            {
-                // 检查是否可以攻击 BOSS
-                int row = gridPosition.y;
-                if (GridManager.Instance.CanRowAttackBoss(row))
+                while (GridManager.Instance.IsWithinAccessibleArea(currentPos))
                 {
-                    // 执行对 BOSS 的攻击逻辑
-                    BossController boss = GridManager.Instance.GetBossUnit(unitData.camp == Camp.Player ? Camp.Enemy : Camp.Player);
-                    if (boss != null)
+                    UnitController targetUnit = GridManager.Instance.GetUnitAt(currentPos);
+                    BuildingController targetBuilding = GridManager.Instance.GetBuildingAt(currentPos);
+
+                    if (targetUnit != null && targetUnit.unitData.camp != unitData.camp)
                     {
-                        boss.TakeDamage(damage);
-                        Debug.Log($"UnitController: {unitData.unitName} 对 BOSS 进行远程攻击，造成 {damage} 点伤害！");
+                        targetUnit.TakeDamage(damage);
+                        Debug.Log(
+                            $"UnitController: {unitData.unitName} 对 {targetUnit.unitData.unitName} 进行远程攻击，造成 {damage} 点伤害！");
+                        hasAttacked = true;
+                        break; // 只攻击第一个目标
+                    }
+                    else if (targetBuilding != null && targetBuilding.buildingData.camp != unitData.camp &&
+                             !targetBuilding.isRuin)
+                    {
+                        targetBuilding.TakeDamage(damage);
+                        Debug.Log(
+                            $"UnitController: {unitData.unitName} 对建筑 {targetBuilding.buildingData.buildingName} 进行远程攻击，造成 {damage} 点伤害！");
+                        hasAttacked = true;
+                        break; // 只攻击第一个目标
+                    }
+
+                    currentPos += attackDirection;
+                }
+
+                if (!hasAttacked)
+                {
+                    // 检查是否可以攻击 BOSS
+                    int row = gridPosition.y;
+                    if (GridManager.Instance.CanRowAttackBoss(row))
+                    {
+                        // 执行对 BOSS 的攻击逻辑
+                        BossController boss =
+                            GridManager.Instance.GetBossUnit(unitData.camp == Camp.Player ? Camp.Enemy : Camp.Player);
+                        if (boss != null)
+                        {
+                            boss.TakeDamage(damage);
+                            Debug.Log($"UnitController: {unitData.unitName} 对 BOSS 进行远程攻击，造成 {damage} 点伤害！");
+                        }
+                    }
+                    else
+                    {
+                        Debug.Log($"UnitController: {unitData.unitName} 远程攻击无目标，且无法攻击 BOSS！");
                     }
                 }
-                else
-                {
-                    Debug.Log($"UnitController: {unitData.unitName} 远程攻击无目标，且无法攻击 BOSS！");
-                }
             }
-        }
-        else if (targetType == TargetType.Friendly || targetType == TargetType.Self)
-        {
-            // 防卫技能，只对自身或友方生效
-            //IncreaseDefense(1, targetType);
-        }
-        else
-        {
-            Debug.LogWarning($"UnitController: 未处理的 TargetType：{targetType}");
-        }
-    });
-}
+            else if (targetType == TargetType.Friendly || targetType == TargetType.Self)
+            {
+                // 防卫技能，只对自身或友方生效
+                //IncreaseDefense(1, targetType);
+            }
+            else
+            {
+                Debug.LogWarning($"UnitController: 未处理的 TargetType：{targetType}");
+            }
+        });
+    }
 
     
     private bool TryAttackBoss(int damage)
@@ -931,9 +939,9 @@ public class UnitController : MonoBehaviour, ISkillUser
         }
 
         // 设置朝向
-        var scale = spriteRenderer.GetComponent<Transform>().localScale;
+        var scale = spriteTransform.localScale;
         scale.x = unitData.camp == Camp.Player ? 1 : -1;
-        spriteRenderer.GetComponent<Transform>().localScale = scale;
+        spriteTransform.localScale = scale;
     }
     
     /// <summary>

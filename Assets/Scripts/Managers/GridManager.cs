@@ -176,7 +176,7 @@ public class GridManager : MonoBehaviour
     /// </summary>
     /// <param name="position">格子位置</param>
     /// <param name="unitData">单位数据</param>
-    public void SpawnUnit(Vector3Int position, UnitData unitData)
+    public void SpawnUnit(Vector3Int position, UnitData unitData, bool isInjured)
     {
         if (skillUsersPositions.ContainsKey(position))
         {
@@ -203,6 +203,7 @@ public class GridManager : MonoBehaviour
 
         unit.unitData = unitData;
         unit.SetPosition(position);
+        if (isInjured) unit.AddState<InjuredState>();
 
         // 设置为 Units 父对象的子对象
         if (unitsParent != null)

@@ -1,5 +1,7 @@
+using DG.Tweening;
 using UnityEngine;
 using UnityEngine.UI;
+using System;
 
 public class BossController : MonoBehaviour, ISkillUser
 {
@@ -15,14 +17,17 @@ public class BossController : MonoBehaviour, ISkillUser
     public Image healthBarFrame;  // 生命值条的框架
     
     private SpriteRenderer spriteRenderer;
+    
+    // 添加对 Sprite 子对象的引用
+    private Transform spriteTransform;
 
     private void Start()
     {
+        spriteRenderer = GetComponentInChildren<SpriteRenderer>();
+        
         InitializeBoss();
         InitializeHealthBar();
         InitializeUnitSprite();
-        
-        spriteRenderer = GetComponent<SpriteRenderer>();
         
         // 如果 BOSS 有初始技能，可以在这里赋值
         //if (bossData.initialSkill != null)
@@ -38,7 +43,6 @@ public class BossController : MonoBehaviour, ISkillUser
         maxHealth = bossData.maxHealth;
 
         // 设置 BOSS 的精灵
-        SpriteRenderer spriteRenderer = GetComponent<SpriteRenderer>();
         if (spriteRenderer != null && bossData.bossSprite != null)
         {
             spriteRenderer.sprite = bossData.bossSprite;
@@ -46,6 +50,11 @@ public class BossController : MonoBehaviour, ISkillUser
         else
         {
             Debug.LogWarning("BossController: 未设置 SpriteRenderer 或 bossSprite。");
+        }
+        
+        if(spriteRenderer != null)
+        {
+            spriteTransform = spriteRenderer.transform;
         }
 
         // 初始化生命值条
@@ -115,18 +124,58 @@ public class BossController : MonoBehaviour, ISkillUser
 
     public void TakeDamage(int damage)
     {
-        currentHealth -= damage;
-        Debug.Log($"BossController: BOSS {bossData.bossName} 受到 {damage} 点伤害，当前生命值：{currentHealth}");
-        if (currentHealth < 0)
+        PlayHitAnimation(() =>
         {
-            currentHealth = 0;
+            currentHealth -= damage;
+            Debug.Log($"BossController: BOSS {bossData.bossName} 受到 {damage} 点伤害，当前生命值：{currentHealth}");
+            if (currentHealth < 0)
+            {
+                currentHealth = 0;
+            }
+
+            UpdateHealthBar();
+
+            if (currentHealth <= 0)
+            {
+                OnBossDefeated();
+            }
+        });
+    }
+    
+    /// <summary>
+    /// 播放受击动画
+    /// </summary>
+    public void PlayHitAnimation(Action onComplete = null)
+    {
+        if (spriteTransform == null)
+        {
+            Debug.LogWarning("UnitController: spriteTransform 未设置，无法播放受击动画！");
+            onComplete?.Invoke();
+            return;
         }
 
-        UpdateHealthBar();
+        float moveDistance = 0.2f; // 向后移动的距离
+        float animationDuration = 0.1f; // 动画持续时间
 
-        if (currentHealth <= 0)
+        // 计算移动方向
+        Vector3 direction = bossData.camp == Camp.Player ? Vector3.left : Vector3.right;
+
+        // 停止当前动画
+        spriteTransform.DOKill();
+
+        // 动画序列
+        Sequence hitSequence = DOTween.Sequence();
+
+        // 向后移动
+        hitSequence.Append(spriteTransform.DOMove(spriteTransform.position + direction * moveDistance, animationDuration));
+
+        // 返回原位
+        hitSequence.Append(spriteTransform.DOMove(spriteTransform.position, animationDuration));
+
+        // 动画完成回调
+        if (onComplete != null)
         {
-            OnBossDefeated();
+            hitSequence.OnComplete(() => onComplete());
         }
     }
 
@@ -150,7 +199,7 @@ public class BossController : MonoBehaviour, ISkillUser
     {
         // 处理 BOSS 被击败的逻辑
         Debug.Log($"{bossData.bossName} 被击败了！");
-
+        
         // 通知 BattleManager 或 GameManager
         BattleManager.Instance.OnBossDefeated(this);
     }
@@ -176,8 +225,8 @@ public class BossController : MonoBehaviour, ISkillUser
         }
 
         // 设置朝向
-        var scale = transform.localScale;
+        var scale = spriteTransform.localScale;
         scale.x = bossData.camp == Camp.Player ? 1 : -1;
-        transform.localScale = scale;
+        spriteTransform.localScale = scale;
     }
 }

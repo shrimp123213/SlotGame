@@ -78,19 +78,23 @@ public class Deck : ScriptableObject
     }
 
     /// <summary>
-    /// 获取当前牌组中的所有卡牌，考虑每种卡牌的数量
+    /// 获取当前牌组中的所有卡牌，包括正常和负伤的单位
     /// </summary>
-    public List<UnitData> GetAllCards()
+    public List<UnitWithInjuryStatus> GetAllUnitsWithInjuryStatus()
     {
-        List<UnitData> allCards = new List<UnitData>();
+        List<UnitWithInjuryStatus> allUnits = new List<UnitWithInjuryStatus>();
         foreach (var entry in entries)
         {
             for (int i = 0; i < entry.quantity; i++)
             {
-                allCards.Add(entry.unitData);
+                allUnits.Add(new UnitWithInjuryStatus(entry.unitData, false));
+            }
+            for (int i = 0; i < entry.injuredQuantity; i++)
+            {
+                allUnits.Add(new UnitWithInjuryStatus(entry.unitData, true));
             }
         }
-        return allCards;
+        return allUnits;
     }
     
     /// <summary>
@@ -172,5 +176,19 @@ public class DeckEntry
         this.unitData = unitData;
         this.quantity = quantity;
         this.injuredQuantity = 0; // 初始为0
+    }
+}
+
+// 定义一个类，用于存储单位和其负伤状态
+[System.Serializable]
+public class UnitWithInjuryStatus
+{
+    public UnitData unitData;
+    public bool isInjured;
+
+    public UnitWithInjuryStatus(UnitData unitData, bool isInjured)
+    {
+        this.unitData = unitData;
+        this.isInjured = isInjured;
     }
 }

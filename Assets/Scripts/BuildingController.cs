@@ -320,6 +320,9 @@ public class BuildingController : MonoBehaviour, ISkillUser
     /// <param name="damage">伤害值</param>
     public virtual void TakeDamage(int damage)
     {
+        if(isRuin)
+            return;
+        
         currentHealth -= damage;
         Debug.Log($"BuildingController: 建筑物 {buildingData.buildingName} 受到 {damage} 点伤害，当前生命值：{currentHealth}");
 
@@ -334,6 +337,8 @@ public class BuildingController : MonoBehaviour, ISkillUser
 
             Debug.Log($"BuildingController: 建筑物 {buildingData.buildingName} 被摧毁，变为废墟！");
         }
+        
+        currentHealth = Mathf.Clamp(currentHealth, 0, buildingData.maxHealth);
     }
 
     /// <summary>

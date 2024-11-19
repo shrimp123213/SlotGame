@@ -33,7 +33,7 @@ public class SlotMachineController : MonoBehaviour
     private List<GameObject> spinningUnits = new List<GameObject>(); // 存储正在旋转的单位
 
     private List<Vector3Int> battlePositions = new List<Vector3Int>(); // 战斗区域的所有格子位置
-    private List<UnitData> selectedCards = new List<UnitData>();        // 抽取的卡片
+    private List<UnitWithInjuryStatus> selectedCards = new List<UnitWithInjuryStatus>();        // 抽取的卡片包含负伤状态
 
     public bool isSpinning = false;
     
@@ -261,112 +261,163 @@ public class SlotMachineController : MonoBehaviour
 
 
     /// <summary>
-    /// 执行加权抽取，根据选中的列和单元的偏好位置
+    /// 执行加权抽取并放置卡片到战斗区域
     /// </summary>
-    /// <param name="selectedColumn">转盘选择的列</param>
-    /// <summary>
-/// 执行加权抽取并放置卡片到战斗区域
-/// </summary>
-public void WeightedDrawAndPlaceCards()
-{
-    Debug.Log("WeightedDrawAndPlaceCards: 开始抽取并放置卡牌");
-
-    // 定义权重映射，您可以根据需要调整权重值
-    var weightMap = new Dictionary<PreferredPosition, int>
+    public void WeightedDrawAndPlaceCards()
     {
-        { PreferredPosition.Left, 4 },
-        { PreferredPosition.Any, 2 },
-        { PreferredPosition.Right, 1 }
-    };
+        Debug.Log("WeightedDrawAndPlaceCards: 开始抽取并放置卡牌");
 
-    // 获取所有可抽取的单位
-    var availableEntries = new List<DeckEntry>();
-    availableEntries.AddRange(playerDeck.entries);
-    availableEntries.AddRange(enemyDeck.entries);
-
-    // 初始化抽取的卡片列表
-    selectedCards = new List<UnitData>();
-
-    // 计算可用的总卡片数量
-    var totalAvailableCards = 0;
-    foreach (var entry in availableEntries)
-        if (entry.unitData != null && entry.quantity > 0)
-            totalAvailableCards += entry.quantity;
-
-    Debug.Log($"WeightedDrawAndPlaceCards: 总可用卡片数量: {totalAvailableCards}");
-
-    // 如果总可用卡片数量小于 maxCards，调整 cardsToDraw
-    var cardsToDraw = Mathf.Min(maxCards, totalAvailableCards);
-
-    // 开始抽取过程
-    for (var i = 0; i < cardsToDraw; i++)
-    {
-        // 更新当前可用的 DeckEntry（quantity > 0）
-        var currentAvailableEntries = new List<DeckEntry>();
-        foreach (var entry in availableEntries)
-            if (entry.unitData != null && entry.quantity > 0)
-                currentAvailableEntries.Add(entry);
-
-        if (currentAvailableEntries.Count == 0)
+        // 定义权重映射，可以根据需要调整权重值
+        var weightMap = new Dictionary<PreferredPosition, int>
         {
-            Debug.Log("WeightedDrawAndPlaceCards: 没有更多可抽取的卡牌！");
-            break;
-        }
+            { PreferredPosition.Left, 4 },
+            { PreferredPosition.Any, 2 },
+            { PreferredPosition.Right, 1 }
+        };
 
-        // 计算总权重
-        var totalWeight = 0;
-        foreach (var entry in currentAvailableEntries)
+        // 获取所有可抽取的单位，包括正常和负伤的
+        var availableUnits = new List<UnitWithQuantity>();
+
+        // 获取玩家和敌人的可用单位
+        var playerUnits = playerDeck.GetAllUnitsWithInjuryStatus();
+        var enemyUnits = enemyDeck.GetAllUnitsWithInjuryStatus();
+
+        // 合并所有可用单位
+        var allUnits = new List<UnitWithInjuryStatus>();
+        allUnits.AddRange(playerUnits);
+        allUnits.AddRange(enemyUnits);
+
+        // 统计每种单位的数量
+        foreach (var unit in allUnits)
         {
-            var pos = entry.unitData.preferredPosition;
-            if (weightMap.ContainsKey(pos))
-                totalWeight += weightMap[pos];
-            else
-                // 默认权重，如果没有指定
-                totalWeight += weightMap.ContainsKey(PreferredPosition.Any) ? weightMap[PreferredPosition.Any] : 1;
-        }
-
-        if (totalWeight <= 0)
-        {
-            Debug.LogWarning("WeightedDrawAndPlaceCards: 总权重为0，无法继续抽取！");
-            break;
-        }
-
-        // 生成一个随机数
-        var randomWeight = Random.Range(0, totalWeight);
-
-        // 选择对应的 DeckEntry
-        var cumulativeWeight = 0;
-        DeckEntry selectedEntry = null;
-        foreach (var entry in currentAvailableEntries)
-        {
-            var pos = entry.unitData.preferredPosition;
-            var entryWeight = weightMap.ContainsKey(pos) ? weightMap[pos] :
-                weightMap.ContainsKey(PreferredPosition.Any) ? weightMap[PreferredPosition.Any] : 1;
-            cumulativeWeight += entryWeight;
-            if (randomWeight < cumulativeWeight)
+            var existingUnit = availableUnits.Find(u => u.unitData == unit.unitData && u.isInjured == unit.isInjured);
+            if (existingUnit != null)
             {
-                selectedEntry = entry;
-                break;
+                existingUnit.quantity += 1;
+            }
+            else
+            {
+                availableUnits.Add(new UnitWithQuantity(unit.unitData, 1, unit.isInjured));
             }
         }
 
-        if (selectedEntry == null)
+        // 计算可用的总卡片数量
+        var totalAvailableCards = 0;
+        foreach (var unit in availableUnits)
         {
-            Debug.LogWarning("WeightedDrawAndPlaceCards: 没有选中的 DeckEntry！");
-            break;
+            totalAvailableCards += unit.quantity;
         }
 
-        // 添加到 selectedCards 并减少 quantity
-        selectedCards.Add(selectedEntry.unitData);
-        selectedEntry.quantity -= 1;
+        Debug.Log($"WeightedDrawAndPlaceCards: 总可用卡片数量: {totalAvailableCards}");
+
+        // 如果总可用卡片数量小于 maxCards，调整 cardsToDraw
+        var cardsToDraw = Mathf.Min(maxCards, totalAvailableCards);
+
+        // 开始抽取过程
+        for (var i = 0; i < cardsToDraw; i++)
+        {
+            // 更新当前可用的单位列表
+            var currentAvailableUnits = new List<UnitWithQuantity>(availableUnits);
+
+            if (currentAvailableUnits.Count == 0)
+            {
+                Debug.Log("WeightedDrawAndPlaceCards: 没有更多可抽取的卡牌！");
+                break;
+            }
+
+            // 计算总权重
+            var totalWeight = 0;
+            foreach (var unit in currentAvailableUnits)
+            {
+                var pos = unit.unitData.preferredPosition;
+                var entryWeight = weightMap.ContainsKey(pos) ? weightMap[pos] :
+                    weightMap.ContainsKey(PreferredPosition.Any) ? weightMap[PreferredPosition.Any] : 1;
+
+                totalWeight += unit.quantity * entryWeight;
+            }
+
+            if (totalWeight <= 0)
+            {
+                Debug.LogWarning("WeightedDrawAndPlaceCards: 总权重为0，无法继续抽取！");
+                break;
+            }
+
+            // 生成一个随机数
+            var randomWeight = Random.Range(0, totalWeight);
+
+            // 选择对应的单位
+            var cumulativeWeight = 0;
+            UnitWithQuantity selectedUnit = null;
+            foreach (var unit in currentAvailableUnits)
+            {
+                var pos = unit.unitData.preferredPosition;
+                var entryWeight = weightMap.ContainsKey(pos) ? weightMap[pos] :
+                    weightMap.ContainsKey(PreferredPosition.Any) ? weightMap[PreferredPosition.Any] : 1;
+
+                var unitWeight = unit.quantity * entryWeight;
+                cumulativeWeight += unitWeight;
+
+                if (randomWeight < cumulativeWeight)
+                {
+                    selectedUnit = unit;
+                    break;
+                }
+            }
+
+            if (selectedUnit == null)
+            {
+                Debug.LogWarning("WeightedDrawAndPlaceCards: 没有选中的单位！");
+                break;
+            }
+
+            // 添加到 selectedCards 并减少数量
+            selectedCards.Add(new UnitWithInjuryStatus(selectedUnit.unitData, selectedUnit.isInjured));
+            selectedUnit.quantity -= 1;
+
+            if (selectedUnit.quantity <= 0)
+            {
+                availableUnits.Remove(selectedUnit);
+            }
+
+            // 从对应的牌组中减少数量
+            DeckEntry correspondingEntry = null;
+            if (selectedUnit.unitData.camp == Camp.Player)
+            {
+                correspondingEntry = playerDeck.entries.Find(entry => entry.unitData == selectedUnit.unitData);
+            }
+            else if (selectedUnit.unitData.camp == Camp.Enemy)
+            {
+                correspondingEntry = enemyDeck.entries.Find(entry => entry.unitData == selectedUnit.unitData);
+            }
+
+            if (correspondingEntry != null)
+            {
+                if (selectedUnit.isInjured)
+                    correspondingEntry.injuredQuantity -= 1;
+                else
+                    correspondingEntry.quantity -= 1;
+            }
+        }
+
+        // 放置卡片到战斗区域
+        ShuffleAndPlaceCards();
     }
+    
+    // 定义一个类，用于存储单位、数量和负伤状态
+    public class UnitWithQuantity
+    {
+        public UnitData unitData;
+        public int quantity;
+        public bool isInjured;
 
-    // 放置卡片到战斗区域
-    ShuffleAndPlaceCards();
-}
-
-
-
+        public UnitWithQuantity(UnitData unitData, int quantity, bool isInjured)
+        {
+            this.unitData = unitData;
+            this.quantity = quantity;
+            this.isInjured = isInjured;
+        }
+    }
+    
     /// <summary>
     /// 随机放置卡片到战斗区域的格子上，若不足 maxCards 张，用空白格填充
     /// </summary>
@@ -397,8 +448,8 @@ public void WeightedDrawAndPlaceCards()
             if (i < selectedCards.Count)
             {
                 // 放置卡片
-                UnitData unitDataToSpawn = selectedCards[i];
-                gridManager.SpawnUnit(selectedPos, unitDataToSpawn);
+                UnitWithInjuryStatus unitToSpawn = selectedCards[i];
+                gridManager.SpawnUnit(selectedPos, unitToSpawn.unitData, unitToSpawn.isInjured);
             }
             else
             {

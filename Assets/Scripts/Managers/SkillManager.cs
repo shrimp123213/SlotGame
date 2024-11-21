@@ -62,6 +62,7 @@ public class SkillManager : MonoBehaviour
             {
                 case SkillType.Melee:
                 case SkillType.Ranged:
+                case SkillType.Breakage:
                     if (action.TargetType != TargetType.Enemy)
                     {
                         Debug.LogWarning($"SkillManager: SkillAction {action.Type} 应该只对敌方生效。强制设置为 Enemy。");
@@ -93,7 +94,7 @@ public class SkillManager : MonoBehaviour
                     {
                         if (user.CanMoveForward())
                         {
-                            user.MoveForward();
+                            yield return StartCoroutine(user.MoveForward()); // 等待移动完成
                             yield return new WaitForSeconds(0.1f); // 可根据需要调整移动间隔
                         }
                         else
@@ -106,18 +107,23 @@ public class SkillManager : MonoBehaviour
                     break;
 
                 case SkillType.Melee:
-                    user.PerformMeleeAttack(action.TargetType);
+                    yield return StartCoroutine(user.PerformMeleeAttack(action.TargetType)); // 等待攻击完成
                     yield return new WaitForSeconds(0.1f); // 可根据需要调整攻击间隔
                     break;
 
                 case SkillType.Ranged:
-                    user.PerformRangedAttack(action.TargetType);
+                    yield return StartCoroutine(user.PerformRangedAttack(action.TargetType)); // 等待攻击完成
                     yield return new WaitForSeconds(0.1f); // 可根据需要调整攻击间隔
                     break;
 
                 case SkillType.Defense:
-                    user.IncreaseDefense(action.Value, action.TargetType);
+                    yield return StartCoroutine(user.IncreaseDefense(action.Value, action.TargetType)); // 等待防御完成
                     yield return null; // 防御动作通常是即时的
+                    break;
+                
+                case SkillType.Breakage:
+                    yield return StartCoroutine(user.PerformBreakage(action.Value)); // 等待破壞完成
+                    yield return new WaitForSeconds(0.1f); // 可根据需要调整破壞间隔
                     break;
 
                 default:
@@ -139,64 +145,16 @@ public class SkillManager : MonoBehaviour
                     else
                     {
                         Debug.Log($"SkillManager: {unit.unitData.unitName} 被阻挡，前方无友方单位，执行主技能的剩余动作。");
-                        // 执行主技能的剩余动作
-                        StartCoroutine(ExecuteRemainingSkillActionsCoroutine(runtimeSkill, user));
+                        // 根据需要，决定是否执行剩余动作
                     }
                 }
                 else
                 {
-                    // 对于建筑物，直接执行剩余的技能动作
-                    StartCoroutine(ExecuteRemainingSkillActionsCoroutine(runtimeSkill, user));
+                    // 对于建筑物，直接继续执行
                 }
-                break; // Exit the action loop
+                break; // 退出动作循环
             }
         }
-
-        if (!movementBlocked)
-        {
-            // 移动未被阻挡，执行主技能的非移动动作
-            StartCoroutine(ExecuteRemainingSkillActionsCoroutine(runtimeSkill, user));
-        }
-    }
-
-    /// <summary>
-    /// 协程执行技能的非移动动作
-    /// </summary>
-    /// <param name="runtimeSkill">运行时Skill实例</param>
-    /// <param name="user">执行技能的用户（单位或建筑物）</param>
-    /// <returns></returns>
-    private IEnumerator ExecuteRemainingSkillActionsCoroutine(Skill runtimeSkill, ISkillUser user)
-    {
-        if (runtimeSkill == null || runtimeSkill.Actions == null)
-        {
-            Debug.LogError("SkillManager: 运行时Skill实例或其动作列表为 null！");
-            yield break;
-        }
-
-        foreach (var action in runtimeSkill.Actions)
-        {
-            switch (action.Type)
-            {
-                case SkillType.Melee:
-                case SkillType.Ranged:
-                case SkillType.Defense:
-                    // 这些已经在主协程中处理过
-                    break;
-                default:
-                    switch (action.Type)
-                    {
-                        case SkillType.Move:
-                            // 已在主协程中处理
-                            break;
-                        default:
-                            Debug.LogWarning($"SkillManager: 未处理的技能类型：{action.Type}");
-                            break;
-                    }
-                    break;
-            }
-        }
-
-        yield return null;
     }
 
     /// <summary>

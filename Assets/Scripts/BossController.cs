@@ -2,12 +2,14 @@ using DG.Tweening;
 using UnityEngine;
 using UnityEngine.UI;
 using System;
+using System.Collections;
 
 public class BossController : MonoBehaviour, ISkillUser
 {
     public BossData bossData;
     public int currentHealth;
     public int maxHealth;
+    public int defensePoints;
     
     public Vector3Int gridPosition; // 单位在格子上的位置
     
@@ -20,6 +22,9 @@ public class BossController : MonoBehaviour, ISkillUser
     
     // 添加对 Sprite 子对象的引用
     private Transform spriteTransform;
+    
+    private bool isDead = false;
+    public bool IsDead => isDead;
 
     private void Start()
     {
@@ -102,29 +107,203 @@ public class BossController : MonoBehaviour, ISkillUser
         return false;
     }
 
-    public void MoveForward()
+    public IEnumerator MoveForward()
     {
-        
+        yield break;
     }
 
-    public void PerformMeleeAttack(TargetType targetType)
+    public IEnumerator PerformMeleeAttack(TargetType targetType)
     {
-        
+        // 执行近战攻击动画
+        yield return StartCoroutine(PlayMeleeAttackAnimation());
+
+        // 执行攻击逻辑
+        PerformMeleeAttackLogic(targetType);
     }
 
-    public void PerformRangedAttack(TargetType targetType)
+    public IEnumerator PerformRangedAttack(TargetType targetType)
     {
-        
+        // 执行远程攻击动画
+        yield return StartCoroutine(PlayRangedAttackAnimation());
+
+        // 执行攻击逻辑
+        PerformRangedAttackLogic(targetType);
     }
 
-    public void IncreaseDefense(int value, TargetType targetType)
+    public IEnumerator IncreaseDefense(int value, TargetType targetType)
     {
-        
+        if (targetType == TargetType.Friendly || targetType == TargetType.Self)
+        {
+            // 执行防御增加动画
+            yield return StartCoroutine(PlayIncreaseDefenseAnimation());
+
+            defensePoints += value;
+            Debug.Log($"BossController: Boss {bossData.bossName} 防御点数增加 {value}，当前防御点数：{defensePoints}");
+        }
+        else
+        {
+            Debug.LogWarning($"BossController: Boss {bossData.bossName} 尝试对非友方进行防卫！");
+        }
+    }
+
+    public IEnumerator PerformBreakage(int breakagePoints)
+    {
+        // 执行破壞动画
+        yield return StartCoroutine(PlayBreakageAnimation());
+
+        // 执行破壞逻辑
+        PerformBreakageLogic(breakagePoints);
+    }
+    
+    // 示例动画协程
+    private IEnumerator PlayMeleeAttackAnimation()
+    {
+        Animator animator = GetComponent<Animator>();
+        if (animator != null)
+        {
+            animator.SetTrigger("MeleeAttack");
+            yield return new WaitForSeconds(0.5f);
+        }
+        else
+        {
+            yield return null;
+        }
+    }
+
+    private IEnumerator PlayRangedAttackAnimation()
+    {
+        Animator animator = GetComponent<Animator>();
+        if (animator != null)
+        {
+            animator.SetTrigger("RangedAttack");
+            yield return new WaitForSeconds(0.5f);
+        }
+        else
+        {
+            yield return null;
+        }
+    }
+
+    private IEnumerator PlayIncreaseDefenseAnimation()
+    {
+        Animator animator = GetComponent<Animator>();
+        if (animator != null)
+        {
+            animator.SetTrigger("IncreaseDefense");
+            yield return new WaitForSeconds(0.3f);
+        }
+        else
+        {
+            yield return null;
+        }
+    }
+
+    private IEnumerator PlayBreakageAnimation()
+    {
+        // 假设有一个破壞动画
+        Animator animator = GetComponent<Animator>();
+        if (animator != null)
+        {
+            animator.SetTrigger("Breakage");
+            yield return new WaitForSeconds(0.3f);
+        }
+        else
+        {
+            yield return null;
+        }
+    }
+    
+    // 实现动作逻辑
+    private void PerformMeleeAttackLogic(TargetType targetType)
+    {
+        // 近战攻击逻辑
+        if (targetType == TargetType.Enemy)
+        {
+            Vector3Int attackDirection = bossData.camp == Camp.Player ? Vector3Int.left : Vector3Int.right;
+            Vector3Int targetPosition = gridPosition + attackDirection;
+
+            UnitController targetUnit = GridManager.Instance.GetUnitAt(targetPosition);
+            BuildingController targetBuilding = GridManager.Instance.GetBuildingAt(targetPosition);
+
+            if (targetUnit != null && targetUnit.unitData.camp != bossData.camp)
+            {
+                targetUnit.TakeDamage(1);
+                Debug.Log($"BossController: BOSS {bossData.bossName} 对 {targetUnit.unitData.unitName} 进行近战攻击，造成1点伤害！");
+            }
+            else if (targetBuilding != null && targetBuilding.buildingData.camp != bossData.camp && !targetBuilding.isRuin)
+            {
+                targetBuilding.TakeDamage(1);
+                Debug.Log($"BossController: BOSS {bossData.bossName} 对建筑物 {targetBuilding.buildingData.buildingName} 进行近战攻击，造成1点伤害！");
+            }
+            else
+            {
+                Debug.Log($"BossController: BOSS {bossData.bossName} 近战攻击无目标或目标为友方！");
+            }
+        }
+    }
+
+    private void PerformRangedAttackLogic(TargetType targetType)
+    {
+        // 远程攻击逻辑
+        if (targetType == TargetType.Enemy)
+        {
+            Vector3Int attackDirection = bossData.camp == Camp.Player ? Vector3Int.left : Vector3Int.right;
+            Vector3Int currentPos = gridPosition + attackDirection;
+
+            bool hasAttacked = false;
+
+            while (GridManager.Instance.IsWithinBattleArea(currentPos))
+            {
+                UnitController targetUnit = GridManager.Instance.GetUnitAt(currentPos);
+                BuildingController targetBuilding = GridManager.Instance.GetBuildingAt(currentPos);
+
+                if (targetUnit != null && targetUnit.unitData.camp != bossData.camp)
+                {
+                    targetUnit.TakeDamage(1);
+                    Debug.Log($"BossController: BOSS {bossData.bossName} 对 {targetUnit.name} 进行远程攻击，造成1点伤害！");
+                    hasAttacked = true;
+                    break; // 只攻击第一个目标
+                }
+                else if (targetBuilding != null && targetBuilding.buildingData.camp != bossData.camp && !targetBuilding.isRuin)
+                {
+                    targetBuilding.TakeDamage(1);
+                    Debug.Log($"BossController: BOSS {bossData.bossName} 对建筑物 {targetBuilding.name} 进行远程攻击，造成1点伤害！");
+                    hasAttacked = true;
+                    break; // 只攻击第一个目标
+                }
+
+                currentPos += attackDirection;
+            }
+
+            if (!hasAttacked)
+            {
+                Debug.Log($"BossController: BOSS {bossData.bossName} 远程攻击无目标或目标为友方！");
+            }
+        }
+    }
+
+    private void IncreaseDefenseLogic(int value, TargetType targetType)
+    {
+        if (targetType == TargetType.Friendly || targetType == TargetType.Self)
+        {
+            defensePoints += value;
+            Debug.Log($"BossController: Boss {bossData.bossName} 防御点数增加 {value}，当前防御点数：{defensePoints}");
+        }
+        else
+        {
+            Debug.LogWarning($"BossController: Boss {bossData.bossName} 尝试对非友方进行防卫！");
+        }
+    }
+    
+    private void PerformBreakageLogic(int breakagePoints)
+    {
+        // 破壞逻辑已经在 PerformBreakage 方法中实现
     }
 
     public void TakeDamage(int damage)
     {
-        PlayHitAnimation(() =>
+        StartCoroutine(HandleTakeDamage(damage));
+        /*PlayHitAnimation(() =>
         {
             currentHealth -= damage;
             Debug.Log($"BossController: BOSS {bossData.bossName} 受到 {damage} 点伤害，当前生命值：{currentHealth}");
@@ -139,19 +318,47 @@ public class BossController : MonoBehaviour, ISkillUser
             {
                 OnBossDefeated();
             }
-        });
+        });*/
+    }
+    
+    private IEnumerator HandleTakeDamage(int damage)
+    {
+        // 执行受击动画
+        yield return StartCoroutine(PlayHitAnimation());
+
+        // 首先扣除防御点数
+        int remainingDamage = damage - defensePoints;
+        if (remainingDamage > 0)
+        {
+            currentHealth -= remainingDamage;
+            Debug.Log($"BossController: BOSS {bossData.bossName} 接受 {remainingDamage} 点伤害，当前生命值: {currentHealth}");
+        }
+        else
+        {
+            defensePoints -= damage;
+            Debug.Log($"BossController: BOSS {bossData.bossName} 防御点数抵消了 {damage} 点伤害，剩余防御点数: {defensePoints}");
+        }
+
+        // 更新生命值条
+        UpdateHealthBar();
+
+        if (currentHealth <= 0 && !isDead)
+        {
+            isDead = true;
+            OnBossDefeated();
+        }
     }
     
     /// <summary>
     /// 播放受击动画
     /// </summary>
-    public void PlayHitAnimation(Action onComplete = null)
+    public IEnumerator PlayHitAnimation(Action onComplete = null)
     {
         if (spriteTransform == null)
         {
             Debug.LogWarning("UnitController: spriteTransform 未设置，无法播放受击动画！");
             onComplete?.Invoke();
-            return;
+            yield break;
         }
 
         float moveDistance = 0.2f; // 向后移动的距离
@@ -177,10 +384,19 @@ public class BossController : MonoBehaviour, ISkillUser
         {
             hitSequence.OnComplete(() => onComplete());
         }
+        
+        // 等待动画完成
+        yield return hitSequence.WaitForCompletion();
     }
 
     public void Heal(int amount)
     {
+        if (isDead)
+        {
+            Debug.Log($"BossController: Boss {bossData.bossName} 已被摧毁，无法恢复生命值！");
+            return;
+        }
+        
         currentHealth = Mathf.Min(currentHealth + amount, maxHealth);
         Debug.Log($"BossController: BOSS {bossData.bossName} 恢复了 {amount} 点生命值，当前生命值：{currentHealth}");
         UpdateHealthBar();

@@ -15,31 +15,31 @@ MonoBehaviour:
   entries:
   - unitData: {fileID: 11400000, guid: 232ff39822cc9af4688264eb202623ed, type: 2}
     quantity: 0
-    injuredQuantity: 240
+    injuredQuantity: 0
   - unitData: {fileID: 11400000, guid: 2f0dd851c7e746f4486d2f55353d7da8, type: 2}
     quantity: 0
-    injuredQuantity: 240
+    injuredQuantity: 0
   - unitData: {fileID: 11400000, guid: f286fff2bf9f76347b793dab44a2f37c, type: 2}
     quantity: 0
-    injuredQuantity: 240
+    injuredQuantity: 0
   - unitData: {fileID: 11400000, guid: 3d26e0ecdf457a44ab75cbb14ce24087, type: 2}
     quantity: 0
-    injuredQuantity: 240
+    injuredQuantity: 0
   - unitData: {fileID: 11400000, guid: b114754a8846348469110839ddf09117, type: 2}
     quantity: 0
-    injuredQuantity: 240
+    injuredQuantity: 0
   - unitData: {fileID: 11400000, guid: cb1c334de2811a54e835aac8ed1bad66, type: 2}
     quantity: 0
-    injuredQuantity: 240
+    injuredQuantity: 0
   - unitData: {fileID: 11400000, guid: 361f8ffa698006a489576df815e656bf, type: 2}
     quantity: 0
-    injuredQuantity: 240
+    injuredQuantity: 0
   - unitData: {fileID: 11400000, guid: d085bfd9e528a414e8f4a5b39aa305bc, type: 2}
-    quantity: 0
-    injuredQuantity: 240
+    quantity: 2
+    injuredQuantity: 0
   - unitData: {fileID: 11400000, guid: 402227f40a7a66645bea6205d7028860, type: 2}
     quantity: 0
-    injuredQuantity: 240
+    injuredQuantity: 0
   - unitData: {fileID: 11400000, guid: 5088c442eb6dc4b4e9b1d211ea39d138, type: 2}
     quantity: 0
-    injuredQuantity: 240
+    injuredQuantity: 0

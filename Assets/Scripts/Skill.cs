@@ -74,6 +74,7 @@ public enum SkillType
     Ranged,
     Defense,
     Repair,
+    Breakage,
     // 可以根据需要添加更多的技能类型
 }
 
@@ -81,5 +82,6 @@ public enum TargetType
 {
     Self,       // 只對自身生效
     Enemy,      // 只對敵方生效
-    Friendly    // 只對友方生效
+    Friendly,   // 只對友方生效
+    All         // 针对所有相关目标生效（可选）
 }

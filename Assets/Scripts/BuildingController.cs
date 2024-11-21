@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -209,7 +210,7 @@ public class BuildingController : MonoBehaviour, ISkillUser
     /// <summary>
     /// 执行近战攻击
     /// </summary>
-    public virtual void PerformMeleeAttack(TargetType targetType)
+    public virtual IEnumerator PerformMeleeAttack(TargetType targetType)
     {
         if (targetType == TargetType.Enemy)
         {
@@ -221,11 +222,17 @@ public class BuildingController : MonoBehaviour, ISkillUser
 
             if (targetUnit != null && targetUnit.unitData.camp != buildingData.camp)
             {
+                // 执行攻击动画
+                yield return StartCoroutine(PlayMeleeAttackAnimation());
+
                 targetUnit.TakeDamage(1);
                 Debug.Log($"BuildingController: 建筑物 {buildingData.buildingName} 对 {targetUnit.unitData.unitName} 进行近战攻击，造成1点伤害！");
             }
-            else if (targetBuilding != null && targetBuilding.buildingData.camp != buildingData.camp)
+            else if (targetBuilding != null && targetBuilding.buildingData.camp != buildingData.camp && !targetBuilding.isRuin)
             {
+                // 执行攻击动画
+                yield return StartCoroutine(PlayMeleeAttackAnimation());
+
                 targetBuilding.TakeDamage(1);
                 Debug.Log($"BuildingController: 建筑物 {buildingData.buildingName} 对建筑物 {targetBuilding.buildingData.buildingName} 进行近战攻击，造成1点伤害！");
             }
@@ -237,7 +244,7 @@ public class BuildingController : MonoBehaviour, ISkillUser
         else if (targetType == TargetType.Friendly || targetType == TargetType.Self)
         {
             // 防卫技能，只对自身或友方生效
-            //IncreaseDefense(1, targetType);
+            //yield return StartCoroutine(IncreaseDefense(value, targetType));
         }
         else
         {
@@ -248,7 +255,7 @@ public class BuildingController : MonoBehaviour, ISkillUser
     /// <summary>
     /// 执行远程攻击
     /// </summary>
-    public virtual void PerformRangedAttack(TargetType targetType)
+    public virtual IEnumerator PerformRangedAttack(TargetType targetType)
     {
         if (targetType == TargetType.Enemy)
         {
@@ -264,13 +271,19 @@ public class BuildingController : MonoBehaviour, ISkillUser
 
                 if (targetUnit != null && targetUnit.unitData.camp != buildingData.camp)
                 {
+                    // 执行攻击动画
+                    yield return StartCoroutine(PlayRangedAttackAnimation());
+
                     targetUnit.TakeDamage(1);
                     Debug.Log($"BuildingController: 建筑物 {buildingData.buildingName} 对 {targetUnit.name} 进行远程攻击，造成1点伤害！");
                     hasAttacked = true;
                     break; // 只攻击第一个目标
                 }
-                else if (targetBuilding != null && targetBuilding.buildingData.camp != buildingData.camp)
+                else if (targetBuilding != null && targetBuilding.buildingData.camp != buildingData.camp && !targetBuilding.isRuin)
                 {
+                    // 执行攻击动画
+                    yield return StartCoroutine(PlayRangedAttackAnimation());
+
                     targetBuilding.TakeDamage(1);
                     Debug.Log($"BuildingController: 建筑物 {buildingData.buildingName} 对建筑物 {targetBuilding.name} 进行远程攻击，造成1点伤害！");
                     hasAttacked = true;
@@ -288,7 +301,7 @@ public class BuildingController : MonoBehaviour, ISkillUser
         else if (targetType == TargetType.Friendly || targetType == TargetType.Self)
         {
             // 防卫技能，只对自身或友方生效
-            //IncreaseDefense(1, targetType);
+            //yield return StartCoroutine(IncreaseDefense(value, targetType));
         }
         else
         {
@@ -301,10 +314,13 @@ public class BuildingController : MonoBehaviour, ISkillUser
     /// </summary>
     /// <param name="value">增加的防卫点数</param>
     /// <param name="targetType">目标类型</param>
-    public virtual void IncreaseDefense(int value, TargetType targetType)
+    public virtual IEnumerator IncreaseDefense(int value, TargetType targetType)
     {
         if (targetType == TargetType.Friendly || targetType == TargetType.Self)
         {
+            // 执行防御动画
+            yield return StartCoroutine(PlayIncreaseDefenseAnimation());
+
             defensePoints += value;
             Debug.Log($"BuildingController: 建筑物 {buildingData.buildingName} 防卫点数增加 {value}，当前防卫点数：{defensePoints}");
         }
@@ -312,6 +328,14 @@ public class BuildingController : MonoBehaviour, ISkillUser
         {
             Debug.LogWarning($"BuildingController: 建筑物 {buildingData.buildingName} 尝试对非友方进行防卫！");
         }
+    }
+
+    public virtual IEnumerator PerformBreakage(int breakagePoints)
+    {
+        // 破壞建筑物时的逻辑
+        Debug.Log($"BuildingController: 建筑物 {buildingData.buildingName} 被破壞，减少 {breakagePoints} 点生命值！");
+        TakeDamage(breakagePoints);
+        yield break;
     }
 
     /// <summary>
@@ -331,10 +355,6 @@ public class BuildingController : MonoBehaviour, ISkillUser
         if (currentHealth <= 0)
         {
             DestroyBuilding();
-            // 通知 GridManager 更新行的状态
-            //int row = gridPosition.y;
-            //GridManager.Instance.SetRowCanAttackBoss(row, true);
-
             Debug.Log($"BuildingController: 建筑物 {buildingData.buildingName} 被摧毁，变为废墟！");
         }
         
@@ -447,14 +467,14 @@ public class BuildingController : MonoBehaviour, ISkillUser
                                 Debug.Log($"BuildingController: 建筑物 {buildingData.buildingName} 无法继续移动，技能执行被阻挡！");
                                 break;
                             }
-                            MoveForward();
+                            StartCoroutine(MoveForward());
                         }
                         break;
                     case SkillType.Melee:
-                        PerformMeleeAttack(action.TargetType);
+                        StartCoroutine(PerformMeleeAttack(action.TargetType));
                         break;
                     case SkillType.Ranged:
-                        PerformRangedAttack(action.TargetType);
+                        StartCoroutine(PerformRangedAttack(action.TargetType));
                         break;
                     case SkillType.Defense:
                         //IncreaseDefense(action.Value, action.TargetType);
@@ -470,13 +490,59 @@ public class BuildingController : MonoBehaviour, ISkillUser
         }
     }
 
-    public virtual void MoveForward()
+    public virtual IEnumerator MoveForward()
     {
         Debug.Log("建築物無法移動！");
+        yield break;
     }
 
     public virtual bool CanMoveForward()
     {
         return false;
+    }
+    
+    // 示例动画协程
+    private IEnumerator PlayMeleeAttackAnimation()
+    {
+        // 假设有一个动画组件
+        Animator animator = GetComponent<Animator>();
+        if (animator != null)
+        {
+            animator.SetTrigger("MeleeAttack");
+            // 等待动画完成，这里假设动画持续时间为0.5秒
+            yield return new WaitForSeconds(0.5f);
+        }
+        else
+        {
+            yield return null;
+        }
+    }
+
+    private IEnumerator PlayRangedAttackAnimation()
+    {
+        Animator animator = GetComponent<Animator>();
+        if (animator != null)
+        {
+            animator.SetTrigger("RangedAttack");
+            yield return new WaitForSeconds(0.5f);
+        }
+        else
+        {
+            yield return null;
+        }
+    }
+
+    private IEnumerator PlayIncreaseDefenseAnimation()
+    {
+        Animator animator = GetComponent<Animator>();
+        if (animator != null)
+        {
+            animator.SetTrigger("IncreaseDefense");
+            yield return new WaitForSeconds(0.3f);
+        }
+        else
+        {
+            yield return null;
+        }
     }
 }

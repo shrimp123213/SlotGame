@@ -1,0 +1,109 @@
+<html>
+<head>
+<title>ComboCalculator.cs</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #6c95eb;}
+.s1 { color: #d0d0d0;}
+.s2 { color: #bdbdbd;}
+.s3 { color: #85c46c; font-style: italic;}
+.s4 { color: #c9a26d;}
+.s5 { color: #ed94c0;}
+</style>
+</head>
+<body bgcolor="#262626">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#606060" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+ComboCalculator.cs</font>
+</center></td></tr></table>
+<pre><span class="s0">using </span><span class="s1">System</span><span class="s2">.</span><span class="s1">Collections</span><span class="s2">.</span><span class="s1">Generic</span><span class="s2">;</span>
+<span class="s0">using </span><span class="s1">UnityEngine</span><span class="s2">;</span>
+
+<span class="s0">public static class </span><span class="s1">ComboCalculator</span>
+<span class="s2">{</span>
+    <span class="s3">/// &lt;summary&gt;</span>
+    <span class="s3">/// 计算连线 COMBO</span>
+    <span class="s3">/// &lt;/summary&gt;</span>
+    <span class="s3">/// &lt;param name=&quot;gridManager&quot;&gt;GridManager 实例&lt;/param&gt;</span>
+    <span class="s0">public static void </span><span class="s1">CalculateCombo</span><span class="s2">(</span><span class="s1">GridManager gridManager</span><span class="s2">)</span>
+    <span class="s2">{</span>
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">gridManager </span><span class="s2">== </span><span class="s0">null</span><span class="s2">)</span>
+        <span class="s2">{</span>
+            <span class="s1">Debug</span><span class="s2">.</span><span class="s1">LogError</span><span class="s2">(</span><span class="s4">&quot;ComboCalculator: GridManager 实例为空！&quot;</span><span class="s2">);</span>
+            <span class="s0">return</span><span class="s2">;</span>
+        <span class="s2">}</span>
+
+        <span class="s0">int </span><span class="s1">comboCount </span><span class="s2">= </span><span class="s5">0</span><span class="s2">;</span>
+
+        <span class="s3">// 示例逻辑：统计所有连续的玩家单位组合，每个组合至少包含2个连续单位</span>
+        <span class="s0">for </span><span class="s2">(</span><span class="s0">int </span><span class="s1">row </span><span class="s2">= </span><span class="s5">0</span><span class="s2">; </span><span class="s1">row </span><span class="s2">&lt; </span><span class="s1">gridManager</span><span class="s2">.</span><span class="s1">rows</span><span class="s2">; </span><span class="s1">row</span><span class="s2">++)</span>
+        <span class="s2">{</span>
+            <span class="s0">int </span><span class="s1">consecutiveUnits </span><span class="s2">= </span><span class="s5">0</span><span class="s2">;</span>
+            <span class="s0">for </span><span class="s2">(</span><span class="s0">int </span><span class="s1">col </span><span class="s2">= </span><span class="s5">1</span><span class="s2">; </span><span class="s1">col </span><span class="s2">&lt;= </span><span class="s1">gridManager</span><span class="s2">.</span><span class="s1">columns</span><span class="s2">; </span><span class="s1">col</span><span class="s2">++)</span>
+            <span class="s2">{</span>
+                <span class="s1">Vector3Int pos </span><span class="s2">= </span><span class="s0">new </span><span class="s1">Vector3Int</span><span class="s2">(</span><span class="s1">col</span><span class="s2">, </span><span class="s1">row</span><span class="s2">, </span><span class="s5">0</span><span class="s2">);</span>
+                <span class="s1">UnitController unit </span><span class="s2">= </span><span class="s1">gridManager</span><span class="s2">.</span><span class="s1">GetUnitAt</span><span class="s2">(</span><span class="s1">pos</span><span class="s2">);</span>
+                <span class="s0">if </span><span class="s2">(</span><span class="s1">unit </span><span class="s2">!= </span><span class="s0">null </span><span class="s2">&amp;&amp; </span><span class="s1">unit</span><span class="s2">.</span><span class="s1">unitData</span><span class="s2">.</span><span class="s1">camp </span><span class="s2">== </span><span class="s1">Camp</span><span class="s2">.</span><span class="s1">Player</span><span class="s2">)</span>
+                <span class="s2">{</span>
+                    <span class="s1">consecutiveUnits</span><span class="s2">++;</span>
+                <span class="s2">}</span>
+                <span class="s0">else</span>
+                <span class="s2">{</span>
+                    <span class="s0">if </span><span class="s2">(</span><span class="s1">consecutiveUnits </span><span class="s2">&gt;= </span><span class="s5">2</span><span class="s2">)</span>
+                    <span class="s2">{</span>
+                        <span class="s1">comboCount</span><span class="s2">++;</span>
+                    <span class="s2">}</span>
+                    <span class="s1">consecutiveUnits </span><span class="s2">= </span><span class="s5">0</span><span class="s2">;</span>
+                <span class="s2">}</span>
+            <span class="s2">}</span>
+            <span class="s3">// 检查行结束时是否有未计数的组合</span>
+            <span class="s0">if </span><span class="s2">(</span><span class="s1">consecutiveUnits </span><span class="s2">&gt;= </span><span class="s5">2</span><span class="s2">)</span>
+            <span class="s2">{</span>
+                <span class="s1">comboCount</span><span class="s2">++;</span>
+            <span class="s2">}</span>
+        <span class="s2">}</span>
+
+        <span class="s3">//Debug.Log($&quot;连线 COMBO 计数：{comboCount}&quot;);</span>
+
+        <span class="s3">// 根据 comboCount 应用奖励或效果</span>
+        <span class="s3">//ApplyComboEffects(comboCount, gridManager);</span>
+    <span class="s2">}</span>
+
+    <span class="s3">/// &lt;summary&gt;</span>
+    <span class="s3">/// 根据连线数应用奖励或效果</span>
+    <span class="s3">/// &lt;/summary&gt;</span>
+    <span class="s3">/// &lt;param name=&quot;comboCount&quot;&gt;连线数量&lt;/param&gt;</span>
+    <span class="s3">/// &lt;param name=&quot;gridManager&quot;&gt;GridManager 实例&lt;/param&gt;</span>
+    <span class="s0">private static void </span><span class="s1">ApplyComboEffects</span><span class="s2">(</span><span class="s0">int </span><span class="s1">comboCount</span><span class="s2">, </span><span class="s1">GridManager gridManager</span><span class="s2">)</span>
+    <span class="s2">{</span>
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">comboCount </span><span class="s2">&gt; </span><span class="s5">0</span><span class="s2">)</span>
+        <span class="s2">{</span>
+            <span class="s3">// 获取所有玩家单位</span>
+            <span class="s1">List</span><span class="s2">&lt;</span><span class="s1">UnitController</span><span class="s2">&gt; </span><span class="s1">playerUnits </span><span class="s2">= </span><span class="s1">gridManager</span><span class="s2">.</span><span class="s1">GetUnitsByCamp</span><span class="s2">(</span><span class="s1">Camp</span><span class="s2">.</span><span class="s1">Player</span><span class="s2">);</span>
+            <span class="s0">if </span><span class="s2">(</span><span class="s1">playerUnits </span><span class="s2">== </span><span class="s0">null </span><span class="s2">|| </span><span class="s1">playerUnits</span><span class="s2">.</span><span class="s1">Count </span><span class="s2">== </span><span class="s5">0</span><span class="s2">)</span>
+            <span class="s2">{</span>
+                <span class="s1">Debug</span><span class="s2">.</span><span class="s1">LogWarning</span><span class="s2">(</span><span class="s4">&quot;ComboCalculator: 没有找到玩家单位来应用奖励！&quot;</span><span class="s2">);</span>
+                <span class="s0">return</span><span class="s2">;</span>
+            <span class="s2">}</span>
+
+            <span class="s3">// 为每个玩家单位恢复生命值，根据 comboCount</span>
+            <span class="s0">foreach </span><span class="s2">(</span><span class="s1">UnitController unit </span><span class="s0">in </span><span class="s1">playerUnits</span><span class="s2">)</span>
+            <span class="s2">{</span>
+                <span class="s0">if </span><span class="s2">(</span><span class="s1">unit </span><span class="s2">!= </span><span class="s0">null</span><span class="s2">)</span>
+                <span class="s2">{</span>
+                    <span class="s1">unit</span><span class="s2">.</span><span class="s1">Heal</span><span class="s2">(</span><span class="s1">comboCount</span><span class="s2">);</span>
+                <span class="s2">}</span>
+            <span class="s2">}</span>
+
+            <span class="s1">Debug</span><span class="s2">.</span><span class="s1">Log</span><span class="s2">(</span><span class="s4">$&quot;应用了 </span><span class="s2">{</span><span class="s1">comboCount</span><span class="s2">} </span><span class="s4">点生命值的奖励！&quot;</span><span class="s2">);</span>
+        <span class="s2">}</span>
+        <span class="s0">else</span>
+        <span class="s2">{</span>
+            <span class="s1">Debug</span><span class="s2">.</span><span class="s1">Log</span><span class="s2">(</span><span class="s4">&quot;没有连线 COMBO，未应用任何奖励！&quot;</span><span class="s2">);</span>
+        <span class="s2">}</span>
+    <span class="s2">}</span>
+<span class="s2">}</span>
+</pre>
+</body>
+</html>

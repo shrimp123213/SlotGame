@@ -1,0 +1,91 @@
+<html>
+<head>
+<title>StatusIconPool.cs</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #6c95eb;}
+.s1 { color: #d0d0d0;}
+.s2 { color: #bdbdbd;}
+.s3 { color: #c9a26d;}
+.s4 { color: #85c46c; font-style: italic;}
+.s5 { color: #ed94c0;}
+</style>
+</head>
+<body bgcolor="#262626">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#606060" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+StatusIconPool.cs</font>
+</center></td></tr></table>
+<pre><span class="s0">using </span><span class="s1">System</span><span class="s2">.</span><span class="s1">Collections</span><span class="s2">.</span><span class="s1">Generic</span><span class="s2">;</span>
+<span class="s0">using </span><span class="s1">UnityEngine</span><span class="s2">;</span>
+
+<span class="s0">public class </span><span class="s1">StatusIconPool : MonoBehaviour</span>
+<span class="s2">{</span>
+    <span class="s0">public static </span><span class="s1">StatusIconPool Instance</span><span class="s2">;</span>
+
+    <span class="s2">[</span><span class="s1">Header</span><span class="s2">(</span><span class="s3">&quot;Pool Settings&quot;</span><span class="s2">)]</span>
+    <span class="s0">public </span><span class="s1">GameObject statusIconPrefab</span><span class="s2">; </span><span class="s4">// 狀態圖標預製體</span>
+    <span class="s0">public int </span><span class="s1">poolSize </span><span class="s2">= </span><span class="s5">24</span><span class="s2">;           </span><span class="s4">// 初始池大小</span>
+
+    <span class="s0">private </span><span class="s1">Queue</span><span class="s2">&lt;</span><span class="s1">GameObject</span><span class="s2">&gt; </span><span class="s1">poolQueue </span><span class="s2">= </span><span class="s0">new </span><span class="s1">Queue</span><span class="s2">&lt;</span><span class="s1">GameObject</span><span class="s2">&gt;();</span>
+
+    <span class="s0">void </span><span class="s1">Awake</span><span class="s2">()</span>
+    <span class="s2">{</span>
+        <span class="s4">// 確保只有一個池實例</span>
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">Instance </span><span class="s2">== </span><span class="s0">null</span><span class="s2">)</span>
+        <span class="s2">{</span>
+            <span class="s1">Instance </span><span class="s2">= </span><span class="s0">this</span><span class="s2">;</span>
+            <span class="s1">InitializePool</span><span class="s2">();</span>
+        <span class="s2">}</span>
+        <span class="s0">else</span>
+        <span class="s2">{</span>
+            <span class="s1">Destroy</span><span class="s2">(</span><span class="s1">gameObject</span><span class="s2">);</span>
+        <span class="s2">}</span>
+    <span class="s2">}</span>
+
+    <span class="s4">/// &lt;summary&gt;</span>
+    <span class="s4">/// 初始化對象池，生成預製體實例並隱藏</span>
+    <span class="s4">/// &lt;/summary&gt;</span>
+    <span class="s0">private void </span><span class="s1">InitializePool</span><span class="s2">()</span>
+    <span class="s2">{</span>
+        <span class="s0">for </span><span class="s2">(</span><span class="s0">int </span><span class="s1">i </span><span class="s2">= </span><span class="s5">0</span><span class="s2">; </span><span class="s1">i </span><span class="s2">&lt; </span><span class="s1">poolSize</span><span class="s2">; </span><span class="s1">i</span><span class="s2">++)</span>
+        <span class="s2">{</span>
+            <span class="s1">GameObject obj </span><span class="s2">= </span><span class="s1">Instantiate</span><span class="s2">(</span><span class="s1">statusIconPrefab</span><span class="s2">);</span>
+            <span class="s1">obj</span><span class="s2">.</span><span class="s1">SetActive</span><span class="s2">(</span><span class="s0">false</span><span class="s2">);</span>
+            <span class="s1">poolQueue</span><span class="s2">.</span><span class="s1">Enqueue</span><span class="s2">(</span><span class="s1">obj</span><span class="s2">);</span>
+        <span class="s2">}</span>
+    <span class="s2">}</span>
+
+    <span class="s4">/// &lt;summary&gt;</span>
+    <span class="s4">/// 從池中獲取一個狀態圖標</span>
+    <span class="s4">/// &lt;/summary&gt;</span>
+    <span class="s4">/// &lt;returns&gt;狀態圖標 GameObject&lt;/returns&gt;</span>
+    <span class="s0">public </span><span class="s1">GameObject GetStatusIcon</span><span class="s2">()</span>
+    <span class="s2">{</span>
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">poolQueue</span><span class="s2">.</span><span class="s1">Count </span><span class="s2">&gt; </span><span class="s5">0</span><span class="s2">)</span>
+        <span class="s2">{</span>
+            <span class="s1">GameObject obj </span><span class="s2">= </span><span class="s1">poolQueue</span><span class="s2">.</span><span class="s1">Dequeue</span><span class="s2">();</span>
+            <span class="s1">obj</span><span class="s2">.</span><span class="s1">SetActive</span><span class="s2">(</span><span class="s0">true</span><span class="s2">);</span>
+            <span class="s0">return </span><span class="s1">obj</span><span class="s2">;</span>
+        <span class="s2">}</span>
+        <span class="s0">else</span>
+        <span class="s2">{</span>
+            <span class="s4">// 池空了，創建新的圖標並返回</span>
+            <span class="s1">GameObject obj </span><span class="s2">= </span><span class="s1">Instantiate</span><span class="s2">(</span><span class="s1">statusIconPrefab</span><span class="s2">);</span>
+            <span class="s0">return </span><span class="s1">obj</span><span class="s2">;</span>
+        <span class="s2">}</span>
+    <span class="s2">}</span>
+
+    <span class="s4">/// &lt;summary&gt;</span>
+    <span class="s4">/// 將狀態圖標返回池中</span>
+    <span class="s4">/// &lt;/summary&gt;</span>
+    <span class="s4">/// &lt;param name=&quot;obj&quot;&gt;要返回的圖標 GameObject&lt;/param&gt;</span>
+    <span class="s0">public void </span><span class="s1">ReturnStatusIcon</span><span class="s2">(</span><span class="s1">GameObject obj</span><span class="s2">)</span>
+    <span class="s2">{</span>
+        <span class="s1">obj</span><span class="s2">.</span><span class="s1">SetActive</span><span class="s2">(</span><span class="s0">false</span><span class="s2">);</span>
+        <span class="s1">poolQueue</span><span class="s2">.</span><span class="s1">Enqueue</span><span class="s2">(</span><span class="s1">obj</span><span class="s2">);</span>
+    <span class="s2">}</span>
+<span class="s2">}</span></pre>
+</body>
+</html>

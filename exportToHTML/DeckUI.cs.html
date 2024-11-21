@@ -1,0 +1,186 @@
+<html>
+<head>
+<title>DeckUI.cs</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #85c46c; font-style: italic;}
+.s1 { color: #d0d0d0;}
+.s2 { color: #6c95eb;}
+.s3 { color: #bdbdbd;}
+.s4 { color: #c9a26d;}
+.s5 { color: #ed94c0;}
+</style>
+</head>
+<body bgcolor="#262626">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#606060" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+DeckUI.cs</font>
+</center></td></tr></table>
+<pre><span class="s0">// DeckUI.cs</span>
+<span class="s2">using </span><span class="s1">System</span><span class="s3">.</span><span class="s1">Collections</span><span class="s3">.</span><span class="s1">Generic</span><span class="s3">;</span>
+<span class="s2">using </span><span class="s1">UnityEngine</span><span class="s3">;</span>
+<span class="s2">using </span><span class="s1">UnityEngine</span><span class="s3">.</span><span class="s1">UI</span><span class="s3">;</span>
+<span class="s2">using </span><span class="s1">TMPro</span><span class="s3">;</span>
+<span class="s2">using </span><span class="s1">UnityEngine</span><span class="s3">.</span><span class="s1">EventSystems</span><span class="s3">;</span>
+
+<span class="s2">public class </span><span class="s1">DeckUI : MonoBehaviour</span><span class="s3">, </span><span class="s1">IPointerEnterHandler</span><span class="s3">, </span><span class="s1">IPointerExitHandler</span>
+<span class="s3">{</span>
+    <span class="s3">[</span><span class="s1">Header</span><span class="s3">(</span><span class="s4">&quot;Deck Entries UI&quot;</span><span class="s3">)]</span>
+    <span class="s2">public </span><span class="s1">Transform deckEntriesParent</span><span class="s3">; </span><span class="s0">// 用于放置牌组条目的父对象</span>
+    <span class="s2">public </span><span class="s1">GameObject deckEntryPrefab</span><span class="s3">;  </span><span class="s0">// 牌组条目的预制体</span>
+
+    <span class="s3">[</span><span class="s1">Header</span><span class="s3">(</span><span class="s4">&quot;Deck Stats UI&quot;</span><span class="s3">)]</span>
+    <span class="s2">public </span><span class="s1">TextMeshProUGUI totalCardCountText</span><span class="s3">; </span><span class="s0">// 总卡牌数</span>
+    <span class="s2">public </span><span class="s1">TextMeshProUGUI graveyardCountText</span><span class="s3">; </span><span class="s0">// 墓地卡牌数</span>
+    
+    <span class="s3">[</span><span class="s1">Header</span><span class="s3">(</span><span class="s4">&quot;Graveyard Tooltip&quot;</span><span class="s3">)]</span>
+    <span class="s2">public </span><span class="s1">GameObject graveyardTooltipPanel</span><span class="s3">;</span>
+    <span class="s2">public </span><span class="s1">TextMeshProUGUI graveyardTooltipText</span><span class="s3">;</span>
+
+    <span class="s2">private </span><span class="s1">Deck playerDeck</span><span class="s3">;</span>
+    <span class="s2">private </span><span class="s1">List</span><span class="s3">&lt;</span><span class="s1">UnitData</span><span class="s3">&gt; </span><span class="s1">graveyardCards </span><span class="s3">= </span><span class="s2">new </span><span class="s1">List</span><span class="s3">&lt;</span><span class="s1">UnitData</span><span class="s3">&gt;(); </span><span class="s0">// 墓地卡牌列表</span>
+
+    <span class="s2">private void </span><span class="s1">Start</span><span class="s3">()</span>
+    <span class="s3">{</span>
+        <span class="s0">// 獲取玩家牌組</span>
+        <span class="s1">playerDeck </span><span class="s3">= </span><span class="s1">DeckManager</span><span class="s3">.</span><span class="s1">Instance</span><span class="s3">.</span><span class="s1">playerDeck</span><span class="s3">;</span>
+
+        <span class="s2">if </span><span class="s3">(</span><span class="s1">playerDeck </span><span class="s3">== </span><span class="s2">null</span><span class="s3">)</span>
+        <span class="s3">{</span>
+            <span class="s1">Debug</span><span class="s3">.</span><span class="s1">LogError</span><span class="s3">(</span><span class="s4">&quot;DeckUI: 玩家牌組未設置！&quot;</span><span class="s3">);</span>
+            <span class="s2">return</span><span class="s3">;</span>
+        <span class="s3">}</span>
+
+        <span class="s0">// 設置牌組變更事件</span>
+        <span class="s1">playerDeck</span><span class="s3">.</span><span class="s1">OnDeckChanged </span><span class="s3">+= </span><span class="s1">RefreshDeckUI</span><span class="s3">;</span>
+        
+        <span class="s0">// 初始化墓地卡牌列表</span>
+        <span class="s1">graveyardCards </span><span class="s3">= </span><span class="s1">DeckManager</span><span class="s3">.</span><span class="s1">Instance</span><span class="s3">.</span><span class="s1">GetGraveyardCards</span><span class="s3">();</span>
+
+        <span class="s0">// 初始刷新</span>
+        <span class="s1">RefreshDeckUI</span><span class="s3">();</span>
+    <span class="s3">}</span>
+
+    <span class="s2">private void </span><span class="s1">OnDestroy</span><span class="s3">()</span>
+    <span class="s3">{</span>
+        <span class="s2">if </span><span class="s3">(</span><span class="s1">playerDeck </span><span class="s3">!= </span><span class="s2">null</span><span class="s3">)</span>
+        <span class="s3">{</span>
+            <span class="s1">playerDeck</span><span class="s3">.</span><span class="s1">OnDeckChanged </span><span class="s3">-= </span><span class="s1">RefreshDeckUI</span><span class="s3">;</span>
+        <span class="s3">}</span>
+    <span class="s3">}</span>
+
+    <span class="s0">/// &lt;summary&gt;</span>
+    <span class="s0">/// 刷新牌组的 UI 显示</span>
+    <span class="s0">/// &lt;/summary&gt;</span>
+    <span class="s2">private void </span><span class="s1">RefreshDeckUI</span><span class="s3">()</span>
+    <span class="s3">{</span>
+        <span class="s0">// 清空现有的条目</span>
+        <span class="s2">foreach </span><span class="s3">(</span><span class="s1">Transform child </span><span class="s2">in </span><span class="s1">deckEntriesParent</span><span class="s3">)</span>
+        <span class="s3">{</span>
+            <span class="s1">Destroy</span><span class="s3">(</span><span class="s1">child</span><span class="s3">.</span><span class="s1">gameObject</span><span class="s3">);</span>
+        <span class="s3">}</span>
+
+        <span class="s2">int </span><span class="s1">totalCardCount </span><span class="s3">= </span><span class="s5">0</span><span class="s3">;</span>
+
+        <span class="s0">// 创建新的条目</span>
+        <span class="s2">foreach </span><span class="s3">(</span><span class="s1">var entry </span><span class="s2">in </span><span class="s1">playerDeck</span><span class="s3">.</span><span class="s1">entries</span><span class="s3">)</span>
+        <span class="s3">{</span>
+            <span class="s2">if </span><span class="s3">(</span><span class="s1">entry</span><span class="s3">.</span><span class="s1">unitData </span><span class="s3">!= </span><span class="s2">null</span><span class="s3">)</span>
+            <span class="s3">{</span>
+                <span class="s0">// 正常状态的卡片</span>
+                <span class="s2">if </span><span class="s3">(</span><span class="s1">entry</span><span class="s3">.</span><span class="s1">quantity </span><span class="s3">&gt; </span><span class="s5">0</span><span class="s3">)</span>
+                <span class="s3">{</span>
+                    <span class="s1">CreateDeckEntryUI</span><span class="s3">(</span><span class="s1">entry</span><span class="s3">.</span><span class="s1">unitData</span><span class="s3">, </span><span class="s1">entry</span><span class="s3">.</span><span class="s1">quantity</span><span class="s3">, </span><span class="s2">false</span><span class="s3">);</span>
+                    <span class="s1">totalCardCount </span><span class="s3">+= </span><span class="s1">entry</span><span class="s3">.</span><span class="s1">quantity</span><span class="s3">;</span>
+                <span class="s3">}</span>
+
+                <span class="s0">// 负伤状态的卡片</span>
+                <span class="s2">if </span><span class="s3">(</span><span class="s1">entry</span><span class="s3">.</span><span class="s1">injuredQuantity </span><span class="s3">&gt; </span><span class="s5">0</span><span class="s3">)</span>
+                <span class="s3">{</span>
+                    <span class="s1">CreateDeckEntryUI</span><span class="s3">(</span><span class="s1">entry</span><span class="s3">.</span><span class="s1">unitData</span><span class="s3">, </span><span class="s1">entry</span><span class="s3">.</span><span class="s1">injuredQuantity</span><span class="s3">, </span><span class="s2">true</span><span class="s3">);</span>
+                    <span class="s1">totalCardCount </span><span class="s3">+= </span><span class="s1">entry</span><span class="s3">.</span><span class="s1">injuredQuantity</span><span class="s3">;</span>
+                <span class="s3">}</span>
+            <span class="s3">}</span>
+        <span class="s3">}</span>
+
+        <span class="s0">// 更新总卡牌数</span>
+        <span class="s2">if </span><span class="s3">(</span><span class="s1">totalCardCountText </span><span class="s3">!= </span><span class="s2">null</span><span class="s3">)</span>
+            <span class="s1">totalCardCountText</span><span class="s3">.</span><span class="s1">text </span><span class="s3">= </span><span class="s4">$&quot;</span><span class="s3">{</span><span class="s1">totalCardCount</span><span class="s3">}</span><span class="s4">&quot;</span><span class="s3">;</span>
+
+        <span class="s0">// 更新墓地卡牌数</span>
+        <span class="s2">if </span><span class="s3">(</span><span class="s1">graveyardCountText </span><span class="s3">!= </span><span class="s2">null</span><span class="s3">)</span>
+            <span class="s1">graveyardCountText</span><span class="s3">.</span><span class="s1">text </span><span class="s3">= </span><span class="s1">graveyardCards</span><span class="s3">.</span><span class="s1">Count</span><span class="s3">.</span><span class="s1">ToString</span><span class="s3">();</span>
+    <span class="s3">}</span>
+    
+    <span class="s2">private void </span><span class="s1">CreateDeckEntryUI</span><span class="s3">(</span><span class="s1">UnitData unitData</span><span class="s3">, </span><span class="s2">int </span><span class="s1">quantity</span><span class="s3">, </span><span class="s2">bool </span><span class="s1">isInjured</span><span class="s3">)</span>
+    <span class="s3">{</span>
+        <span class="s1">GameObject entryGO </span><span class="s3">= </span><span class="s1">Instantiate</span><span class="s3">(</span><span class="s1">deckEntryPrefab</span><span class="s3">, </span><span class="s1">deckEntriesParent</span><span class="s3">);</span>
+        <span class="s1">DeckEntryUI entryUI </span><span class="s3">= </span><span class="s1">entryGO</span><span class="s3">.</span><span class="s1">GetComponent</span><span class="s3">&lt;</span><span class="s1">DeckEntryUI</span><span class="s3">&gt;();</span>
+        <span class="s2">if </span><span class="s3">(</span><span class="s1">entryUI </span><span class="s3">!= </span><span class="s2">null</span><span class="s3">)</span>
+        <span class="s3">{</span>
+            <span class="s1">entryUI</span><span class="s3">.</span><span class="s1">Setup</span><span class="s3">(</span><span class="s1">unitData</span><span class="s3">, </span><span class="s1">quantity</span><span class="s3">, </span><span class="s1">isInjured</span><span class="s3">);</span>
+        <span class="s3">}</span>
+        <span class="s2">else</span>
+        <span class="s3">{</span>
+            <span class="s1">Debug</span><span class="s3">.</span><span class="s1">LogError</span><span class="s3">(</span><span class="s4">&quot;DeckUI: DeckEntryPrefab 没有 DeckEntryUI 组件！&quot;</span><span class="s3">);</span>
+        <span class="s3">}</span>
+    <span class="s3">}</span>
+
+    <span class="s0">/// &lt;summary&gt;</span>
+    <span class="s0">/// 添加卡牌到墓地</span>
+    <span class="s0">/// &lt;/summary&gt;</span>
+    <span class="s2">public void </span><span class="s1">AddToGraveyard</span><span class="s3">(</span><span class="s1">UnitData unitData</span><span class="s3">)</span>
+    <span class="s3">{</span>
+        <span class="s2">if </span><span class="s3">(</span><span class="s1">unitData </span><span class="s3">== </span><span class="s2">null</span><span class="s3">)</span>
+            <span class="s2">return</span><span class="s3">;</span>
+
+        <span class="s0">//graveyardCards.Add(unitData);</span>
+
+        <span class="s0">// 更新墓地卡牌数显示</span>
+        <span class="s2">if </span><span class="s3">(</span><span class="s1">graveyardCountText </span><span class="s3">!= </span><span class="s2">null</span><span class="s3">)</span>
+            <span class="s1">graveyardCountText</span><span class="s3">.</span><span class="s1">text </span><span class="s3">= </span><span class="s1">graveyardCards</span><span class="s3">.</span><span class="s1">Count</span><span class="s3">.</span><span class="s1">ToString</span><span class="s3">();</span>
+    <span class="s3">}</span>
+
+    <span class="s0">/// &lt;summary&gt;</span>
+    <span class="s0">/// 获取墓地卡牌详情</span>
+    <span class="s0">/// &lt;/summary&gt;</span>
+    <span class="s2">public string </span><span class="s1">GetGraveyardDetails</span><span class="s3">()</span>
+    <span class="s3">{</span>
+        <span class="s2">string </span><span class="s1">details </span><span class="s3">= </span><span class="s4">&quot;墓地中的卡片：\n&quot;</span><span class="s3">;</span>
+        <span class="s2">foreach </span><span class="s3">(</span><span class="s1">var unit </span><span class="s2">in </span><span class="s1">graveyardCards</span><span class="s3">)</span>
+        <span class="s3">{</span>
+            <span class="s1">details </span><span class="s3">+= </span><span class="s4">$&quot;</span><span class="s3">{</span><span class="s1">unit</span><span class="s3">.</span><span class="s1">unitName</span><span class="s3">}</span><span class="s4">\n&quot;</span><span class="s3">;</span>
+        <span class="s3">}</span>
+        <span class="s2">return </span><span class="s1">details</span><span class="s3">;</span>
+    <span class="s3">}</span>
+    
+    <span class="s2">public void </span><span class="s1">OnPointerEnter</span><span class="s3">(</span><span class="s1">PointerEventData eventData</span><span class="s3">)</span>
+    <span class="s3">{</span>
+        <span class="s0">// 显示墓地卡片列表</span>
+        <span class="s2">if </span><span class="s3">(</span><span class="s1">eventData</span><span class="s3">.</span><span class="s1">pointerEnter </span><span class="s3">== </span><span class="s1">graveyardCountText</span><span class="s3">.</span><span class="s1">gameObject</span><span class="s3">)</span>
+        <span class="s3">{</span>
+            <span class="s2">if </span><span class="s3">(</span><span class="s1">graveyardTooltipPanel </span><span class="s3">!= </span><span class="s2">null</span><span class="s3">)</span>
+            <span class="s3">{</span>
+                <span class="s1">graveyardTooltipPanel</span><span class="s3">.</span><span class="s1">SetActive</span><span class="s3">(</span><span class="s2">true</span><span class="s3">);</span>
+                <span class="s1">graveyardTooltipText</span><span class="s3">.</span><span class="s1">text </span><span class="s3">= </span><span class="s1">GetGraveyardDetails</span><span class="s3">();</span>
+                <span class="s1">Debug</span><span class="s3">.</span><span class="s1">Log</span><span class="s3">(</span><span class="s4">&quot;显示墓地卡片列表&quot;</span><span class="s3">);</span>
+            <span class="s3">}</span>
+        <span class="s3">}</span>
+    <span class="s3">}</span>
+
+    <span class="s2">public void </span><span class="s1">OnPointerExit</span><span class="s3">(</span><span class="s1">PointerEventData eventData</span><span class="s3">)</span>
+    <span class="s3">{</span>
+        <span class="s0">// 隐藏墓地卡片列表</span>
+        <span class="s2">if </span><span class="s3">(</span><span class="s1">eventData</span><span class="s3">.</span><span class="s1">pointerEnter </span><span class="s3">== </span><span class="s1">graveyardCountText</span><span class="s3">.</span><span class="s1">gameObject</span><span class="s3">)</span>
+        <span class="s3">{</span>
+            <span class="s2">if </span><span class="s3">(</span><span class="s1">graveyardTooltipPanel </span><span class="s3">!= </span><span class="s2">null</span><span class="s3">)</span>
+            <span class="s3">{</span>
+                <span class="s1">graveyardTooltipPanel</span><span class="s3">.</span><span class="s1">SetActive</span><span class="s3">(</span><span class="s2">false</span><span class="s3">);</span>
+                <span class="s1">Debug</span><span class="s3">.</span><span class="s1">Log</span><span class="s3">(</span><span class="s4">&quot;隐藏墓地卡片列表&quot;</span><span class="s3">);</span>
+            <span class="s3">}</span>
+        <span class="s3">}</span>
+    <span class="s3">}</span>
+<span class="s3">}</span></pre>
+</body>
+</html>

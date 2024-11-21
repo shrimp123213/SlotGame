@@ -1,0 +1,44 @@
+<html>
+<head>
+<title>BuildingData.cs</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #6c95eb;}
+.s1 { color: #d0d0d0;}
+.s2 { color: #bdbdbd;}
+.s3 { color: #85c46c; font-style: italic;}
+.s4 { color: #c9a26d;}
+</style>
+</head>
+<body bgcolor="#262626">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#606060" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+BuildingData.cs</font>
+</center></td></tr></table>
+<pre><span class="s0">using </span><span class="s1">UnityEngine</span><span class="s2">;</span>
+
+<span class="s3">/// &lt;summary&gt;</span>
+<span class="s3">/// 建築的數據定義</span>
+<span class="s3">/// &lt;/summary&gt;</span>
+<span class="s2">[</span><span class="s1">CreateAssetMenu</span><span class="s2">(</span><span class="s1">fileName </span><span class="s2">= </span><span class="s4">&quot;NewBuilding&quot;</span><span class="s2">, </span><span class="s1">menuName </span><span class="s2">= </span><span class="s4">&quot;ScriptableObjects/Building&quot;</span><span class="s2">)]</span>
+<span class="s0">public class </span><span class="s1">BuildingData : ScriptableObject</span>
+<span class="s2">{</span>
+    <span class="s0">public string </span><span class="s1">buildingName</span><span class="s2">;         </span><span class="s3">// 建筑物名称</span>
+    <span class="s0">public </span><span class="s1">Sprite buildingSprite</span><span class="s2">;       </span><span class="s3">// 建筑物的Sprite</span>
+    <span class="s0">public int </span><span class="s1">maxHealth</span><span class="s2">;               </span><span class="s3">// 建筑物的最大生命值</span>
+
+    <span class="s2">[</span><span class="s1">Header</span><span class="s2">(</span><span class="s4">&quot;Skills&quot;</span><span class="s2">)]</span>
+    <span class="s0">public </span><span class="s1">SkillSO defenseSkillSO</span><span class="s2">;      </span><span class="s3">// 防卫技能</span>
+    <span class="s0">public </span><span class="s1">SkillSO actionSkillSO</span><span class="s2">;       </span><span class="s3">// 建筑物的其他行动技能（如攻击）</span>
+
+    <span class="s2">[</span><span class="s1">Header</span><span class="s2">(</span><span class="s4">&quot;Camp&quot;</span><span class="s2">)]</span>
+    <span class="s0">public </span><span class="s1">Camp camp</span><span class="s2">;                   </span><span class="s3">// 建筑物的阵营（玩家或敌人）</span>
+    
+    <span class="s3">//[Header(&quot;Prefab&quot;)]</span>
+    <span class="s3">//public GameObject buildingPrefab;   // 建筑物的预制件</span>
+
+    <span class="s3">// 可以根据需要添加更多属性，如建筑物类型、功能等</span>
+<span class="s2">}</span></pre>
+</body>
+</html>

@@ -1,0 +1,35 @@
+<html>
+<head>
+<title>IUnitState.cs</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #6c95eb;}
+.s1 { color: #d0d0d0;}
+.s2 { color: #bdbdbd;}
+.s3 { color: #85c46c; font-style: italic;}
+</style>
+</head>
+<body bgcolor="#262626">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#606060" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+IUnitState.cs</font>
+</center></td></tr></table>
+<pre><span class="s0">using </span><span class="s1">UnityEngine</span><span class="s2">;</span>
+
+<span class="s0">public interface </span><span class="s1">IUnitState</span>
+<span class="s2">{</span>
+    <span class="s0">string </span><span class="s1">StateName </span><span class="s2">{ </span><span class="s1">get</span><span class="s2">; }</span>
+    <span class="s1">Sprite Icon </span><span class="s2">{ </span><span class="s1">get</span><span class="s2">; }</span>
+    
+    <span class="s3">// 当状态被添加到单位时调用</span>
+    <span class="s0">void </span><span class="s1">OnEnter</span><span class="s2">(</span><span class="s1">UnitController unit</span><span class="s2">);</span>
+    
+    <span class="s3">// 当状态被移除时调用</span>
+    <span class="s0">void </span><span class="s1">OnExit</span><span class="s2">(</span><span class="s1">UnitController unit</span><span class="s2">);</span>
+    
+    <span class="s3">// 可选：状态更新逻辑，每帧调用</span>
+    <span class="s3">//void Update(UnitController unit);</span>
+<span class="s2">}</span></pre>
+</body>
+</html>

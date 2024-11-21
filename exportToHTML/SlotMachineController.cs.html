@@ -1,0 +1,574 @@
+<html>
+<head>
+<title>SlotMachineController.cs</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #6c95eb;}
+.s1 { color: #d0d0d0;}
+.s2 { color: #bdbdbd;}
+.s3 { color: #85c46c; font-style: italic;}
+.s4 { color: #c9a26d;}
+.s5 { color: #ed94c0;}
+</style>
+</head>
+<body bgcolor="#262626">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#606060" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+SlotMachineController.cs</font>
+</center></td></tr></table>
+<pre><span class="s0">using </span><span class="s1">System</span><span class="s2">.</span><span class="s1">Collections</span><span class="s2">;</span>
+<span class="s0">using </span><span class="s1">System</span><span class="s2">.</span><span class="s1">Collections</span><span class="s2">.</span><span class="s1">Generic</span><span class="s2">;</span>
+<span class="s0">using </span><span class="s1">UnityEngine</span><span class="s2">;</span>
+<span class="s0">using </span><span class="s1">UnityEngine</span><span class="s2">.</span><span class="s1">Tilemaps</span><span class="s2">;</span>
+<span class="s0">using </span><span class="s1">DG</span><span class="s2">.</span><span class="s1">Tweening</span><span class="s2">;</span>
+
+<span class="s3">/// &lt;summary&gt;</span>
+<span class="s3">/// 控制拉霸机（老虎机）的行为</span>
+<span class="s3">/// &lt;/summary&gt;</span>
+<span class="s0">public class </span><span class="s1">SlotMachineController : MonoBehaviour</span>
+<span class="s2">{</span>
+    <span class="s2">[</span><span class="s1">Header</span><span class="s2">(</span><span class="s4">&quot;Grid Manager&quot;</span><span class="s2">)]</span>
+    <span class="s0">public </span><span class="s1">GridManager gridManager</span><span class="s2">; </span><span class="s3">// 引用 GridManager</span>
+
+    <span class="s2">[</span><span class="s1">Header</span><span class="s2">(</span><span class="s4">&quot;Connection Manager&quot;</span><span class="s2">)]</span>
+    <span class="s0">public </span><span class="s1">ConnectionManager connectionManager</span><span class="s2">; </span><span class="s3">// 引用 ConnectionManager</span>
+
+    <span class="s2">[</span><span class="s1">Header</span><span class="s2">(</span><span class="s4">&quot;Decks&quot;</span><span class="s2">)]</span>
+    <span class="s0">public </span><span class="s1">Deck playerDeck</span><span class="s2">; </span><span class="s3">// 玩家牌组</span>
+    <span class="s0">public </span><span class="s1">Deck enemyDeck</span><span class="s2">;  </span><span class="s3">// 敌人牌组</span>
+
+    <span class="s2">[</span><span class="s1">Header</span><span class="s2">(</span><span class="s4">&quot;Slot Machine Settings&quot;</span><span class="s2">)]</span>
+    <span class="s0">public float </span><span class="s1">spinDuration </span><span class="s2">= </span><span class="s5">5f</span><span class="s2">; </span><span class="s3">// 旋转时间</span>
+    <span class="s0">public int </span><span class="s1">maxCards </span><span class="s2">= </span><span class="s5">24</span><span class="s2">;        </span><span class="s3">// 最大卡片数</span>
+    <span class="s0">public float </span><span class="s1">spinSpeed </span><span class="s2">= </span><span class="s5">10f</span><span class="s2">;    </span><span class="s3">// 旋转速度</span>
+    <span class="s0">public int </span><span class="s1">spinLoopCount </span><span class="s2">= </span><span class="s5">3</span><span class="s2">;         </span><span class="s3">// 旋转的循环次数</span>
+    <span class="s0">public int </span><span class="s1">extraRows </span><span class="s2">= </span><span class="s5">2</span><span class="s2">;             </span><span class="s3">// 额外的行数，用于旋转效果</span>
+    <span class="s0">public </span><span class="s1">Ease spinEaseType </span><span class="s2">= </span><span class="s1">Ease</span><span class="s2">.</span><span class="s1">Linear</span><span class="s2">; </span><span class="s3">// 旋转的缓动类型</span>
+    
+    <span class="s2">[</span><span class="s1">Header</span><span class="s2">(</span><span class="s4">&quot;Visual Settings&quot;</span><span class="s2">)]</span>
+    <span class="s0">public </span><span class="s1">Tile</span><span class="s2">[] </span><span class="s1">spinTiles</span><span class="s2">;         </span><span class="s3">// 转盘使用的 Tile 集合</span>
+
+    <span class="s0">private </span><span class="s1">List</span><span class="s2">&lt;</span><span class="s1">GameObject</span><span class="s2">&gt; </span><span class="s1">spinningUnits </span><span class="s2">= </span><span class="s0">new </span><span class="s1">List</span><span class="s2">&lt;</span><span class="s1">GameObject</span><span class="s2">&gt;(); </span><span class="s3">// 存储正在旋转的单位</span>
+
+    <span class="s0">private </span><span class="s1">List</span><span class="s2">&lt;</span><span class="s1">Vector3Int</span><span class="s2">&gt; </span><span class="s1">battlePositions </span><span class="s2">= </span><span class="s0">new </span><span class="s1">List</span><span class="s2">&lt;</span><span class="s1">Vector3Int</span><span class="s2">&gt;(); </span><span class="s3">// 战斗区域的所有格子位置</span>
+    <span class="s0">private </span><span class="s1">List</span><span class="s2">&lt;</span><span class="s1">UnitWithInjuryStatus</span><span class="s2">&gt; </span><span class="s1">selectedCards </span><span class="s2">= </span><span class="s0">new </span><span class="s1">List</span><span class="s2">&lt;</span><span class="s1">UnitWithInjuryStatus</span><span class="s2">&gt;();        </span><span class="s3">// 抽取的卡片包含负伤状态</span>
+
+    <span class="s0">public bool </span><span class="s1">isSpinning </span><span class="s2">= </span><span class="s0">false</span><span class="s2">;</span>
+    
+    <span class="s0">private </span><span class="s1">Vector3 cellSize</span><span class="s2">;</span>
+
+
+    <span class="s3">// 定义转盘完成的事件</span>
+    <span class="s0">public delegate void </span><span class="s1">SpinCompleted</span><span class="s2">();</span>
+    <span class="s0">public event </span><span class="s1">SpinCompleted OnSpinCompleted</span><span class="s2">;</span>
+
+    <span class="s0">void </span><span class="s1">Start</span><span class="s2">()</span>
+    <span class="s2">{</span>
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">gridManager </span><span class="s2">== </span><span class="s0">null</span><span class="s2">)</span>
+        <span class="s2">{</span>
+            <span class="s1">Debug</span><span class="s2">.</span><span class="s1">LogError</span><span class="s2">(</span><span class="s4">&quot;SlotMachineController: GridManager 未设置！&quot;</span><span class="s2">);</span>
+            <span class="s0">return</span><span class="s2">;</span>
+        <span class="s2">}</span>
+
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">connectionManager </span><span class="s2">== </span><span class="s0">null</span><span class="s2">)</span>
+        <span class="s2">{</span>
+            <span class="s1">Debug</span><span class="s2">.</span><span class="s1">LogError</span><span class="s2">(</span><span class="s4">&quot;SlotMachineController: ConnectionManager 未设置！&quot;</span><span class="s2">);</span>
+            <span class="s0">return</span><span class="s2">;</span>
+        <span class="s2">}</span>
+
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">playerDeck </span><span class="s2">== </span><span class="s0">null </span><span class="s2">|| </span><span class="s1">enemyDeck </span><span class="s2">== </span><span class="s0">null</span><span class="s2">)</span>
+        <span class="s2">{</span>
+            <span class="s1">Debug</span><span class="s2">.</span><span class="s1">LogError</span><span class="s2">(</span><span class="s4">&quot;SlotMachineController: 玩家牌组或敌人牌组未设置！&quot;</span><span class="s2">);</span>
+            <span class="s0">return</span><span class="s2">;</span>
+        <span class="s2">}</span>
+
+        <span class="s1">InitializeBattlePositions</span><span class="s2">();</span>
+        
+        <span class="s3">// 获取格子大小</span>
+        <span class="s1">cellSize </span><span class="s2">= </span><span class="s1">gridManager</span><span class="s2">.</span><span class="s1">battleTilemap</span><span class="s2">.</span><span class="s1">cellSize</span><span class="s2">;</span>
+
+        <span class="s3">// 可以在这里调用 StartSpinning() 进行测试</span>
+        <span class="s3">// StartSpinning();</span>
+    <span class="s2">}</span>
+
+    <span class="s3">/// &lt;summary&gt;</span>
+    <span class="s3">/// 初始化战斗区域的所有格子位置</span>
+    <span class="s3">/// &lt;/summary&gt;</span>
+    <span class="s0">void </span><span class="s1">InitializeBattlePositions</span><span class="s2">()</span>
+    <span class="s2">{</span>
+        <span class="s1">battlePositions</span><span class="s2">.</span><span class="s1">Clear</span><span class="s2">();</span>
+        <span class="s0">for </span><span class="s2">(</span><span class="s0">int </span><span class="s1">row </span><span class="s2">= </span><span class="s5">0</span><span class="s2">; </span><span class="s1">row </span><span class="s2">&lt; </span><span class="s1">gridManager</span><span class="s2">.</span><span class="s1">rows</span><span class="s2">; </span><span class="s1">row</span><span class="s2">++)</span>
+        <span class="s2">{</span>
+            <span class="s3">// 将列索引从 1 开始</span>
+            <span class="s0">for </span><span class="s2">(</span><span class="s0">int </span><span class="s1">col </span><span class="s2">= </span><span class="s5">1</span><span class="s2">; </span><span class="s1">col </span><span class="s2">&lt;= </span><span class="s1">gridManager</span><span class="s2">.</span><span class="s1">columns</span><span class="s2">; </span><span class="s1">col</span><span class="s2">++) </span><span class="s3">// 列从1到6</span>
+            <span class="s2">{</span>
+                <span class="s1">battlePositions</span><span class="s2">.</span><span class="s1">Add</span><span class="s2">(</span><span class="s0">new </span><span class="s1">Vector3Int</span><span class="s2">(</span><span class="s1">col</span><span class="s2">, </span><span class="s1">row</span><span class="s2">, </span><span class="s5">0</span><span class="s2">));</span>
+            <span class="s2">}</span>
+        <span class="s2">}</span>
+    <span class="s2">}</span>
+
+    <span class="s3">/// &lt;summary&gt;</span>
+    <span class="s3">/// 开始转动拉霸机</span>
+    <span class="s3">/// &lt;/summary&gt;</span>
+    <span class="s0">public void </span><span class="s1">StartSpinning</span><span class="s2">()</span>
+    <span class="s2">{</span>
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">isSpinning</span><span class="s2">) </span>
+        <span class="s2">{</span>
+            <span class="s1">Debug</span><span class="s2">.</span><span class="s1">LogWarning</span><span class="s2">(</span><span class="s4">&quot;SlotMachineController: 已经在旋转中！&quot;</span><span class="s2">);</span>
+            <span class="s0">return</span><span class="s2">;</span>
+        <span class="s2">}</span>
+        
+        <span class="s3">// 清空之前的单位</span>
+        <span class="s1">ClearBattleAreaUnits</span><span class="s2">();</span>
+
+        <span class="s3">// 开始旋转</span>
+        <span class="s1">StartCoroutine</span><span class="s2">(</span><span class="s1">SpinRoutine</span><span class="s2">());</span>
+    <span class="s2">}</span>
+
+    <span class="s3">/// &lt;summary&gt;</span>
+    <span class="s3">/// 拉霸机的转动协程</span>
+    <span class="s3">/// &lt;/summary&gt;</span>
+    <span class="s0">private </span><span class="s1">IEnumerator SpinRoutine</span><span class="s2">()</span>
+    <span class="s2">{</span>
+        <span class="s1">isSpinning </span><span class="s2">= </span><span class="s0">true</span><span class="s2">;</span>
+
+        <span class="s3">// 初始化旋转单位</span>
+        <span class="s1">InitializeSpinningUnits</span><span class="s2">();</span>
+
+        <span class="s3">// 计算总的移动距离</span>
+        <span class="s0">float </span><span class="s1">totalMovementDistance </span><span class="s2">= </span><span class="s1">cellSize</span><span class="s2">.</span><span class="s1">y </span><span class="s2">* (</span><span class="s1">gridManager</span><span class="s2">.</span><span class="s1">rows </span><span class="s2">+ </span><span class="s1">extraRows</span><span class="s2">); </span><span class="s3">//*2</span>
+
+        <span class="s3">// 计算单次循环的时间</span>
+        <span class="s0">float </span><span class="s1">singleSpinTime </span><span class="s2">= </span><span class="s1">totalMovementDistance </span><span class="s2">/ </span><span class="s1">spinSpeed</span><span class="s2">;</span>
+
+        <span class="s3">// 设置每列之间的延迟（您可以调整此值）</span>
+        <span class="s0">float </span><span class="s1">columnDelay </span><span class="s2">= </span><span class="s5">0.2f</span><span class="s2">; </span><span class="s3">// 每列延迟0.2秒</span>
+
+        <span class="s3">// 使用 DOTween 控制旋转</span>
+        <span class="s1">List</span><span class="s2">&lt;</span><span class="s1">Tweener</span><span class="s2">&gt; </span><span class="s1">tweens </span><span class="s2">= </span><span class="s0">new </span><span class="s1">List</span><span class="s2">&lt;</span><span class="s1">Tweener</span><span class="s2">&gt;();</span>
+
+        <span class="s0">foreach </span><span class="s2">(</span><span class="s1">var unitGO </span><span class="s0">in </span><span class="s1">spinningUnits</span><span class="s2">)</span>
+        <span class="s2">{</span>
+            <span class="s1">UnitController unitController </span><span class="s2">= </span><span class="s1">unitGO</span><span class="s2">.</span><span class="s1">GetComponent</span><span class="s2">&lt;</span><span class="s1">UnitController</span><span class="s2">&gt;();</span>
+
+            <span class="s3">// 计算单位的延迟时间</span>
+            <span class="s0">float </span><span class="s1">delay </span><span class="s2">= (</span><span class="s1">unitController</span><span class="s2">.</span><span class="s1">columnIndex </span><span class="s2">- </span><span class="s5">1</span><span class="s2">) * </span><span class="s1">columnDelay</span><span class="s2">;</span>
+
+            <span class="s3">// 移动单位向下</span>
+            <span class="s1">Tweener tween </span><span class="s2">= </span><span class="s1">unitGO</span><span class="s2">.</span><span class="s1">transform</span><span class="s2">.</span><span class="s1">DOMoveY</span><span class="s2">(</span><span class="s1">unitGO</span><span class="s2">.</span><span class="s1">transform</span><span class="s2">.</span><span class="s1">position</span><span class="s2">.</span><span class="s1">y </span><span class="s2">- </span><span class="s1">totalMovementDistance</span><span class="s2">, </span><span class="s1">singleSpinTime</span><span class="s2">)</span>
+                <span class="s2">.</span><span class="s1">SetEase</span><span class="s2">(</span><span class="s1">Ease</span><span class="s2">.</span><span class="s1">Linear</span><span class="s2">)</span>
+                <span class="s2">.</span><span class="s1">SetLoops</span><span class="s2">(-</span><span class="s5">1</span><span class="s2">, </span><span class="s1">LoopType</span><span class="s2">.</span><span class="s1">Restart</span><span class="s2">)</span>
+                <span class="s2">.</span><span class="s1">SetDelay</span><span class="s2">(</span><span class="s1">delay</span><span class="s2">); </span><span class="s3">// 添加延迟</span>
+
+            <span class="s1">tweens</span><span class="s2">.</span><span class="s1">Add</span><span class="s2">(</span><span class="s1">tween</span><span class="s2">);</span>
+        <span class="s2">}</span>
+
+        <span class="s3">// 等待旋转持续时间加上最大延迟</span>
+        <span class="s0">float </span><span class="s1">totalDelay </span><span class="s2">= (</span><span class="s1">gridManager</span><span class="s2">.</span><span class="s1">columns </span><span class="s2">- </span><span class="s5">1</span><span class="s2">) * </span><span class="s1">columnDelay</span><span class="s2">;</span>
+        <span class="s1">yield </span><span class="s0">return new </span><span class="s1">WaitForSeconds</span><span class="s2">(</span><span class="s1">spinDuration </span><span class="s2">+ </span><span class="s1">totalDelay</span><span class="s2">);</span>
+
+        <span class="s3">// 停止所有旋转</span>
+        <span class="s0">foreach </span><span class="s2">(</span><span class="s1">var tween </span><span class="s0">in </span><span class="s1">tweens</span><span class="s2">)</span>
+        <span class="s2">{</span>
+            <span class="s1">tween</span><span class="s2">.</span><span class="s1">Kill</span><span class="s2">();</span>
+        <span class="s2">}</span>
+
+        <span class="s3">// 将单位固定到格子上</span>
+        <span class="s1">PlaceSpunUnits</span><span class="s2">();</span>
+        
+        <span class="s3">// 执行加权抽取并放置卡牌</span>
+        <span class="s1">WeightedDrawAndPlaceCards</span><span class="s2">();</span>
+
+        <span class="s1">isSpinning </span><span class="s2">= </span><span class="s0">false</span><span class="s2">;</span>
+
+        <span class="s3">// 触发旋转完成事件</span>
+        <span class="s1">OnSpinCompleted?</span><span class="s2">.</span><span class="s1">Invoke</span><span class="s2">();</span>
+    <span class="s2">}</span>
+
+    <span class="s0">private void </span><span class="s1">InitializeSpinningUnits</span><span class="s2">()</span>
+    <span class="s2">{</span>
+        <span class="s3">// 清理之前的单位</span>
+        <span class="s0">foreach </span><span class="s2">(</span><span class="s1">var unitGO </span><span class="s0">in </span><span class="s1">spinningUnits</span><span class="s2">)</span>
+        <span class="s2">{</span>
+            <span class="s1">Destroy</span><span class="s2">(</span><span class="s1">unitGO</span><span class="s2">);</span>
+        <span class="s2">}</span>
+        <span class="s1">spinningUnits</span><span class="s2">.</span><span class="s1">Clear</span><span class="s2">();</span>
+
+        <span class="s3">// 获取格子大小</span>
+        <span class="s1">Vector3 cellSize </span><span class="s2">= </span><span class="s1">gridManager</span><span class="s2">.</span><span class="s1">battleTilemap</span><span class="s2">.</span><span class="s1">cellSize</span><span class="s2">;</span>
+
+        <span class="s3">// 计算开始和结束的行索引</span>
+        <span class="s0">int </span><span class="s1">startRow </span><span class="s2">= </span><span class="s1">gridManager</span><span class="s2">.</span><span class="s1">rows </span><span class="s2">- </span><span class="s5">1 </span><span class="s2">+ </span><span class="s1">extraRows</span><span class="s2">;</span>
+        <span class="s0">int </span><span class="s1">endRow </span><span class="s2">= -</span><span class="s1">extraRows</span><span class="s2">;</span>
+
+        <span class="s3">// 遍历每一列和每一行（包括额外的行）</span>
+        <span class="s0">for </span><span class="s2">(</span><span class="s0">int </span><span class="s1">col </span><span class="s2">= </span><span class="s5">1</span><span class="s2">; </span><span class="s1">col </span><span class="s2">&lt;= </span><span class="s1">gridManager</span><span class="s2">.</span><span class="s1">columns</span><span class="s2">; </span><span class="s1">col</span><span class="s2">++)</span>
+        <span class="s2">{</span>
+            <span class="s0">for </span><span class="s2">(</span><span class="s0">int </span><span class="s1">row </span><span class="s2">= </span><span class="s1">startRow</span><span class="s2">; </span><span class="s1">row </span><span class="s2">&gt;= </span><span class="s1">endRow</span><span class="s2">; </span><span class="s1">row</span><span class="s2">--)</span>
+            <span class="s2">{</span>
+                <span class="s1">Vector3Int gridPos </span><span class="s2">= </span><span class="s0">new </span><span class="s1">Vector3Int</span><span class="s2">(</span><span class="s1">col</span><span class="s2">, </span><span class="s1">row</span><span class="s2">, </span><span class="s5">0</span><span class="s2">);</span>
+                <span class="s1">Vector3 worldPos </span><span class="s2">= </span><span class="s1">gridManager</span><span class="s2">.</span><span class="s1">GetCellCenterWorld</span><span class="s2">(</span><span class="s1">gridPos</span><span class="s2">);</span>
+
+                <span class="s3">// 创建单位实例，使用随机的单位数据</span>
+                <span class="s1">UnitData unitData </span><span class="s2">= </span><span class="s1">GetRandomUnitData</span><span class="s2">();</span>
+                <span class="s0">if </span><span class="s2">(</span><span class="s1">unitData </span><span class="s2">== </span><span class="s0">null</span><span class="s2">)</span>
+                    <span class="s0">continue</span><span class="s2">;</span>
+
+                <span class="s1">GameObject unitGO </span><span class="s2">= </span><span class="s1">Instantiate</span><span class="s2">(</span><span class="s1">gridManager</span><span class="s2">.</span><span class="s1">unitPrefab</span><span class="s2">, </span><span class="s1">worldPos</span><span class="s2">, </span><span class="s1">Quaternion</span><span class="s2">.</span><span class="s1">identity</span><span class="s2">, </span><span class="s1">gridManager</span><span class="s2">.</span><span class="s1">unitsParent</span><span class="s2">);</span>
+                <span class="s1">UnitController unitController </span><span class="s2">= </span><span class="s1">unitGO</span><span class="s2">.</span><span class="s1">GetComponent</span><span class="s2">&lt;</span><span class="s1">UnitController</span><span class="s2">&gt;();</span>
+                <span class="s1">unitController</span><span class="s2">.</span><span class="s1">unitData </span><span class="s2">= </span><span class="s1">unitData</span><span class="s2">;</span>
+                <span class="s1">unitController</span><span class="s2">.</span><span class="s1">InitializeUnitSprite</span><span class="s2">();</span>
+
+                <span class="s3">// 设置单位的列索引</span>
+                <span class="s1">unitController</span><span class="s2">.</span><span class="s1">columnIndex </span><span class="s2">= </span><span class="s1">col</span><span class="s2">;</span>
+
+                <span class="s1">spinningUnits</span><span class="s2">.</span><span class="s1">Add</span><span class="s2">(</span><span class="s1">unitGO</span><span class="s2">);</span>
+            <span class="s2">}</span>
+        <span class="s2">}</span>
+    <span class="s2">}</span>
+
+
+    
+    <span class="s0">private </span><span class="s1">UnitData GetRandomUnitData</span><span class="s2">()</span>
+    <span class="s2">{</span>
+        <span class="s1">List</span><span class="s2">&lt;</span><span class="s1">DeckEntry</span><span class="s2">&gt; </span><span class="s1">allEntries </span><span class="s2">= </span><span class="s0">new </span><span class="s1">List</span><span class="s2">&lt;</span><span class="s1">DeckEntry</span><span class="s2">&gt;();</span>
+        <span class="s1">allEntries</span><span class="s2">.</span><span class="s1">AddRange</span><span class="s2">(</span><span class="s1">playerDeck</span><span class="s2">.</span><span class="s1">entries</span><span class="s2">);</span>
+        <span class="s1">allEntries</span><span class="s2">.</span><span class="s1">AddRange</span><span class="s2">(</span><span class="s1">enemyDeck</span><span class="s2">.</span><span class="s1">entries</span><span class="s2">);</span>
+
+        <span class="s3">// 过滤掉数量为0的卡牌</span>
+        <span class="s1">allEntries</span><span class="s2">.</span><span class="s1">RemoveAll</span><span class="s2">(</span><span class="s1">entry =&gt; entry</span><span class="s2">.</span><span class="s1">quantity </span><span class="s2">&lt;= </span><span class="s5">0</span><span class="s2">);</span>
+
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">allEntries</span><span class="s2">.</span><span class="s1">Count </span><span class="s2">== </span><span class="s5">0</span><span class="s2">)</span>
+            <span class="s0">return null</span><span class="s2">;</span>
+
+        <span class="s0">int </span><span class="s1">index </span><span class="s2">= </span><span class="s1">Random</span><span class="s2">.</span><span class="s1">Range</span><span class="s2">(</span><span class="s5">0</span><span class="s2">, </span><span class="s1">allEntries</span><span class="s2">.</span><span class="s1">Count</span><span class="s2">);</span>
+        <span class="s0">return </span><span class="s1">allEntries</span><span class="s2">[</span><span class="s1">index</span><span class="s2">].</span><span class="s1">unitData</span><span class="s2">;</span>
+    <span class="s2">}</span>
+
+
+    <span class="s0">private void </span><span class="s1">PlaceSpunUnits</span><span class="s2">()</span>
+    <span class="s2">{</span>
+        <span class="s3">// 清空战斗区域内的单位</span>
+        <span class="s3">//ClearBattleAreaUnits();</span>
+
+        <span class="s3">// 如果需要，在此销毁所有旋转的单位</span>
+        <span class="s0">foreach </span><span class="s2">(</span><span class="s1">var unitGO </span><span class="s0">in </span><span class="s1">spinningUnits</span><span class="s2">)</span>
+        <span class="s2">{</span>
+            <span class="s1">Destroy</span><span class="s2">(</span><span class="s1">unitGO</span><span class="s2">);</span>
+        <span class="s2">}</span>
+        <span class="s3">// 清空旋转单位列表</span>
+        <span class="s1">spinningUnits</span><span class="s2">.</span><span class="s1">Clear</span><span class="s2">();</span>
+    <span class="s2">}</span>
+
+    <span class="s3">// 随机获取一个 DeckEntry</span>
+    <span class="s0">private </span><span class="s1">DeckEntry GetRandomDeckEntry</span><span class="s2">()</span>
+    <span class="s2">{</span>
+        <span class="s1">List</span><span class="s2">&lt;</span><span class="s1">DeckEntry</span><span class="s2">&gt; </span><span class="s1">allEntries </span><span class="s2">= </span><span class="s0">new </span><span class="s1">List</span><span class="s2">&lt;</span><span class="s1">DeckEntry</span><span class="s2">&gt;();</span>
+        <span class="s1">allEntries</span><span class="s2">.</span><span class="s1">AddRange</span><span class="s2">(</span><span class="s1">playerDeck</span><span class="s2">.</span><span class="s1">entries</span><span class="s2">);</span>
+        <span class="s1">allEntries</span><span class="s2">.</span><span class="s1">AddRange</span><span class="s2">(</span><span class="s1">enemyDeck</span><span class="s2">.</span><span class="s1">entries</span><span class="s2">);</span>
+
+        <span class="s3">// 过滤掉数量为0的</span>
+        <span class="s1">allEntries</span><span class="s2">.</span><span class="s1">RemoveAll</span><span class="s2">(</span><span class="s1">entry =&gt; entry</span><span class="s2">.</span><span class="s1">quantity </span><span class="s2">&lt;= </span><span class="s5">0</span><span class="s2">);</span>
+
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">allEntries</span><span class="s2">.</span><span class="s1">Count </span><span class="s2">== </span><span class="s5">0</span><span class="s2">)</span>
+            <span class="s0">return null</span><span class="s2">;</span>
+
+        <span class="s0">int </span><span class="s1">index </span><span class="s2">= </span><span class="s1">Random</span><span class="s2">.</span><span class="s1">Range</span><span class="s2">(</span><span class="s5">0</span><span class="s2">, </span><span class="s1">allEntries</span><span class="s2">.</span><span class="s1">Count</span><span class="s2">);</span>
+        <span class="s0">return </span><span class="s1">allEntries</span><span class="s2">[</span><span class="s1">index</span><span class="s2">];</span>
+    <span class="s2">}</span>
+
+
+    <span class="s3">/// &lt;summary&gt;</span>
+    <span class="s3">/// 执行加权抽取并放置卡片到战斗区域</span>
+    <span class="s3">/// &lt;/summary&gt;</span>
+    <span class="s0">public void </span><span class="s1">WeightedDrawAndPlaceCards</span><span class="s2">()</span>
+    <span class="s2">{</span>
+        <span class="s1">Debug</span><span class="s2">.</span><span class="s1">Log</span><span class="s2">(</span><span class="s4">&quot;WeightedDrawAndPlaceCards: 开始抽取并放置卡牌&quot;</span><span class="s2">);</span>
+
+        <span class="s3">// 清空之前的抽取记录</span>
+        <span class="s1">selectedCards</span><span class="s2">.</span><span class="s1">Clear</span><span class="s2">();</span>
+        
+        <span class="s3">// 定义权重映射，可以根据需要调整权重值</span>
+        <span class="s1">var weightMap </span><span class="s2">= </span><span class="s0">new </span><span class="s1">Dictionary</span><span class="s2">&lt;</span><span class="s1">PreferredPosition</span><span class="s2">, </span><span class="s0">int</span><span class="s2">&gt;</span>
+        <span class="s2">{</span>
+            <span class="s2">{ </span><span class="s1">PreferredPosition</span><span class="s2">.</span><span class="s1">Left</span><span class="s2">, </span><span class="s5">4 </span><span class="s2">},</span>
+            <span class="s2">{ </span><span class="s1">PreferredPosition</span><span class="s2">.</span><span class="s1">Any</span><span class="s2">, </span><span class="s5">2 </span><span class="s2">},</span>
+            <span class="s2">{ </span><span class="s1">PreferredPosition</span><span class="s2">.</span><span class="s1">Right</span><span class="s2">, </span><span class="s5">1 </span><span class="s2">}</span>
+        <span class="s2">};</span>
+
+        <span class="s3">// 获取所有可抽取的单位，包括正常和负伤的</span>
+        <span class="s1">var availableUnits </span><span class="s2">= </span><span class="s0">new </span><span class="s1">List</span><span class="s2">&lt;</span><span class="s1">UnitWithQuantity</span><span class="s2">&gt;();</span>
+
+        <span class="s3">// 获取玩家和敌人的可用单位</span>
+        <span class="s1">var playerUnits </span><span class="s2">= </span><span class="s1">playerDeck</span><span class="s2">.</span><span class="s1">GetAllUnitsWithInjuryStatus</span><span class="s2">();</span>
+        <span class="s1">var enemyUnits </span><span class="s2">= </span><span class="s1">enemyDeck</span><span class="s2">.</span><span class="s1">GetAllUnitsWithInjuryStatus</span><span class="s2">();</span>
+
+        <span class="s3">// 合并所有可用单位</span>
+        <span class="s1">var allUnits </span><span class="s2">= </span><span class="s0">new </span><span class="s1">List</span><span class="s2">&lt;</span><span class="s1">UnitWithInjuryStatus</span><span class="s2">&gt;();</span>
+        <span class="s1">allUnits</span><span class="s2">.</span><span class="s1">AddRange</span><span class="s2">(</span><span class="s1">playerUnits</span><span class="s2">);</span>
+        <span class="s1">allUnits</span><span class="s2">.</span><span class="s1">AddRange</span><span class="s2">(</span><span class="s1">enemyUnits</span><span class="s2">);</span>
+
+        <span class="s3">// 统计每种单位的数量</span>
+        <span class="s0">foreach </span><span class="s2">(</span><span class="s1">var unit </span><span class="s0">in </span><span class="s1">allUnits</span><span class="s2">)</span>
+        <span class="s2">{</span>
+            <span class="s1">var existingUnit </span><span class="s2">= </span><span class="s1">availableUnits</span><span class="s2">.</span><span class="s1">Find</span><span class="s2">(</span><span class="s1">u =&gt; u</span><span class="s2">.</span><span class="s1">unitData </span><span class="s2">== </span><span class="s1">unit</span><span class="s2">.</span><span class="s1">unitData </span><span class="s2">&amp;&amp; </span><span class="s1">u</span><span class="s2">.</span><span class="s1">isInjured </span><span class="s2">== </span><span class="s1">unit</span><span class="s2">.</span><span class="s1">isInjured</span><span class="s2">);</span>
+            <span class="s0">if </span><span class="s2">(</span><span class="s1">existingUnit </span><span class="s2">!= </span><span class="s0">null</span><span class="s2">)</span>
+            <span class="s2">{</span>
+                <span class="s1">existingUnit</span><span class="s2">.</span><span class="s1">quantity </span><span class="s2">+= </span><span class="s5">1</span><span class="s2">;</span>
+            <span class="s2">}</span>
+            <span class="s0">else</span>
+            <span class="s2">{</span>
+                <span class="s1">availableUnits</span><span class="s2">.</span><span class="s1">Add</span><span class="s2">(</span><span class="s0">new </span><span class="s1">UnitWithQuantity</span><span class="s2">(</span><span class="s1">unit</span><span class="s2">.</span><span class="s1">unitData</span><span class="s2">, </span><span class="s5">1</span><span class="s2">, </span><span class="s1">unit</span><span class="s2">.</span><span class="s1">isInjured</span><span class="s2">));</span>
+            <span class="s2">}</span>
+        <span class="s2">}</span>
+
+        <span class="s3">// 移除数量为零的单位</span>
+        <span class="s1">availableUnits</span><span class="s2">.</span><span class="s1">RemoveAll</span><span class="s2">(</span><span class="s1">unit =&gt; unit</span><span class="s2">.</span><span class="s1">quantity </span><span class="s2">&lt;= </span><span class="s5">0</span><span class="s2">);</span>
+
+        <span class="s3">// 计算可用的总卡片数量</span>
+        <span class="s1">var totalAvailableCards </span><span class="s2">= </span><span class="s5">0</span><span class="s2">;</span>
+        <span class="s0">foreach </span><span class="s2">(</span><span class="s1">var unit </span><span class="s0">in </span><span class="s1">availableUnits</span><span class="s2">)</span>
+        <span class="s2">{</span>
+            <span class="s1">totalAvailableCards </span><span class="s2">+= </span><span class="s1">unit</span><span class="s2">.</span><span class="s1">quantity</span><span class="s2">;</span>
+        <span class="s2">}</span>
+
+        <span class="s1">Debug</span><span class="s2">.</span><span class="s1">Log</span><span class="s2">(</span><span class="s4">$&quot;WeightedDrawAndPlaceCards: 总可用卡片数量: </span><span class="s2">{</span><span class="s1">totalAvailableCards</span><span class="s2">}</span><span class="s4">&quot;</span><span class="s2">);</span>
+
+        <span class="s3">// 如果总可用卡片数量小于 maxCards，调整 cardsToDraw</span>
+        <span class="s1">var cardsToDraw </span><span class="s2">= </span><span class="s1">Mathf</span><span class="s2">.</span><span class="s1">Min</span><span class="s2">(</span><span class="s1">maxCards</span><span class="s2">, </span><span class="s1">totalAvailableCards</span><span class="s2">);</span>
+
+        <span class="s3">// 开始抽取过程</span>
+        <span class="s0">for </span><span class="s2">(</span><span class="s1">var i </span><span class="s2">= </span><span class="s5">0</span><span class="s2">; </span><span class="s1">i </span><span class="s2">&lt; </span><span class="s1">cardsToDraw</span><span class="s2">; </span><span class="s1">i</span><span class="s2">++)</span>
+        <span class="s2">{</span>
+            <span class="s3">// 更新当前可用的单位列表</span>
+            <span class="s1">var currentAvailableUnits </span><span class="s2">= </span><span class="s0">new </span><span class="s1">List</span><span class="s2">&lt;</span><span class="s1">UnitWithQuantity</span><span class="s2">&gt;(</span><span class="s1">availableUnits</span><span class="s2">);</span>
+
+            <span class="s0">if </span><span class="s2">(</span><span class="s1">currentAvailableUnits</span><span class="s2">.</span><span class="s1">Count </span><span class="s2">== </span><span class="s5">0</span><span class="s2">)</span>
+            <span class="s2">{</span>
+                <span class="s1">Debug</span><span class="s2">.</span><span class="s1">Log</span><span class="s2">(</span><span class="s4">&quot;WeightedDrawAndPlaceCards: 没有更多可抽取的卡牌！&quot;</span><span class="s2">);</span>
+                <span class="s0">break</span><span class="s2">;</span>
+            <span class="s2">}</span>
+
+            <span class="s3">// 计算总权重</span>
+            <span class="s1">var totalWeight </span><span class="s2">= </span><span class="s5">0</span><span class="s2">;</span>
+            <span class="s0">foreach </span><span class="s2">(</span><span class="s1">var unit </span><span class="s0">in </span><span class="s1">currentAvailableUnits</span><span class="s2">)</span>
+            <span class="s2">{</span>
+                <span class="s1">var pos </span><span class="s2">= </span><span class="s1">unit</span><span class="s2">.</span><span class="s1">unitData</span><span class="s2">.</span><span class="s1">preferredPosition</span><span class="s2">;</span>
+                <span class="s1">var entryWeight </span><span class="s2">= </span><span class="s1">weightMap</span><span class="s2">.</span><span class="s1">ContainsKey</span><span class="s2">(</span><span class="s1">pos</span><span class="s2">) </span><span class="s1">? weightMap</span><span class="s2">[</span><span class="s1">pos</span><span class="s2">] </span><span class="s1">:</span>
+                    <span class="s1">weightMap</span><span class="s2">.</span><span class="s1">ContainsKey</span><span class="s2">(</span><span class="s1">PreferredPosition</span><span class="s2">.</span><span class="s1">Any</span><span class="s2">) </span><span class="s1">? weightMap</span><span class="s2">[</span><span class="s1">PreferredPosition</span><span class="s2">.</span><span class="s1">Any</span><span class="s2">] </span><span class="s1">: </span><span class="s5">1</span><span class="s2">;</span>
+
+                <span class="s1">totalWeight </span><span class="s2">+= </span><span class="s1">unit</span><span class="s2">.</span><span class="s1">quantity </span><span class="s2">* </span><span class="s1">entryWeight</span><span class="s2">;</span>
+            <span class="s2">}</span>
+
+            <span class="s0">if </span><span class="s2">(</span><span class="s1">totalWeight </span><span class="s2">&lt;= </span><span class="s5">0</span><span class="s2">)</span>
+            <span class="s2">{</span>
+                <span class="s1">Debug</span><span class="s2">.</span><span class="s1">LogWarning</span><span class="s2">(</span><span class="s4">&quot;WeightedDrawAndPlaceCards: 总权重为0，无法继续抽取！&quot;</span><span class="s2">);</span>
+                <span class="s0">break</span><span class="s2">;</span>
+            <span class="s2">}</span>
+
+            <span class="s3">// 生成一个随机数</span>
+            <span class="s1">var randomWeight </span><span class="s2">= </span><span class="s1">Random</span><span class="s2">.</span><span class="s1">Range</span><span class="s2">(</span><span class="s5">0</span><span class="s2">, </span><span class="s1">totalWeight</span><span class="s2">);</span>
+
+            <span class="s3">// 选择对应的单位</span>
+            <span class="s1">var cumulativeWeight </span><span class="s2">= </span><span class="s5">0</span><span class="s2">;</span>
+            <span class="s1">UnitWithQuantity selectedUnit </span><span class="s2">= </span><span class="s0">null</span><span class="s2">;</span>
+            <span class="s0">foreach </span><span class="s2">(</span><span class="s1">var unit </span><span class="s0">in </span><span class="s1">currentAvailableUnits</span><span class="s2">)</span>
+            <span class="s2">{</span>
+                <span class="s1">var pos </span><span class="s2">= </span><span class="s1">unit</span><span class="s2">.</span><span class="s1">unitData</span><span class="s2">.</span><span class="s1">preferredPosition</span><span class="s2">;</span>
+                <span class="s1">var entryWeight </span><span class="s2">= </span><span class="s1">weightMap</span><span class="s2">.</span><span class="s1">ContainsKey</span><span class="s2">(</span><span class="s1">pos</span><span class="s2">) </span><span class="s1">? weightMap</span><span class="s2">[</span><span class="s1">pos</span><span class="s2">] </span><span class="s1">:</span>
+                    <span class="s1">weightMap</span><span class="s2">.</span><span class="s1">ContainsKey</span><span class="s2">(</span><span class="s1">PreferredPosition</span><span class="s2">.</span><span class="s1">Any</span><span class="s2">) </span><span class="s1">? weightMap</span><span class="s2">[</span><span class="s1">PreferredPosition</span><span class="s2">.</span><span class="s1">Any</span><span class="s2">] </span><span class="s1">: </span><span class="s5">1</span><span class="s2">;</span>
+
+                <span class="s1">var unitWeight </span><span class="s2">= </span><span class="s1">unit</span><span class="s2">.</span><span class="s1">quantity </span><span class="s2">* </span><span class="s1">entryWeight</span><span class="s2">;</span>
+                <span class="s1">cumulativeWeight </span><span class="s2">+= </span><span class="s1">unitWeight</span><span class="s2">;</span>
+
+                <span class="s0">if </span><span class="s2">(</span><span class="s1">randomWeight </span><span class="s2">&lt; </span><span class="s1">cumulativeWeight</span><span class="s2">)</span>
+                <span class="s2">{</span>
+                    <span class="s1">selectedUnit </span><span class="s2">= </span><span class="s1">unit</span><span class="s2">;</span>
+                    <span class="s0">break</span><span class="s2">;</span>
+                <span class="s2">}</span>
+            <span class="s2">}</span>
+
+            <span class="s0">if </span><span class="s2">(</span><span class="s1">selectedUnit </span><span class="s2">== </span><span class="s0">null</span><span class="s2">)</span>
+            <span class="s2">{</span>
+                <span class="s1">Debug</span><span class="s2">.</span><span class="s1">LogWarning</span><span class="s2">(</span><span class="s4">&quot;WeightedDrawAndPlaceCards: 没有选中的单位！&quot;</span><span class="s2">);</span>
+                <span class="s0">break</span><span class="s2">;</span>
+            <span class="s2">}</span>
+
+            <span class="s3">// 添加到 selectedCards 并减少数量</span>
+            <span class="s1">selectedCards</span><span class="s2">.</span><span class="s1">Add</span><span class="s2">(</span><span class="s0">new </span><span class="s1">UnitWithInjuryStatus</span><span class="s2">(</span><span class="s1">selectedUnit</span><span class="s2">.</span><span class="s1">unitData</span><span class="s2">, </span><span class="s1">selectedUnit</span><span class="s2">.</span><span class="s1">isInjured</span><span class="s2">));</span>
+            <span class="s1">selectedUnit</span><span class="s2">.</span><span class="s1">quantity </span><span class="s2">-= </span><span class="s5">1</span><span class="s2">;</span>
+
+            <span class="s0">if </span><span class="s2">(</span><span class="s1">selectedUnit</span><span class="s2">.</span><span class="s1">quantity </span><span class="s2">&lt;= </span><span class="s5">0</span><span class="s2">)</span>
+            <span class="s2">{</span>
+                <span class="s1">availableUnits</span><span class="s2">.</span><span class="s1">Remove</span><span class="s2">(</span><span class="s1">selectedUnit</span><span class="s2">);</span>
+            <span class="s2">}</span>
+
+            <span class="s3">// 从对应的牌组中减少数量</span>
+            <span class="s1">DeckEntry correspondingEntry </span><span class="s2">= </span><span class="s0">null</span><span class="s2">;</span>
+            <span class="s0">if </span><span class="s2">(</span><span class="s1">selectedUnit</span><span class="s2">.</span><span class="s1">unitData</span><span class="s2">.</span><span class="s1">camp </span><span class="s2">== </span><span class="s1">Camp</span><span class="s2">.</span><span class="s1">Player</span><span class="s2">)</span>
+            <span class="s2">{</span>
+                <span class="s1">correspondingEntry </span><span class="s2">= </span><span class="s1">playerDeck</span><span class="s2">.</span><span class="s1">entries</span><span class="s2">.</span><span class="s1">Find</span><span class="s2">(</span><span class="s1">entry =&gt; entry</span><span class="s2">.</span><span class="s1">unitData </span><span class="s2">== </span><span class="s1">selectedUnit</span><span class="s2">.</span><span class="s1">unitData</span><span class="s2">);</span>
+            <span class="s2">}</span>
+            <span class="s0">else if </span><span class="s2">(</span><span class="s1">selectedUnit</span><span class="s2">.</span><span class="s1">unitData</span><span class="s2">.</span><span class="s1">camp </span><span class="s2">== </span><span class="s1">Camp</span><span class="s2">.</span><span class="s1">Enemy</span><span class="s2">)</span>
+            <span class="s2">{</span>
+                <span class="s1">correspondingEntry </span><span class="s2">= </span><span class="s1">enemyDeck</span><span class="s2">.</span><span class="s1">entries</span><span class="s2">.</span><span class="s1">Find</span><span class="s2">(</span><span class="s1">entry =&gt; entry</span><span class="s2">.</span><span class="s1">unitData </span><span class="s2">== </span><span class="s1">selectedUnit</span><span class="s2">.</span><span class="s1">unitData</span><span class="s2">);</span>
+            <span class="s2">}</span>
+
+            <span class="s0">if </span><span class="s2">(</span><span class="s1">correspondingEntry </span><span class="s2">!= </span><span class="s0">null</span><span class="s2">)</span>
+            <span class="s2">{</span>
+                <span class="s0">if </span><span class="s2">(</span><span class="s1">selectedUnit</span><span class="s2">.</span><span class="s1">isInjured</span><span class="s2">)</span>
+                    <span class="s1">correspondingEntry</span><span class="s2">.</span><span class="s1">injuredQuantity </span><span class="s2">-= </span><span class="s5">1</span><span class="s2">;</span>
+                <span class="s0">else</span>
+                    <span class="s1">correspondingEntry</span><span class="s2">.</span><span class="s1">quantity </span><span class="s2">-= </span><span class="s5">1</span><span class="s2">;</span>
+            <span class="s2">}</span>
+        <span class="s2">}</span>
+
+        <span class="s3">// 放置卡片到战斗区域</span>
+        <span class="s1">ShuffleAndPlaceCards</span><span class="s2">();</span>
+    <span class="s2">}</span>
+    
+    <span class="s3">// 定义一个类，用于存储单位、数量和负伤状态</span>
+    <span class="s0">public class </span><span class="s1">UnitWithQuantity</span>
+    <span class="s2">{</span>
+        <span class="s0">public </span><span class="s1">UnitData unitData</span><span class="s2">;</span>
+        <span class="s0">public int </span><span class="s1">quantity</span><span class="s2">;</span>
+        <span class="s0">public bool </span><span class="s1">isInjured</span><span class="s2">;</span>
+
+        <span class="s0">public </span><span class="s1">UnitWithQuantity</span><span class="s2">(</span><span class="s1">UnitData unitData</span><span class="s2">, </span><span class="s0">int </span><span class="s1">quantity</span><span class="s2">, </span><span class="s0">bool </span><span class="s1">isInjured</span><span class="s2">)</span>
+        <span class="s2">{</span>
+            <span class="s0">this</span><span class="s2">.</span><span class="s1">unitData </span><span class="s2">= </span><span class="s1">unitData</span><span class="s2">;</span>
+            <span class="s0">this</span><span class="s2">.</span><span class="s1">quantity </span><span class="s2">= </span><span class="s1">quantity</span><span class="s2">;</span>
+            <span class="s0">this</span><span class="s2">.</span><span class="s1">isInjured </span><span class="s2">= </span><span class="s1">isInjured</span><span class="s2">;</span>
+        <span class="s2">}</span>
+    <span class="s2">}</span>
+    
+    <span class="s3">/// &lt;summary&gt;</span>
+    <span class="s3">/// 随机放置卡片到战斗区域的格子上，若不足 maxCards 张，用空白格填充</span>
+    <span class="s3">/// &lt;/summary&gt;</span>
+    <span class="s0">void </span><span class="s1">ShuffleAndPlaceCards</span><span class="s2">()</span>
+    <span class="s2">{</span>
+        <span class="s1">Debug</span><span class="s2">.</span><span class="s1">Log</span><span class="s2">(</span><span class="s4">&quot;ShuffleAndPlaceCards: 开始放置卡牌到战斗区域&quot;</span><span class="s2">);</span>
+
+        <span class="s3">// 清空战斗区域内的单位</span>
+        <span class="s3">//ClearBattleAreaUnits();</span>
+
+        <span class="s3">// 随机排列 battlePositions</span>
+        <span class="s1">List</span><span class="s2">&lt;</span><span class="s1">Vector3Int</span><span class="s2">&gt; </span><span class="s1">shuffledPositions </span><span class="s2">= </span><span class="s0">new </span><span class="s1">List</span><span class="s2">&lt;</span><span class="s1">Vector3Int</span><span class="s2">&gt;(</span><span class="s1">battlePositions</span><span class="s2">);</span>
+        <span class="s0">for </span><span class="s2">(</span><span class="s0">int </span><span class="s1">i </span><span class="s2">= </span><span class="s1">shuffledPositions</span><span class="s2">.</span><span class="s1">Count </span><span class="s2">- </span><span class="s5">1</span><span class="s2">; </span><span class="s1">i </span><span class="s2">&gt; </span><span class="s5">0</span><span class="s2">; </span><span class="s1">i</span><span class="s2">--)</span>
+        <span class="s2">{</span>
+            <span class="s0">int </span><span class="s1">rnd </span><span class="s2">= </span><span class="s1">Random</span><span class="s2">.</span><span class="s1">Range</span><span class="s2">(</span><span class="s5">0</span><span class="s2">, </span><span class="s1">i </span><span class="s2">+ </span><span class="s5">1</span><span class="s2">);</span>
+            <span class="s1">Vector3Int temp </span><span class="s2">= </span><span class="s1">shuffledPositions</span><span class="s2">[</span><span class="s1">i</span><span class="s2">];</span>
+            <span class="s1">shuffledPositions</span><span class="s2">[</span><span class="s1">i</span><span class="s2">] = </span><span class="s1">shuffledPositions</span><span class="s2">[</span><span class="s1">rnd</span><span class="s2">];</span>
+            <span class="s1">shuffledPositions</span><span class="s2">[</span><span class="s1">rnd</span><span class="s2">] = </span><span class="s1">temp</span><span class="s2">;</span>
+        <span class="s2">}</span>
+
+        <span class="s0">int </span><span class="s1">positionCount </span><span class="s2">= </span><span class="s1">Mathf</span><span class="s2">.</span><span class="s1">Min</span><span class="s2">(</span><span class="s1">maxCards</span><span class="s2">, </span><span class="s1">shuffledPositions</span><span class="s2">.</span><span class="s1">Count</span><span class="s2">);</span>
+        <span class="s1">Debug</span><span class="s2">.</span><span class="s1">Log</span><span class="s2">(</span><span class="s4">$&quot;ShuffleAndPlaceCards: 需要放置的格子数量: </span><span class="s2">{</span><span class="s1">positionCount</span><span class="s2">}</span><span class="s4">&quot;</span><span class="s2">);</span>
+
+        <span class="s0">for </span><span class="s2">(</span><span class="s0">int </span><span class="s1">i </span><span class="s2">= </span><span class="s5">0</span><span class="s2">; </span><span class="s1">i </span><span class="s2">&lt; </span><span class="s1">positionCount</span><span class="s2">; </span><span class="s1">i</span><span class="s2">++)</span>
+        <span class="s2">{</span>
+            <span class="s1">Vector3Int selectedPos </span><span class="s2">= </span><span class="s1">shuffledPositions</span><span class="s2">[</span><span class="s1">i</span><span class="s2">];</span>
+
+            <span class="s0">if </span><span class="s2">(</span><span class="s1">i </span><span class="s2">&lt; </span><span class="s1">selectedCards</span><span class="s2">.</span><span class="s1">Count</span><span class="s2">)</span>
+            <span class="s2">{</span>
+                <span class="s3">// 放置卡片</span>
+                <span class="s1">UnitWithInjuryStatus unitToSpawn </span><span class="s2">= </span><span class="s1">selectedCards</span><span class="s2">[</span><span class="s1">i</span><span class="s2">];</span>
+                <span class="s1">gridManager</span><span class="s2">.</span><span class="s1">SpawnUnit</span><span class="s2">(</span><span class="s1">selectedPos</span><span class="s2">, </span><span class="s1">unitToSpawn</span><span class="s2">.</span><span class="s1">unitData</span><span class="s2">, </span><span class="s1">unitToSpawn</span><span class="s2">.</span><span class="s1">isInjured</span><span class="s2">);</span>
+            <span class="s2">}</span>
+            <span class="s0">else</span>
+            <span class="s2">{</span>
+                <span class="s3">// 用空白格填充（可选择不做任何操作或显示空白图）</span>
+                <span class="s3">// 此处暂不处理</span>
+            <span class="s2">}</span>
+        <span class="s2">}</span>
+    <span class="s2">}</span>
+
+    <span class="s3">/// &lt;summary&gt;</span>
+    <span class="s3">/// 清空战斗区域上的所有单位</span>
+    <span class="s3">/// &lt;/summary&gt;</span>
+    <span class="s0">void </span><span class="s1">ClearBattleAreaUnits</span><span class="s2">()</span>
+    <span class="s2">{</span>
+        <span class="s1">Debug</span><span class="s2">.</span><span class="s1">Log</span><span class="s2">(</span><span class="s4">&quot;ClearBattleAreaUnits: 开始清空战斗区域的单位&quot;</span><span class="s2">);</span>
+
+        <span class="s3">// 遍历所有战斗区域格子，销毁存在的单位</span>
+        <span class="s0">foreach </span><span class="s2">(</span><span class="s1">var pos </span><span class="s0">in </span><span class="s1">battlePositions</span><span class="s2">)</span>
+        <span class="s2">{</span>
+            <span class="s0">if </span><span class="s2">(</span><span class="s1">gridManager</span><span class="s2">.</span><span class="s1">HasSkillUserAt</span><span class="s2">(</span><span class="s1">pos</span><span class="s2">))</span>
+            <span class="s2">{</span>
+                <span class="s1">ISkillUser user </span><span class="s2">= </span><span class="s1">gridManager</span><span class="s2">.</span><span class="s1">GetSkillUserAt</span><span class="s2">(</span><span class="s1">pos</span><span class="s2">);</span>
+                <span class="s0">if </span><span class="s2">(</span><span class="s1">user </span><span class="s2">!= </span><span class="s0">null</span><span class="s2">)</span>
+                <span class="s2">{</span>
+                    <span class="s0">if </span><span class="s2">(</span><span class="s1">user </span><span class="s0">is </span><span class="s1">UnitController unit</span><span class="s2">)</span>
+                    <span class="s2">{</span>
+                        <span class="s1">Debug</span><span class="s2">.</span><span class="s1">Log</span><span class="s2">(</span><span class="s4">$&quot;ClearBattleAreaUnits: 销毁位置 </span><span class="s2">{</span><span class="s1">pos</span><span class="s2">} </span><span class="s4">上的 </span><span class="s2">{</span><span class="s1">unit</span><span class="s2">.</span><span class="s1">gameObject</span><span class="s2">.</span><span class="s1">name</span><span class="s2">}</span><span class="s4">&quot;</span><span class="s2">);</span>
+                        <span class="s1">var deck </span><span class="s2">= </span><span class="s1">unit</span><span class="s2">.</span><span class="s1">unitData</span><span class="s2">.</span><span class="s1">camp </span><span class="s2">== </span><span class="s1">Camp</span><span class="s2">.</span><span class="s1">Player ? playerDeck : enemyDeck</span><span class="s2">;</span>
+
+                        <span class="s0">if </span><span class="s2">(</span><span class="s1">unit</span><span class="s2">.</span><span class="s1">currentHealth </span><span class="s2">&gt; </span><span class="s5">0</span><span class="s2">)</span>
+                        <span class="s2">{</span>
+                            <span class="s3">// 单位仍然活着，添加回牌组</span>
+                            <span class="s1">deck</span><span class="s2">.</span><span class="s1">AddCard</span><span class="s2">(</span><span class="s1">unit</span><span class="s2">.</span><span class="s1">unitData</span><span class="s2">, </span><span class="s5">1</span><span class="s2">, </span><span class="s1">unit</span><span class="s2">.</span><span class="s1">isInjured</span><span class="s2">);</span>
+                            <span class="s1">Debug</span><span class="s2">.</span><span class="s1">Log</span><span class="s2">(</span><span class="s4">$&quot;ClearBattleAreaUnits: 单位 </span><span class="s2">{</span><span class="s1">unit</span><span class="s2">.</span><span class="s1">unitData</span><span class="s2">.</span><span class="s1">unitName</span><span class="s2">} </span><span class="s4">添加回牌组&quot;</span><span class="s2">);</span>
+                        <span class="s2">}</span>
+                        <span class="s0">else</span>
+                        <span class="s2">{</span>
+                            <span class="s3">// 单位已死亡，不处理（已经在 MoveToDeck 或 MoveToGraveyard 中处理过）</span>
+                            <span class="s1">Debug</span><span class="s2">.</span><span class="s1">Log</span><span class="s2">(</span><span class="s4">$&quot;ClearBattleAreaUnits: 单位 </span><span class="s2">{</span><span class="s1">unit</span><span class="s2">.</span><span class="s1">unitData</span><span class="s2">.</span><span class="s1">unitName</span><span class="s2">} </span><span class="s4">已死亡，不添加回牌组&quot;</span><span class="s2">);</span>
+                        <span class="s2">}</span>
+
+                        <span class="s3">// 销毁单位游戏对象</span>
+                        <span class="s1">Destroy</span><span class="s2">(</span><span class="s1">unit</span><span class="s2">.</span><span class="s1">gameObject</span><span class="s2">);</span>
+
+                        <span class="s3">// 从 GridManager 中移除</span>
+                        <span class="s1">gridManager</span><span class="s2">.</span><span class="s1">RemoveSkillUserAt</span><span class="s2">(</span><span class="s1">pos</span><span class="s2">);</span>
+                    <span class="s2">}</span>
+                <span class="s2">}</span>
+            <span class="s2">}</span>
+        <span class="s2">}</span>
+
+        <span class="s1">Debug</span><span class="s2">.</span><span class="s1">Log</span><span class="s2">(</span><span class="s4">&quot;ClearBattleAreaUnits: 战斗区域的单位已清空&quot;</span><span class="s2">);</span>
+    <span class="s2">}</span>
+
+    <span class="s3">/// &lt;summary&gt;</span>
+    <span class="s3">/// 更新转盘上的 Tile 以模拟旋转</span>
+    <span class="s3">/// &lt;/summary&gt;</span>
+    <span class="s0">private void </span><span class="s1">UpdateSpinTiles</span><span class="s2">()</span>
+    <span class="s2">{</span>
+        <span class="s1">Tilemap battleTilemap </span><span class="s2">= </span><span class="s1">gridManager</span><span class="s2">.</span><span class="s1">battleTilemap</span><span class="s2">;</span>
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">battleTilemap </span><span class="s2">== </span><span class="s0">null</span><span class="s2">)</span>
+        <span class="s2">{</span>
+            <span class="s1">Debug</span><span class="s2">.</span><span class="s1">LogError</span><span class="s2">(</span><span class="s4">&quot;SlotMachineController: battleTilemap 未设置！&quot;</span><span class="s2">);</span>
+            <span class="s0">return</span><span class="s2">;</span>
+        <span class="s2">}</span>
+
+        <span class="s0">foreach </span><span class="s2">(</span><span class="s1">var position </span><span class="s0">in </span><span class="s1">battlePositions</span><span class="s2">)</span>
+        <span class="s2">{</span>
+            <span class="s0">if </span><span class="s2">(</span><span class="s1">spinTiles</span><span class="s2">.</span><span class="s1">Length </span><span class="s2">&gt; </span><span class="s5">0</span><span class="s2">)</span>
+            <span class="s2">{</span>
+                <span class="s0">int </span><span class="s1">randomIndex </span><span class="s2">= </span><span class="s1">Random</span><span class="s2">.</span><span class="s1">Range</span><span class="s2">(</span><span class="s5">0</span><span class="s2">, </span><span class="s1">spinTiles</span><span class="s2">.</span><span class="s1">Length</span><span class="s2">);</span>
+                <span class="s3">//battleTilemap.SetTile(position, spinTiles[randomIndex]);</span>
+            <span class="s2">}</span>
+        <span class="s2">}</span>
+    <span class="s2">}</span>
+
+    <span class="s3">/// &lt;summary&gt;</span>
+    <span class="s3">/// 清除转盘上的 Tile</span>
+    <span class="s3">/// &lt;/summary&gt;</span>
+    <span class="s0">private void </span><span class="s1">ClearSpinTiles</span><span class="s2">()</span>
+    <span class="s2">{</span>
+        <span class="s1">Tilemap battleTilemap </span><span class="s2">= </span><span class="s1">gridManager</span><span class="s2">.</span><span class="s1">battleTilemap</span><span class="s2">;</span>
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">battleTilemap </span><span class="s2">== </span><span class="s0">null</span><span class="s2">)</span>
+        <span class="s2">{</span>
+            <span class="s1">Debug</span><span class="s2">.</span><span class="s1">LogError</span><span class="s2">(</span><span class="s4">&quot;SlotMachineController: battleTilemap 未设置！&quot;</span><span class="s2">);</span>
+            <span class="s0">return</span><span class="s2">;</span>
+        <span class="s2">}</span>
+
+        <span class="s0">foreach </span><span class="s2">(</span><span class="s1">var position </span><span class="s0">in </span><span class="s1">battlePositions</span><span class="s2">)</span>
+        <span class="s2">{</span>
+            <span class="s3">//battleTilemap.SetTile(position, null);</span>
+        <span class="s2">}</span>
+    <span class="s2">}</span>
+<span class="s2">}</span>
+</pre>
+</body>
+</html>

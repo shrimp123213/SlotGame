@@ -1,0 +1,570 @@
+<html>
+<head>
+<title>BuildingController.cs</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #6c95eb;}
+.s1 { color: #d0d0d0;}
+.s2 { color: #bdbdbd;}
+.s3 { color: #85c46c; font-style: italic;}
+.s4 { color: #ed94c0;}
+.s5 { color: #c9a26d;}
+</style>
+</head>
+<body bgcolor="#262626">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#606060" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+BuildingController.cs</font>
+</center></td></tr></table>
+<pre><span class="s0">using </span><span class="s1">System</span><span class="s2">.</span><span class="s1">Collections</span><span class="s2">;</span>
+<span class="s0">using </span><span class="s1">UnityEngine</span><span class="s2">;</span>
+<span class="s0">using </span><span class="s1">UnityEngine</span><span class="s2">.</span><span class="s1">UI</span><span class="s2">;</span>
+
+<span class="s3">/// &lt;summary&gt;</span>
+<span class="s3">/// 控制建筑物的行为</span>
+<span class="s3">/// &lt;/summary&gt;</span>
+<span class="s0">public class </span><span class="s1">BuildingController : MonoBehaviour</span><span class="s2">, </span><span class="s1">ISkillUser</span>
+<span class="s2">{</span>
+    <span class="s0">public </span><span class="s1">BuildingData buildingData</span><span class="s2">; </span><span class="s3">// 建筑物的静态数据</span>
+
+    <span class="s0">public </span><span class="s1">Vector3Int gridPosition</span><span class="s2">;   </span><span class="s3">// 建筑物在格子上的位置</span>
+
+    <span class="s0">public int </span><span class="s1">currentHealth</span><span class="s2">;        </span><span class="s3">// 建筑物的当前生命值</span>
+    <span class="s0">public int </span><span class="s1">defensePoints </span><span class="s2">= </span><span class="s4">0</span><span class="s2">;    </span><span class="s3">// 防卫点数</span>
+    
+    <span class="s0">public bool </span><span class="s1">isRuin </span><span class="s2">= </span><span class="s0">false</span><span class="s2">; </span><span class="s3">// 是否是废墟状态</span>
+    <span class="s0">public </span><span class="s1">Sprite ruinSprite</span><span class="s2">;   </span><span class="s3">// 废墟状态的精灵</span>
+    
+    <span class="s0">public </span><span class="s1">Image healthBar</span><span class="s2">;       </span><span class="s3">// 生命值条的填充部分</span>
+    <span class="s0">public </span><span class="s1">Image healthBarFrame</span><span class="s2">;  </span><span class="s3">// 生命值条的框架</span>
+
+    <span class="s2">[</span><span class="s1">HideInInspector</span><span class="s2">]</span>
+    <span class="s0">public </span><span class="s1">Skill currentSkill</span><span class="s2">;        </span><span class="s3">// 当前技能的运行时实例</span>
+
+    <span class="s0">void </span><span class="s1">Start</span><span class="s2">()</span>
+    <span class="s2">{</span>
+        <span class="s3">// 初始化建筑物属性</span>
+        <span class="s1">InitializeBuilding</span><span class="s2">();</span>
+
+        <span class="s3">// 获取 SkillManager 引用</span>
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">SkillManager</span><span class="s2">.</span><span class="s1">Instance </span><span class="s2">== </span><span class="s0">null</span><span class="s2">)</span>
+        <span class="s2">{</span>
+            <span class="s1">Debug</span><span class="s2">.</span><span class="s1">LogError</span><span class="s2">(</span><span class="s5">&quot;BuildingController: 未找到 SkillManager！&quot;</span><span class="s2">);</span>
+        <span class="s2">}</span>
+
+        <span class="s3">// 初始化当前技能为行动技能的克隆</span>
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">buildingData</span><span class="s2">.</span><span class="s1">actionSkillSO </span><span class="s2">!= </span><span class="s0">null</span><span class="s2">)</span>
+        <span class="s2">{</span>
+            <span class="s1">currentSkill </span><span class="s2">= </span><span class="s1">Skill</span><span class="s2">.</span><span class="s1">FromSkillSO</span><span class="s2">(</span><span class="s1">buildingData</span><span class="s2">.</span><span class="s1">actionSkillSO</span><span class="s2">);</span>
+        <span class="s2">}</span>
+        <span class="s0">else</span>
+        <span class="s2">{</span>
+            <span class="s1">Debug</span><span class="s2">.</span><span class="s1">LogWarning</span><span class="s2">(</span><span class="s5">$&quot;BuildingController: 建筑物 </span><span class="s2">{</span><span class="s1">buildingData</span><span class="s2">.</span><span class="s1">buildingName</span><span class="s2">} </span><span class="s5">没有配置行动技能！&quot;</span><span class="s2">);</span>
+        <span class="s2">}</span>
+
+        <span class="s3">// 初始化实例变量</span>
+        <span class="s1">currentHealth </span><span class="s2">= </span><span class="s1">buildingData</span><span class="s2">.</span><span class="s1">maxHealth</span><span class="s2">;</span>
+
+        <span class="s3">// 调用初始化方法</span>
+        <span class="s1">Init</span><span class="s2">();</span>
+    <span class="s2">}</span>
+
+    <span class="s3">/// &lt;summary&gt;</span>
+    <span class="s3">/// 初始化建筑物</span>
+    <span class="s3">/// &lt;/summary&gt;</span>
+    <span class="s0">void </span><span class="s1">InitializeBuilding</span><span class="s2">()</span>
+    <span class="s2">{</span>
+        <span class="s3">// 设置建筑物的图片</span>
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">buildingData</span><span class="s2">.</span><span class="s1">buildingSprite </span><span class="s2">!= </span><span class="s0">null</span><span class="s2">)</span>
+        <span class="s2">{</span>
+            <span class="s1">SpriteRenderer sr </span><span class="s2">= </span><span class="s1">GetComponent</span><span class="s2">&lt;</span><span class="s1">SpriteRenderer</span><span class="s2">&gt;();</span>
+            <span class="s0">if </span><span class="s2">(</span><span class="s1">sr </span><span class="s2">!= </span><span class="s0">null</span><span class="s2">)</span>
+            <span class="s2">{</span>
+                <span class="s1">sr</span><span class="s2">.</span><span class="s1">sprite </span><span class="s2">= </span><span class="s1">buildingData</span><span class="s2">.</span><span class="s1">buildingSprite</span><span class="s2">;</span>
+            <span class="s2">}</span>
+            <span class="s0">else</span>
+            <span class="s2">{</span>
+                <span class="s1">Debug</span><span class="s2">.</span><span class="s1">LogWarning</span><span class="s2">(</span><span class="s5">&quot;BuildingController: 未找到 SpriteRenderer 组件！&quot;</span><span class="s2">);</span>
+            <span class="s2">}</span>
+        <span class="s2">}</span>
+
+        <span class="s3">// 根据建筑物数据设置其他属性</span>
+        <span class="s3">// 例如，设置防御值、功能等</span>
+    <span class="s2">}</span>
+
+    <span class="s3">/// &lt;summary&gt;</span>
+    <span class="s3">/// 虚拟初始化方法，允许派生类重写</span>
+    <span class="s3">/// &lt;/summary&gt;</span>
+    <span class="s0">public void </span><span class="s1">Init</span><span class="s2">()</span>
+    <span class="s2">{</span>
+        <span class="s3">// 初始化生命值条</span>
+        <span class="s1">InitializeHealthBar</span><span class="s2">();</span>
+
+        <span class="s3">// 其他需要的初始化逻辑</span>
+    <span class="s2">}</span>
+    
+    <span class="s0">private void </span><span class="s1">InitializeHealthBar</span><span class="s2">()</span>
+    <span class="s2">{</span>
+        <span class="s3">// 从 Resources 文件夹加载生命值条预制件</span>
+        <span class="s1">GameObject healthBarPrefab </span><span class="s2">= </span><span class="s1">Resources</span><span class="s2">.</span><span class="s1">Load</span><span class="s2">&lt;</span><span class="s1">GameObject</span><span class="s2">&gt;(</span><span class="s5">&quot;HealthBarPrefab&quot;</span><span class="s2">);</span>
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">healthBarPrefab </span><span class="s2">!= </span><span class="s0">null</span><span class="s2">)</span>
+        <span class="s2">{</span>
+            <span class="s3">// 实例化生命值条预制件，作为建筑物的子对象</span>
+            <span class="s1">GameObject healthBarInstance </span><span class="s2">= </span><span class="s1">Instantiate</span><span class="s2">(</span><span class="s1">healthBarPrefab</span><span class="s2">, </span><span class="s1">transform</span><span class="s2">);</span>
+            <span class="s1">healthBar </span><span class="s2">= </span><span class="s1">healthBarInstance</span><span class="s2">.</span><span class="s1">transform</span><span class="s2">.</span><span class="s1">Find</span><span class="s2">(</span><span class="s5">&quot;HealthBarFill&quot;</span><span class="s2">).</span><span class="s1">GetComponent</span><span class="s2">&lt;</span><span class="s1">Image</span><span class="s2">&gt;();</span>
+            <span class="s1">healthBarFrame </span><span class="s2">= </span><span class="s1">healthBarInstance</span><span class="s2">.</span><span class="s1">transform</span><span class="s2">.</span><span class="s1">Find</span><span class="s2">(</span><span class="s5">&quot;HealthBarFrame&quot;</span><span class="s2">).</span><span class="s1">GetComponent</span><span class="s2">&lt;</span><span class="s1">Image</span><span class="s2">&gt;();</span>
+
+            <span class="s3">// 设置生命值条的位置</span>
+            <span class="s1">RectTransform rt </span><span class="s2">= </span><span class="s1">healthBarInstance</span><span class="s2">.</span><span class="s1">GetComponent</span><span class="s2">&lt;</span><span class="s1">RectTransform</span><span class="s2">&gt;();</span>
+            <span class="s1">rt</span><span class="s2">.</span><span class="s1">anchoredPosition </span><span class="s2">= </span><span class="s0">new </span><span class="s1">Vector2</span><span class="s2">(</span><span class="s4">0</span><span class="s2">, -</span><span class="s4">0.45f</span><span class="s2">); </span><span class="s3">// 根据需要调整位置</span>
+            <span class="s1">rt</span><span class="s2">.</span><span class="s1">localScale </span><span class="s2">= </span><span class="s1">Vector3</span><span class="s2">.</span><span class="s1">one </span><span class="s2">* </span><span class="s4">0.01f</span><span class="s2">; </span><span class="s3">// 根据需要调整大小</span>
+        <span class="s2">}</span>
+        <span class="s0">else</span>
+        <span class="s2">{</span>
+            <span class="s1">Debug</span><span class="s2">.</span><span class="s1">LogWarning</span><span class="s2">(</span><span class="s5">&quot;BuildingController: 在 Resources 中未找到 HealthBarPrefab。&quot;</span><span class="s2">);</span>
+        <span class="s2">}</span>
+
+        <span class="s1">UpdateHealthBar</span><span class="s2">();</span>
+    <span class="s2">}</span>
+    
+    <span class="s0">private void </span><span class="s1">UpdateHealthBar</span><span class="s2">()</span>
+    <span class="s2">{</span>
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">healthBar </span><span class="s2">!= </span><span class="s0">null</span><span class="s2">)</span>
+        <span class="s2">{</span>
+            <span class="s0">float </span><span class="s1">healthPercent </span><span class="s2">= (</span><span class="s0">float</span><span class="s2">)</span><span class="s1">currentHealth </span><span class="s2">/ </span><span class="s1">buildingData</span><span class="s2">.</span><span class="s1">maxHealth</span><span class="s2">;</span>
+            <span class="s1">healthBar</span><span class="s2">.</span><span class="s1">fillAmount </span><span class="s2">= </span><span class="s1">healthPercent</span><span class="s2">;</span>
+        <span class="s2">}</span>
+    <span class="s2">}</span>
+
+    <span class="s3">/// &lt;summary&gt;</span>
+    <span class="s3">/// 设置建筑物的位置，将建筑物放置在格子的中心</span>
+    <span class="s3">/// &lt;/summary&gt;</span>
+    <span class="s3">/// &lt;param name=&quot;position&quot;&gt;格子位置&lt;/param&gt;</span>
+    <span class="s0">public void </span><span class="s1">SetPosition</span><span class="s2">(</span><span class="s1">Vector3Int position</span><span class="s2">)</span>
+    <span class="s2">{</span>
+        <span class="s1">gridPosition </span><span class="s2">= </span><span class="s1">position</span><span class="s2">;</span>
+
+        <span class="s3">// 计算格子中心的位置</span>
+        <span class="s1">Vector3 cellWorldPosition </span><span class="s2">= </span><span class="s1">GridManager</span><span class="s2">.</span><span class="s1">Instance</span><span class="s2">.</span><span class="s1">GetCellCenterWorld</span><span class="s2">(</span><span class="s1">position</span><span class="s2">);</span>
+
+        <span class="s1">transform</span><span class="s2">.</span><span class="s1">position </span><span class="s2">= </span><span class="s1">cellWorldPosition</span><span class="s2">;</span>
+
+        <span class="s1">Debug</span><span class="s2">.</span><span class="s1">Log</span><span class="s2">(</span><span class="s5">$&quot;建筑物 </span><span class="s2">{</span><span class="s1">buildingData</span><span class="s2">.</span><span class="s1">buildingName</span><span class="s2">} </span><span class="s5">放置在格子中心: </span><span class="s2">{</span><span class="s1">cellWorldPosition</span><span class="s2">}</span><span class="s5">&quot;</span><span class="s2">);</span>
+    <span class="s2">}</span>
+
+    <span class="s3">/// &lt;summary&gt;</span>
+    <span class="s3">/// 检查建筑物是否可以执行行动</span>
+    <span class="s3">/// &lt;/summary&gt;</span>
+    <span class="s3">/// &lt;returns&gt;是否可以执行行动&lt;/returns&gt;</span>
+    <span class="s0">public virtual bool </span><span class="s1">CanExecuteAction</span><span class="s2">()</span>
+    <span class="s2">{</span>
+        <span class="s3">// 定义建筑物是否可以执行行动的条件</span>
+        <span class="s3">// 例如，是否有敌人接近，或者根据其他游戏机制</span>
+        <span class="s3">// 这里以始终可以执行行动为例</span>
+        <span class="s0">return true</span><span class="s2">;</span>
+    <span class="s2">}</span>
+
+    <span class="s3">/// &lt;summary&gt;</span>
+    <span class="s3">/// 执行建筑物的行动</span>
+    <span class="s3">/// &lt;/summary&gt;</span>
+    <span class="s0">public virtual void </span><span class="s1">ExecuteAction</span><span class="s2">()</span>
+    <span class="s2">{</span>
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">isRuin</span><span class="s2">)</span>
+        <span class="s2">{</span>
+            <span class="s1">Debug</span><span class="s2">.</span><span class="s1">Log</span><span class="s2">(</span><span class="s5">$&quot;BuildingController: 废墟无法执行行动！&quot;</span><span class="s2">);</span>
+            <span class="s0">return</span><span class="s2">;</span>
+        <span class="s2">}</span>
+        
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">CanExecuteAction</span><span class="s2">())</span>
+        <span class="s2">{</span>
+            <span class="s0">if </span><span class="s2">(</span><span class="s1">buildingData</span><span class="s2">.</span><span class="s1">actionSkillSO </span><span class="s2">!= </span><span class="s0">null</span><span class="s2">)</span>
+            <span class="s2">{</span>
+                <span class="s3">// 初始化当前技能为行动技能的克隆</span>
+                <span class="s1">currentSkill </span><span class="s2">= </span><span class="s1">Skill</span><span class="s2">.</span><span class="s1">FromSkillSO</span><span class="s2">(</span><span class="s1">buildingData</span><span class="s2">.</span><span class="s1">actionSkillSO</span><span class="s2">);</span>
+
+                <span class="s3">// 执行当前技能</span>
+                <span class="s1">ExecuteCurrentSkill</span><span class="s2">();</span>
+
+                <span class="s1">Debug</span><span class="s2">.</span><span class="s1">Log</span><span class="s2">(</span><span class="s5">$&quot;建筑物 </span><span class="s2">{</span><span class="s1">buildingData</span><span class="s2">.</span><span class="s1">buildingName</span><span class="s2">} </span><span class="s5">执行了行动技能！&quot;</span><span class="s2">);</span>
+            <span class="s2">}</span>
+            <span class="s0">else</span>
+            <span class="s2">{</span>
+                <span class="s1">Debug</span><span class="s2">.</span><span class="s1">LogWarning</span><span class="s2">(</span><span class="s5">$&quot;建筑物 </span><span class="s2">{</span><span class="s1">buildingData</span><span class="s2">.</span><span class="s1">buildingName</span><span class="s2">} </span><span class="s5">没有配置行动技能！&quot;</span><span class="s2">);</span>
+            <span class="s2">}</span>
+        <span class="s2">}</span>
+        <span class="s0">else</span>
+        <span class="s2">{</span>
+            <span class="s1">Debug</span><span class="s2">.</span><span class="s1">Log</span><span class="s2">(</span><span class="s5">$&quot;建筑物 </span><span class="s2">{</span><span class="s1">buildingData</span><span class="s2">.</span><span class="s1">buildingName</span><span class="s2">} </span><span class="s5">无法执行行动！&quot;</span><span class="s2">);</span>
+        <span class="s2">}</span>
+    <span class="s2">}</span>
+
+    <span class="s3">/// &lt;summary&gt;</span>
+    <span class="s3">/// 执行防卫效果</span>
+    <span class="s3">/// &lt;/summary&gt;</span>
+    <span class="s0">public virtual void </span><span class="s1">ExecuteDefense</span><span class="s2">()</span>
+    <span class="s2">{</span>
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">isRuin</span><span class="s2">)</span>
+        <span class="s2">{</span>
+            <span class="s1">Debug</span><span class="s2">.</span><span class="s1">Log</span><span class="s2">(</span><span class="s5">$&quot;BuildingController: 废墟无法执行防卫技能！&quot;</span><span class="s2">);</span>
+            <span class="s0">return</span><span class="s2">;</span>
+        <span class="s2">}</span>
+        
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">buildingData</span><span class="s2">.</span><span class="s1">defenseSkillSO </span><span class="s2">!= </span><span class="s0">null</span><span class="s2">)</span>
+        <span class="s2">{</span>
+            <span class="s3">// 初始化当前技能为防卫技能的克隆</span>
+            <span class="s1">currentSkill </span><span class="s2">= </span><span class="s1">Skill</span><span class="s2">.</span><span class="s1">FromSkillSO</span><span class="s2">(</span><span class="s1">buildingData</span><span class="s2">.</span><span class="s1">defenseSkillSO</span><span class="s2">);</span>
+
+            <span class="s3">// 执行当前技能</span>
+            <span class="s1">ExecuteCurrentSkill</span><span class="s2">();</span>
+
+            <span class="s1">Debug</span><span class="s2">.</span><span class="s1">Log</span><span class="s2">(</span><span class="s5">$&quot;建筑物 </span><span class="s2">{</span><span class="s1">buildingData</span><span class="s2">.</span><span class="s1">buildingName</span><span class="s2">} </span><span class="s5">执行了防卫技能！&quot;</span><span class="s2">);</span>
+        <span class="s2">}</span>
+        <span class="s0">else</span>
+        <span class="s2">{</span>
+            <span class="s1">Debug</span><span class="s2">.</span><span class="s1">LogWarning</span><span class="s2">(</span><span class="s5">$&quot;建筑物 </span><span class="s2">{</span><span class="s1">buildingData</span><span class="s2">.</span><span class="s1">buildingName</span><span class="s2">} </span><span class="s5">没有配置防卫技能！&quot;</span><span class="s2">);</span>
+        <span class="s2">}</span>
+    <span class="s2">}</span>
+
+    <span class="s3">/// &lt;summary&gt;</span>
+    <span class="s3">/// 执行近战攻击</span>
+    <span class="s3">/// &lt;/summary&gt;</span>
+    <span class="s0">public virtual </span><span class="s1">IEnumerator PerformMeleeAttack</span><span class="s2">(</span><span class="s1">TargetType targetType</span><span class="s2">)</span>
+    <span class="s2">{</span>
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">targetType </span><span class="s2">== </span><span class="s1">TargetType</span><span class="s2">.</span><span class="s1">Enemy</span><span class="s2">)</span>
+        <span class="s2">{</span>
+            <span class="s1">Vector3Int attackDirection </span><span class="s2">= </span><span class="s1">buildingData</span><span class="s2">.</span><span class="s1">camp </span><span class="s2">== </span><span class="s1">Camp</span><span class="s2">.</span><span class="s1">Player ? Vector3Int</span><span class="s2">.</span><span class="s1">right : Vector3Int</span><span class="s2">.</span><span class="s1">left</span><span class="s2">;</span>
+            <span class="s1">Vector3Int targetPosition </span><span class="s2">= </span><span class="s1">gridPosition </span><span class="s2">+ </span><span class="s1">attackDirection</span><span class="s2">;</span>
+
+            <span class="s1">UnitController targetUnit </span><span class="s2">= </span><span class="s1">GridManager</span><span class="s2">.</span><span class="s1">Instance</span><span class="s2">.</span><span class="s1">GetUnitAt</span><span class="s2">(</span><span class="s1">targetPosition</span><span class="s2">);</span>
+            <span class="s1">BuildingController targetBuilding </span><span class="s2">= </span><span class="s1">GridManager</span><span class="s2">.</span><span class="s1">Instance</span><span class="s2">.</span><span class="s1">GetBuildingAt</span><span class="s2">(</span><span class="s1">targetPosition</span><span class="s2">);</span>
+
+            <span class="s0">if </span><span class="s2">(</span><span class="s1">targetUnit </span><span class="s2">!= </span><span class="s0">null </span><span class="s2">&amp;&amp; </span><span class="s1">targetUnit</span><span class="s2">.</span><span class="s1">unitData</span><span class="s2">.</span><span class="s1">camp </span><span class="s2">!= </span><span class="s1">buildingData</span><span class="s2">.</span><span class="s1">camp</span><span class="s2">)</span>
+            <span class="s2">{</span>
+                <span class="s3">// 执行攻击动画</span>
+                <span class="s1">yield </span><span class="s0">return </span><span class="s1">StartCoroutine</span><span class="s2">(</span><span class="s1">PlayMeleeAttackAnimation</span><span class="s2">());</span>
+
+                <span class="s1">targetUnit</span><span class="s2">.</span><span class="s1">TakeDamage</span><span class="s2">(</span><span class="s4">1</span><span class="s2">);</span>
+                <span class="s1">Debug</span><span class="s2">.</span><span class="s1">Log</span><span class="s2">(</span><span class="s5">$&quot;BuildingController: 建筑物 </span><span class="s2">{</span><span class="s1">buildingData</span><span class="s2">.</span><span class="s1">buildingName</span><span class="s2">} </span><span class="s5">对 </span><span class="s2">{</span><span class="s1">targetUnit</span><span class="s2">.</span><span class="s1">unitData</span><span class="s2">.</span><span class="s1">unitName</span><span class="s2">} </span><span class="s5">进行近战攻击，造成1点伤害！&quot;</span><span class="s2">);</span>
+            <span class="s2">}</span>
+            <span class="s0">else if </span><span class="s2">(</span><span class="s1">targetBuilding </span><span class="s2">!= </span><span class="s0">null </span><span class="s2">&amp;&amp; </span><span class="s1">targetBuilding</span><span class="s2">.</span><span class="s1">buildingData</span><span class="s2">.</span><span class="s1">camp </span><span class="s2">!= </span><span class="s1">buildingData</span><span class="s2">.</span><span class="s1">camp </span><span class="s2">&amp;&amp; </span><span class="s1">!targetBuilding</span><span class="s2">.</span><span class="s1">isRuin</span><span class="s2">)</span>
+            <span class="s2">{</span>
+                <span class="s3">// 执行攻击动画</span>
+                <span class="s1">yield </span><span class="s0">return </span><span class="s1">StartCoroutine</span><span class="s2">(</span><span class="s1">PlayMeleeAttackAnimation</span><span class="s2">());</span>
+
+                <span class="s1">targetBuilding</span><span class="s2">.</span><span class="s1">TakeDamage</span><span class="s2">(</span><span class="s4">1</span><span class="s2">);</span>
+                <span class="s1">Debug</span><span class="s2">.</span><span class="s1">Log</span><span class="s2">(</span><span class="s5">$&quot;BuildingController: 建筑物 </span><span class="s2">{</span><span class="s1">buildingData</span><span class="s2">.</span><span class="s1">buildingName</span><span class="s2">} </span><span class="s5">对建筑物 </span><span class="s2">{</span><span class="s1">targetBuilding</span><span class="s2">.</span><span class="s1">buildingData</span><span class="s2">.</span><span class="s1">buildingName</span><span class="s2">} </span><span class="s5">进行近战攻击，造成1点伤害！&quot;</span><span class="s2">);</span>
+            <span class="s2">}</span>
+            <span class="s0">else</span>
+            <span class="s2">{</span>
+                <span class="s1">Debug</span><span class="s2">.</span><span class="s1">Log</span><span class="s2">(</span><span class="s5">$&quot;BuildingController: 建筑物 </span><span class="s2">{</span><span class="s1">buildingData</span><span class="s2">.</span><span class="s1">buildingName</span><span class="s2">} </span><span class="s5">近战攻击无目标或目标为友方！&quot;</span><span class="s2">);</span>
+            <span class="s2">}</span>
+        <span class="s2">}</span>
+        <span class="s0">else if </span><span class="s2">(</span><span class="s1">targetType </span><span class="s2">== </span><span class="s1">TargetType</span><span class="s2">.</span><span class="s1">Friendly </span><span class="s2">|| </span><span class="s1">targetType </span><span class="s2">== </span><span class="s1">TargetType</span><span class="s2">.</span><span class="s1">Self</span><span class="s2">)</span>
+        <span class="s2">{</span>
+            <span class="s3">// 防卫技能，只对自身或友方生效</span>
+            <span class="s3">//yield return StartCoroutine(IncreaseDefense(value, targetType));</span>
+        <span class="s2">}</span>
+        <span class="s0">else</span>
+        <span class="s2">{</span>
+            <span class="s1">Debug</span><span class="s2">.</span><span class="s1">LogWarning</span><span class="s2">(</span><span class="s5">$&quot;BuildingController: 未处理的 TargetType：</span><span class="s2">{</span><span class="s1">targetType</span><span class="s2">}</span><span class="s5">&quot;</span><span class="s2">);</span>
+        <span class="s2">}</span>
+    <span class="s2">}</span>
+
+    <span class="s3">/// &lt;summary&gt;</span>
+    <span class="s3">/// 执行远程攻击</span>
+    <span class="s3">/// &lt;/summary&gt;</span>
+    <span class="s0">public virtual </span><span class="s1">IEnumerator PerformRangedAttack</span><span class="s2">(</span><span class="s1">TargetType targetType</span><span class="s2">)</span>
+    <span class="s2">{</span>
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">targetType </span><span class="s2">== </span><span class="s1">TargetType</span><span class="s2">.</span><span class="s1">Enemy</span><span class="s2">)</span>
+        <span class="s2">{</span>
+            <span class="s1">Vector3Int attackDirection </span><span class="s2">= </span><span class="s1">buildingData</span><span class="s2">.</span><span class="s1">camp </span><span class="s2">== </span><span class="s1">Camp</span><span class="s2">.</span><span class="s1">Player ? Vector3Int</span><span class="s2">.</span><span class="s1">right : Vector3Int</span><span class="s2">.</span><span class="s1">left</span><span class="s2">;</span>
+            <span class="s1">Vector3Int currentPos </span><span class="s2">= </span><span class="s1">gridPosition </span><span class="s2">+ </span><span class="s1">attackDirection</span><span class="s2">;</span>
+
+            <span class="s0">bool </span><span class="s1">hasAttacked </span><span class="s2">= </span><span class="s0">false</span><span class="s2">;</span>
+
+            <span class="s0">while </span><span class="s2">(</span><span class="s1">GridManager</span><span class="s2">.</span><span class="s1">Instance</span><span class="s2">.</span><span class="s1">IsWithinBattleArea</span><span class="s2">(</span><span class="s1">currentPos</span><span class="s2">))</span>
+            <span class="s2">{</span>
+                <span class="s1">UnitController targetUnit </span><span class="s2">= </span><span class="s1">GridManager</span><span class="s2">.</span><span class="s1">Instance</span><span class="s2">.</span><span class="s1">GetUnitAt</span><span class="s2">(</span><span class="s1">currentPos</span><span class="s2">);</span>
+                <span class="s1">BuildingController targetBuilding </span><span class="s2">= </span><span class="s1">GridManager</span><span class="s2">.</span><span class="s1">Instance</span><span class="s2">.</span><span class="s1">GetBuildingAt</span><span class="s2">(</span><span class="s1">currentPos</span><span class="s2">);</span>
+
+                <span class="s0">if </span><span class="s2">(</span><span class="s1">targetUnit </span><span class="s2">!= </span><span class="s0">null </span><span class="s2">&amp;&amp; </span><span class="s1">targetUnit</span><span class="s2">.</span><span class="s1">unitData</span><span class="s2">.</span><span class="s1">camp </span><span class="s2">!= </span><span class="s1">buildingData</span><span class="s2">.</span><span class="s1">camp</span><span class="s2">)</span>
+                <span class="s2">{</span>
+                    <span class="s3">// 执行攻击动画</span>
+                    <span class="s1">yield </span><span class="s0">return </span><span class="s1">StartCoroutine</span><span class="s2">(</span><span class="s1">PlayRangedAttackAnimation</span><span class="s2">());</span>
+
+                    <span class="s1">targetUnit</span><span class="s2">.</span><span class="s1">TakeDamage</span><span class="s2">(</span><span class="s4">1</span><span class="s2">);</span>
+                    <span class="s1">Debug</span><span class="s2">.</span><span class="s1">Log</span><span class="s2">(</span><span class="s5">$&quot;BuildingController: 建筑物 </span><span class="s2">{</span><span class="s1">buildingData</span><span class="s2">.</span><span class="s1">buildingName</span><span class="s2">} </span><span class="s5">对 </span><span class="s2">{</span><span class="s1">targetUnit</span><span class="s2">.</span><span class="s1">name</span><span class="s2">} </span><span class="s5">进行远程攻击，造成1点伤害！&quot;</span><span class="s2">);</span>
+                    <span class="s1">hasAttacked </span><span class="s2">= </span><span class="s0">true</span><span class="s2">;</span>
+                    <span class="s0">break</span><span class="s2">; </span><span class="s3">// 只攻击第一个目标</span>
+                <span class="s2">}</span>
+                <span class="s0">else if </span><span class="s2">(</span><span class="s1">targetBuilding </span><span class="s2">!= </span><span class="s0">null </span><span class="s2">&amp;&amp; </span><span class="s1">targetBuilding</span><span class="s2">.</span><span class="s1">buildingData</span><span class="s2">.</span><span class="s1">camp </span><span class="s2">!= </span><span class="s1">buildingData</span><span class="s2">.</span><span class="s1">camp </span><span class="s2">&amp;&amp; </span><span class="s1">!targetBuilding</span><span class="s2">.</span><span class="s1">isRuin</span><span class="s2">)</span>
+                <span class="s2">{</span>
+                    <span class="s3">// 执行攻击动画</span>
+                    <span class="s1">yield </span><span class="s0">return </span><span class="s1">StartCoroutine</span><span class="s2">(</span><span class="s1">PlayRangedAttackAnimation</span><span class="s2">());</span>
+
+                    <span class="s1">targetBuilding</span><span class="s2">.</span><span class="s1">TakeDamage</span><span class="s2">(</span><span class="s4">1</span><span class="s2">);</span>
+                    <span class="s1">Debug</span><span class="s2">.</span><span class="s1">Log</span><span class="s2">(</span><span class="s5">$&quot;BuildingController: 建筑物 </span><span class="s2">{</span><span class="s1">buildingData</span><span class="s2">.</span><span class="s1">buildingName</span><span class="s2">} </span><span class="s5">对建筑物 </span><span class="s2">{</span><span class="s1">targetBuilding</span><span class="s2">.</span><span class="s1">name</span><span class="s2">} </span><span class="s5">进行远程攻击，造成1点伤害！&quot;</span><span class="s2">);</span>
+                    <span class="s1">hasAttacked </span><span class="s2">= </span><span class="s0">true</span><span class="s2">;</span>
+                    <span class="s0">break</span><span class="s2">; </span><span class="s3">// 只攻击第一个目标</span>
+                <span class="s2">}</span>
+
+                <span class="s1">currentPos </span><span class="s2">+= </span><span class="s1">attackDirection</span><span class="s2">;</span>
+            <span class="s2">}</span>
+
+            <span class="s0">if </span><span class="s2">(</span><span class="s1">!hasAttacked</span><span class="s2">)</span>
+            <span class="s2">{</span>
+                <span class="s1">Debug</span><span class="s2">.</span><span class="s1">Log</span><span class="s2">(</span><span class="s5">$&quot;BuildingController: 建筑物 </span><span class="s2">{</span><span class="s1">buildingData</span><span class="s2">.</span><span class="s1">buildingName</span><span class="s2">} </span><span class="s5">远程攻击无目标或目标为友方！&quot;</span><span class="s2">);</span>
+            <span class="s2">}</span>
+        <span class="s2">}</span>
+        <span class="s0">else if </span><span class="s2">(</span><span class="s1">targetType </span><span class="s2">== </span><span class="s1">TargetType</span><span class="s2">.</span><span class="s1">Friendly </span><span class="s2">|| </span><span class="s1">targetType </span><span class="s2">== </span><span class="s1">TargetType</span><span class="s2">.</span><span class="s1">Self</span><span class="s2">)</span>
+        <span class="s2">{</span>
+            <span class="s3">// 防卫技能，只对自身或友方生效</span>
+            <span class="s3">//yield return StartCoroutine(IncreaseDefense(value, targetType));</span>
+        <span class="s2">}</span>
+        <span class="s0">else</span>
+        <span class="s2">{</span>
+            <span class="s1">Debug</span><span class="s2">.</span><span class="s1">LogWarning</span><span class="s2">(</span><span class="s5">$&quot;BuildingController: 未处理的 TargetType：</span><span class="s2">{</span><span class="s1">targetType</span><span class="s2">}</span><span class="s5">&quot;</span><span class="s2">);</span>
+        <span class="s2">}</span>
+    <span class="s2">}</span>
+
+    <span class="s3">/// &lt;summary&gt;</span>
+    <span class="s3">/// 增加防卫点数</span>
+    <span class="s3">/// &lt;/summary&gt;</span>
+    <span class="s3">/// &lt;param name=&quot;value&quot;&gt;增加的防卫点数&lt;/param&gt;</span>
+    <span class="s3">/// &lt;param name=&quot;targetType&quot;&gt;目标类型&lt;/param&gt;</span>
+    <span class="s0">public virtual </span><span class="s1">IEnumerator IncreaseDefense</span><span class="s2">(</span><span class="s0">int </span><span class="s1">value</span><span class="s2">, </span><span class="s1">TargetType targetType</span><span class="s2">)</span>
+    <span class="s2">{</span>
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">targetType </span><span class="s2">== </span><span class="s1">TargetType</span><span class="s2">.</span><span class="s1">Friendly </span><span class="s2">|| </span><span class="s1">targetType </span><span class="s2">== </span><span class="s1">TargetType</span><span class="s2">.</span><span class="s1">Self</span><span class="s2">)</span>
+        <span class="s2">{</span>
+            <span class="s3">// 执行防御动画</span>
+            <span class="s1">yield </span><span class="s0">return </span><span class="s1">StartCoroutine</span><span class="s2">(</span><span class="s1">PlayIncreaseDefenseAnimation</span><span class="s2">());</span>
+
+            <span class="s1">defensePoints </span><span class="s2">+= </span><span class="s1">value</span><span class="s2">;</span>
+            <span class="s1">Debug</span><span class="s2">.</span><span class="s1">Log</span><span class="s2">(</span><span class="s5">$&quot;BuildingController: 建筑物 </span><span class="s2">{</span><span class="s1">buildingData</span><span class="s2">.</span><span class="s1">buildingName</span><span class="s2">} </span><span class="s5">防卫点数增加 </span><span class="s2">{</span><span class="s1">value</span><span class="s2">}</span><span class="s5">，当前防卫点数：</span><span class="s2">{</span><span class="s1">defensePoints</span><span class="s2">}</span><span class="s5">&quot;</span><span class="s2">);</span>
+        <span class="s2">}</span>
+        <span class="s0">else</span>
+        <span class="s2">{</span>
+            <span class="s1">Debug</span><span class="s2">.</span><span class="s1">LogWarning</span><span class="s2">(</span><span class="s5">$&quot;BuildingController: 建筑物 </span><span class="s2">{</span><span class="s1">buildingData</span><span class="s2">.</span><span class="s1">buildingName</span><span class="s2">} </span><span class="s5">尝试对非友方进行防卫！&quot;</span><span class="s2">);</span>
+        <span class="s2">}</span>
+    <span class="s2">}</span>
+
+    <span class="s0">public virtual </span><span class="s1">IEnumerator PerformBreakage</span><span class="s2">(</span><span class="s0">int </span><span class="s1">breakagePoints</span><span class="s2">)</span>
+    <span class="s2">{</span>
+        <span class="s3">// 破壞建筑物时的逻辑</span>
+        <span class="s1">Debug</span><span class="s2">.</span><span class="s1">Log</span><span class="s2">(</span><span class="s5">$&quot;BuildingController: 建筑物 </span><span class="s2">{</span><span class="s1">buildingData</span><span class="s2">.</span><span class="s1">buildingName</span><span class="s2">} </span><span class="s5">被破壞，减少 </span><span class="s2">{</span><span class="s1">breakagePoints</span><span class="s2">} </span><span class="s5">点生命值！&quot;</span><span class="s2">);</span>
+        <span class="s1">TakeDamage</span><span class="s2">(</span><span class="s1">breakagePoints</span><span class="s2">);</span>
+        <span class="s1">yield </span><span class="s0">break</span><span class="s2">;</span>
+    <span class="s2">}</span>
+
+    <span class="s3">/// &lt;summary&gt;</span>
+    <span class="s3">/// 接受伤害</span>
+    <span class="s3">/// &lt;/summary&gt;</span>
+    <span class="s3">/// &lt;param name=&quot;damage&quot;&gt;伤害值&lt;/param&gt;</span>
+    <span class="s0">public virtual void </span><span class="s1">TakeDamage</span><span class="s2">(</span><span class="s0">int </span><span class="s1">damage</span><span class="s2">)</span>
+    <span class="s2">{</span>
+        <span class="s0">if</span><span class="s2">(</span><span class="s1">isRuin</span><span class="s2">)</span>
+            <span class="s0">return</span><span class="s2">;</span>
+        
+        <span class="s1">currentHealth </span><span class="s2">-= </span><span class="s1">damage</span><span class="s2">;</span>
+        <span class="s1">Debug</span><span class="s2">.</span><span class="s1">Log</span><span class="s2">(</span><span class="s5">$&quot;BuildingController: 建筑物 </span><span class="s2">{</span><span class="s1">buildingData</span><span class="s2">.</span><span class="s1">buildingName</span><span class="s2">} </span><span class="s5">受到 </span><span class="s2">{</span><span class="s1">damage</span><span class="s2">} </span><span class="s5">点伤害，当前生命值：</span><span class="s2">{</span><span class="s1">currentHealth</span><span class="s2">}</span><span class="s5">&quot;</span><span class="s2">);</span>
+
+        <span class="s1">UpdateHealthBar</span><span class="s2">();</span>
+        
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">currentHealth </span><span class="s2">&lt;= </span><span class="s4">0</span><span class="s2">)</span>
+        <span class="s2">{</span>
+            <span class="s1">DestroyBuilding</span><span class="s2">();</span>
+            <span class="s1">Debug</span><span class="s2">.</span><span class="s1">Log</span><span class="s2">(</span><span class="s5">$&quot;BuildingController: 建筑物 </span><span class="s2">{</span><span class="s1">buildingData</span><span class="s2">.</span><span class="s1">buildingName</span><span class="s2">} </span><span class="s5">被摧毁，变为废墟！&quot;</span><span class="s2">);</span>
+        <span class="s2">}</span>
+        
+        <span class="s1">currentHealth </span><span class="s2">= </span><span class="s1">Mathf</span><span class="s2">.</span><span class="s1">Clamp</span><span class="s2">(</span><span class="s1">currentHealth</span><span class="s2">, </span><span class="s4">0</span><span class="s2">, </span><span class="s1">buildingData</span><span class="s2">.</span><span class="s1">maxHealth</span><span class="s2">);</span>
+    <span class="s2">}</span>
+
+    <span class="s3">/// &lt;summary&gt;</span>
+    <span class="s3">/// 治疗建筑物</span>
+    <span class="s3">/// &lt;/summary&gt;</span>
+    <span class="s3">/// &lt;param name=&quot;amount&quot;&gt;治疗量&lt;/param&gt;</span>
+    <span class="s0">public virtual void </span><span class="s1">Heal</span><span class="s2">(</span><span class="s0">int </span><span class="s1">amount</span><span class="s2">)</span>
+    <span class="s2">{</span>
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">buildingData</span><span class="s2">.</span><span class="s1">maxHealth </span><span class="s2">&gt; </span><span class="s4">0</span><span class="s2">)</span>
+        <span class="s2">{</span>
+            <span class="s1">currentHealth </span><span class="s2">= </span><span class="s1">Mathf</span><span class="s2">.</span><span class="s1">Min</span><span class="s2">(</span><span class="s1">currentHealth </span><span class="s2">+ </span><span class="s1">amount</span><span class="s2">, </span><span class="s1">buildingData</span><span class="s2">.</span><span class="s1">maxHealth</span><span class="s2">);</span>
+        <span class="s2">}</span>
+        <span class="s0">else</span>
+        <span class="s2">{</span>
+            <span class="s1">currentHealth </span><span class="s2">+= </span><span class="s1">amount</span><span class="s2">;</span>
+        <span class="s2">}</span>
+
+        <span class="s1">UpdateHealthBar</span><span class="s2">();</span>
+        <span class="s1">Debug</span><span class="s2">.</span><span class="s1">Log</span><span class="s2">(</span><span class="s5">$&quot;BuildingController: 建筑物 </span><span class="s2">{</span><span class="s1">buildingData</span><span class="s2">.</span><span class="s1">buildingName</span><span class="s2">} </span><span class="s5">恢复了 </span><span class="s2">{</span><span class="s1">amount</span><span class="s2">} </span><span class="s5">点生命值，当前生命值: </span><span class="s2">{</span><span class="s1">currentHealth</span><span class="s2">}</span><span class="s5">&quot;</span><span class="s2">);</span>
+    <span class="s2">}</span>
+
+    <span class="s3">/// &lt;summary&gt;</span>
+    <span class="s3">/// 销毁建筑物</span>
+    <span class="s3">/// &lt;/summary&gt;</span>
+    <span class="s0">void </span><span class="s1">DestroyBuilding</span><span class="s2">()</span>
+    <span class="s2">{</span>
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">!isRuin</span><span class="s2">)</span>
+        <span class="s2">{</span>
+            <span class="s3">// 切换为废墟状态</span>
+            <span class="s1">isRuin </span><span class="s2">= </span><span class="s0">true</span><span class="s2">;</span>
+
+            <span class="s3">// 更改建筑物的外观</span>
+            <span class="s0">if </span><span class="s2">(</span><span class="s1">ruinSprite </span><span class="s2">!= </span><span class="s0">null</span><span class="s2">)</span>
+            <span class="s2">{</span>
+                <span class="s1">SpriteRenderer sr </span><span class="s2">= </span><span class="s1">GetComponent</span><span class="s2">&lt;</span><span class="s1">SpriteRenderer</span><span class="s2">&gt;();</span>
+                <span class="s0">if </span><span class="s2">(</span><span class="s1">sr </span><span class="s2">!= </span><span class="s0">null</span><span class="s2">)</span>
+                <span class="s2">{</span>
+                    <span class="s1">sr</span><span class="s2">.</span><span class="s1">sprite </span><span class="s2">= </span><span class="s1">ruinSprite</span><span class="s2">;</span>
+                <span class="s2">}</span>
+            <span class="s2">}</span>
+
+            <span class="s3">// 禁用建筑物的功能（如行动和防卫）</span>
+            <span class="s3">// 可以设置一个标志位，或者根据 isRuin 状态在其他方法中判断</span>
+
+            <span class="s3">// 通知 BattleManager，建筑物已变为废墟</span>
+            <span class="s0">int </span><span class="s1">row </span><span class="s2">= </span><span class="s1">gridPosition</span><span class="s2">.</span><span class="s1">y</span><span class="s2">;</span>
+            <span class="s1">GridManager</span><span class="s2">.</span><span class="s1">Instance</span><span class="s2">.</span><span class="s1">SetRowCanAttackBoss</span><span class="s2">(</span><span class="s1">row</span><span class="s2">, </span><span class="s0">true</span><span class="s2">);</span>
+            <span class="s3">//BattleManager.Instance.OnBuildingDestroyed(this, row);</span>
+        <span class="s2">}</span>
+        <span class="s3">/*else 
+        { 
+            // 已经是废墟状态，彻底销毁 
+            Debug.Log($&quot;BuildingController: 建筑物 {buildingData.buildingName} 的废墟被移除&quot;); 
+            GridManager.Instance.RemoveSkillUserAt(gridPosition); 
+            Destroy(gameObject); 
+        }*/</span>
+    <span class="s2">}</span>
+
+    <span class="s3">/// &lt;summary&gt;</span>
+    <span class="s3">/// 使用行动技能</span>
+    <span class="s3">/// &lt;/summary&gt;</span>
+    <span class="s0">public virtual void </span><span class="s1">UseActionSkill</span><span class="s2">()</span>
+    <span class="s2">{</span>
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">buildingData</span><span class="s2">.</span><span class="s1">actionSkillSO </span><span class="s2">!= </span><span class="s0">null</span><span class="s2">)</span>
+        <span class="s2">{</span>
+            <span class="s1">buildingData</span><span class="s2">.</span><span class="s1">actionSkillSO</span><span class="s2">.</span><span class="s1">Execute</span><span class="s2">(</span><span class="s0">this</span><span class="s2">);</span>
+        <span class="s2">}</span>
+        <span class="s0">else</span>
+        <span class="s2">{</span>
+            <span class="s1">Debug</span><span class="s2">.</span><span class="s1">LogWarning</span><span class="s2">(</span><span class="s5">$&quot;BuildingController: 建筑物 </span><span class="s2">{</span><span class="s1">buildingData</span><span class="s2">.</span><span class="s1">buildingName</span><span class="s2">} </span><span class="s5">没有配置行动技能！&quot;</span><span class="s2">);</span>
+        <span class="s2">}</span>
+    <span class="s2">}</span>
+
+    <span class="s3">/// &lt;summary&gt;</span>
+    <span class="s3">/// 使用防卫技能</span>
+    <span class="s3">/// &lt;/summary&gt;</span>
+    <span class="s0">public virtual void </span><span class="s1">UseDefenseSkill</span><span class="s2">()</span>
+    <span class="s2">{</span>
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">buildingData</span><span class="s2">.</span><span class="s1">defenseSkillSO </span><span class="s2">!= </span><span class="s0">null</span><span class="s2">)</span>
+        <span class="s2">{</span>
+            <span class="s1">buildingData</span><span class="s2">.</span><span class="s1">defenseSkillSO</span><span class="s2">.</span><span class="s1">Execute</span><span class="s2">(</span><span class="s0">this</span><span class="s2">);</span>
+        <span class="s2">}</span>
+        <span class="s0">else</span>
+        <span class="s2">{</span>
+            <span class="s1">Debug</span><span class="s2">.</span><span class="s1">LogWarning</span><span class="s2">(</span><span class="s5">$&quot;BuildingController: 建筑物 </span><span class="s2">{</span><span class="s1">buildingData</span><span class="s2">.</span><span class="s1">buildingName</span><span class="s2">} </span><span class="s5">没有配置防卫技能！&quot;</span><span class="s2">);</span>
+        <span class="s2">}</span>
+    <span class="s2">}</span>
+
+    <span class="s3">/// &lt;summary&gt;</span>
+    <span class="s3">/// 重新执行当前技能</span>
+    <span class="s3">/// &lt;/summary&gt;</span>
+    <span class="s0">public virtual void </span><span class="s1">ExecuteCurrentSkill</span><span class="s2">()</span>
+    <span class="s2">{</span>
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">currentSkill </span><span class="s2">!= </span><span class="s0">null</span><span class="s2">)</span>
+        <span class="s2">{</span>
+            <span class="s3">// 执行当前技能的所有动作</span>
+            <span class="s0">foreach </span><span class="s2">(</span><span class="s1">var action </span><span class="s0">in </span><span class="s1">currentSkill</span><span class="s2">.</span><span class="s1">Actions</span><span class="s2">)</span>
+            <span class="s2">{</span>
+                <span class="s0">switch </span><span class="s2">(</span><span class="s1">action</span><span class="s2">.</span><span class="s1">Type</span><span class="s2">)</span>
+                <span class="s2">{</span>
+                    <span class="s0">case </span><span class="s1">SkillType</span><span class="s2">.</span><span class="s1">Move:</span>
+                        <span class="s0">for </span><span class="s2">(</span><span class="s0">int </span><span class="s1">i </span><span class="s2">= </span><span class="s4">0</span><span class="s2">; </span><span class="s1">i </span><span class="s2">&lt; </span><span class="s1">action</span><span class="s2">.</span><span class="s1">Value</span><span class="s2">; </span><span class="s1">i</span><span class="s2">++)</span>
+                        <span class="s2">{</span>
+                            <span class="s0">if </span><span class="s2">(</span><span class="s1">!CanMoveForward</span><span class="s2">())</span>
+                            <span class="s2">{</span>
+                                <span class="s1">Debug</span><span class="s2">.</span><span class="s1">Log</span><span class="s2">(</span><span class="s5">$&quot;BuildingController: 建筑物 </span><span class="s2">{</span><span class="s1">buildingData</span><span class="s2">.</span><span class="s1">buildingName</span><span class="s2">} </span><span class="s5">无法继续移动，技能执行被阻挡！&quot;</span><span class="s2">);</span>
+                                <span class="s0">break</span><span class="s2">;</span>
+                            <span class="s2">}</span>
+                            <span class="s1">StartCoroutine</span><span class="s2">(</span><span class="s1">MoveForward</span><span class="s2">());</span>
+                        <span class="s2">}</span>
+                        <span class="s0">break</span><span class="s2">;</span>
+                    <span class="s0">case </span><span class="s1">SkillType</span><span class="s2">.</span><span class="s1">Melee:</span>
+                        <span class="s1">StartCoroutine</span><span class="s2">(</span><span class="s1">PerformMeleeAttack</span><span class="s2">(</span><span class="s1">action</span><span class="s2">.</span><span class="s1">TargetType</span><span class="s2">));</span>
+                        <span class="s0">break</span><span class="s2">;</span>
+                    <span class="s0">case </span><span class="s1">SkillType</span><span class="s2">.</span><span class="s1">Ranged:</span>
+                        <span class="s1">StartCoroutine</span><span class="s2">(</span><span class="s1">PerformRangedAttack</span><span class="s2">(</span><span class="s1">action</span><span class="s2">.</span><span class="s1">TargetType</span><span class="s2">));</span>
+                        <span class="s0">break</span><span class="s2">;</span>
+                    <span class="s0">case </span><span class="s1">SkillType</span><span class="s2">.</span><span class="s1">Defense:</span>
+                        <span class="s3">//IncreaseDefense(action.Value, action.TargetType);</span>
+                        <span class="s0">break</span><span class="s2">;</span>
+                    <span class="s1">default:</span>
+                        <span class="s1">Debug</span><span class="s2">.</span><span class="s1">LogWarning</span><span class="s2">(</span><span class="s5">$&quot;BuildingController: 未处理的技能类型：</span><span class="s2">{</span><span class="s1">action</span><span class="s2">.</span><span class="s1">Type</span><span class="s2">}</span><span class="s5">&quot;</span><span class="s2">);</span>
+                        <span class="s0">break</span><span class="s2">;</span>
+                <span class="s2">}</span>
+            <span class="s2">}</span>
+
+            <span class="s3">// 清空当前技能动作，防止重复执行</span>
+            <span class="s1">currentSkill</span><span class="s2">.</span><span class="s1">Actions</span><span class="s2">.</span><span class="s1">Clear</span><span class="s2">();</span>
+        <span class="s2">}</span>
+    <span class="s2">}</span>
+
+    <span class="s0">public virtual </span><span class="s1">IEnumerator MoveForward</span><span class="s2">()</span>
+    <span class="s2">{</span>
+        <span class="s1">Debug</span><span class="s2">.</span><span class="s1">Log</span><span class="s2">(</span><span class="s5">&quot;建築物無法移動！&quot;</span><span class="s2">);</span>
+        <span class="s1">yield </span><span class="s0">break</span><span class="s2">;</span>
+    <span class="s2">}</span>
+
+    <span class="s0">public virtual bool </span><span class="s1">CanMoveForward</span><span class="s2">()</span>
+    <span class="s2">{</span>
+        <span class="s0">return false</span><span class="s2">;</span>
+    <span class="s2">}</span>
+    
+    <span class="s3">// 示例动画协程</span>
+    <span class="s0">private </span><span class="s1">IEnumerator PlayMeleeAttackAnimation</span><span class="s2">()</span>
+    <span class="s2">{</span>
+        <span class="s3">// 假设有一个动画组件</span>
+        <span class="s1">Animator animator </span><span class="s2">= </span><span class="s1">GetComponent</span><span class="s2">&lt;</span><span class="s1">Animator</span><span class="s2">&gt;();</span>
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">animator </span><span class="s2">!= </span><span class="s0">null</span><span class="s2">)</span>
+        <span class="s2">{</span>
+            <span class="s1">animator</span><span class="s2">.</span><span class="s1">SetTrigger</span><span class="s2">(</span><span class="s5">&quot;MeleeAttack&quot;</span><span class="s2">);</span>
+            <span class="s3">// 等待动画完成，这里假设动画持续时间为0.5秒</span>
+            <span class="s1">yield </span><span class="s0">return new </span><span class="s1">WaitForSeconds</span><span class="s2">(</span><span class="s4">0.5f</span><span class="s2">);</span>
+        <span class="s2">}</span>
+        <span class="s0">else</span>
+        <span class="s2">{</span>
+            <span class="s1">yield </span><span class="s0">return null</span><span class="s2">;</span>
+        <span class="s2">}</span>
+    <span class="s2">}</span>
+
+    <span class="s0">private </span><span class="s1">IEnumerator PlayRangedAttackAnimation</span><span class="s2">()</span>
+    <span class="s2">{</span>
+        <span class="s1">Animator animator </span><span class="s2">= </span><span class="s1">GetComponent</span><span class="s2">&lt;</span><span class="s1">Animator</span><span class="s2">&gt;();</span>
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">animator </span><span class="s2">!= </span><span class="s0">null</span><span class="s2">)</span>
+        <span class="s2">{</span>
+            <span class="s1">animator</span><span class="s2">.</span><span class="s1">SetTrigger</span><span class="s2">(</span><span class="s5">&quot;RangedAttack&quot;</span><span class="s2">);</span>
+            <span class="s1">yield </span><span class="s0">return new </span><span class="s1">WaitForSeconds</span><span class="s2">(</span><span class="s4">0.5f</span><span class="s2">);</span>
+        <span class="s2">}</span>
+        <span class="s0">else</span>
+        <span class="s2">{</span>
+            <span class="s1">yield </span><span class="s0">return null</span><span class="s2">;</span>
+        <span class="s2">}</span>
+    <span class="s2">}</span>
+
+    <span class="s0">private </span><span class="s1">IEnumerator PlayIncreaseDefenseAnimation</span><span class="s2">()</span>
+    <span class="s2">{</span>
+        <span class="s1">Animator animator </span><span class="s2">= </span><span class="s1">GetComponent</span><span class="s2">&lt;</span><span class="s1">Animator</span><span class="s2">&gt;();</span>
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">animator </span><span class="s2">!= </span><span class="s0">null</span><span class="s2">)</span>
+        <span class="s2">{</span>
+            <span class="s1">animator</span><span class="s2">.</span><span class="s1">SetTrigger</span><span class="s2">(</span><span class="s5">&quot;IncreaseDefense&quot;</span><span class="s2">);</span>
+            <span class="s1">yield </span><span class="s0">return new </span><span class="s1">WaitForSeconds</span><span class="s2">(</span><span class="s4">0.3f</span><span class="s2">);</span>
+        <span class="s2">}</span>
+        <span class="s0">else</span>
+        <span class="s2">{</span>
+            <span class="s1">yield </span><span class="s0">return null</span><span class="s2">;</span>
+        <span class="s2">}</span>
+    <span class="s2">}</span>
+<span class="s2">}</span>
+</pre>
+</body>
+</html>

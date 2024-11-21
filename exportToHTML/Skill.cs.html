@@ -1,0 +1,107 @@
+<html>
+<head>
+<title>Skill.cs</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #6c95eb;}
+.s1 { color: #d0d0d0;}
+.s2 { color: #bdbdbd;}
+.s3 { color: #85c46c; font-style: italic;}
+.s4 { color: #c9a26d;}
+</style>
+</head>
+<body bgcolor="#262626">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#606060" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+Skill.cs</font>
+</center></td></tr></table>
+<pre><span class="s0">using </span><span class="s1">System</span><span class="s2">.</span><span class="s1">Collections</span><span class="s2">.</span><span class="s1">Generic</span><span class="s2">;</span>
+<span class="s0">using </span><span class="s1">UnityEngine</span><span class="s2">;</span>
+
+<span class="s2">[</span><span class="s1">System</span><span class="s2">.</span><span class="s1">Serializable</span><span class="s2">]</span>
+<span class="s0">public class </span><span class="s1">Skill</span>
+<span class="s2">{</span>
+    <span class="s0">public </span><span class="s1">List</span><span class="s2">&lt;</span><span class="s1">SkillActionData</span><span class="s2">&gt; </span><span class="s1">Actions </span><span class="s2">= </span><span class="s0">new </span><span class="s1">List</span><span class="s2">&lt;</span><span class="s1">SkillActionData</span><span class="s2">&gt;();</span>
+    <span class="s0">public string </span><span class="s1">skillName</span><span class="s2">;</span>
+
+    <span class="s3">/// &lt;summary&gt;</span>
+    <span class="s3">/// 从 SkillSO 克隆技能</span>
+    <span class="s3">/// &lt;/summary&gt;</span>
+    <span class="s3">/// &lt;param name=&quot;skillSO&quot;&gt;SkillSO 资产&lt;/param&gt;</span>
+    <span class="s3">/// &lt;returns&gt;克隆的 Skill 实例&lt;/returns&gt;</span>
+    <span class="s0">public static </span><span class="s1">Skill FromSkillSO</span><span class="s2">(</span><span class="s1">SkillSO skillSO</span><span class="s2">)</span>
+    <span class="s2">{</span>
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">skillSO </span><span class="s2">== </span><span class="s0">null</span><span class="s2">)</span>
+        <span class="s2">{</span>
+            <span class="s1">Debug</span><span class="s2">.</span><span class="s1">LogError</span><span class="s2">(</span><span class="s4">&quot;Skill: 无法从 null SkillSO 创建 Skill 实例！&quot;</span><span class="s2">);</span>
+            <span class="s0">return null</span><span class="s2">;</span>
+        <span class="s2">}</span>
+
+        <span class="s1">Skill newSkill </span><span class="s2">= </span><span class="s0">new </span><span class="s1">Skill</span>
+        <span class="s2">{</span>
+            <span class="s1">skillName </span><span class="s2">= </span><span class="s1">skillSO</span><span class="s2">.</span><span class="s1">skillName</span><span class="s2">,</span>
+            <span class="s1">Actions </span><span class="s2">= </span><span class="s0">new </span><span class="s1">List</span><span class="s2">&lt;</span><span class="s1">SkillActionData</span><span class="s2">&gt;()</span>
+        <span class="s2">};</span>
+
+        <span class="s0">foreach </span><span class="s2">(</span><span class="s1">var action </span><span class="s0">in </span><span class="s1">skillSO</span><span class="s2">.</span><span class="s1">actions</span><span class="s2">)</span>
+        <span class="s2">{</span>
+            <span class="s3">// 创建 SkillActionData 的深拷贝</span>
+            <span class="s1">SkillActionData newAction </span><span class="s2">= </span><span class="s0">new </span><span class="s1">SkillActionData</span>
+            <span class="s2">{</span>
+                <span class="s1">Type </span><span class="s2">= </span><span class="s1">action</span><span class="s2">.</span><span class="s1">Type</span><span class="s2">,</span>
+                <span class="s1">Value </span><span class="s2">= </span><span class="s1">action</span><span class="s2">.</span><span class="s1">Value</span><span class="s2">,</span>
+                <span class="s1">TargetType </span><span class="s2">= </span><span class="s1">action</span><span class="s2">.</span><span class="s1">TargetType</span>
+            <span class="s2">};</span>
+            <span class="s1">newSkill</span><span class="s2">.</span><span class="s1">Actions</span><span class="s2">.</span><span class="s1">Add</span><span class="s2">(</span><span class="s1">newAction</span><span class="s2">);</span>
+        <span class="s2">}</span>
+
+        <span class="s0">return </span><span class="s1">newSkill</span><span class="s2">;</span>
+    <span class="s2">}</span>
+
+
+    <span class="s3">/// &lt;summary&gt;</span>
+    <span class="s3">/// 添加技能动作</span>
+    <span class="s3">/// &lt;/summary&gt;</span>
+    <span class="s3">/// &lt;param name=&quot;action&quot;&gt;技能动作&lt;/param&gt;</span>
+    <span class="s0">public void </span><span class="s1">AddAction</span><span class="s2">(</span><span class="s1">SkillActionData action</span><span class="s2">)</span>
+    <span class="s2">{</span>
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">action </span><span class="s2">!= </span><span class="s0">null</span><span class="s2">)</span>
+        <span class="s2">{</span>
+            <span class="s1">Actions</span><span class="s2">.</span><span class="s1">Add</span><span class="s2">(</span><span class="s1">action</span><span class="s2">);</span>
+        <span class="s2">}</span>
+        <span class="s0">else</span>
+        <span class="s2">{</span>
+            <span class="s1">Debug</span><span class="s2">.</span><span class="s1">LogWarning</span><span class="s2">(</span><span class="s4">&quot;Skill: 试图添加一个 null 的 SkillActionData！&quot;</span><span class="s2">);</span>
+        <span class="s2">}</span>
+    <span class="s2">}</span>
+<span class="s2">}</span>
+
+<span class="s2">[</span><span class="s1">System</span><span class="s2">.</span><span class="s1">Serializable</span><span class="s2">]</span>
+<span class="s0">public class </span><span class="s1">SkillActionData</span>
+<span class="s2">{</span>
+    <span class="s0">public </span><span class="s1">SkillType Type</span><span class="s2">;</span>
+    <span class="s0">public int </span><span class="s1">Value</span><span class="s2">;</span>
+    <span class="s0">public </span><span class="s1">TargetType TargetType</span><span class="s2">;</span>
+<span class="s2">}</span>
+
+<span class="s0">public enum </span><span class="s1">SkillType</span>
+<span class="s2">{</span>
+    <span class="s1">Move</span><span class="s2">,</span>
+    <span class="s1">Melee</span><span class="s2">,</span>
+    <span class="s1">Ranged</span><span class="s2">,</span>
+    <span class="s1">Defense</span><span class="s2">,</span>
+    <span class="s1">Repair</span><span class="s2">,</span>
+    <span class="s1">Breakage</span><span class="s2">,</span>
+    <span class="s3">// 可以根据需要添加更多的技能类型</span>
+<span class="s2">}</span>
+
+<span class="s0">public enum </span><span class="s1">TargetType</span>
+<span class="s2">{</span>
+    <span class="s1">Self</span><span class="s2">,       </span><span class="s3">// 只對自身生效</span>
+    <span class="s1">Enemy</span><span class="s2">,      </span><span class="s3">// 只對敵方生效</span>
+    <span class="s1">Friendly</span><span class="s2">,   </span><span class="s3">// 只對友方生效</span>
+    <span class="s1">All         </span><span class="s3">// 针对所有相关目标生效（可选）</span>
+<span class="s2">}</span></pre>
+</body>
+</html>

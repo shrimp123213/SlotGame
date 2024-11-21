@@ -9,10 +9,6 @@ public class DeckManager : MonoBehaviour
     [Header("Decks")]
     public Deck playerDeck; // 玩家牌組
     public Deck enemyDeck;  // 敵人牌組
-    
-    // 墓地列表
-    private List<UnitData> graveyardCards = new List<UnitData>();
-    private List<UnitData> enemyGraveyardCards = new List<UnitData>();
 
     private void Awake()
     {
@@ -82,7 +78,7 @@ public class DeckManager : MonoBehaviour
             RemoveCardFromPlayerDeck(unitData, 1, isInjured);
 
             // 将卡牌添加到玩家的墓地
-            AddCardToPlayerGraveyard(unitData);
+            GraveyardManager.Instance.AddToPlayerGraveyard(unitData);
         }
         else
         {
@@ -90,43 +86,8 @@ public class DeckManager : MonoBehaviour
             RemoveCardFromEnemyDeck(unitData, 1, isInjured);
 
             // 将卡牌添加到敌人的墓地
-            AddCardToEnemyGraveyard(unitData);
+            GraveyardManager.Instance.AddToEnemyGraveyard(unitData);
         }
-
-        // 通知 DeckUI 更新墓地显示（如果需要）
-        DeckUI deckUI = FindObjectOfType<DeckUI>();
-        if (deckUI != null && isPlayerUnit)
-        {
-            deckUI.AddToGraveyard(unitData);
-        }
-    }
-
-
-    /// <summary>
-    /// 添加卡牌到墓地
-    /// </summary>
-    private void AddCardToPlayerGraveyard(UnitData unitData)
-    {
-        if (unitData != null)
-        {
-            graveyardCards.Add(unitData);
-        }
-    }
-    
-    private void AddCardToEnemyGraveyard(UnitData unitData)
-    {
-        if (unitData != null)
-        {
-            enemyGraveyardCards.Add(unitData);
-        }
-    }
-
-    /// <summary>
-    /// 获取墓地中的卡牌列表
-    /// </summary>
-    public List<UnitData> GetGraveyardCards()
-    {
-        return graveyardCards;
     }
 
     // 可以在這裡添加更多與牌組相關的方法

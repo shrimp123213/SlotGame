@@ -1,0 +1,228 @@
+<html>
+<head>
+<title>ConnectionPatternGenerator.cs</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #6c95eb;}
+.s1 { color: #d0d0d0;}
+.s2 { color: #bdbdbd;}
+.s3 { color: #85c46c; font-style: italic;}
+.s4 { color: #ed94c0;}
+.s5 { color: #c9a26d;}
+</style>
+</head>
+<body bgcolor="#262626">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#606060" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+ConnectionPatternGenerator.cs</font>
+</center></td></tr></table>
+<pre><span class="s0">using </span><span class="s1">System</span><span class="s2">.</span><span class="s1">Collections</span><span class="s2">.</span><span class="s1">Generic</span><span class="s2">;</span>
+<span class="s0">using </span><span class="s1">UnityEngine</span><span class="s2">;</span>
+<span class="s0">using </span><span class="s1">UnityEditor</span><span class="s2">;</span>
+<span class="s0">using </span><span class="s1">System</span><span class="s2">.</span><span class="s1">IO</span><span class="s2">;</span>
+
+<span class="s3">/// &lt;summary&gt;</span>
+<span class="s3">/// 自动生成所有可能的连接方式，并保存到JSON文件</span>
+<span class="s3">/// &lt;/summary&gt;</span>
+<span class="s0">public class </span><span class="s1">ConnectionPatternGenerator : MonoBehaviour</span>
+<span class="s2">{</span>
+    <span class="s0">public int </span><span class="s1">rows </span><span class="s2">= </span><span class="s4">4</span><span class="s2">;      </span><span class="s3">// 行数</span>
+    <span class="s0">public int </span><span class="s1">columns </span><span class="s2">= </span><span class="s4">6</span><span class="s2">;   </span><span class="s3">// 列数</span>
+
+    <span class="s0">public string </span><span class="s1">outputFileName </span><span class="s2">= </span><span class="s5">&quot;ConnectionPatterns.json&quot;</span><span class="s2">; </span><span class="s3">// 输出文件名，保存在 Assets/Resources 文件夹下</span>
+
+    <span class="s2">[</span><span class="s1">ContextMenu</span><span class="s2">(</span><span class="s5">&quot;生成连接方式并保存到JSON&quot;</span><span class="s2">)]</span>
+    <span class="s0">public void </span><span class="s1">GenerateAndSavePatterns</span><span class="s2">()</span>
+    <span class="s2">{</span>
+        <span class="s1">List</span><span class="s2">&lt;</span><span class="s1">ConnectionPattern</span><span class="s2">&gt; </span><span class="s1">generatedPatterns </span><span class="s2">= </span><span class="s1">GenerateAllConnectionPatterns</span><span class="s2">();</span>
+
+        <span class="s3">// 将连接方式列表包装为 ConnectionList 对象</span>
+        <span class="s1">ConnectionList connectionList </span><span class="s2">= </span><span class="s0">new </span><span class="s1">ConnectionList</span>
+        <span class="s2">{</span>
+            <span class="s1">connections </span><span class="s2">= </span><span class="s1">generatedPatterns</span>
+        <span class="s2">};</span>
+
+        <span class="s3">// 序列化为JSON字符串</span>
+        <span class="s0">string </span><span class="s1">json </span><span class="s2">= </span><span class="s1">JsonUtility</span><span class="s2">.</span><span class="s1">ToJson</span><span class="s2">(</span><span class="s1">connectionList</span><span class="s2">, </span><span class="s0">true</span><span class="s2">);</span>
+
+        <span class="s3">// 确保输出目录存在</span>
+        <span class="s0">string </span><span class="s1">outputDir </span><span class="s2">= </span><span class="s1">Application</span><span class="s2">.</span><span class="s1">dataPath </span><span class="s2">+ </span><span class="s5">&quot;/Resources&quot;</span><span class="s2">;</span>
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">!Directory</span><span class="s2">.</span><span class="s1">Exists</span><span class="s2">(</span><span class="s1">outputDir</span><span class="s2">))</span>
+        <span class="s2">{</span>
+            <span class="s1">Directory</span><span class="s2">.</span><span class="s1">CreateDirectory</span><span class="s2">(</span><span class="s1">outputDir</span><span class="s2">);</span>
+        <span class="s2">}</span>
+
+        <span class="s3">// 输出文件路径</span>
+        <span class="s0">string </span><span class="s1">outputPath </span><span class="s2">= </span><span class="s1">Path</span><span class="s2">.</span><span class="s1">Combine</span><span class="s2">(</span><span class="s1">outputDir</span><span class="s2">, </span><span class="s1">outputFileName</span><span class="s2">);</span>
+
+        <span class="s3">// 将JSON字符串写入文件</span>
+        <span class="s1">File</span><span class="s2">.</span><span class="s1">WriteAllText</span><span class="s2">(</span><span class="s1">outputPath</span><span class="s2">, </span><span class="s1">json</span><span class="s2">);</span>
+
+        <span class="s1">Debug</span><span class="s2">.</span><span class="s1">Log</span><span class="s2">(</span><span class="s5">$&quot;连接方式已生成并保存到 </span><span class="s2">{</span><span class="s1">outputPath</span><span class="s2">}</span><span class="s5">&quot;</span><span class="s2">);</span>
+    <span class="s2">}</span>
+
+    <span class="s3">/// &lt;summary&gt;</span>
+    <span class="s3">/// 生成所有可能的连接方式</span>
+    <span class="s3">/// &lt;/summary&gt;</span>
+    <span class="s1">List</span><span class="s2">&lt;</span><span class="s1">ConnectionPattern</span><span class="s2">&gt; </span><span class="s1">GenerateAllConnectionPatterns</span><span class="s2">()</span>
+    <span class="s2">{</span>
+        <span class="s1">List</span><span class="s2">&lt;</span><span class="s1">ConnectionPattern</span><span class="s2">&gt; </span><span class="s1">generatedPatterns </span><span class="s2">= </span><span class="s0">new </span><span class="s1">List</span><span class="s2">&lt;</span><span class="s1">ConnectionPattern</span><span class="s2">&gt;();</span>
+
+        <span class="s3">// 对每一行的每一个格子进行遍历，生成从第一列到第六列的连接</span>
+        <span class="s0">for </span><span class="s2">(</span><span class="s0">int </span><span class="s1">startRow </span><span class="s2">= </span><span class="s4">0</span><span class="s2">; </span><span class="s1">startRow </span><span class="s2">&lt; </span><span class="s1">rows</span><span class="s2">; </span><span class="s1">startRow</span><span class="s2">++)</span>
+        <span class="s2">{</span>
+            <span class="s1">List</span><span class="s2">&lt;</span><span class="s0">int</span><span class="s2">&gt; </span><span class="s1">currentPath </span><span class="s2">= </span><span class="s0">new </span><span class="s1">List</span><span class="s2">&lt;</span><span class="s0">int</span><span class="s2">&gt;();</span>
+            <span class="s1">currentPath</span><span class="s2">.</span><span class="s1">Add</span><span class="s2">(</span><span class="s1">startRow</span><span class="s2">);</span>
+            <span class="s1">GeneratePatternsRecursive</span><span class="s2">(</span><span class="s4">1</span><span class="s2">, </span><span class="s1">currentPath</span><span class="s2">, </span><span class="s1">generatedPatterns</span><span class="s2">);</span>
+        <span class="s2">}</span>
+
+        <span class="s1">Debug</span><span class="s2">.</span><span class="s1">Log</span><span class="s2">(</span><span class="s5">$&quot;共生成了 </span><span class="s2">{</span><span class="s1">generatedPatterns</span><span class="s2">.</span><span class="s1">Count</span><span class="s2">} </span><span class="s5">种连接方式&quot;</span><span class="s2">);</span>
+
+        <span class="s0">return </span><span class="s1">generatedPatterns</span><span class="s2">;</span>
+    <span class="s2">}</span>
+
+    <span class="s3">/// &lt;summary&gt;</span>
+    <span class="s3">/// 递归生成连接方式</span>
+    <span class="s3">/// &lt;/summary&gt;</span>
+    <span class="s3">/// &lt;param name=&quot;currentColumn&quot;&gt;当前列&lt;/param&gt;</span>
+    <span class="s3">/// &lt;param name=&quot;currentPath&quot;&gt;当前路径&lt;/param&gt;</span>
+    <span class="s3">/// &lt;param name=&quot;patterns&quot;&gt;存储生成的连接方式&lt;/param&gt;</span>
+    <span class="s0">void </span><span class="s1">GeneratePatternsRecursive</span><span class="s2">(</span><span class="s0">int </span><span class="s1">currentColumn</span><span class="s2">, </span><span class="s1">List</span><span class="s2">&lt;</span><span class="s0">int</span><span class="s2">&gt; </span><span class="s1">currentPath</span><span class="s2">, </span><span class="s1">List</span><span class="s2">&lt;</span><span class="s1">ConnectionPattern</span><span class="s2">&gt; </span><span class="s1">patterns</span><span class="s2">)</span>
+    <span class="s2">{</span>
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">currentColumn </span><span class="s2">&gt;= </span><span class="s1">columns</span><span class="s2">)</span>
+        <span class="s2">{</span>
+            <span class="s3">// 已经到达最后一列，保存当前的连接方式</span>
+            <span class="s1">List</span><span class="s2">&lt;</span><span class="s0">string</span><span class="s2">&gt; </span><span class="s1">pattern </span><span class="s2">= </span><span class="s1">CreatePatternFromPath</span><span class="s2">(</span><span class="s1">currentPath</span><span class="s2">);</span>
+            <span class="s1">ConnectionPattern connectionPattern </span><span class="s2">= </span><span class="s0">new </span><span class="s1">ConnectionPattern</span>
+            <span class="s2">{</span>
+                <span class="s1">name </span><span class="s2">= </span><span class="s5">$&quot;连接方式 </span><span class="s2">{</span><span class="s1">patterns</span><span class="s2">.</span><span class="s1">Count </span><span class="s2">+ </span><span class="s4">1</span><span class="s2">}</span><span class="s5">&quot;</span><span class="s2">,</span>
+                <span class="s1">pattern </span><span class="s2">= </span><span class="s1">pattern</span><span class="s2">,</span>
+                <span class="s1">isUnlocked </span><span class="s2">= </span><span class="s0">false </span><span class="s3">// 预设为未解锁</span>
+            <span class="s2">};</span>
+            <span class="s1">connectionPattern</span><span class="s2">.</span><span class="s1">InitializePositions</span><span class="s2">();</span>
+            <span class="s1">patterns</span><span class="s2">.</span><span class="s1">Add</span><span class="s2">(</span><span class="s1">connectionPattern</span><span class="s2">);</span>
+            <span class="s0">return</span><span class="s2">;</span>
+        <span class="s2">}</span>
+
+        <span class="s3">// 获取当前行</span>
+        <span class="s0">int </span><span class="s1">currentRow </span><span class="s2">= </span><span class="s1">currentPath</span><span class="s2">[</span><span class="s1">currentPath</span><span class="s2">.</span><span class="s1">Count </span><span class="s2">- </span><span class="s4">1</span><span class="s2">];</span>
+
+        <span class="s3">// 获取下一列可能的行（相邻或对角相邻）</span>
+        <span class="s1">List</span><span class="s2">&lt;</span><span class="s0">int</span><span class="s2">&gt; </span><span class="s1">nextRows </span><span class="s2">= </span><span class="s1">GetAdjacentRows</span><span class="s2">(</span><span class="s1">currentRow</span><span class="s2">);</span>
+
+        <span class="s0">foreach </span><span class="s2">(</span><span class="s0">int </span><span class="s1">nextRow </span><span class="s0">in </span><span class="s1">nextRows</span><span class="s2">)</span>
+        <span class="s2">{</span>
+            <span class="s1">List</span><span class="s2">&lt;</span><span class="s0">int</span><span class="s2">&gt; </span><span class="s1">newPath </span><span class="s2">= </span><span class="s0">new </span><span class="s1">List</span><span class="s2">&lt;</span><span class="s0">int</span><span class="s2">&gt;(</span><span class="s1">currentPath</span><span class="s2">);</span>
+            <span class="s1">newPath</span><span class="s2">.</span><span class="s1">Add</span><span class="s2">(</span><span class="s1">nextRow</span><span class="s2">);</span>
+            <span class="s1">GeneratePatternsRecursive</span><span class="s2">(</span><span class="s1">currentColumn </span><span class="s2">+ </span><span class="s4">1</span><span class="s2">, </span><span class="s1">newPath</span><span class="s2">, </span><span class="s1">patterns</span><span class="s2">);</span>
+        <span class="s2">}</span>
+    <span class="s2">}</span>
+
+    <span class="s3">/// &lt;summary&gt;</span>
+    <span class="s3">/// 获取相邻或对角相邻的行索引</span>
+    <span class="s3">/// &lt;/summary&gt;</span>
+    <span class="s3">/// &lt;param name=&quot;currentRow&quot;&gt;当前行索引&lt;/param&gt;</span>
+    <span class="s3">/// &lt;returns&gt;相邻行的列表&lt;/returns&gt;</span>
+    <span class="s1">List</span><span class="s2">&lt;</span><span class="s0">int</span><span class="s2">&gt; </span><span class="s1">GetAdjacentRows</span><span class="s2">(</span><span class="s0">int </span><span class="s1">currentRow</span><span class="s2">)</span>
+    <span class="s2">{</span>
+        <span class="s1">List</span><span class="s2">&lt;</span><span class="s0">int</span><span class="s2">&gt; </span><span class="s1">adjacentRows </span><span class="s2">= </span><span class="s0">new </span><span class="s1">List</span><span class="s2">&lt;</span><span class="s0">int</span><span class="s2">&gt;();</span>
+
+        <span class="s3">// 上一行</span>
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">currentRow </span><span class="s2">- </span><span class="s4">1 </span><span class="s2">&gt;= </span><span class="s4">0</span><span class="s2">)</span>
+        <span class="s2">{</span>
+            <span class="s1">adjacentRows</span><span class="s2">.</span><span class="s1">Add</span><span class="s2">(</span><span class="s1">currentRow </span><span class="s2">- </span><span class="s4">1</span><span class="s2">);</span>
+        <span class="s2">}</span>
+
+        <span class="s3">// 当前行</span>
+        <span class="s1">adjacentRows</span><span class="s2">.</span><span class="s1">Add</span><span class="s2">(</span><span class="s1">currentRow</span><span class="s2">);</span>
+
+        <span class="s3">// 下一行</span>
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">currentRow </span><span class="s2">+ </span><span class="s4">1 </span><span class="s2">&lt; </span><span class="s1">rows</span><span class="s2">)</span>
+        <span class="s2">{</span>
+            <span class="s1">adjacentRows</span><span class="s2">.</span><span class="s1">Add</span><span class="s2">(</span><span class="s1">currentRow </span><span class="s2">+ </span><span class="s4">1</span><span class="s2">);</span>
+        <span class="s2">}</span>
+
+        <span class="s0">return </span><span class="s1">adjacentRows</span><span class="s2">;</span>
+    <span class="s2">}</span>
+
+    <span class="s3">/// &lt;summary&gt;</span>
+    <span class="s3">/// 根据路径创建连接模式</span>
+    <span class="s3">/// &lt;/summary&gt;</span>
+    <span class="s3">/// &lt;param name=&quot;path&quot;&gt;路径（每列的行索引）&lt;/param&gt;</span>
+    <span class="s3">/// &lt;returns&gt;连接模式的列表，每个字符串代表一行的连接状态&lt;/returns&gt;</span>
+    <span class="s1">List</span><span class="s2">&lt;</span><span class="s0">string</span><span class="s2">&gt; </span><span class="s1">CreatePatternFromPath</span><span class="s2">(</span><span class="s1">List</span><span class="s2">&lt;</span><span class="s0">int</span><span class="s2">&gt; </span><span class="s1">path</span><span class="s2">)</span>
+    <span class="s2">{</span>
+        <span class="s3">// 初始化模式列表，所有位置设为 &quot;X&quot;</span>
+        <span class="s1">List</span><span class="s2">&lt;</span><span class="s0">string</span><span class="s2">&gt; </span><span class="s1">pattern </span><span class="s2">= </span><span class="s0">new </span><span class="s1">List</span><span class="s2">&lt;</span><span class="s0">string</span><span class="s2">&gt;();</span>
+        <span class="s0">for </span><span class="s2">(</span><span class="s0">int </span><span class="s1">row </span><span class="s2">= </span><span class="s4">0</span><span class="s2">; </span><span class="s1">row </span><span class="s2">&lt; </span><span class="s1">rows</span><span class="s2">; </span><span class="s1">row</span><span class="s2">++)</span>
+        <span class="s2">{</span>
+            <span class="s0">string </span><span class="s1">rowPattern </span><span class="s2">= </span><span class="s5">&quot;&quot;</span><span class="s2">;</span>
+            <span class="s0">for </span><span class="s2">(</span><span class="s0">int </span><span class="s1">col </span><span class="s2">= </span><span class="s4">0</span><span class="s2">; </span><span class="s1">col </span><span class="s2">&lt; </span><span class="s1">columns</span><span class="s2">; </span><span class="s1">col</span><span class="s2">++)</span>
+            <span class="s2">{</span>
+                <span class="s1">rowPattern </span><span class="s2">+= </span><span class="s5">&quot;X&quot;</span><span class="s2">;</span>
+            <span class="s2">}</span>
+            <span class="s1">pattern</span><span class="s2">.</span><span class="s1">Add</span><span class="s2">(</span><span class="s1">rowPattern</span><span class="s2">);</span>
+        <span class="s2">}</span>
+
+        <span class="s3">// 根据路径设置 &quot;O&quot;</span>
+        <span class="s0">for </span><span class="s2">(</span><span class="s0">int </span><span class="s1">col </span><span class="s2">= </span><span class="s4">0</span><span class="s2">; </span><span class="s1">col </span><span class="s2">&lt; </span><span class="s1">path</span><span class="s2">.</span><span class="s1">Count</span><span class="s2">; </span><span class="s1">col</span><span class="s2">++)</span>
+        <span class="s2">{</span>
+            <span class="s0">int </span><span class="s1">row </span><span class="s2">= </span><span class="s1">path</span><span class="s2">[</span><span class="s1">col</span><span class="s2">];</span>
+            <span class="s0">char</span><span class="s2">[] </span><span class="s1">rowChars </span><span class="s2">= </span><span class="s1">pattern</span><span class="s2">[</span><span class="s1">row</span><span class="s2">].</span><span class="s1">ToCharArray</span><span class="s2">();</span>
+            <span class="s1">rowChars</span><span class="s2">[</span><span class="s1">col</span><span class="s2">] = </span><span class="s5">'O'</span><span class="s2">;</span>
+            <span class="s1">pattern</span><span class="s2">[</span><span class="s1">row</span><span class="s2">] = </span><span class="s0">new string</span><span class="s2">(</span><span class="s1">rowChars</span><span class="s2">);</span>
+        <span class="s2">}</span>
+
+        <span class="s0">return </span><span class="s1">pattern</span><span class="s2">;</span>
+    <span class="s2">}</span>
+<span class="s2">}</span>
+
+
+<span class="s3">/// &lt;summary&gt;</span>
+<span class="s3">/// 连接模式的数据结构</span>
+<span class="s3">/// &lt;/summary&gt;</span>
+<span class="s2">[</span><span class="s1">System</span><span class="s2">.</span><span class="s1">Serializable</span><span class="s2">]</span>
+<span class="s0">public class </span><span class="s1">ConnectionPattern</span>
+<span class="s2">{</span>
+    <span class="s0">public string </span><span class="s1">name</span><span class="s2">;</span>
+    <span class="s0">public </span><span class="s1">List</span><span class="s2">&lt;</span><span class="s0">string</span><span class="s2">&gt; </span><span class="s1">pattern</span><span class="s2">; </span><span class="s3">// 每个字符串代表一行的连接模式，例如 &quot;OXXXXX&quot;</span>
+    <span class="s0">public bool </span><span class="s1">isUnlocked</span><span class="s2">;      </span><span class="s3">// 是否已解锁</span>
+
+    <span class="s3">// 存储 'O' 的位置</span>
+    <span class="s0">public </span><span class="s1">List</span><span class="s2">&lt;</span><span class="s1">Vector2Int</span><span class="s2">&gt; </span><span class="s1">positions</span><span class="s2">; </span><span class="s3">// 格子的行和列</span>
+
+    <span class="s3">/// &lt;summary&gt;</span>
+    <span class="s3">/// 初始化 'O' 的位置并按列排序</span>
+    <span class="s3">/// &lt;/summary&gt;</span>
+    <span class="s0">public void </span><span class="s1">InitializePositions</span><span class="s2">()</span>
+    <span class="s2">{</span>
+        <span class="s1">positions </span><span class="s2">= </span><span class="s0">new </span><span class="s1">List</span><span class="s2">&lt;</span><span class="s1">Vector2Int</span><span class="s2">&gt;();</span>
+        <span class="s0">int </span><span class="s1">numRows </span><span class="s2">= </span><span class="s1">pattern</span><span class="s2">.</span><span class="s1">Count</span><span class="s2">;</span>
+        <span class="s0">int </span><span class="s1">numCols </span><span class="s2">= </span><span class="s1">pattern</span><span class="s2">[</span><span class="s4">0</span><span class="s2">].</span><span class="s1">Length</span><span class="s2">;</span>
+
+        <span class="s0">for </span><span class="s2">(</span><span class="s0">int </span><span class="s1">row </span><span class="s2">= </span><span class="s4">0</span><span class="s2">; </span><span class="s1">row </span><span class="s2">&lt; </span><span class="s1">numRows</span><span class="s2">; </span><span class="s1">row</span><span class="s2">++)</span>
+        <span class="s2">{</span>
+            <span class="s0">for </span><span class="s2">(</span><span class="s0">int </span><span class="s1">col </span><span class="s2">= </span><span class="s4">0</span><span class="s2">; </span><span class="s1">col </span><span class="s2">&lt; </span><span class="s1">numCols</span><span class="s2">; </span><span class="s1">col</span><span class="s2">++)</span>
+            <span class="s2">{</span>
+                <span class="s0">if </span><span class="s2">(</span><span class="s1">pattern</span><span class="s2">[</span><span class="s1">row</span><span class="s2">][</span><span class="s1">col</span><span class="s2">] == </span><span class="s5">'O'</span><span class="s2">)</span>
+                <span class="s2">{</span>
+                    <span class="s1">positions</span><span class="s2">.</span><span class="s1">Add</span><span class="s2">(</span><span class="s0">new </span><span class="s1">Vector2Int</span><span class="s2">(</span><span class="s1">row</span><span class="s2">, </span><span class="s1">col</span><span class="s2">));</span>
+                <span class="s2">}</span>
+            <span class="s2">}</span>
+        <span class="s2">}</span>
+
+        <span class="s3">// 按照列排序，确保连接顺序从左到右</span>
+        <span class="s1">positions</span><span class="s2">.</span><span class="s1">Sort</span><span class="s2">((</span><span class="s1">a</span><span class="s2">, </span><span class="s1">b</span><span class="s2">) </span><span class="s1">=&gt; a</span><span class="s2">.</span><span class="s1">y</span><span class="s2">.</span><span class="s1">CompareTo</span><span class="s2">(</span><span class="s1">b</span><span class="s2">.</span><span class="s1">y</span><span class="s2">));</span>
+    <span class="s2">}</span>
+<span class="s2">}</span>
+
+<span class="s2">[</span><span class="s1">System</span><span class="s2">.</span><span class="s1">Serializable</span><span class="s2">]</span>
+<span class="s0">public class </span><span class="s1">ConnectionList</span>
+<span class="s2">{</span>
+    <span class="s0">public </span><span class="s1">List</span><span class="s2">&lt;</span><span class="s1">ConnectionPattern</span><span class="s2">&gt; </span><span class="s1">connections</span><span class="s2">;</span>
+<span class="s2">}</span>
+
+</pre>
+</body>
+</html>

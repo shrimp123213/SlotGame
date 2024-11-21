@@ -1,0 +1,138 @@
+<html>
+<head>
+<title>GameManager.cs</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #6c95eb;}
+.s1 { color: #d0d0d0;}
+.s2 { color: #bdbdbd;}
+.s3 { color: #85c46c; font-style: italic;}
+.s4 { color: #c9a26d;}
+.s5 { color: #ed94c0;}
+</style>
+</head>
+<body bgcolor="#262626">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#606060" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+GameManager.cs</font>
+</center></td></tr></table>
+<pre><span class="s0">using </span><span class="s1">UnityEngine</span><span class="s2">;</span>
+<span class="s0">using </span><span class="s1">UnityEngine</span><span class="s2">.</span><span class="s1">SceneManagement</span><span class="s2">;</span>
+
+<span class="s3">/// &lt;summary&gt;</span>
+<span class="s3">/// 管理整個遊戲的流程和狀態</span>
+<span class="s3">/// &lt;/summary&gt;</span>
+<span class="s0">public enum </span><span class="s1">GameState</span>
+<span class="s2">{</span>
+    <span class="s1">MainMenu</span><span class="s2">,</span>
+    <span class="s1">Playing</span><span class="s2">,</span>
+    <span class="s1">Paused</span><span class="s2">,</span>
+    <span class="s1">GameOver</span>
+<span class="s2">}</span>
+
+<span class="s0">public class </span><span class="s1">GameManager : MonoBehaviour</span>
+<span class="s2">{</span>
+    <span class="s3">// 單例模式</span>
+    <span class="s0">public static </span><span class="s1">GameManager Instance </span><span class="s2">{ </span><span class="s1">get</span><span class="s2">; </span><span class="s0">private </span><span class="s1">set</span><span class="s2">; }</span>
+
+    <span class="s3">// 當前遊戲狀態</span>
+    <span class="s0">public </span><span class="s1">GameState CurrentState </span><span class="s2">{ </span><span class="s1">get</span><span class="s2">; </span><span class="s0">private </span><span class="s1">set</span><span class="s2">; }</span>
+
+    <span class="s3">// 遊戲結束原因</span>
+    <span class="s0">public string </span><span class="s1">GameOverReason </span><span class="s2">{ </span><span class="s1">get</span><span class="s2">; </span><span class="s0">private </span><span class="s1">set</span><span class="s2">; }</span>
+
+    <span class="s0">private void </span><span class="s1">Awake</span><span class="s2">()</span>
+    <span class="s2">{</span>
+        <span class="s3">// 確保單例唯一性</span>
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">Instance </span><span class="s2">== </span><span class="s0">null</span><span class="s2">)</span>
+        <span class="s2">{</span>
+            <span class="s1">Instance </span><span class="s2">= </span><span class="s0">this</span><span class="s2">;</span>
+            <span class="s1">DontDestroyOnLoad</span><span class="s2">(</span><span class="s1">gameObject</span><span class="s2">); </span><span class="s3">// 在場景切換時不銷毀</span>
+        <span class="s2">}</span>
+        <span class="s0">else</span>
+        <span class="s2">{</span>
+            <span class="s1">Destroy</span><span class="s2">(</span><span class="s1">gameObject</span><span class="s2">);</span>
+        <span class="s2">}</span>
+    <span class="s2">}</span>
+
+    <span class="s0">private void </span><span class="s1">Start</span><span class="s2">()</span>
+    <span class="s2">{</span>
+        <span class="s3">// 初始狀態設置為主菜單</span>
+        <span class="s1">ChangeState</span><span class="s2">(</span><span class="s1">GameState</span><span class="s2">.</span><span class="s1">MainMenu</span><span class="s2">);</span>
+    <span class="s2">}</span>
+
+    <span class="s3">/// &lt;summary&gt;</span>
+    <span class="s3">/// 改變遊戲狀態</span>
+    <span class="s3">/// &lt;/summary&gt;</span>
+    <span class="s3">/// &lt;param name=&quot;newState&quot;&gt;新的遊戲狀態&lt;/param&gt;</span>
+    <span class="s3">/// &lt;param name=&quot;reason&quot;&gt;遊戲結束原因（可選）&lt;/param&gt;</span>
+    <span class="s0">public void </span><span class="s1">ChangeState</span><span class="s2">(</span><span class="s1">GameState newState</span><span class="s2">, </span><span class="s0">string </span><span class="s1">reason </span><span class="s2">= </span><span class="s4">&quot;&quot;</span><span class="s2">)</span>
+    <span class="s2">{</span>
+        <span class="s1">CurrentState </span><span class="s2">= </span><span class="s1">newState</span><span class="s2">;</span>
+        <span class="s1">Debug</span><span class="s2">.</span><span class="s1">Log</span><span class="s2">(</span><span class="s4">$&quot;GameManager: 遊戲狀態變更為: </span><span class="s2">{</span><span class="s1">newState</span><span class="s2">}</span><span class="s4">&quot;</span><span class="s2">);</span>
+
+        <span class="s0">switch </span><span class="s2">(</span><span class="s1">newState</span><span class="s2">)</span>
+        <span class="s2">{</span>
+            <span class="s0">case </span><span class="s1">GameState</span><span class="s2">.</span><span class="s1">MainMenu:</span>
+                <span class="s3">// 加載主菜單場景</span>
+                <span class="s3">//SceneManager.LoadScene(&quot;MainMenu&quot;);</span>
+                <span class="s0">break</span><span class="s2">;</span>
+
+            <span class="s0">case </span><span class="s1">GameState</span><span class="s2">.</span><span class="s1">Playing:</span>
+                <span class="s3">// 開始遊戲，載入戰鬥場景</span>
+                <span class="s3">//SceneManager.LoadScene(&quot;BattleScene&quot;);</span>
+                <span class="s0">break</span><span class="s2">;</span>
+
+            <span class="s0">case </span><span class="s1">GameState</span><span class="s2">.</span><span class="s1">Paused:</span>
+                <span class="s3">// 暫停遊戲，例如顯示暫停菜單</span>
+                <span class="s1">Time</span><span class="s2">.</span><span class="s1">timeScale </span><span class="s2">= </span><span class="s5">0f</span><span class="s2">;</span>
+                <span class="s1">UIManager</span><span class="s2">.</span><span class="s1">Instance</span><span class="s2">.</span><span class="s1">ShowPauseMenu</span><span class="s2">();</span>
+                <span class="s0">break</span><span class="s2">;</span>
+
+            <span class="s0">case </span><span class="s1">GameState</span><span class="s2">.</span><span class="s1">GameOver:</span>
+                <span class="s3">// 結束遊戲，顯示遊戲結束畫面</span>
+                <span class="s1">GameOverReason </span><span class="s2">= </span><span class="s1">reason</span><span class="s2">;</span>
+                <span class="s1">Time</span><span class="s2">.</span><span class="s1">timeScale </span><span class="s2">= </span><span class="s5">0f</span><span class="s2">;</span>
+                <span class="s1">UIManager</span><span class="s2">.</span><span class="s1">Instance</span><span class="s2">.</span><span class="s1">ShowGameOverScreen</span><span class="s2">(</span><span class="s1">reason</span><span class="s2">);</span>
+                <span class="s0">break</span><span class="s2">;</span>
+        <span class="s2">}</span>
+    <span class="s2">}</span>
+
+    <span class="s3">/// &lt;summary&gt;</span>
+    <span class="s3">/// 暫停遊戲</span>
+    <span class="s3">/// &lt;/summary&gt;</span>
+    <span class="s0">public void </span><span class="s1">PauseGame</span><span class="s2">()</span>
+    <span class="s2">{</span>
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">CurrentState </span><span class="s2">== </span><span class="s1">GameState</span><span class="s2">.</span><span class="s1">Playing</span><span class="s2">)</span>
+        <span class="s2">{</span>
+            <span class="s1">ChangeState</span><span class="s2">(</span><span class="s1">GameState</span><span class="s2">.</span><span class="s1">Paused</span><span class="s2">);</span>
+        <span class="s2">}</span>
+    <span class="s2">}</span>
+
+    <span class="s3">/// &lt;summary&gt;</span>
+    <span class="s3">/// 恢復遊戲</span>
+    <span class="s3">/// &lt;/summary&gt;</span>
+    <span class="s0">public void </span><span class="s1">ResumeGame</span><span class="s2">()</span>
+    <span class="s2">{</span>
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">CurrentState </span><span class="s2">== </span><span class="s1">GameState</span><span class="s2">.</span><span class="s1">Paused</span><span class="s2">)</span>
+        <span class="s2">{</span>
+            <span class="s1">CurrentState </span><span class="s2">= </span><span class="s1">GameState</span><span class="s2">.</span><span class="s1">Playing</span><span class="s2">;</span>
+            <span class="s1">Time</span><span class="s2">.</span><span class="s1">timeScale </span><span class="s2">= </span><span class="s5">1f</span><span class="s2">;</span>
+            <span class="s1">UIManager</span><span class="s2">.</span><span class="s1">Instance</span><span class="s2">.</span><span class="s1">HidePauseMenu</span><span class="s2">();</span>
+            <span class="s1">Debug</span><span class="s2">.</span><span class="s1">Log</span><span class="s2">(</span><span class="s4">&quot;GameManager: 遊戲恢復&quot;</span><span class="s2">);</span>
+        <span class="s2">}</span>
+    <span class="s2">}</span>
+
+    <span class="s3">/// &lt;summary&gt;</span>
+    <span class="s3">/// 結束遊戲並顯示遊戲結束畫面</span>
+    <span class="s3">/// &lt;/summary&gt;</span>
+    <span class="s3">/// &lt;param name=&quot;reason&quot;&gt;結束原因&lt;/param&gt;</span>
+    <span class="s0">public void </span><span class="s1">EndGame</span><span class="s2">(</span><span class="s0">string </span><span class="s1">reason</span><span class="s2">)</span>
+    <span class="s2">{</span>
+        <span class="s1">ChangeState</span><span class="s2">(</span><span class="s1">GameState</span><span class="s2">.</span><span class="s1">GameOver</span><span class="s2">, </span><span class="s1">reason</span><span class="s2">);</span>
+    <span class="s2">}</span>
+<span class="s2">}</span>
+</pre>
+</body>
+</html>

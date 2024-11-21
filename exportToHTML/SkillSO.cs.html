@@ -1,0 +1,51 @@
+<html>
+<head>
+<title>SkillSO.cs</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #6c95eb;}
+.s1 { color: #d0d0d0;}
+.s2 { color: #bdbdbd;}
+.s3 { color: #c9a26d;}
+.s4 { color: #85c46c; font-style: italic;}
+</style>
+</head>
+<body bgcolor="#262626">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#606060" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+SkillSO.cs</font>
+</center></td></tr></table>
+<pre><span class="s0">using </span><span class="s1">System</span><span class="s2">.</span><span class="s1">Collections</span><span class="s2">.</span><span class="s1">Generic</span><span class="s2">;</span>
+<span class="s0">using </span><span class="s1">UnityEngine</span><span class="s2">;</span>
+
+<span class="s2">[</span><span class="s1">CreateAssetMenu</span><span class="s2">(</span><span class="s1">fileName </span><span class="s2">= </span><span class="s3">&quot;New Skill&quot;</span><span class="s2">, </span><span class="s1">menuName </span><span class="s2">= </span><span class="s3">&quot;ScriptableObjects/Skill&quot;</span><span class="s2">)]</span>
+<span class="s0">public class </span><span class="s1">SkillSO : ScriptableObject</span>
+<span class="s2">{</span>
+    <span class="s0">public string </span><span class="s1">skillName</span><span class="s2">; </span><span class="s4">// 技能名称</span>
+    <span class="s0">public </span><span class="s1">List</span><span class="s2">&lt;</span><span class="s1">SkillActionData</span><span class="s2">&gt; </span><span class="s1">actions</span><span class="s2">; </span><span class="s4">// 技能包含的所有动作</span>
+
+    <span class="s4">/// &lt;summary&gt;</span>
+    <span class="s4">/// 执行技能动作</span>
+    <span class="s4">/// &lt;/summary&gt;</span>
+    <span class="s4">/// &lt;param name=&quot;unit&quot;&gt;执行技能的用户（单位或建筑物）&lt;/param&gt;</span>
+    <span class="s0">public void </span><span class="s1">Execute</span><span class="s2">(</span><span class="s1">ISkillUser user</span><span class="s2">)</span>
+    <span class="s2">{</span>
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">user </span><span class="s2">== </span><span class="s0">null</span><span class="s2">)</span>
+        <span class="s2">{</span>
+            <span class="s1">Debug</span><span class="s2">.</span><span class="s1">LogError</span><span class="s2">(</span><span class="s3">$&quot;SkillSO: </span><span class="s2">{</span><span class="s1">skillName</span><span class="s2">} </span><span class="s3">试图执行时，用户为 null！&quot;</span><span class="s2">);</span>
+            <span class="s0">return</span><span class="s2">;</span>
+        <span class="s2">}</span>
+
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">SkillManager</span><span class="s2">.</span><span class="s1">Instance </span><span class="s2">!= </span><span class="s0">null</span><span class="s2">)</span>
+        <span class="s2">{</span>
+            <span class="s1">SkillManager</span><span class="s2">.</span><span class="s1">Instance</span><span class="s2">.</span><span class="s1">ExecuteSkill</span><span class="s2">(</span><span class="s0">this</span><span class="s2">, </span><span class="s1">user</span><span class="s2">);</span>
+        <span class="s2">}</span>
+        <span class="s0">else</span>
+        <span class="s2">{</span>
+            <span class="s1">Debug</span><span class="s2">.</span><span class="s1">LogError</span><span class="s2">(</span><span class="s3">&quot;SkillSO: SkillManager 实例未找到！&quot;</span><span class="s2">);</span>
+        <span class="s2">}</span>
+    <span class="s2">}</span>
+<span class="s2">}</span></pre>
+</body>
+</html>

@@ -1,0 +1,47 @@
+<html>
+<head>
+<title>HealedState.cs</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #6c95eb;}
+.s1 { color: #d0d0d0;}
+.s2 { color: #bdbdbd;}
+.s3 { color: #c9a26d;}
+.s4 { color: #85c46c; font-style: italic;}
+</style>
+</head>
+<body bgcolor="#262626">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#606060" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+HealedState.cs</font>
+</center></td></tr></table>
+<pre><span class="s0">using </span><span class="s1">UnityEngine</span><span class="s2">;</span>
+
+<span class="s2">[</span><span class="s1">CreateAssetMenu</span><span class="s2">(</span><span class="s1">menuName </span><span class="s2">= </span><span class="s3">&quot;UnitStates/HealedState&quot;</span><span class="s2">)]</span>
+<span class="s0">public class </span><span class="s1">HealedState : ScriptableObject</span><span class="s2">, </span><span class="s1">IUnitState</span>
+<span class="s2">{</span>
+    <span class="s0">public string </span><span class="s1">StateName =&gt; </span><span class="s3">&quot;Healed&quot;</span><span class="s2">;</span>
+    <span class="s2">[</span><span class="s1">SerializeField</span><span class="s2">] </span><span class="s0">private </span><span class="s1">Sprite icon</span><span class="s2">;</span>
+    <span class="s0">public </span><span class="s1">Sprite Icon =&gt; icon</span><span class="s2">;    </span>
+
+    <span class="s0">public void </span><span class="s1">OnEnter</span><span class="s2">(</span><span class="s1">UnitController unit</span><span class="s2">)</span>
+    <span class="s2">{</span>
+        <span class="s1">Debug</span><span class="s2">.</span><span class="s1">Log</span><span class="s2">(</span><span class="s3">$&quot;</span><span class="s2">{</span><span class="s1">unit</span><span class="s2">.</span><span class="s1">unitData</span><span class="s2">.</span><span class="s1">unitName</span><span class="s2">} </span><span class="s3">被治疗，移除负伤状态&quot;</span><span class="s2">);</span>
+        <span class="s1">unit</span><span class="s2">.</span><span class="s1">RemoveState</span><span class="s2">&lt;</span><span class="s1">InjuredState</span><span class="s2">&gt;();</span>
+        <span class="s1">unit</span><span class="s2">.</span><span class="s1">UpdateUnitUI</span><span class="s2">();</span>
+    <span class="s2">}</span>
+
+    <span class="s0">public void </span><span class="s1">OnExit</span><span class="s2">(</span><span class="s1">UnitController unit</span><span class="s2">)</span>
+    <span class="s2">{</span>
+        <span class="s1">Debug</span><span class="s2">.</span><span class="s1">Log</span><span class="s2">(</span><span class="s3">$&quot;</span><span class="s2">{</span><span class="s1">unit</span><span class="s2">.</span><span class="s1">unitData</span><span class="s2">.</span><span class="s1">unitName</span><span class="s2">} </span><span class="s3">退出治疗状态&quot;</span><span class="s2">);</span>
+    <span class="s2">}</span>
+
+    <span class="s4">/*public void Update(UnitController unit) 
+    { 
+        // 治疗状态下通常不需要每帧更新 
+    }*/</span>
+<span class="s2">}</span>
+</pre>
+</body>
+</html>

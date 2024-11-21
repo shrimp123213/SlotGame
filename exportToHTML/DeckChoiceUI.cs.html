@@ -1,0 +1,244 @@
+<html>
+<head>
+<title>DeckChoiceUI.cs</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #85c46c; font-style: italic;}
+.s1 { color: #d0d0d0;}
+.s2 { color: #6c95eb;}
+.s3 { color: #bdbdbd;}
+.s4 { color: #c9a26d;}
+.s5 { color: #ed94c0;}
+</style>
+</head>
+<body bgcolor="#262626">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#606060" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+DeckChoiceUI.cs</font>
+</center></td></tr></table>
+<pre><span class="s0">// DeckChoiceUI.cs</span>
+<span class="s2">using </span><span class="s1">System</span><span class="s3">.</span><span class="s1">Collections</span><span class="s3">.</span><span class="s1">Generic</span><span class="s3">;</span>
+<span class="s2">using </span><span class="s1">UnityEngine</span><span class="s3">;</span>
+<span class="s2">using </span><span class="s1">UnityEngine</span><span class="s3">.</span><span class="s1">UI</span><span class="s3">;</span>
+<span class="s2">using </span><span class="s1">TMPro</span><span class="s3">;</span>
+<span class="s2">using </span><span class="s1">System</span><span class="s3">;</span>
+
+<span class="s2">public class </span><span class="s1">DeckChoiceUI : MonoBehaviour</span>
+<span class="s3">{</span>
+    <span class="s2">public static </span><span class="s1">DeckChoiceUI Instance</span><span class="s3">;</span>
+
+    <span class="s3">[</span><span class="s1">Header</span><span class="s3">(</span><span class="s4">&quot;UI Elements&quot;</span><span class="s3">)]</span>
+    <span class="s2">public </span><span class="s1">GameObject choicePanel</span><span class="s3">; </span><span class="s0">// 整個選擇面板</span>
+    <span class="s2">public </span><span class="s1">List</span><span class="s3">&lt;</span><span class="s1">Button</span><span class="s3">&gt; </span><span class="s1">choiceButtons</span><span class="s3">; </span><span class="s0">// 三個選擇按鈕</span>
+    <span class="s2">public </span><span class="s1">Button closeButton</span><span class="s3">; </span><span class="s0">// 關閉按鈕（可選）</span>
+
+    <span class="s3">[</span><span class="s1">Header</span><span class="s3">(</span><span class="s4">&quot;Button Components&quot;</span><span class="s3">)]</span>
+    <span class="s2">public </span><span class="s1">List</span><span class="s3">&lt;</span><span class="s1">Image</span><span class="s3">&gt; </span><span class="s1">choiceImages</span><span class="s3">; </span><span class="s0">// 按鈕上的圖片</span>
+    <span class="s2">public </span><span class="s1">List</span><span class="s3">&lt;</span><span class="s1">TextMeshProUGUI</span><span class="s3">&gt; </span><span class="s1">choiceTexts</span><span class="s3">; </span><span class="s0">// 按鈕上的文字</span>
+
+    <span class="s3">[</span><span class="s1">Header</span><span class="s3">(</span><span class="s4">&quot;Toggle Button&quot;</span><span class="s3">)]</span>
+    <span class="s2">public </span><span class="s1">Button toggleButton</span><span class="s3">; </span><span class="s0">// 開關按鈕</span>
+    <span class="s2">public </span><span class="s1">Sprite openIcon</span><span class="s3">; </span><span class="s0">// 選單打開時的圖標</span>
+    <span class="s2">public </span><span class="s1">Sprite closeIcon</span><span class="s3">; </span><span class="s0">// 選單關閉時的圖標</span>
+
+    <span class="s2">private </span><span class="s1">Deck playerDeck</span><span class="s3">; </span><span class="s0">// 玩家牌組</span>
+
+    <span class="s0">// 新增事件</span>
+    <span class="s2">public event </span><span class="s1">Action OnChoiceMade</span><span class="s3">;</span>
+
+    <span class="s2">private </span><span class="s1">List</span><span class="s3">&lt;</span><span class="s1">UnitData</span><span class="s3">&gt; </span><span class="s1">currentChoices </span><span class="s3">= </span><span class="s2">new </span><span class="s1">List</span><span class="s3">&lt;</span><span class="s1">UnitData</span><span class="s3">&gt;();</span>
+    <span class="s2">private bool </span><span class="s1">isPanelOpen </span><span class="s3">= </span><span class="s2">false</span><span class="s3">; </span><span class="s0">// 追踪選單的狀態</span>
+
+    <span class="s2">private void </span><span class="s1">Awake</span><span class="s3">()</span>
+    <span class="s3">{</span>
+        <span class="s0">// 單例模式</span>
+        <span class="s2">if </span><span class="s3">(</span><span class="s1">Instance </span><span class="s3">== </span><span class="s2">null</span><span class="s3">)</span>
+        <span class="s3">{</span>
+            <span class="s1">Instance </span><span class="s3">= </span><span class="s2">this</span><span class="s3">;</span>
+            <span class="s1">DontDestroyOnLoad</span><span class="s3">(</span><span class="s1">gameObject</span><span class="s3">); </span><span class="s0">// 如果需要跨場景存在</span>
+        <span class="s3">}</span>
+        <span class="s2">else</span>
+        <span class="s3">{</span>
+            <span class="s1">Destroy</span><span class="s3">(</span><span class="s1">gameObject</span><span class="s3">);</span>
+        <span class="s3">}</span>
+    <span class="s3">}</span>
+
+    <span class="s2">private void </span><span class="s1">Start</span><span class="s3">()</span>
+    <span class="s3">{</span>
+        <span class="s0">// 確保面板初始時為隱藏</span>
+        <span class="s1">choicePanel</span><span class="s3">.</span><span class="s1">SetActive</span><span class="s3">(</span><span class="s2">false</span><span class="s3">);</span>
+        <span class="s1">isPanelOpen </span><span class="s3">= </span><span class="s2">false</span><span class="s3">;</span>
+        <span class="s1">toggleButton</span><span class="s3">.</span><span class="s1">gameObject</span><span class="s3">.</span><span class="s1">SetActive</span><span class="s3">(</span><span class="s2">false</span><span class="s3">);</span>
+
+        <span class="s0">// 設置選擇按鈕事件</span>
+        <span class="s2">for </span><span class="s3">(</span><span class="s2">int </span><span class="s1">i </span><span class="s3">= </span><span class="s5">0</span><span class="s3">; </span><span class="s1">i </span><span class="s3">&lt; </span><span class="s1">choiceButtons</span><span class="s3">.</span><span class="s1">Count</span><span class="s3">; </span><span class="s1">i</span><span class="s3">++)</span>
+        <span class="s3">{</span>
+            <span class="s2">int </span><span class="s1">index </span><span class="s3">= </span><span class="s1">i</span><span class="s3">; </span><span class="s0">// 避免閉包問題</span>
+            <span class="s1">choiceButtons</span><span class="s3">[</span><span class="s1">i</span><span class="s3">].</span><span class="s1">onClick</span><span class="s3">.</span><span class="s1">AddListener</span><span class="s3">(() </span><span class="s1">=&gt; OnChoiceSelected</span><span class="s3">(</span><span class="s1">index</span><span class="s3">));</span>
+        <span class="s3">}</span>
+
+        <span class="s0">// 設置關閉按鈕事件（如果有）</span>
+        <span class="s2">if </span><span class="s3">(</span><span class="s1">closeButton </span><span class="s3">!= </span><span class="s2">null</span><span class="s3">)</span>
+        <span class="s3">{</span>
+            <span class="s1">closeButton</span><span class="s3">.</span><span class="s1">onClick</span><span class="s3">.</span><span class="s1">AddListener</span><span class="s3">(() </span><span class="s1">=&gt; CloseChoicePanel</span><span class="s3">(</span><span class="s1">toggleButton</span><span class="s3">));</span>
+        <span class="s3">}</span>
+
+        <span class="s0">// 設置 Toggle Button 事件</span>
+        <span class="s2">if </span><span class="s3">(</span><span class="s1">toggleButton </span><span class="s3">!= </span><span class="s2">null</span><span class="s3">)</span>
+        <span class="s3">{</span>
+            <span class="s1">toggleButton</span><span class="s3">.</span><span class="s1">onClick</span><span class="s3">.</span><span class="s1">AddListener</span><span class="s3">(</span><span class="s1">ToggleChoicePanel</span><span class="s3">);</span>
+            <span class="s0">// 初始化 Toggle Button 的圖標</span>
+            <span class="s1">UpdateToggleButtonIcon</span><span class="s3">();</span>
+        <span class="s3">}</span>
+        <span class="s2">else</span>
+        <span class="s3">{</span>
+            <span class="s1">Debug</span><span class="s3">.</span><span class="s1">LogError</span><span class="s3">(</span><span class="s4">&quot;DeckChoiceUI: Toggle Button 未設置！&quot;</span><span class="s3">);</span>
+        <span class="s3">}</span>
+
+        <span class="s0">// 獲取玩家牌組</span>
+        <span class="s2">if </span><span class="s3">(</span><span class="s1">DeckManager</span><span class="s3">.</span><span class="s1">Instance </span><span class="s3">!= </span><span class="s2">null</span><span class="s3">)</span>
+        <span class="s3">{</span>
+            <span class="s1">playerDeck </span><span class="s3">= </span><span class="s1">DeckManager</span><span class="s3">.</span><span class="s1">Instance</span><span class="s3">.</span><span class="s1">playerDeck</span><span class="s3">; </span><span class="s0">// 假設有 DeckManager 管理牌組</span>
+        <span class="s3">}</span>
+        <span class="s2">else</span>
+        <span class="s3">{</span>
+            <span class="s1">Debug</span><span class="s3">.</span><span class="s1">LogError</span><span class="s3">(</span><span class="s4">&quot;DeckChoiceUI: DeckManager 實例未找到！&quot;</span><span class="s3">);</span>
+        <span class="s3">}</span>
+    <span class="s3">}</span>
+
+    <span class="s0">/// &lt;summary&gt;</span>
+    <span class="s0">/// 顯示選擇面板，並隨機選取三個 UnitData 作為選項</span>
+    <span class="s0">/// &lt;/summary&gt;</span>
+    <span class="s2">public void </span><span class="s1">ShowChoicePanel</span><span class="s3">()</span>
+    <span class="s3">{</span>
+        <span class="s2">if </span><span class="s3">(</span><span class="s1">playerDeck </span><span class="s3">== </span><span class="s2">null</span><span class="s3">)</span>
+        <span class="s3">{</span>
+            <span class="s1">Debug</span><span class="s3">.</span><span class="s1">LogError</span><span class="s3">(</span><span class="s4">&quot;DeckChoiceUI: 玩家牌組未設置！&quot;</span><span class="s3">);</span>
+            <span class="s2">return</span><span class="s3">;</span>
+        <span class="s3">}</span>
+
+        <span class="s0">// 只有當 currentChoices 為空時才生成新的選項</span>
+        <span class="s2">if </span><span class="s3">(</span><span class="s1">currentChoices</span><span class="s3">.</span><span class="s1">Count </span><span class="s3">== </span><span class="s5">0</span><span class="s3">)</span>
+        <span class="s3">{</span>
+            <span class="s1">currentChoices </span><span class="s3">= </span><span class="s1">playerDeck</span><span class="s3">.</span><span class="s1">GetRandomUnitChoices</span><span class="s3">(</span><span class="s5">3</span><span class="s3">);</span>
+            <span class="s2">if </span><span class="s3">(</span><span class="s1">currentChoices</span><span class="s3">.</span><span class="s1">Count </span><span class="s3">== </span><span class="s5">0</span><span class="s3">)</span>
+            <span class="s3">{</span>
+                <span class="s1">Debug</span><span class="s3">.</span><span class="s1">LogWarning</span><span class="s3">(</span><span class="s4">&quot;DeckChoiceUI: 玩家牌組中沒有可選的 UnitData！&quot;</span><span class="s3">);</span>
+                <span class="s2">return</span><span class="s3">;</span>
+            <span class="s3">}</span>
+
+            <span class="s0">// 設置按鈕顯示</span>
+            <span class="s2">for </span><span class="s3">(</span><span class="s2">int </span><span class="s1">i </span><span class="s3">= </span><span class="s5">0</span><span class="s3">; </span><span class="s1">i </span><span class="s3">&lt; </span><span class="s1">choiceButtons</span><span class="s3">.</span><span class="s1">Count</span><span class="s3">; </span><span class="s1">i</span><span class="s3">++)</span>
+            <span class="s3">{</span>
+                <span class="s2">if </span><span class="s3">(</span><span class="s1">i </span><span class="s3">&lt; </span><span class="s1">currentChoices</span><span class="s3">.</span><span class="s1">Count</span><span class="s3">)</span>
+                <span class="s3">{</span>
+                    <span class="s1">choiceImages</span><span class="s3">[</span><span class="s1">i</span><span class="s3">].</span><span class="s1">sprite </span><span class="s3">= </span><span class="s1">currentChoices</span><span class="s3">[</span><span class="s1">i</span><span class="s3">].</span><span class="s1">unitSprite</span><span class="s3">;</span>
+                    <span class="s1">choiceTexts</span><span class="s3">[</span><span class="s1">i</span><span class="s3">].</span><span class="s1">text </span><span class="s3">= </span><span class="s1">currentChoices</span><span class="s3">[</span><span class="s1">i</span><span class="s3">].</span><span class="s1">unitName</span><span class="s3">;</span>
+                    <span class="s1">choiceButtons</span><span class="s3">[</span><span class="s1">i</span><span class="s3">].</span><span class="s1">interactable </span><span class="s3">= </span><span class="s2">true</span><span class="s3">;</span>
+                <span class="s3">}</span>
+                <span class="s2">else</span>
+                <span class="s3">{</span>
+                    <span class="s1">choiceImages</span><span class="s3">[</span><span class="s1">i</span><span class="s3">].</span><span class="s1">sprite </span><span class="s3">= </span><span class="s2">null</span><span class="s3">;</span>
+                    <span class="s1">choiceTexts</span><span class="s3">[</span><span class="s1">i</span><span class="s3">].</span><span class="s1">text </span><span class="s3">= </span><span class="s4">&quot;&quot;</span><span class="s3">;</span>
+                    <span class="s1">choiceButtons</span><span class="s3">[</span><span class="s1">i</span><span class="s3">].</span><span class="s1">interactable </span><span class="s3">= </span><span class="s2">false</span><span class="s3">;</span>
+                <span class="s3">}</span>
+            <span class="s3">}</span>
+        <span class="s3">}</span>
+
+        <span class="s0">// 顯示面板</span>
+        <span class="s1">choicePanel</span><span class="s3">.</span><span class="s1">SetActive</span><span class="s3">(</span><span class="s2">true</span><span class="s3">);</span>
+        <span class="s1">isPanelOpen </span><span class="s3">= </span><span class="s2">true</span><span class="s3">;</span>
+        <span class="s1">toggleButton</span><span class="s3">.</span><span class="s1">gameObject</span><span class="s3">.</span><span class="s1">SetActive</span><span class="s3">(</span><span class="s2">true</span><span class="s3">);</span>
+        <span class="s1">UpdateToggleButtonIcon</span><span class="s3">();</span>
+    <span class="s3">}</span>
+
+    <span class="s0">/// &lt;summary&gt;</span>
+    <span class="s0">/// 隱藏選擇面板</span>
+    <span class="s0">/// &lt;/summary&gt;</span>
+    <span class="s2">public void </span><span class="s1">CloseChoicePanel</span><span class="s3">()</span>
+    <span class="s3">{</span>
+        <span class="s1">choicePanel</span><span class="s3">.</span><span class="s1">SetActive</span><span class="s3">(</span><span class="s2">false</span><span class="s3">);</span>
+        <span class="s1">isPanelOpen </span><span class="s3">= </span><span class="s2">false</span><span class="s3">;</span>
+        <span class="s1">UpdateToggleButtonIcon</span><span class="s3">();</span>
+    <span class="s3">}</span>
+
+    <span class="s0">/// &lt;summary&gt;</span>
+    <span class="s0">/// 隱藏選擇面板並重置選項</span>
+    <span class="s0">/// &lt;/summary&gt;</span>
+    <span class="s0">/// &lt;param name=&quot;_toggleButton&quot;&gt;Toggle Button 引用&lt;/param&gt;</span>
+    <span class="s2">public void </span><span class="s1">CloseChoicePanel</span><span class="s3">(</span><span class="s1">Button _toggleButton</span><span class="s3">)</span>
+    <span class="s3">{</span>
+        <span class="s1">OnChoiceMade?</span><span class="s3">.</span><span class="s1">Invoke</span><span class="s3">();</span>
+        <span class="s1">Debug</span><span class="s3">.</span><span class="s1">Log</span><span class="s3">(</span><span class="s4">&quot;DeckChoiceUI: 玩家選擇完成！&quot;</span><span class="s3">);</span>
+
+        <span class="s1">choicePanel</span><span class="s3">.</span><span class="s1">SetActive</span><span class="s3">(</span><span class="s2">false</span><span class="s3">);</span>
+        <span class="s1">isPanelOpen </span><span class="s3">= </span><span class="s2">false</span><span class="s3">;</span>
+        <span class="s1">UpdateToggleButtonIcon</span><span class="s3">();</span>
+        <span class="s1">_toggleButton</span><span class="s3">.</span><span class="s1">gameObject</span><span class="s3">.</span><span class="s1">SetActive</span><span class="s3">(</span><span class="s2">false</span><span class="s3">);</span>
+
+        <span class="s0">// 清空選項以便下次生成新的選項</span>
+        <span class="s1">currentChoices</span><span class="s3">.</span><span class="s1">Clear</span><span class="s3">();</span>
+    <span class="s3">}</span>
+
+    <span class="s0">/// &lt;summary&gt;</span>
+    <span class="s0">/// 切換選擇面板的顯示狀態</span>
+    <span class="s0">/// &lt;/summary&gt;</span>
+    <span class="s2">private void </span><span class="s1">ToggleChoicePanel</span><span class="s3">()</span>
+    <span class="s3">{</span>
+        <span class="s2">if </span><span class="s3">(</span><span class="s1">isPanelOpen</span><span class="s3">)</span>
+        <span class="s3">{</span>
+            <span class="s1">CloseChoicePanel</span><span class="s3">();</span>
+        <span class="s3">}</span>
+        <span class="s2">else</span>
+        <span class="s3">{</span>
+            <span class="s1">ShowChoicePanel</span><span class="s3">();</span>
+        <span class="s3">}</span>
+    <span class="s3">}</span>
+
+    <span class="s0">/// &lt;summary&gt;</span>
+    <span class="s0">/// 更新 Toggle Button 的圖標根據選單的狀態</span>
+    <span class="s0">/// &lt;/summary&gt;</span>
+    <span class="s2">private void </span><span class="s1">UpdateToggleButtonIcon</span><span class="s3">()</span>
+    <span class="s3">{</span>
+        <span class="s2">if </span><span class="s3">(</span><span class="s1">toggleButton </span><span class="s3">== </span><span class="s2">null</span><span class="s3">)</span>
+            <span class="s2">return</span><span class="s3">;</span>
+
+        <span class="s1">Image toggleButtonImage </span><span class="s3">= </span><span class="s1">toggleButton</span><span class="s3">.</span><span class="s1">GetComponent</span><span class="s3">&lt;</span><span class="s1">Image</span><span class="s3">&gt;();</span>
+        <span class="s2">if </span><span class="s3">(</span><span class="s1">toggleButtonImage </span><span class="s3">!= </span><span class="s2">null</span><span class="s3">)</span>
+        <span class="s3">{</span>
+            <span class="s1">toggleButtonImage</span><span class="s3">.</span><span class="s1">sprite </span><span class="s3">= </span><span class="s1">isPanelOpen ? openIcon : closeIcon</span><span class="s3">;</span>
+        <span class="s3">}</span>
+        <span class="s2">else</span>
+        <span class="s3">{</span>
+            <span class="s1">Debug</span><span class="s3">.</span><span class="s1">LogError</span><span class="s3">(</span><span class="s4">&quot;DeckChoiceUI: Toggle Button 沒有 Image 組件！&quot;</span><span class="s3">);</span>
+        <span class="s3">}</span>
+    <span class="s3">}</span>
+
+    <span class="s0">/// &lt;summary&gt;</span>
+    <span class="s0">/// 處理玩家的選擇</span>
+    <span class="s0">/// &lt;/summary&gt;</span>
+    <span class="s0">/// &lt;param name=&quot;index&quot;&gt;選擇的按鈕索引&lt;/param&gt;</span>
+    <span class="s2">private void </span><span class="s1">OnChoiceSelected</span><span class="s3">(</span><span class="s2">int </span><span class="s1">index</span><span class="s3">)</span>
+    <span class="s3">{</span>
+        <span class="s2">if </span><span class="s3">(</span><span class="s1">index </span><span class="s3">&gt;= </span><span class="s1">currentChoices</span><span class="s3">.</span><span class="s1">Count</span><span class="s3">)</span>
+        <span class="s3">{</span>
+            <span class="s1">Debug</span><span class="s3">.</span><span class="s1">LogWarning</span><span class="s3">(</span><span class="s4">&quot;DeckChoiceUI: 選擇的索引超出範圍！&quot;</span><span class="s3">);</span>
+            <span class="s2">return</span><span class="s3">;</span>
+        <span class="s3">}</span>
+
+        <span class="s1">UnitData selectedUnit </span><span class="s3">= </span><span class="s1">currentChoices</span><span class="s3">[</span><span class="s1">index</span><span class="s3">];</span>
+        <span class="s1">playerDeck</span><span class="s3">.</span><span class="s1">IncreaseUnitQuantity</span><span class="s3">(</span><span class="s1">selectedUnit</span><span class="s3">, </span><span class="s5">1</span><span class="s3">); </span><span class="s0">// 增加一張</span>
+
+        <span class="s1">Debug</span><span class="s3">.</span><span class="s1">Log</span><span class="s3">(</span><span class="s4">$&quot;DeckChoiceUI: 玩家選擇增加 </span><span class="s3">{</span><span class="s1">selectedUnit</span><span class="s3">.</span><span class="s1">unitName</span><span class="s3">} </span><span class="s4">的數量&quot;</span><span class="s3">);</span>
+
+        <span class="s0">// 觸發選擇完成事件</span>
+        <span class="s0">//OnChoiceMade?.Invoke();</span>
+
+        <span class="s0">// 關閉面板並重置選項</span>
+        <span class="s1">CloseChoicePanel</span><span class="s3">(</span><span class="s1">toggleButton</span><span class="s3">);</span>
+    <span class="s3">}</span>
+<span class="s3">}</span>
+</pre>
+</body>
+</html>

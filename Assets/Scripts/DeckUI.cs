@@ -33,14 +33,15 @@ public class DeckUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
             return;
         }
 
-        // 設置牌組變更事件
-        playerDeck.OnDeckChanged += RefreshDeckUI;
-        
+        // 设置墓地变更事件
+        GraveyardManager.Instance.OnPlayerGraveyardUpdated += RefreshGraveyardUI;
+
         // 初始化墓地卡牌列表
-        graveyardCards = DeckManager.Instance.GetGraveyardCards();
+        graveyardCards = GraveyardManager.Instance.GetPlayerGraveyard();
 
         // 初始刷新
         RefreshDeckUI();
+        RefreshGraveyardUI();
     }
 
     private void OnDestroy()
@@ -48,6 +49,11 @@ public class DeckUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
         if (playerDeck != null)
         {
             playerDeck.OnDeckChanged -= RefreshDeckUI;
+        }
+
+        if (GraveyardManager.Instance != null)
+        {
+            GraveyardManager.Instance.OnPlayerGraveyardUpdated -= RefreshGraveyardUI;
         }
     }
 
@@ -88,8 +94,16 @@ public class DeckUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
         // 更新总卡牌数
         if (totalCardCountText != null)
             totalCardCountText.text = $"{totalCardCount}";
+    }
+    
+    /// <summary>
+    /// 刷新墓地的 UI 显示
+    /// </summary>
+    private void RefreshGraveyardUI()
+    {
+        graveyardCards = GraveyardManager.Instance.GetPlayerGraveyard();
 
-        // 更新墓地卡牌数
+        // 更新墓地卡牌数显示
         if (graveyardCountText != null)
             graveyardCountText.text = graveyardCards.Count.ToString();
     }
@@ -115,8 +129,6 @@ public class DeckUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
     {
         if (unitData == null)
             return;
-
-        //graveyardCards.Add(unitData);
 
         // 更新墓地卡牌数显示
         if (graveyardCountText != null)

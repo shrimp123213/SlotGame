@@ -1,0 +1,803 @@
+<html>
+<head>
+<title>GridManager.cs</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #6c95eb;}
+.s1 { color: #d0d0d0;}
+.s2 { color: #bdbdbd;}
+.s3 { color: #85c46c; font-style: italic;}
+.s4 { color: #c9a26d;}
+.s5 { color: #ed94c0;}
+</style>
+</head>
+<body bgcolor="#262626">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#606060" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+GridManager.cs</font>
+</center></td></tr></table>
+<pre><span class="s0">using </span><span class="s1">System</span><span class="s2">.</span><span class="s1">Collections</span><span class="s2">.</span><span class="s1">Generic</span><span class="s2">;</span>
+<span class="s0">using </span><span class="s1">System</span><span class="s2">.</span><span class="s1">Linq</span><span class="s2">;</span>
+<span class="s0">using </span><span class="s1">UnityEngine</span><span class="s2">;</span>
+<span class="s0">using </span><span class="s1">UnityEngine</span><span class="s2">.</span><span class="s1">Tilemaps</span><span class="s2">;</span>
+
+<span class="s3">/// &lt;summary&gt;</span>
+<span class="s3">/// 管理游戏场地的生成与状态</span>
+<span class="s3">/// &lt;/summary&gt;</span>
+<span class="s0">public class </span><span class="s1">GridManager : MonoBehaviour</span>
+<span class="s2">{</span>
+    <span class="s3">// 单例模式实现，确保全局唯一</span>
+    <span class="s0">public static </span><span class="s1">GridManager Instance </span><span class="s2">{ </span><span class="s1">get</span><span class="s2">; </span><span class="s0">private </span><span class="s1">set</span><span class="s2">; }</span>
+
+    <span class="s2">[</span><span class="s1">Header</span><span class="s2">(</span><span class="s4">&quot;Tilemaps&quot;</span><span class="s2">)]</span>
+    <span class="s0">public </span><span class="s1">Tilemap battleTilemap</span><span class="s2">; </span><span class="s3">// 战斗区域的Tilemap</span>
+    <span class="s0">public </span><span class="s1">Tilemap wallTilemap</span><span class="s2">;   </span><span class="s3">// 城墙区域的Tilemap</span>
+
+    <span class="s2">[</span><span class="s1">Header</span><span class="s2">(</span><span class="s4">&quot;Tiles&quot;</span><span class="s2">)]</span>
+    <span class="s0">public </span><span class="s1">Tile battleTile</span><span class="s2">;       </span><span class="s3">// 战斗区域使用的Tile</span>
+    <span class="s0">public </span><span class="s1">Tile wallTile</span><span class="s2">;         </span><span class="s3">// 城墙区域使用的Tile</span>
+
+    <span class="s2">[</span><span class="s1">Header</span><span class="s2">(</span><span class="s4">&quot;Prefabs&quot;</span><span class="s2">)]</span>
+    <span class="s0">public </span><span class="s1">GameObject unitPrefab</span><span class="s2">;      </span><span class="s3">// 单位的Prefab</span>
+    <span class="s0">public </span><span class="s1">GameObject bossPrefab</span><span class="s2">;      </span><span class="s3">// Boss的Prefab</span>
+    <span class="s0">public </span><span class="s1">GameObject buildingPrefab</span><span class="s2">;  </span><span class="s3">// 建筑的Prefab</span>
+
+    <span class="s2">[</span><span class="s1">Header</span><span class="s2">(</span><span class="s4">&quot;Parent Objects&quot;</span><span class="s2">)]</span>
+    <span class="s0">public </span><span class="s1">Transform unitsParent</span><span class="s2">;      </span><span class="s3">// 单位的父对象</span>
+    <span class="s0">public </span><span class="s1">Transform buildingsParent</span><span class="s2">;  </span><span class="s3">// 建筑的父对象</span>
+
+    <span class="s2">[</span><span class="s1">Header</span><span class="s2">(</span><span class="s4">&quot;Grid Settings&quot;</span><span class="s2">)]</span>
+    <span class="s0">public int </span><span class="s1">rows </span><span class="s2">= </span><span class="s5">4</span><span class="s2">;          </span><span class="s3">// 行数</span>
+    <span class="s0">public int </span><span class="s1">columns </span><span class="s2">= </span><span class="s5">6</span><span class="s2">;       </span><span class="s3">// 列数（战斗区域）</span>
+
+    <span class="s0">private int </span><span class="s1">totalColumns</span><span class="s2">;     </span><span class="s3">// 总列数 = 战斗区域列数 + 2（城墙）</span>
+    
+    <span class="s2">[</span><span class="s1">Header</span><span class="s2">(</span><span class="s4">&quot;Boss Data&quot;</span><span class="s2">)]</span>
+    <span class="s0">public </span><span class="s1">BossData playerBossData</span><span class="s2">; </span><span class="s3">// 玩家 BOSS 的数据</span>
+    <span class="s0">public </span><span class="s1">BossData enemyBossData</span><span class="s2">;  </span><span class="s3">// 敌方 BOSS 的数据</span>
+    
+    <span class="s3">// 添加 BOSS 所在的列</span>
+    <span class="s0">private int </span><span class="s1">playerBossColumn</span><span class="s2">; </span><span class="s3">// 例如 -1</span>
+    <span class="s0">private int </span><span class="s1">enemyBossColumn</span><span class="s2">;  </span><span class="s3">// 例如 columns + 2</span>
+
+
+    <span class="s3">// 存储单位和建筑的位置</span>
+    <span class="s0">private </span><span class="s1">Dictionary</span><span class="s2">&lt;</span><span class="s1">Vector3Int</span><span class="s2">, </span><span class="s1">ISkillUser</span><span class="s2">&gt; </span><span class="s1">skillUsersPositions </span><span class="s2">= </span><span class="s0">new </span><span class="s1">Dictionary</span><span class="s2">&lt;</span><span class="s1">Vector3Int</span><span class="s2">, </span><span class="s1">ISkillUser</span><span class="s2">&gt;();</span>
+    
+    <span class="s3">// 记录每一行是否可以攻击 Boss</span>
+    <span class="s0">private </span><span class="s1">Dictionary</span><span class="s2">&lt;</span><span class="s0">int</span><span class="s2">, </span><span class="s0">bool</span><span class="s2">&gt; </span><span class="s1">rowCanAttackBoss </span><span class="s2">= </span><span class="s0">new </span><span class="s1">Dictionary</span><span class="s2">&lt;</span><span class="s0">int</span><span class="s2">, </span><span class="s0">bool</span><span class="s2">&gt;();</span>
+    
+    <span class="s3">// 存储建筑物的位置和对应的控制器</span>
+    <span class="s0">private </span><span class="s1">Dictionary</span><span class="s2">&lt;</span><span class="s1">Vector3Int</span><span class="s2">, </span><span class="s1">BuildingController</span><span class="s2">&gt; </span><span class="s1">buildingPositions </span><span class="s2">= </span><span class="s0">new </span><span class="s1">Dictionary</span><span class="s2">&lt;</span><span class="s1">Vector3Int</span><span class="s2">, </span><span class="s1">BuildingController</span><span class="s2">&gt;();</span>
+
+    <span class="s3">// 存储所有建筑物</span>
+    <span class="s0">private </span><span class="s1">List</span><span class="s2">&lt;</span><span class="s1">BuildingController</span><span class="s2">&gt; </span><span class="s1">allBuildings </span><span class="s2">= </span><span class="s0">new </span><span class="s1">List</span><span class="s2">&lt;</span><span class="s1">BuildingController</span><span class="s2">&gt;();</span>
+
+    <span class="s3">// 分别存储玩家和敌方的建筑物</span>
+    <span class="s0">private </span><span class="s1">List</span><span class="s2">&lt;</span><span class="s1">BuildingController</span><span class="s2">&gt; </span><span class="s1">playerBuildings </span><span class="s2">= </span><span class="s0">new </span><span class="s1">List</span><span class="s2">&lt;</span><span class="s1">BuildingController</span><span class="s2">&gt;();</span>
+    <span class="s0">private </span><span class="s1">List</span><span class="s2">&lt;</span><span class="s1">BuildingController</span><span class="s2">&gt; </span><span class="s1">enemyBuildings </span><span class="s2">= </span><span class="s0">new </span><span class="s1">List</span><span class="s2">&lt;</span><span class="s1">BuildingController</span><span class="s2">&gt;();</span>
+
+    <span class="s0">void </span><span class="s1">Awake</span><span class="s2">()</span>
+    <span class="s2">{</span>
+        <span class="s3">// 单例模式实现</span>
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">Instance </span><span class="s2">== </span><span class="s0">null</span><span class="s2">)</span>
+        <span class="s2">{</span>
+            <span class="s1">Instance </span><span class="s2">= </span><span class="s0">this</span><span class="s2">;</span>
+            <span class="s3">//DontDestroyOnLoad(gameObject); // 可选：保持在场景切换中不被销毁</span>
+        <span class="s2">}</span>
+        <span class="s0">else</span>
+        <span class="s2">{</span>
+            <span class="s1">Destroy</span><span class="s2">(</span><span class="s0">this</span><span class="s2">.</span><span class="s1">gameObject</span><span class="s2">);</span>
+        <span class="s2">}</span>
+    <span class="s2">}</span>
+
+    <span class="s0">void </span><span class="s1">Start</span><span class="s2">()</span>
+    <span class="s2">{</span>
+        <span class="s1">totalColumns </span><span class="s2">= </span><span class="s1">columns </span><span class="s2">+ </span><span class="s5">2</span><span class="s2">; </span><span class="s3">// 原来的列数，包括建筑物的列</span>
+
+        <span class="s1">playerBossColumn </span><span class="s2">= -</span><span class="s5">2</span><span class="s2">;</span>
+        <span class="s1">enemyBossColumn </span><span class="s2">= </span><span class="s1">columns </span><span class="s2">+ </span><span class="s5">3</span><span class="s2">;</span>
+
+        <span class="s1">GenerateBattleArea</span><span class="s2">();</span>
+        <span class="s1">GenerateWallArea</span><span class="s2">();</span>
+        
+        <span class="s0">for </span><span class="s2">(</span><span class="s0">int </span><span class="s1">row </span><span class="s2">= </span><span class="s5">0</span><span class="s2">; </span><span class="s1">row </span><span class="s2">&lt; </span><span class="s1">rows</span><span class="s2">; </span><span class="s1">row</span><span class="s2">++)</span>
+        <span class="s2">{</span>
+            <span class="s1">rowCanAttackBoss</span><span class="s2">[</span><span class="s1">row</span><span class="s2">] = </span><span class="s0">false</span><span class="s2">;</span>
+        <span class="s2">}</span>
+    <span class="s2">}</span>
+    
+    <span class="s3">/// &lt;summary&gt;</span>
+    <span class="s3">/// 初始化建筑物</span>
+    <span class="s3">/// &lt;/summary&gt;</span>
+    <span class="s3">/// &lt;param name=&quot;playerBuildingInfos&quot;&gt;玩家建筑物的信息列表&lt;/param&gt;</span>
+    <span class="s3">/// &lt;param name=&quot;enemyBuildingInfos&quot;&gt;敌方建筑物的信息列表&lt;/param&gt;</span>
+    <span class="s0">public void </span><span class="s1">InitializeBuildings</span><span class="s2">(</span><span class="s1">List</span><span class="s2">&lt;</span><span class="s1">PlayerBuildingInfo</span><span class="s2">&gt; </span><span class="s1">playerBuildingInfos</span><span class="s2">, </span><span class="s1">List</span><span class="s2">&lt;</span><span class="s1">EnemyBuildingInfo</span><span class="s2">&gt; </span><span class="s1">enemyBuildingInfos</span><span class="s2">)</span>
+    <span class="s2">{</span>
+        <span class="s3">// 初始化玩家建筑物</span>
+        <span class="s0">foreach </span><span class="s2">(</span><span class="s1">var buildingInfo </span><span class="s0">in </span><span class="s1">playerBuildingInfos</span><span class="s2">)</span>
+        <span class="s2">{</span>
+            <span class="s1">CreateBuilding</span><span class="s2">(</span><span class="s1">buildingInfo</span><span class="s2">.</span><span class="s1">buildingData</span><span class="s2">, </span><span class="s1">buildingInfo</span><span class="s2">.</span><span class="s1">position</span><span class="s2">, </span><span class="s1">Camp</span><span class="s2">.</span><span class="s1">Player</span><span class="s2">);</span>
+        <span class="s2">}</span>
+
+        <span class="s3">// 初始化敌方建筑物</span>
+        <span class="s0">foreach </span><span class="s2">(</span><span class="s1">var enemyBuildingInfo </span><span class="s0">in </span><span class="s1">enemyBuildingInfos</span><span class="s2">)</span>
+        <span class="s2">{</span>
+            <span class="s1">CreateBuilding</span><span class="s2">(</span><span class="s1">enemyBuildingInfo</span><span class="s2">.</span><span class="s1">buildingData</span><span class="s2">, </span><span class="s1">enemyBuildingInfo</span><span class="s2">.</span><span class="s1">position</span><span class="s2">, </span><span class="s1">Camp</span><span class="s2">.</span><span class="s1">Enemy</span><span class="s2">);</span>
+        <span class="s2">}</span>
+
+        <span class="s3">// 生成玩家 BOSS</span>
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">playerBossData </span><span class="s2">!= </span><span class="s0">null</span><span class="s2">)</span>
+        <span class="s2">{</span>
+            <span class="s1">Vector3Int bossPosition </span><span class="s2">= </span><span class="s0">new </span><span class="s1">Vector3Int</span><span class="s2">(</span><span class="s1">playerBossColumn</span><span class="s2">, </span><span class="s5">1</span><span class="s2">, </span><span class="s5">0</span><span class="s2">);</span>
+            <span class="s1">SpawnBoss</span><span class="s2">(</span><span class="s1">playerBossData</span><span class="s2">, </span><span class="s1">bossPosition</span><span class="s2">, </span><span class="s1">Camp</span><span class="s2">.</span><span class="s1">Player</span><span class="s2">);</span>
+        <span class="s2">}</span>
+
+        <span class="s3">// 生成敌方 BOSS</span>
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">enemyBossData </span><span class="s2">!= </span><span class="s0">null</span><span class="s2">)</span>
+        <span class="s2">{</span>
+            <span class="s1">Vector3Int bossPosition </span><span class="s2">= </span><span class="s0">new </span><span class="s1">Vector3Int</span><span class="s2">(</span><span class="s1">enemyBossColumn</span><span class="s2">, </span><span class="s5">1</span><span class="s2">, </span><span class="s5">0</span><span class="s2">);</span>
+            <span class="s1">SpawnBoss</span><span class="s2">(</span><span class="s1">enemyBossData</span><span class="s2">, </span><span class="s1">bossPosition</span><span class="s2">, </span><span class="s1">Camp</span><span class="s2">.</span><span class="s1">Enemy</span><span class="s2">);</span>
+        <span class="s2">}</span>
+    <span class="s2">}</span>
+
+    
+    <span class="s3">// 设置指定行是否可以攻击 Boss</span>
+    <span class="s0">public void </span><span class="s1">SetRowCanAttackBoss</span><span class="s2">(</span><span class="s0">int </span><span class="s1">row</span><span class="s2">, </span><span class="s0">bool </span><span class="s1">canAttack</span><span class="s2">)</span>
+    <span class="s2">{</span>
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">rowCanAttackBoss</span><span class="s2">.</span><span class="s1">ContainsKey</span><span class="s2">(</span><span class="s1">row</span><span class="s2">))</span>
+        <span class="s2">{</span>
+            <span class="s1">rowCanAttackBoss</span><span class="s2">[</span><span class="s1">row</span><span class="s2">] = </span><span class="s1">canAttack</span><span class="s2">;</span>
+        <span class="s2">}</span>
+    <span class="s2">}</span>
+    
+    <span class="s3">// 检查指定行是否可以攻击 Boss</span>
+    <span class="s0">public bool </span><span class="s1">CanRowAttackBoss</span><span class="s2">(</span><span class="s0">int </span><span class="s1">row</span><span class="s2">)</span>
+    <span class="s2">{</span>
+        <span class="s0">return </span><span class="s1">rowCanAttackBoss</span><span class="s2">.</span><span class="s1">ContainsKey</span><span class="s2">(</span><span class="s1">row</span><span class="s2">) &amp;&amp; </span><span class="s1">rowCanAttackBoss</span><span class="s2">[</span><span class="s1">row</span><span class="s2">];</span>
+    <span class="s2">}</span>
+
+    <span class="s3">/// &lt;summary&gt;</span>
+    <span class="s3">/// 生成战斗区域的Tile</span>
+    <span class="s3">/// &lt;/summary&gt;</span>
+    <span class="s0">void </span><span class="s1">GenerateBattleArea</span><span class="s2">()</span>
+    <span class="s2">{</span>
+        <span class="s0">for </span><span class="s2">(</span><span class="s0">int </span><span class="s1">row </span><span class="s2">= </span><span class="s5">0</span><span class="s2">; </span><span class="s1">row </span><span class="s2">&lt; </span><span class="s1">rows</span><span class="s2">; </span><span class="s1">row</span><span class="s2">++)</span>
+        <span class="s2">{</span>
+            <span class="s0">for </span><span class="s2">(</span><span class="s0">int </span><span class="s1">col </span><span class="s2">= </span><span class="s5">1</span><span class="s2">; </span><span class="s1">col </span><span class="s2">&lt;= </span><span class="s1">columns</span><span class="s2">; </span><span class="s1">col</span><span class="s2">++) </span><span class="s3">// 列从1到6</span>
+            <span class="s2">{</span>
+                <span class="s1">Vector3Int tilePosition </span><span class="s2">= </span><span class="s0">new </span><span class="s1">Vector3Int</span><span class="s2">(</span><span class="s1">col</span><span class="s2">, </span><span class="s1">row</span><span class="s2">, </span><span class="s5">0</span><span class="s2">);</span>
+                <span class="s1">battleTilemap</span><span class="s2">.</span><span class="s1">SetTile</span><span class="s2">(</span><span class="s1">tilePosition</span><span class="s2">, </span><span class="s1">battleTile</span><span class="s2">);</span>
+            <span class="s2">}</span>
+        <span class="s2">}</span>
+    <span class="s2">}</span>
+
+    <span class="s3">/// &lt;summary&gt;</span>
+    <span class="s3">/// 生成城墙区域的Tile（最左和最右）</span>
+    <span class="s3">/// &lt;/summary&gt;</span>
+    <span class="s0">void </span><span class="s1">GenerateWallArea</span><span class="s2">()</span>
+    <span class="s2">{</span>
+        <span class="s0">for </span><span class="s2">(</span><span class="s0">int </span><span class="s1">row </span><span class="s2">= </span><span class="s5">0</span><span class="s2">; </span><span class="s1">row </span><span class="s2">&lt; </span><span class="s1">rows</span><span class="s2">; </span><span class="s1">row</span><span class="s2">++)</span>
+        <span class="s2">{</span>
+            <span class="s3">// 最左边一列（0）</span>
+            <span class="s1">Vector3Int leftWallPos </span><span class="s2">= </span><span class="s0">new </span><span class="s1">Vector3Int</span><span class="s2">(</span><span class="s5">0</span><span class="s2">, </span><span class="s1">row</span><span class="s2">, </span><span class="s5">0</span><span class="s2">);</span>
+            <span class="s1">wallTilemap</span><span class="s2">.</span><span class="s1">SetTile</span><span class="s2">(</span><span class="s1">leftWallPos</span><span class="s2">, </span><span class="s1">wallTile</span><span class="s2">);</span>
+
+            <span class="s3">// 最右边一列（columns + 1）</span>
+            <span class="s1">Vector3Int rightWallPos </span><span class="s2">= </span><span class="s0">new </span><span class="s1">Vector3Int</span><span class="s2">(</span><span class="s1">totalColumns </span><span class="s2">- </span><span class="s5">1</span><span class="s2">, </span><span class="s1">row</span><span class="s2">, </span><span class="s5">0</span><span class="s2">);</span>
+            <span class="s1">wallTilemap</span><span class="s2">.</span><span class="s1">SetTile</span><span class="s2">(</span><span class="s1">rightWallPos</span><span class="s2">, </span><span class="s1">wallTile</span><span class="s2">);</span>
+        <span class="s2">}</span>
+    <span class="s2">}</span>
+
+    <span class="s3">/// &lt;summary&gt;</span>
+    <span class="s3">/// 生成单位</span>
+    <span class="s3">/// &lt;/summary&gt;</span>
+    <span class="s3">/// &lt;param name=&quot;position&quot;&gt;格子位置&lt;/param&gt;</span>
+    <span class="s3">/// &lt;param name=&quot;unitData&quot;&gt;单位数据&lt;/param&gt;</span>
+    <span class="s0">public void </span><span class="s1">SpawnUnit</span><span class="s2">(</span><span class="s1">Vector3Int position</span><span class="s2">, </span><span class="s1">UnitData unitData</span><span class="s2">, </span><span class="s0">bool </span><span class="s1">isInjured</span><span class="s2">)</span>
+    <span class="s2">{</span>
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">skillUsersPositions</span><span class="s2">.</span><span class="s1">ContainsKey</span><span class="s2">(</span><span class="s1">position</span><span class="s2">))</span>
+        <span class="s2">{</span>
+            <span class="s1">Debug</span><span class="s2">.</span><span class="s1">LogWarning</span><span class="s2">(</span><span class="s4">$&quot;GridManager: 位置 </span><span class="s2">{</span><span class="s1">position</span><span class="s2">} </span><span class="s4">已经有单位或建筑存在！&quot;</span><span class="s2">);</span>
+            <span class="s0">return</span><span class="s2">;</span>
+        <span class="s2">}</span>
+
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">unitData </span><span class="s2">== </span><span class="s0">null</span><span class="s2">)</span>
+        <span class="s2">{</span>
+            <span class="s1">Debug</span><span class="s2">.</span><span class="s1">LogError</span><span class="s2">(</span><span class="s4">&quot;GridManager: 尝试生成的 UnitData 为 null！&quot;</span><span class="s2">);</span>
+            <span class="s0">return</span><span class="s2">;</span>
+        <span class="s2">}</span>
+
+        <span class="s3">// 直接实例化单位，无需检查 cardCount</span>
+        <span class="s1">GameObject unitGO </span><span class="s2">= </span><span class="s1">Instantiate</span><span class="s2">(</span><span class="s1">unitPrefab</span><span class="s2">);</span>
+        <span class="s1">unitGO</span><span class="s2">.</span><span class="s1">name </span><span class="s2">= </span><span class="s1">unitData</span><span class="s2">.</span><span class="s1">unitName </span><span class="s2">+ </span><span class="s4">&quot;_&quot; </span><span class="s2">+ </span><span class="s1">position</span><span class="s2">.</span><span class="s1">x </span><span class="s2">+ </span><span class="s4">&quot;_&quot; </span><span class="s2">+ </span><span class="s1">position</span><span class="s2">.</span><span class="s1">y</span><span class="s2">;</span>
+        <span class="s1">UnitController unit </span><span class="s2">= </span><span class="s1">unitGO</span><span class="s2">.</span><span class="s1">GetComponent</span><span class="s2">&lt;</span><span class="s1">UnitController</span><span class="s2">&gt;();</span>
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">unit </span><span class="s2">== </span><span class="s0">null</span><span class="s2">)</span>
+        <span class="s2">{</span>
+            <span class="s1">Debug</span><span class="s2">.</span><span class="s1">LogError</span><span class="s2">(</span><span class="s4">&quot;GridManager: UnitPrefab 没有 UnitController 组件！&quot;</span><span class="s2">);</span>
+            <span class="s1">Destroy</span><span class="s2">(</span><span class="s1">unitGO</span><span class="s2">);</span>
+            <span class="s0">return</span><span class="s2">;</span>
+        <span class="s2">}</span>
+
+        <span class="s1">unit</span><span class="s2">.</span><span class="s1">unitData </span><span class="s2">= </span><span class="s1">unitData</span><span class="s2">;</span>
+        <span class="s1">unit</span><span class="s2">.</span><span class="s1">SetPosition</span><span class="s2">(</span><span class="s1">position</span><span class="s2">);</span>
+        <span class="s3">//Debug.Log($&quot;${unit.name} Injured: {{isInjured}}&quot;);</span>
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">isInjured</span><span class="s2">) </span><span class="s1">unit</span><span class="s2">.</span><span class="s1">AddState</span><span class="s2">&lt;</span><span class="s1">InjuredState</span><span class="s2">&gt;();</span>
+
+        <span class="s3">// 设置为 Units 父对象的子对象</span>
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">unitsParent </span><span class="s2">!= </span><span class="s0">null</span><span class="s2">)</span>
+        <span class="s2">{</span>
+            <span class="s1">unitGO</span><span class="s2">.</span><span class="s1">transform</span><span class="s2">.</span><span class="s1">SetParent</span><span class="s2">(</span><span class="s1">unitsParent</span><span class="s2">);</span>
+        <span class="s2">}</span>
+        <span class="s0">else</span>
+        <span class="s2">{</span>
+            <span class="s1">Debug</span><span class="s2">.</span><span class="s1">LogWarning</span><span class="s2">(</span><span class="s4">&quot;GridManager: unitsParent 未设置！&quot;</span><span class="s2">);</span>
+        <span class="s2">}</span>
+
+        <span class="s1">skillUsersPositions</span><span class="s2">.</span><span class="s1">Add</span><span class="s2">(</span><span class="s1">position</span><span class="s2">, </span><span class="s1">unit</span><span class="s2">);</span>
+        <span class="s3">//Debug.Log($&quot;GridManager: 在位置 {position} 生成单位 {unitData.unitName}&quot;);</span>
+    <span class="s2">}</span>
+
+
+    <span class="s3">/// &lt;summary&gt;</span>
+    <span class="s3">/// 生成Boss单位</span>
+    <span class="s3">/// &lt;/summary&gt;</span>
+    <span class="s3">/// &lt;param name=&quot;position&quot;&gt;格子位置&lt;/param&gt;</span>
+    <span class="s3">/// &lt;param name=&quot;bossData&quot;&gt;Boss单位数据&lt;/param&gt;</span>
+    <span class="s3">/// &lt;param name=&quot;camp&quot;&gt;Boss陣營&lt;/param&gt;</span>
+    <span class="s0">public void </span><span class="s1">SpawnBoss</span><span class="s2">(</span><span class="s1">BossData bossData</span><span class="s2">, </span><span class="s1">Vector3Int position</span><span class="s2">, </span><span class="s1">Camp camp</span><span class="s2">)</span>
+    <span class="s2">{</span>
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">bossData </span><span class="s2">== </span><span class="s0">null</span><span class="s2">)</span>
+        <span class="s2">{</span>
+            <span class="s1">Debug</span><span class="s2">.</span><span class="s1">LogError</span><span class="s2">(</span><span class="s4">&quot;GridManager: BossData 为空，无法生成 BOSS！&quot;</span><span class="s2">);</span>
+            <span class="s0">return</span><span class="s2">;</span>
+        <span class="s2">}</span>
+
+        <span class="s3">// 检查位置是否已被占用</span>
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">skillUsersPositions</span><span class="s2">.</span><span class="s1">ContainsKey</span><span class="s2">(</span><span class="s1">position</span><span class="s2">))</span>
+        <span class="s2">{</span>
+            <span class="s1">Debug</span><span class="s2">.</span><span class="s1">LogWarning</span><span class="s2">(</span><span class="s4">$&quot;GridManager: 位置 </span><span class="s2">{</span><span class="s1">position</span><span class="s2">} </span><span class="s4">已被占用，无法生成 BOSS！&quot;</span><span class="s2">);</span>
+            <span class="s0">return</span><span class="s2">;</span>
+        <span class="s2">}</span>
+
+        <span class="s3">// 实例化 BOSS 预制件</span>
+        <span class="s1">GameObject bossGO </span><span class="s2">= </span><span class="s1">Instantiate</span><span class="s2">(</span><span class="s1">bossPrefab</span><span class="s2">);</span>
+        <span class="s1">bossGO</span><span class="s2">.</span><span class="s1">name </span><span class="s2">= </span><span class="s1">bossData</span><span class="s2">.</span><span class="s1">bossName </span><span class="s2">+ </span><span class="s4">&quot;_&quot; </span><span class="s2">+ </span><span class="s1">position</span><span class="s2">.</span><span class="s1">x </span><span class="s2">+ </span><span class="s4">&quot;_&quot; </span><span class="s2">+ </span><span class="s1">position</span><span class="s2">.</span><span class="s1">y</span><span class="s2">;</span>
+
+        <span class="s3">// 获取 BossController 组件</span>
+        <span class="s1">BossController bossController </span><span class="s2">= </span><span class="s1">bossGO</span><span class="s2">.</span><span class="s1">GetComponent</span><span class="s2">&lt;</span><span class="s1">BossController</span><span class="s2">&gt;();</span>
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">bossController </span><span class="s2">== </span><span class="s0">null</span><span class="s2">)</span>
+        <span class="s2">{</span>
+            <span class="s1">Debug</span><span class="s2">.</span><span class="s1">LogError</span><span class="s2">(</span><span class="s4">&quot;GridManager: BOSS 预制件缺少 BossController 组件！&quot;</span><span class="s2">);</span>
+            <span class="s1">Destroy</span><span class="s2">(</span><span class="s1">bossGO</span><span class="s2">);</span>
+            <span class="s0">return</span><span class="s2">;</span>
+        <span class="s2">}</span>
+
+        <span class="s3">// 设置 BOSS 的数据</span>
+        <span class="s1">bossController</span><span class="s2">.</span><span class="s1">bossData </span><span class="s2">= </span><span class="s1">bossData</span><span class="s2">;</span>
+        <span class="s1">bossController</span><span class="s2">.</span><span class="s1">bossData</span><span class="s2">.</span><span class="s1">camp </span><span class="s2">= </span><span class="s1">camp</span><span class="s2">; </span><span class="s3">// 设置阵营</span>
+        <span class="s1">bossController</span><span class="s2">.</span><span class="s1">SetPosition</span><span class="s2">(</span><span class="s1">position</span><span class="s2">);</span>
+
+        <span class="s3">// 设置为 Units 父对象的子对象</span>
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">unitsParent </span><span class="s2">!= </span><span class="s0">null</span><span class="s2">)</span>
+        <span class="s2">{</span>
+            <span class="s1">bossGO</span><span class="s2">.</span><span class="s1">transform</span><span class="s2">.</span><span class="s1">SetParent</span><span class="s2">(</span><span class="s1">buildingsParent</span><span class="s2">);</span>
+        <span class="s2">}</span>
+
+        <span class="s3">// 添加到 skillUsersPositions 字典</span>
+        <span class="s1">skillUsersPositions</span><span class="s2">.</span><span class="s1">Add</span><span class="s2">(</span><span class="s1">position</span><span class="s2">, </span><span class="s1">bossController</span><span class="s2">);</span>
+    <span class="s2">}</span>
+    
+    <span class="s3">/// &lt;summary&gt;</span>
+    <span class="s3">/// 获取指定阵营的 BOSS</span>
+    <span class="s3">/// &lt;/summary&gt;</span>
+    <span class="s3">/// &lt;param name=&quot;camp&quot;&gt;阵营&lt;/param&gt;</span>
+    <span class="s3">/// &lt;returns&gt;BossController 或 null&lt;/returns&gt;</span>
+    <span class="s0">public </span><span class="s1">BossController GetBossUnit</span><span class="s2">(</span><span class="s1">Camp camp</span><span class="s2">)</span>
+    <span class="s2">{</span>
+        <span class="s0">foreach </span><span class="s2">(</span><span class="s1">var skillUser </span><span class="s0">in </span><span class="s1">skillUsersPositions</span><span class="s2">.</span><span class="s1">Values</span><span class="s2">)</span>
+        <span class="s2">{</span>
+            <span class="s0">if </span><span class="s2">(</span><span class="s1">skillUser </span><span class="s0">is </span><span class="s1">BossController boss </span><span class="s2">&amp;&amp; </span><span class="s1">boss</span><span class="s2">.</span><span class="s1">bossData</span><span class="s2">.</span><span class="s1">camp </span><span class="s2">== </span><span class="s1">camp</span><span class="s2">)</span>
+            <span class="s2">{</span>
+                <span class="s0">return </span><span class="s1">boss</span><span class="s2">;</span>
+            <span class="s2">}</span>
+        <span class="s2">}</span>
+        <span class="s0">return null</span><span class="s2">;</span>
+    <span class="s2">}</span>
+    
+    <span class="s0">public </span><span class="s1">BossController GetBossUnitAt</span><span class="s2">(</span><span class="s1">Camp camp</span><span class="s2">, </span><span class="s1">Vector3Int position</span><span class="s2">)</span>
+    <span class="s2">{</span>
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">skillUsersPositions</span><span class="s2">.</span><span class="s1">ContainsKey</span><span class="s2">(</span><span class="s1">position</span><span class="s2">))</span>
+        <span class="s2">{</span>
+            <span class="s1">ISkillUser skillUser </span><span class="s2">= </span><span class="s1">skillUsersPositions</span><span class="s2">[</span><span class="s1">position</span><span class="s2">];</span>
+            <span class="s0">if </span><span class="s2">(</span><span class="s1">skillUser </span><span class="s0">is </span><span class="s1">BossController boss </span><span class="s2">&amp;&amp; </span><span class="s1">boss</span><span class="s2">.</span><span class="s1">bossData</span><span class="s2">.</span><span class="s1">camp </span><span class="s2">== </span><span class="s1">camp</span><span class="s2">)</span>
+            <span class="s2">{</span>
+                <span class="s0">return </span><span class="s1">boss</span><span class="s2">;</span>
+            <span class="s2">}</span>
+        <span class="s2">}</span>
+        <span class="s0">return null</span><span class="s2">;</span>
+    <span class="s2">}</span>
+
+
+    <span class="s3">// 添加建筑物到指定位置</span>
+    <span class="s0">public void </span><span class="s1">AddBuildingAt</span><span class="s2">(</span><span class="s1">Vector3Int position</span><span class="s2">, </span><span class="s1">BuildingController building</span><span class="s2">)</span>
+    <span class="s2">{</span>
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">!buildingPositions</span><span class="s2">.</span><span class="s1">ContainsKey</span><span class="s2">(</span><span class="s1">position</span><span class="s2">))</span>
+        <span class="s2">{</span>
+            <span class="s1">buildingPositions</span><span class="s2">[</span><span class="s1">position</span><span class="s2">] = </span><span class="s1">building</span><span class="s2">;</span>
+        <span class="s2">}</span>
+    <span class="s2">}</span>
+
+    <span class="s3">// 根据阵营获取建筑物</span>
+    <span class="s0">public </span><span class="s1">List</span><span class="s2">&lt;</span><span class="s1">BuildingController</span><span class="s2">&gt; </span><span class="s1">GetBuildingsByCamp</span><span class="s2">(</span><span class="s1">Camp camp</span><span class="s2">)</span>
+    <span class="s2">{</span>
+        <span class="s0">return </span><span class="s1">buildingPositions</span><span class="s2">.</span><span class="s1">Values</span><span class="s2">.</span><span class="s1">Where</span><span class="s2">(</span><span class="s1">b =&gt; b</span><span class="s2">.</span><span class="s1">buildingData</span><span class="s2">.</span><span class="s1">camp </span><span class="s2">== </span><span class="s1">camp</span><span class="s2">).</span><span class="s1">ToList</span><span class="s2">();</span>
+    <span class="s2">}</span>
+    
+    <span class="s3">/// &lt;summary&gt;</span>
+    <span class="s3">/// 创建建筑物并添加到管理器</span>
+    <span class="s3">/// &lt;/summary&gt;</span>
+    <span class="s3">/// &lt;param name=&quot;buildingData&quot;&gt;建筑物的数据&lt;/param&gt;</span>
+    <span class="s3">/// &lt;param name=&quot;position&quot;&gt;放置的位置&lt;/param&gt;</span>
+    <span class="s3">/// &lt;param name=&quot;camp&quot;&gt;阵营&lt;/param&gt;</span>
+    <span class="s0">public void </span><span class="s1">CreateBuilding</span><span class="s2">(</span><span class="s1">BuildingData buildingData</span><span class="s2">, </span><span class="s1">Vector3Int position</span><span class="s2">, </span><span class="s1">Camp camp</span><span class="s2">)</span>
+    <span class="s2">{</span>
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">buildingData </span><span class="s2">== </span><span class="s0">null</span><span class="s2">)</span>
+        <span class="s2">{</span>
+            <span class="s1">Debug</span><span class="s2">.</span><span class="s1">LogWarning</span><span class="s2">(</span><span class="s4">&quot;GridManager: BuildingData 为空，无法创建建筑物。&quot;</span><span class="s2">);</span>
+            <span class="s0">return</span><span class="s2">;</span>
+        <span class="s2">}</span>
+
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">buildingPositions</span><span class="s2">.</span><span class="s1">ContainsKey</span><span class="s2">(</span><span class="s1">position</span><span class="s2">) || </span><span class="s1">skillUsersPositions</span><span class="s2">.</span><span class="s1">ContainsKey</span><span class="s2">(</span><span class="s1">position</span><span class="s2">))</span>
+        <span class="s2">{</span>
+            <span class="s1">Debug</span><span class="s2">.</span><span class="s1">LogWarning</span><span class="s2">(</span><span class="s4">$&quot;GridManager: 位置 </span><span class="s2">{</span><span class="s1">position</span><span class="s2">} </span><span class="s4">已被其他建筑物或单位占用。&quot;</span><span class="s2">);</span>
+            <span class="s0">return</span><span class="s2">;</span>
+        <span class="s2">}</span>
+
+        <span class="s3">// 实例化建筑物预制件</span>
+        <span class="s1">GameObject buildingGO </span><span class="s2">= </span><span class="s1">Instantiate</span><span class="s2">(</span><span class="s1">buildingPrefab</span><span class="s2">);</span>
+        <span class="s1">buildingGO</span><span class="s2">.</span><span class="s1">name </span><span class="s2">= </span><span class="s1">buildingData</span><span class="s2">.</span><span class="s1">buildingName </span><span class="s2">+ </span><span class="s4">&quot;_&quot; </span><span class="s2">+ </span><span class="s1">position</span><span class="s2">.</span><span class="s1">x </span><span class="s2">+ </span><span class="s4">&quot;_&quot; </span><span class="s2">+ </span><span class="s1">position</span><span class="s2">.</span><span class="s1">y</span><span class="s2">;</span>
+
+        <span class="s3">// 获取 BuildingController 组件</span>
+        <span class="s1">BuildingController buildingController </span><span class="s2">= </span><span class="s1">buildingGO</span><span class="s2">.</span><span class="s1">GetComponent</span><span class="s2">&lt;</span><span class="s1">BuildingController</span><span class="s2">&gt;();</span>
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">buildingController </span><span class="s2">== </span><span class="s0">null</span><span class="s2">)</span>
+        <span class="s2">{</span>
+            <span class="s1">Debug</span><span class="s2">.</span><span class="s1">LogError</span><span class="s2">(</span><span class="s4">&quot;GridManager: 建筑物预制件缺少 BuildingController 组件！&quot;</span><span class="s2">);</span>
+            <span class="s1">Destroy</span><span class="s2">(</span><span class="s1">buildingGO</span><span class="s2">);</span>
+            <span class="s0">return</span><span class="s2">;</span>
+        <span class="s2">}</span>
+
+        <span class="s3">// 设置建筑物的数据</span>
+        <span class="s1">buildingController</span><span class="s2">.</span><span class="s1">buildingData </span><span class="s2">= </span><span class="s1">buildingData</span><span class="s2">;</span>
+        <span class="s1">buildingController</span><span class="s2">.</span><span class="s1">buildingData</span><span class="s2">.</span><span class="s1">camp </span><span class="s2">= </span><span class="s1">camp</span><span class="s2">; </span><span class="s3">// 设置阵营</span>
+        <span class="s1">buildingController</span><span class="s2">.</span><span class="s1">SetPosition</span><span class="s2">(</span><span class="s1">position</span><span class="s2">);</span>
+
+        <span class="s3">// 设置为 Buildings 父对象的子对象</span>
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">buildingsParent </span><span class="s2">!= </span><span class="s0">null</span><span class="s2">)</span>
+        <span class="s2">{</span>
+            <span class="s1">buildingGO</span><span class="s2">.</span><span class="s1">transform</span><span class="s2">.</span><span class="s1">SetParent</span><span class="s2">(</span><span class="s1">buildingsParent</span><span class="s2">);</span>
+        <span class="s2">}</span>
+
+        <span class="s3">// 添加到管理器</span>
+        <span class="s1">buildingPositions</span><span class="s2">.</span><span class="s1">Add</span><span class="s2">(</span><span class="s1">position</span><span class="s2">, </span><span class="s1">buildingController</span><span class="s2">);</span>
+        <span class="s1">allBuildings</span><span class="s2">.</span><span class="s1">Add</span><span class="s2">(</span><span class="s1">buildingController</span><span class="s2">);</span>
+
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">camp </span><span class="s2">== </span><span class="s1">Camp</span><span class="s2">.</span><span class="s1">Player</span><span class="s2">)</span>
+        <span class="s2">{</span>
+            <span class="s1">playerBuildings</span><span class="s2">.</span><span class="s1">Add</span><span class="s2">(</span><span class="s1">buildingController</span><span class="s2">);</span>
+        <span class="s2">}</span>
+        <span class="s0">else if </span><span class="s2">(</span><span class="s1">camp </span><span class="s2">== </span><span class="s1">Camp</span><span class="s2">.</span><span class="s1">Enemy</span><span class="s2">)</span>
+        <span class="s2">{</span>
+            <span class="s1">enemyBuildings</span><span class="s2">.</span><span class="s1">Add</span><span class="s2">(</span><span class="s1">buildingController</span><span class="s2">);</span>
+        <span class="s2">}</span>
+
+        <span class="s3">// 添加到 skillUsersPositions 字典</span>
+        <span class="s1">skillUsersPositions</span><span class="s2">.</span><span class="s1">Add</span><span class="s2">(</span><span class="s1">position</span><span class="s2">, </span><span class="s1">buildingController</span><span class="s2">);</span>
+    <span class="s2">}</span>
+    
+    <span class="s0">public void </span><span class="s1">AddUnitAt</span><span class="s2">(</span><span class="s1">Vector3Int position</span><span class="s2">, </span><span class="s1">UnitController unit</span><span class="s2">)</span>
+    <span class="s2">{</span>
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">skillUsersPositions</span><span class="s2">.</span><span class="s1">ContainsKey</span><span class="s2">(</span><span class="s1">position</span><span class="s2">))</span>
+        <span class="s2">{</span>
+            <span class="s1">Debug</span><span class="s2">.</span><span class="s1">LogWarning</span><span class="s2">(</span><span class="s4">$&quot;GridManager: 位置 </span><span class="s2">{</span><span class="s1">position</span><span class="s2">} </span><span class="s4">已经有单位或建筑存在！&quot;</span><span class="s2">);</span>
+            <span class="s0">return</span><span class="s2">;</span>
+        <span class="s2">}</span>
+
+        <span class="s1">skillUsersPositions</span><span class="s2">.</span><span class="s1">Add</span><span class="s2">(</span><span class="s1">position</span><span class="s2">, </span><span class="s1">unit</span><span class="s2">);</span>
+        <span class="s1">unit</span><span class="s2">.</span><span class="s1">SetPosition</span><span class="s2">(</span><span class="s1">position</span><span class="s2">);</span>
+    <span class="s2">}</span>
+
+
+    <span class="s3">/// &lt;summary&gt;</span>
+    <span class="s3">/// 判断战斗区域上的格子是否有玩家或敌人角色</span>
+    <span class="s3">/// &lt;/summary&gt;</span>
+    <span class="s3">/// &lt;param name=&quot;position&quot;&gt;格子的位置&lt;/param&gt;</span>
+    <span class="s3">/// &lt;returns&gt;是否有角色&lt;/returns&gt;</span>
+    <span class="s0">public bool </span><span class="s1">HasSkillUserAt</span><span class="s2">(</span><span class="s1">Vector3Int position</span><span class="s2">)</span>
+    <span class="s2">{</span>
+        <span class="s0">return </span><span class="s1">skillUsersPositions</span><span class="s2">.</span><span class="s1">ContainsKey</span><span class="s2">(</span><span class="s1">position</span><span class="s2">);</span>
+    <span class="s2">}</span>
+
+    <span class="s3">/// &lt;summary&gt;</span>
+    <span class="s3">/// 获取指定位置的技能用户（单位或建筑物）</span>
+    <span class="s3">/// &lt;/summary&gt;</span>
+    <span class="s3">/// &lt;param name=&quot;position&quot;&gt;格子位置&lt;/param&gt;</span>
+    <span class="s3">/// &lt;returns&gt;ISkillUser 或 null&lt;/returns&gt;</span>
+    <span class="s0">public </span><span class="s1">ISkillUser GetSkillUserAt</span><span class="s2">(</span><span class="s1">Vector3Int position</span><span class="s2">)</span>
+    <span class="s2">{</span>
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">skillUsersPositions</span><span class="s2">.</span><span class="s1">ContainsKey</span><span class="s2">(</span><span class="s1">position</span><span class="s2">))</span>
+        <span class="s2">{</span>
+            <span class="s0">return </span><span class="s1">skillUsersPositions</span><span class="s2">[</span><span class="s1">position</span><span class="s2">];</span>
+        <span class="s2">}</span>
+        <span class="s0">return null</span><span class="s2">;</span>
+    <span class="s2">}</span>
+
+    <span class="s3">/// &lt;summary&gt;</span>
+    <span class="s3">/// 获取指定位置的单位</span>
+    <span class="s3">/// &lt;/summary&gt;</span>
+    <span class="s3">/// &lt;param name=&quot;position&quot;&gt;格子位置&lt;/param&gt;</span>
+    <span class="s3">/// &lt;returns&gt;UnitController 或 null&lt;/returns&gt;</span>
+    <span class="s0">public </span><span class="s1">UnitController GetUnitAt</span><span class="s2">(</span><span class="s1">Vector3Int position</span><span class="s2">)</span>
+    <span class="s2">{</span>
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">skillUsersPositions</span><span class="s2">.</span><span class="s1">ContainsKey</span><span class="s2">(</span><span class="s1">position</span><span class="s2">))</span>
+        <span class="s2">{</span>
+            <span class="s0">return </span><span class="s1">skillUsersPositions</span><span class="s2">[</span><span class="s1">position</span><span class="s2">] </span><span class="s0">as </span><span class="s1">UnitController</span><span class="s2">;</span>
+        <span class="s2">}</span>
+        <span class="s0">return null</span><span class="s2">;</span>
+    <span class="s2">}</span>
+
+    <span class="s3">/// &lt;summary&gt;</span>
+    <span class="s3">/// 获取指定位置的建筑物</span>
+    <span class="s3">/// &lt;/summary&gt;</span>
+    <span class="s3">/// &lt;param name=&quot;position&quot;&gt;格子位置&lt;/param&gt;</span>
+    <span class="s3">/// &lt;returns&gt;BuildingController 或 null&lt;/returns&gt;</span>
+    <span class="s0">public </span><span class="s1">BuildingController GetBuildingAt</span><span class="s2">(</span><span class="s1">Vector3Int position</span><span class="s2">)</span>
+    <span class="s2">{</span>
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">skillUsersPositions</span><span class="s2">.</span><span class="s1">TryGetValue</span><span class="s2">(</span><span class="s1">position</span><span class="s2">, </span><span class="s0">out </span><span class="s1">ISkillUser skillUser</span><span class="s2">) &amp;&amp; </span><span class="s1">skillUser </span><span class="s0">is </span><span class="s1">BuildingController building</span><span class="s2">)</span>
+        <span class="s2">{</span>
+            <span class="s0">return </span><span class="s1">building</span><span class="s2">;</span>
+        <span class="s2">}</span>
+        <span class="s0">return null</span><span class="s2">;</span>
+    <span class="s2">}</span>
+
+    <span class="s0">public bool </span><span class="s1">IsWithinAccessibleArea</span><span class="s2">(</span><span class="s1">Vector3Int position</span><span class="s2">)</span>
+    <span class="s2">{</span>
+        <span class="s0">return </span><span class="s1">position</span><span class="s2">.</span><span class="s1">x </span><span class="s2">&gt;= </span><span class="s1">playerBossColumn </span><span class="s2">&amp;&amp; </span><span class="s1">position</span><span class="s2">.</span><span class="s1">x </span><span class="s2">&lt;= </span><span class="s1">enemyBossColumn </span><span class="s2">&amp;&amp; </span><span class="s1">position</span><span class="s2">.</span><span class="s1">y </span><span class="s2">&gt;= </span><span class="s5">0 </span><span class="s2">&amp;&amp; </span><span class="s1">position</span><span class="s2">.</span><span class="s1">y </span><span class="s2">&lt; </span><span class="s1">rows</span><span class="s2">;</span>
+    <span class="s2">}</span>
+
+    <span class="s3">/// &lt;summary&gt;</span>
+    <span class="s3">/// 获取格子中心的世界坐标</span>
+    <span class="s3">/// &lt;/summary&gt;</span>
+    <span class="s3">/// &lt;param name=&quot;gridPosition&quot;&gt;格子坐标&lt;/param&gt;</span>
+    <span class="s3">/// &lt;returns&gt;世界坐标&lt;/returns&gt;</span>
+    <span class="s0">public </span><span class="s1">Vector3 GetCellCenterWorld</span><span class="s2">(</span><span class="s1">Vector3Int gridPosition</span><span class="s2">)</span>
+    <span class="s2">{</span>
+        <span class="s3">// 使用Tilemap的方法计算格子中心的世界坐标</span>
+        <span class="s1">Vector3 cellWorldPosition </span><span class="s2">= </span><span class="s1">battleTilemap</span><span class="s2">.</span><span class="s1">GetCellCenterWorld</span><span class="s2">(</span><span class="s1">gridPosition</span><span class="s2">);</span>
+        <span class="s0">return </span><span class="s1">cellWorldPosition</span><span class="s2">;</span>
+    <span class="s2">}</span>
+
+    <span class="s3">/// &lt;summary&gt;</span>
+    <span class="s3">/// 判断一个位置是否在战斗区域内</span>
+    <span class="s3">/// &lt;/summary&gt;</span>
+    <span class="s3">/// &lt;param name=&quot;position&quot;&gt;格子位置&lt;/param&gt;</span>
+    <span class="s3">/// &lt;returns&gt;是否在战斗区域内&lt;/returns&gt;</span>
+    <span class="s0">public bool </span><span class="s1">IsWithinBattleArea</span><span class="s2">(</span><span class="s1">Vector3Int position</span><span class="s2">, </span><span class="s0">bool </span><span class="s1">includeBuildings </span><span class="s2">= </span><span class="s0">false</span><span class="s2">)</span>
+    <span class="s2">{</span>
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">includeBuildings</span><span class="s2">)</span>
+        <span class="s2">{</span>
+            <span class="s0">return </span><span class="s1">position</span><span class="s2">.</span><span class="s1">x </span><span class="s2">&gt;= </span><span class="s5">0 </span><span class="s2">&amp;&amp; </span><span class="s1">position</span><span class="s2">.</span><span class="s1">x </span><span class="s2">&lt;= </span><span class="s1">columns </span><span class="s2">+ </span><span class="s5">1 </span><span class="s2">&amp;&amp; </span><span class="s1">position</span><span class="s2">.</span><span class="s1">y </span><span class="s2">&gt;= </span><span class="s5">0 </span><span class="s2">&amp;&amp; </span><span class="s1">position</span><span class="s2">.</span><span class="s1">y </span><span class="s2">&lt; </span><span class="s1">rows</span><span class="s2">;</span>
+        <span class="s2">}</span>
+        <span class="s0">else</span>
+        <span class="s2">{</span>
+            <span class="s0">return </span><span class="s1">position</span><span class="s2">.</span><span class="s1">x </span><span class="s2">&gt;= </span><span class="s5">1 </span><span class="s2">&amp;&amp; </span><span class="s1">position</span><span class="s2">.</span><span class="s1">x </span><span class="s2">&lt;= </span><span class="s1">columns </span><span class="s2">&amp;&amp; </span><span class="s1">position</span><span class="s2">.</span><span class="s1">y </span><span class="s2">&gt;= </span><span class="s5">0 </span><span class="s2">&amp;&amp; </span><span class="s1">position</span><span class="s2">.</span><span class="s1">y </span><span class="s2">&lt; </span><span class="s1">rows</span><span class="s2">;</span>
+        <span class="s2">}</span>
+    <span class="s2">}</span>
+
+
+    <span class="s3">/// &lt;summary&gt;</span>
+    <span class="s3">/// 从指定位置移除技能用户</span>
+    <span class="s3">/// &lt;/summary&gt;</span>
+    <span class="s3">/// &lt;param name=&quot;position&quot;&gt;格子位置&lt;/param&gt;</span>
+    <span class="s0">public void </span><span class="s1">RemoveSkillUserAt</span><span class="s2">(</span><span class="s1">Vector3Int position</span><span class="s2">)</span>
+    <span class="s2">{</span>
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">skillUsersPositions</span><span class="s2">.</span><span class="s1">ContainsKey</span><span class="s2">(</span><span class="s1">position</span><span class="s2">))</span>
+        <span class="s2">{</span>
+            <span class="s1">skillUsersPositions</span><span class="s2">.</span><span class="s1">Remove</span><span class="s2">(</span><span class="s1">position</span><span class="s2">);</span>
+        <span class="s2">}</span>
+    <span class="s2">}</span>
+
+    <span class="s3">/// &lt;summary&gt;</span>
+    <span class="s3">/// 从指定位置移除单位</span>
+    <span class="s3">/// &lt;/summary&gt;</span>
+    <span class="s3">/// &lt;param name=&quot;position&quot;&gt;格子位置&lt;/param&gt;</span>
+    <span class="s0">public void </span><span class="s1">RemoveUnitAt</span><span class="s2">(</span><span class="s1">Vector3Int position</span><span class="s2">)</span>
+    <span class="s2">{</span>
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">skillUsersPositions</span><span class="s2">.</span><span class="s1">ContainsKey</span><span class="s2">(</span><span class="s1">position</span><span class="s2">))</span>
+        <span class="s2">{</span>
+            <span class="s1">ISkillUser user </span><span class="s2">= </span><span class="s1">skillUsersPositions</span><span class="s2">[</span><span class="s1">position</span><span class="s2">];</span>
+            <span class="s0">if </span><span class="s2">(</span><span class="s1">user </span><span class="s0">is </span><span class="s1">UnitController</span><span class="s2">)</span>
+            <span class="s2">{</span>
+                <span class="s1">skillUsersPositions</span><span class="s2">.</span><span class="s1">Remove</span><span class="s2">(</span><span class="s1">position</span><span class="s2">);</span>
+            <span class="s2">}</span>
+            <span class="s0">else</span>
+            <span class="s2">{</span>
+                <span class="s1">Debug</span><span class="s2">.</span><span class="s1">LogWarning</span><span class="s2">(</span><span class="s4">$&quot;尝试移除的位置 </span><span class="s2">{</span><span class="s1">position</span><span class="s2">} </span><span class="s4">上的不是单位！&quot;</span><span class="s2">);</span>
+            <span class="s2">}</span>
+        <span class="s2">}</span>
+    <span class="s2">}</span>
+
+    <span class="s3">/// &lt;summary&gt;</span>
+    <span class="s3">/// 从指定位置移除建筑</span>
+    <span class="s3">/// &lt;/summary&gt;</span>
+    <span class="s3">/// &lt;param name=&quot;position&quot;&gt;格子位置&lt;/param&gt;</span>
+    <span class="s0">public void </span><span class="s1">RemoveBuildingAt</span><span class="s2">(</span><span class="s1">Vector3Int position</span><span class="s2">)</span>
+    <span class="s2">{</span>
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">skillUsersPositions</span><span class="s2">.</span><span class="s1">ContainsKey</span><span class="s2">(</span><span class="s1">position</span><span class="s2">))</span>
+        <span class="s2">{</span>
+            <span class="s1">ISkillUser user </span><span class="s2">= </span><span class="s1">skillUsersPositions</span><span class="s2">[</span><span class="s1">position</span><span class="s2">];</span>
+            <span class="s0">if </span><span class="s2">(</span><span class="s1">user </span><span class="s0">is </span><span class="s1">BuildingController</span><span class="s2">)</span>
+            <span class="s2">{</span>
+                <span class="s1">skillUsersPositions</span><span class="s2">.</span><span class="s1">Remove</span><span class="s2">(</span><span class="s1">position</span><span class="s2">);</span>
+            <span class="s2">}</span>
+            <span class="s0">else</span>
+            <span class="s2">{</span>
+                <span class="s1">Debug</span><span class="s2">.</span><span class="s1">LogWarning</span><span class="s2">(</span><span class="s4">$&quot;尝试移除的位置 </span><span class="s2">{</span><span class="s1">position</span><span class="s2">} </span><span class="s4">上的不是建筑物！&quot;</span><span class="s2">);</span>
+            <span class="s2">}</span>
+        <span class="s2">}</span>
+    <span class="s2">}</span>
+
+    <span class="s3">/// &lt;summary&gt;</span>
+    <span class="s3">/// 移动单位从一个位置到另一个位置</span>
+    <span class="s3">/// &lt;/summary&gt;</span>
+    <span class="s3">/// &lt;param name=&quot;oldPosition&quot;&gt;旧位置&lt;/param&gt;</span>
+    <span class="s3">/// &lt;param name=&quot;newPosition&quot;&gt;新位置&lt;/param&gt;</span>
+    <span class="s3">/// &lt;returns&gt;是否成功移动&lt;/returns&gt;</span>
+    <span class="s0">public bool </span><span class="s1">MoveUnit</span><span class="s2">(</span><span class="s1">Vector3Int oldPosition</span><span class="s2">, </span><span class="s1">Vector3Int newPosition</span><span class="s2">)</span>
+    <span class="s2">{</span>
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">!skillUsersPositions</span><span class="s2">.</span><span class="s1">ContainsKey</span><span class="s2">(</span><span class="s1">oldPosition</span><span class="s2">))</span>
+        <span class="s2">{</span>
+            <span class="s1">Debug</span><span class="s2">.</span><span class="s1">LogWarning</span><span class="s2">(</span><span class="s4">$&quot;位置 </span><span class="s2">{</span><span class="s1">oldPosition</span><span class="s2">} </span><span class="s4">没有单位存在，无法移动！&quot;</span><span class="s2">);</span>
+            <span class="s0">return false</span><span class="s2">;</span>
+        <span class="s2">}</span>
+
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">skillUsersPositions</span><span class="s2">.</span><span class="s1">ContainsKey</span><span class="s2">(</span><span class="s1">newPosition</span><span class="s2">))</span>
+        <span class="s2">{</span>
+            <span class="s1">Debug</span><span class="s2">.</span><span class="s1">LogWarning</span><span class="s2">(</span><span class="s4">$&quot;位置 </span><span class="s2">{</span><span class="s1">newPosition</span><span class="s2">} </span><span class="s4">已经有单位或建筑存在，无法移动！&quot;</span><span class="s2">);</span>
+            <span class="s0">return false</span><span class="s2">;</span>
+        <span class="s2">}</span>
+
+        <span class="s1">ISkillUser user </span><span class="s2">= </span><span class="s1">skillUsersPositions</span><span class="s2">[</span><span class="s1">oldPosition</span><span class="s2">];</span>
+
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">!</span><span class="s2">(</span><span class="s1">user </span><span class="s0">is </span><span class="s1">UnitController unit</span><span class="s2">))</span>
+        <span class="s2">{</span>
+            <span class="s1">Debug</span><span class="s2">.</span><span class="s1">LogWarning</span><span class="s2">(</span><span class="s4">$&quot;位置 </span><span class="s2">{</span><span class="s1">oldPosition</span><span class="s2">} </span><span class="s4">上的技能用户不是单位，无法移动！&quot;</span><span class="s2">);</span>
+            <span class="s0">return false</span><span class="s2">;</span>
+        <span class="s2">}</span>
+
+        <span class="s3">// 移动单位</span>
+        <span class="s1">skillUsersPositions</span><span class="s2">.</span><span class="s1">Remove</span><span class="s2">(</span><span class="s1">oldPosition</span><span class="s2">);</span>
+        <span class="s1">skillUsersPositions</span><span class="s2">.</span><span class="s1">Add</span><span class="s2">(</span><span class="s1">newPosition</span><span class="s2">, </span><span class="s1">unit</span><span class="s2">);</span>
+        <span class="s1">unit</span><span class="s2">.</span><span class="s1">SetPosition</span><span class="s2">(</span><span class="s1">newPosition</span><span class="s2">);</span>
+
+        <span class="s0">return true</span><span class="s2">;</span>
+    <span class="s2">}</span>
+
+    <span class="s3">/// &lt;summary&gt;</span>
+    <span class="s3">/// 获取同一行中最前面的友方单位</span>
+    <span class="s3">/// &lt;/summary&gt;</span>
+    <span class="s3">/// &lt;param name=&quot;unit&quot;&gt;当前单位&lt;/param&gt;</span>
+    <span class="s3">/// &lt;returns&gt;前方的友方单位，若无则返回null&lt;/returns&gt;</span>
+    <span class="s0">public </span><span class="s1">UnitController GetFrontUnitInRow</span><span class="s2">(</span><span class="s1">UnitController unit</span><span class="s2">)</span>
+    <span class="s2">{</span>
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">unit </span><span class="s2">== </span><span class="s0">null</span><span class="s2">)</span>
+        <span class="s2">{</span>
+            <span class="s1">Debug</span><span class="s2">.</span><span class="s1">LogError</span><span class="s2">(</span><span class="s4">&quot;传入的UnitController为null！&quot;</span><span class="s2">);</span>
+            <span class="s0">return null</span><span class="s2">;</span>
+        <span class="s2">}</span>
+
+        <span class="s1">Vector3Int position </span><span class="s2">= </span><span class="s1">unit</span><span class="s2">.</span><span class="s1">gridPosition</span><span class="s2">;</span>
+        <span class="s0">int </span><span class="s1">row </span><span class="s2">= </span><span class="s1">position</span><span class="s2">.</span><span class="s1">y</span><span class="s2">;</span>
+        <span class="s0">int </span><span class="s1">frontColumn </span><span class="s2">= </span><span class="s1">unit</span><span class="s2">.</span><span class="s1">unitData</span><span class="s2">.</span><span class="s1">camp </span><span class="s2">== </span><span class="s1">Camp</span><span class="s2">.</span><span class="s1">Player ? position</span><span class="s2">.</span><span class="s1">x </span><span class="s2">+ </span><span class="s5">1 </span><span class="s1">: position</span><span class="s2">.</span><span class="s1">x </span><span class="s2">- </span><span class="s5">1</span><span class="s2">;</span>
+
+        <span class="s3">// 遍历前方的格子，找到第一个友方单位</span>
+        <span class="s0">while </span><span class="s2">((</span><span class="s1">unit</span><span class="s2">.</span><span class="s1">unitData</span><span class="s2">.</span><span class="s1">camp </span><span class="s2">== </span><span class="s1">Camp</span><span class="s2">.</span><span class="s1">Player </span><span class="s2">&amp;&amp; </span><span class="s1">frontColumn </span><span class="s2">&lt;= </span><span class="s1">columns</span><span class="s2">) ||</span>
+               <span class="s2">(</span><span class="s1">unit</span><span class="s2">.</span><span class="s1">unitData</span><span class="s2">.</span><span class="s1">camp </span><span class="s2">== </span><span class="s1">Camp</span><span class="s2">.</span><span class="s1">Enemy </span><span class="s2">&amp;&amp; </span><span class="s1">frontColumn </span><span class="s2">&gt;= </span><span class="s5">1</span><span class="s2">))</span>
+        <span class="s2">{</span>
+            <span class="s1">Vector3Int currentPos </span><span class="s2">= </span><span class="s0">new </span><span class="s1">Vector3Int</span><span class="s2">(</span><span class="s1">frontColumn</span><span class="s2">, </span><span class="s1">row</span><span class="s2">, </span><span class="s5">0</span><span class="s2">);</span>
+            <span class="s1">ISkillUser frontSkillUser </span><span class="s2">= </span><span class="s1">GetSkillUserAt</span><span class="s2">(</span><span class="s1">currentPos</span><span class="s2">);</span>
+            <span class="s0">if </span><span class="s2">(</span><span class="s1">frontSkillUser </span><span class="s0">is </span><span class="s1">UnitController frontUnit </span><span class="s2">&amp;&amp; </span><span class="s1">frontUnit</span><span class="s2">.</span><span class="s1">unitData</span><span class="s2">.</span><span class="s1">camp </span><span class="s2">== </span><span class="s1">unit</span><span class="s2">.</span><span class="s1">unitData</span><span class="s2">.</span><span class="s1">camp</span><span class="s2">)</span>
+            <span class="s2">{</span>
+                <span class="s0">return </span><span class="s1">frontUnit</span><span class="s2">;</span>
+            <span class="s2">}</span>
+
+            <span class="s1">frontColumn </span><span class="s2">+= </span><span class="s1">unit</span><span class="s2">.</span><span class="s1">unitData</span><span class="s2">.</span><span class="s1">camp </span><span class="s2">== </span><span class="s1">Camp</span><span class="s2">.</span><span class="s1">Player ? </span><span class="s5">1 </span><span class="s1">: </span><span class="s2">-</span><span class="s5">1</span><span class="s2">;</span>
+        <span class="s2">}</span>
+
+        <span class="s0">return null</span><span class="s2">;</span>
+    <span class="s2">}</span>
+    
+    <span class="s3">/// &lt;summary&gt;</span>
+    <span class="s3">/// 获取指定行中敌方建筑的位置</span>
+    <span class="s3">/// &lt;/summary&gt;</span>
+    <span class="s3">/// &lt;param name=&quot;row&quot;&gt;行索引&lt;/param&gt;</span>
+    <span class="s3">/// &lt;param name=&quot;camp&quot;&gt;己方阵营&lt;/param&gt;</span>
+    <span class="s3">/// &lt;returns&gt;敌方建筑的位置&lt;/returns&gt;</span>
+    <span class="s0">public </span><span class="s1">Vector3Int GetEnemyBuildingPositionInRow</span><span class="s2">(</span><span class="s0">int </span><span class="s1">row</span><span class="s2">, </span><span class="s1">Camp camp</span><span class="s2">)</span>
+    <span class="s2">{</span>
+        <span class="s0">int </span><span class="s1">buildingColumn</span><span class="s2">;</span>
+
+        <span class="s3">// 假设敌方建筑位于棋盘的最右侧（对于玩家）或最左侧（对于敌人）</span>
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">camp </span><span class="s2">== </span><span class="s1">Camp</span><span class="s2">.</span><span class="s1">Player</span><span class="s2">)</span>
+        <span class="s2">{</span>
+            <span class="s3">// 玩家阵营，敌方建筑在右侧</span>
+            <span class="s1">buildingColumn </span><span class="s2">= </span><span class="s1">columns </span><span class="s2">+ </span><span class="s5">1</span><span class="s2">; </span><span class="s3">// 超出棋盘范围，用于放置建筑的位置</span>
+        <span class="s2">}</span>
+        <span class="s0">else</span>
+        <span class="s2">{</span>
+            <span class="s3">// 敌人阵营，敌方建筑在左侧</span>
+            <span class="s1">buildingColumn </span><span class="s2">= </span><span class="s5">0</span><span class="s2">; </span><span class="s3">// 或 -1，取决于您的棋盘设计</span>
+        <span class="s2">}</span>
+
+        <span class="s3">// 建筑的格子位置</span>
+        <span class="s1">Vector3Int buildingPosition </span><span class="s2">= </span><span class="s0">new </span><span class="s1">Vector3Int</span><span class="s2">(</span><span class="s1">buildingColumn</span><span class="s2">, </span><span class="s1">row</span><span class="s2">, </span><span class="s5">0</span><span class="s2">);</span>
+
+        <span class="s0">return </span><span class="s1">buildingPosition</span><span class="s2">;</span>
+    <span class="s2">}</span>
+
+
+    <span class="s3">/// &lt;summary&gt;</span>
+    <span class="s3">/// 获取所有玩家建筑</span>
+    <span class="s3">/// &lt;/summary&gt;</span>
+    <span class="s3">/// &lt;returns&gt;玩家建筑列表&lt;/returns&gt;</span>
+    <span class="s0">public </span><span class="s1">List</span><span class="s2">&lt;</span><span class="s1">BuildingController</span><span class="s2">&gt; </span><span class="s1">GetPlayerBuildings</span><span class="s2">()</span>
+    <span class="s2">{</span>
+        <span class="s0">return </span><span class="s1">skillUsersPositions</span><span class="s2">.</span><span class="s1">Values</span>
+            <span class="s2">.</span><span class="s1">OfType</span><span class="s2">&lt;</span><span class="s1">BuildingController</span><span class="s2">&gt;()</span>
+            <span class="s2">.</span><span class="s1">Where</span><span class="s2">(</span><span class="s1">b =&gt; b</span><span class="s2">.</span><span class="s1">buildingData</span><span class="s2">.</span><span class="s1">camp </span><span class="s2">== </span><span class="s1">Camp</span><span class="s2">.</span><span class="s1">Player</span><span class="s2">)</span>
+            <span class="s2">.</span><span class="s1">ToList</span><span class="s2">();</span>
+    <span class="s2">}</span>
+    
+    <span class="s3">/// &lt;summary&gt;</span>
+    <span class="s3">/// 获取所有敌方建筑</span>
+    <span class="s3">/// &lt;/summary&gt;</span>
+    <span class="s3">/// &lt;returns&gt;敌方建筑列表&lt;/returns&gt;</span>
+    <span class="s0">public </span><span class="s1">List</span><span class="s2">&lt;</span><span class="s1">BuildingController</span><span class="s2">&gt; </span><span class="s1">GetEnemyBuildings</span><span class="s2">()</span>
+    <span class="s2">{</span>
+        <span class="s0">return </span><span class="s1">skillUsersPositions</span><span class="s2">.</span><span class="s1">Values</span>
+            <span class="s2">.</span><span class="s1">OfType</span><span class="s2">&lt;</span><span class="s1">BuildingController</span><span class="s2">&gt;()</span>
+            <span class="s2">.</span><span class="s1">Where</span><span class="s2">(</span><span class="s1">b =&gt; b</span><span class="s2">.</span><span class="s1">buildingData</span><span class="s2">.</span><span class="s1">camp </span><span class="s2">== </span><span class="s1">Camp</span><span class="s2">.</span><span class="s1">Enemy</span><span class="s2">)</span>
+            <span class="s2">.</span><span class="s1">ToList</span><span class="s2">();</span>
+    <span class="s2">}</span>
+
+    <span class="s3">/// &lt;summary&gt;</span>
+    <span class="s3">/// 获取所有建筑物</span>
+    <span class="s3">/// &lt;/summary&gt;</span>
+    <span class="s3">/// &lt;returns&gt;所有建筑物列表&lt;/returns&gt;</span>
+    <span class="s0">public </span><span class="s1">List</span><span class="s2">&lt;</span><span class="s1">BuildingController</span><span class="s2">&gt; </span><span class="s1">GetAllBuildings</span><span class="s2">()</span>
+    <span class="s2">{</span>
+        <span class="s0">return </span><span class="s1">skillUsersPositions</span><span class="s2">.</span><span class="s1">Values</span><span class="s2">.</span><span class="s1">OfType</span><span class="s2">&lt;</span><span class="s1">BuildingController</span><span class="s2">&gt;().</span><span class="s1">ToList</span><span class="s2">();</span>
+    <span class="s2">}</span>
+
+    
+    <span class="s3">/// &lt;summary&gt;</span>
+    <span class="s3">/// 获取所有單位</span>
+    <span class="s3">/// &lt;/summary&gt;</span>
+    <span class="s3">/// &lt;returns&gt;所有單位列表&lt;/returns&gt;</span>
+    <span class="s0">public </span><span class="s1">List</span><span class="s2">&lt;</span><span class="s1">UnitController</span><span class="s2">&gt; </span><span class="s1">GetAllUnits</span><span class="s2">()</span>
+    <span class="s2">{</span>
+        <span class="s1">List</span><span class="s2">&lt;</span><span class="s1">UnitController</span><span class="s2">&gt; </span><span class="s1">allUnits </span><span class="s2">= </span><span class="s0">new </span><span class="s1">List</span><span class="s2">&lt;</span><span class="s1">UnitController</span><span class="s2">&gt;();</span>
+        <span class="s0">foreach </span><span class="s2">(</span><span class="s1">var skillUser </span><span class="s0">in </span><span class="s1">skillUsersPositions</span><span class="s2">.</span><span class="s1">Values</span><span class="s2">)</span>
+        <span class="s2">{</span>
+            <span class="s0">if </span><span class="s2">(</span><span class="s1">skillUser </span><span class="s0">is </span><span class="s1">UnitController unit</span><span class="s2">)</span>
+            <span class="s2">{</span>
+                <span class="s1">allUnits</span><span class="s2">.</span><span class="s1">Add</span><span class="s2">(</span><span class="s1">unit</span><span class="s2">);</span>
+            <span class="s2">}</span>
+        <span class="s2">}</span>
+        <span class="s0">return </span><span class="s1">allUnits</span><span class="s2">;</span>
+    <span class="s2">}</span>
+
+    <span class="s3">/// &lt;summary&gt;</span>
+    <span class="s3">/// 获取指定波次（列）的单位</span>
+    <span class="s3">/// &lt;/summary&gt;</span>
+    <span class="s3">/// &lt;param name=&quot;column&quot;&gt;列号（1-6）&lt;/param&gt;</span>
+    <span class="s3">/// &lt;returns&gt;单位列表&lt;/returns&gt;</span>
+    <span class="s0">public </span><span class="s1">List</span><span class="s2">&lt;</span><span class="s1">UnitController</span><span class="s2">&gt; </span><span class="s1">GetUnitsByColumn</span><span class="s2">(</span><span class="s0">int </span><span class="s1">column</span><span class="s2">)</span>
+    <span class="s2">{</span>
+        <span class="s1">List</span><span class="s2">&lt;</span><span class="s1">UnitController</span><span class="s2">&gt; </span><span class="s1">units </span><span class="s2">= </span><span class="s0">new </span><span class="s1">List</span><span class="s2">&lt;</span><span class="s1">UnitController</span><span class="s2">&gt;();</span>
+        <span class="s0">foreach </span><span class="s2">(</span><span class="s1">var skillUser </span><span class="s0">in </span><span class="s1">skillUsersPositions</span><span class="s2">.</span><span class="s1">Values</span><span class="s2">)</span>
+        <span class="s2">{</span>
+            <span class="s0">if </span><span class="s2">(</span><span class="s1">skillUser </span><span class="s0">is </span><span class="s1">UnitController unit </span><span class="s2">&amp;&amp; </span><span class="s1">unit</span><span class="s2">.</span><span class="s1">gridPosition</span><span class="s2">.</span><span class="s1">x </span><span class="s2">== </span><span class="s1">column</span><span class="s2">)</span>
+            <span class="s2">{</span>
+                <span class="s1">units</span><span class="s2">.</span><span class="s1">Add</span><span class="s2">(</span><span class="s1">unit</span><span class="s2">);</span>
+            <span class="s2">}</span>
+        <span class="s2">}</span>
+        <span class="s0">return </span><span class="s1">units</span><span class="s2">;</span>
+    <span class="s2">}</span>
+
+    <span class="s3">/// &lt;summary&gt;</span>
+    <span class="s3">/// 获取所有敌方建筑的位置</span>
+    <span class="s3">/// &lt;/summary&gt;</span>
+    <span class="s3">/// &lt;returns&gt;敌方建筑的位置列表&lt;/returns&gt;</span>
+    <span class="s0">public </span><span class="s1">List</span><span class="s2">&lt;</span><span class="s1">Vector3Int</span><span class="s2">&gt; </span><span class="s1">GetEnemyPositions</span><span class="s2">()</span>
+    <span class="s2">{</span>
+        <span class="s1">List</span><span class="s2">&lt;</span><span class="s1">Vector3Int</span><span class="s2">&gt; </span><span class="s1">enemyPositions </span><span class="s2">= </span><span class="s0">new </span><span class="s1">List</span><span class="s2">&lt;</span><span class="s1">Vector3Int</span><span class="s2">&gt;();</span>
+        <span class="s0">foreach </span><span class="s2">(</span><span class="s1">var kvp </span><span class="s0">in </span><span class="s1">skillUsersPositions</span><span class="s2">)</span>
+        <span class="s2">{</span>
+            <span class="s0">if </span><span class="s2">(</span><span class="s1">kvp</span><span class="s2">.</span><span class="s1">Value </span><span class="s0">is </span><span class="s1">BuildingController building </span><span class="s2">&amp;&amp; </span><span class="s1">building</span><span class="s2">.</span><span class="s1">buildingData</span><span class="s2">.</span><span class="s1">camp </span><span class="s2">== </span><span class="s1">Camp</span><span class="s2">.</span><span class="s1">Enemy</span><span class="s2">)</span>
+            <span class="s2">{</span>
+                <span class="s1">enemyPositions</span><span class="s2">.</span><span class="s1">Add</span><span class="s2">(</span><span class="s1">kvp</span><span class="s2">.</span><span class="s1">Key</span><span class="s2">);</span>
+            <span class="s2">}</span>
+        <span class="s2">}</span>
+        <span class="s0">return </span><span class="s1">enemyPositions</span><span class="s2">;</span>
+    <span class="s2">}</span>
+
+    <span class="s3">/// &lt;summary&gt;</span>
+    <span class="s3">/// 获取Boss单位</span>
+    <span class="s3">/// &lt;/summary&gt;</span>
+    <span class="s3">/// &lt;returns&gt;BossController 或 null&lt;/returns&gt;</span>
+    <span class="s0">public </span><span class="s1">BossController GetBossUnit</span><span class="s2">()</span>
+    <span class="s2">{</span>
+        <span class="s0">foreach </span><span class="s2">(</span><span class="s1">var skillUser </span><span class="s0">in </span><span class="s1">skillUsersPositions</span><span class="s2">.</span><span class="s1">Values</span><span class="s2">)</span>
+        <span class="s2">{</span>
+            <span class="s0">if </span><span class="s2">(</span><span class="s1">skillUser </span><span class="s0">is </span><span class="s1">BossController boss</span><span class="s2">)</span>
+            <span class="s2">{</span>
+                <span class="s0">return </span><span class="s1">boss</span><span class="s2">;</span>
+            <span class="s2">}</span>
+        <span class="s2">}</span>
+        <span class="s0">return null</span><span class="s2">;</span>
+    <span class="s2">}</span>
+
+    <span class="s3">/// &lt;summary&gt;</span>
+    <span class="s3">/// 获取战斗区域所有格子的位置</span>
+    <span class="s3">/// &lt;/summary&gt;</span>
+    <span class="s3">/// &lt;returns&gt;格子位置列表&lt;/returns&gt;</span>
+    <span class="s0">public </span><span class="s1">List</span><span class="s2">&lt;</span><span class="s1">Vector3Int</span><span class="s2">&gt; </span><span class="s1">GetBattleAreaPositions</span><span class="s2">()</span>
+    <span class="s2">{</span>
+        <span class="s1">List</span><span class="s2">&lt;</span><span class="s1">Vector3Int</span><span class="s2">&gt; </span><span class="s1">positions </span><span class="s2">= </span><span class="s0">new </span><span class="s1">List</span><span class="s2">&lt;</span><span class="s1">Vector3Int</span><span class="s2">&gt;();</span>
+        <span class="s0">for </span><span class="s2">(</span><span class="s0">int </span><span class="s1">row </span><span class="s2">= </span><span class="s5">0</span><span class="s2">; </span><span class="s1">row </span><span class="s2">&lt; </span><span class="s1">rows</span><span class="s2">; </span><span class="s1">row</span><span class="s2">++)</span>
+        <span class="s2">{</span>
+            <span class="s0">for </span><span class="s2">(</span><span class="s0">int </span><span class="s1">col </span><span class="s2">= </span><span class="s5">1</span><span class="s2">; </span><span class="s1">col </span><span class="s2">&lt;= </span><span class="s1">columns</span><span class="s2">; </span><span class="s1">col</span><span class="s2">++)</span>
+            <span class="s2">{</span>
+                <span class="s1">positions</span><span class="s2">.</span><span class="s1">Add</span><span class="s2">(</span><span class="s0">new </span><span class="s1">Vector3Int</span><span class="s2">(</span><span class="s1">col</span><span class="s2">, </span><span class="s1">row</span><span class="s2">, </span><span class="s5">0</span><span class="s2">));</span>
+            <span class="s2">}</span>
+        <span class="s2">}</span>
+        <span class="s0">return </span><span class="s1">positions</span><span class="s2">;</span>
+    <span class="s2">}</span>
+
+    <span class="s3">/// &lt;summary&gt;</span>
+    <span class="s3">/// 获取指定阵营的所有单位</span>
+    <span class="s3">/// &lt;/summary&gt;</span>
+    <span class="s3">/// &lt;param name=&quot;camp&quot;&gt;阵营&lt;/param&gt;</span>
+    <span class="s3">/// &lt;returns&gt;单位列表&lt;/returns&gt;</span>
+    <span class="s0">public </span><span class="s1">List</span><span class="s2">&lt;</span><span class="s1">UnitController</span><span class="s2">&gt; </span><span class="s1">GetUnitsByCamp</span><span class="s2">(</span><span class="s1">Camp camp</span><span class="s2">)</span>
+    <span class="s2">{</span>
+        <span class="s1">List</span><span class="s2">&lt;</span><span class="s1">UnitController</span><span class="s2">&gt; </span><span class="s1">units </span><span class="s2">= </span><span class="s0">new </span><span class="s1">List</span><span class="s2">&lt;</span><span class="s1">UnitController</span><span class="s2">&gt;();</span>
+        <span class="s0">foreach </span><span class="s2">(</span><span class="s1">var skillUser </span><span class="s0">in </span><span class="s1">skillUsersPositions</span><span class="s2">.</span><span class="s1">Values</span><span class="s2">)</span>
+        <span class="s2">{</span>
+            <span class="s0">if </span><span class="s2">(</span><span class="s1">skillUser </span><span class="s0">is </span><span class="s1">UnitController unit </span><span class="s2">&amp;&amp; </span><span class="s1">unit</span><span class="s2">.</span><span class="s1">unitData</span><span class="s2">.</span><span class="s1">camp </span><span class="s2">== </span><span class="s1">camp</span><span class="s2">)</span>
+            <span class="s2">{</span>
+                <span class="s1">units</span><span class="s2">.</span><span class="s1">Add</span><span class="s2">(</span><span class="s1">unit</span><span class="s2">);</span>
+            <span class="s2">}</span>
+        <span class="s2">}</span>
+        <span class="s0">return </span><span class="s1">units</span><span class="s2">;</span>
+    <span class="s2">}</span>
+<span class="s2">}</span>
+
+<span class="s2">[</span><span class="s1">System</span><span class="s2">.</span><span class="s1">Serializable</span><span class="s2">]</span>
+<span class="s0">public class </span><span class="s1">EnemyBuildingInfo</span>
+<span class="s2">{</span>
+    <span class="s0">public </span><span class="s1">BuildingData buildingData</span><span class="s2">;   </span><span class="s3">// 建筑物的数据</span>
+    <span class="s0">public </span><span class="s1">Vector3Int position</span><span class="s2">;         </span><span class="s3">// 放置的位置（网格坐标）</span>
+<span class="s2">}</span>
+
+<span class="s2">[</span><span class="s1">System</span><span class="s2">.</span><span class="s1">Serializable</span><span class="s2">]</span>
+<span class="s0">public class </span><span class="s1">PlayerBuildingInfo</span>
+<span class="s2">{</span>
+    <span class="s0">public </span><span class="s1">BuildingData buildingData</span><span class="s2">;   </span><span class="s3">// 建筑物的数据</span>
+    <span class="s0">public </span><span class="s1">Vector3Int position</span><span class="s2">;         </span><span class="s3">// 放置的位置（网格坐标）</span>
+<span class="s2">}</span>
+</pre>
+</body>
+</html>

@@ -1,0 +1,94 @@
+<html>
+<head>
+<title>DeckEntryUI.cs</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #85c46c; font-style: italic;}
+.s1 { color: #d0d0d0;}
+.s2 { color: #6c95eb;}
+.s3 { color: #bdbdbd;}
+.s4 { color: #c9a26d;}
+</style>
+</head>
+<body bgcolor="#262626">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#606060" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+DeckEntryUI.cs</font>
+</center></td></tr></table>
+<pre><span class="s0">// DeckEntryUI.cs</span>
+<span class="s2">using </span><span class="s1">UnityEngine</span><span class="s3">;</span>
+<span class="s2">using </span><span class="s1">UnityEngine</span><span class="s3">.</span><span class="s1">UI</span><span class="s3">;</span>
+<span class="s2">using </span><span class="s1">TMPro</span><span class="s3">;</span>
+<span class="s2">using </span><span class="s1">UnityEngine</span><span class="s3">.</span><span class="s1">EventSystems</span><span class="s3">;</span>
+
+<span class="s2">public class </span><span class="s1">DeckEntryUI : MonoBehaviour</span><span class="s3">, </span><span class="s1">IPointerEnterHandler</span><span class="s3">, </span><span class="s1">IPointerExitHandler</span>
+<span class="s3">{</span>
+    <span class="s2">public </span><span class="s1">Image unitImage</span><span class="s3">;</span>
+    <span class="s2">public </span><span class="s1">TextMeshProUGUI quantityText</span><span class="s3">;</span>
+    <span class="s2">public </span><span class="s1">GameObject injuredIcon</span><span class="s3">; </span><span class="s0">// 负伤标识</span>
+
+    <span class="s0">// 悬停提示面板</span>
+    <span class="s2">public </span><span class="s1">GameObject tooltipPanel</span><span class="s3">;</span>
+    <span class="s2">public </span><span class="s1">TextMeshProUGUI tooltipText</span><span class="s3">;</span>
+
+    <span class="s2">private </span><span class="s1">UnitData unitData</span><span class="s3">;</span>
+    <span class="s2">private int </span><span class="s1">quantity</span><span class="s3">;</span>
+    <span class="s2">private bool </span><span class="s1">isInjured</span><span class="s3">;</span>
+
+    <span class="s2">public void </span><span class="s1">Setup</span><span class="s3">(</span><span class="s1">UnitData unitData</span><span class="s3">, </span><span class="s2">int </span><span class="s1">quantity</span><span class="s3">, </span><span class="s2">bool </span><span class="s1">isInjured</span><span class="s3">)</span>
+    <span class="s3">{</span>
+        <span class="s2">this</span><span class="s3">.</span><span class="s1">unitData </span><span class="s3">= </span><span class="s1">unitData</span><span class="s3">;</span>
+        <span class="s2">this</span><span class="s3">.</span><span class="s1">quantity </span><span class="s3">= </span><span class="s1">quantity</span><span class="s3">;</span>
+        <span class="s2">this</span><span class="s3">.</span><span class="s1">isInjured </span><span class="s3">= </span><span class="s1">isInjured</span><span class="s3">;</span>
+
+        <span class="s2">if </span><span class="s3">(</span><span class="s1">unitImage </span><span class="s3">!= </span><span class="s2">null</span><span class="s3">)</span>
+        <span class="s3">{</span>
+            <span class="s1">unitImage</span><span class="s3">.</span><span class="s1">sprite </span><span class="s3">= </span><span class="s1">unitData</span><span class="s3">.</span><span class="s1">unitSprite</span><span class="s3">;</span>
+        <span class="s3">}</span>
+
+        <span class="s2">if </span><span class="s3">(</span><span class="s1">quantityText </span><span class="s3">!= </span><span class="s2">null</span><span class="s3">)</span>
+        <span class="s3">{</span>
+            <span class="s1">quantityText</span><span class="s3">.</span><span class="s1">text </span><span class="s3">= </span><span class="s1">quantity</span><span class="s3">.</span><span class="s1">ToString</span><span class="s3">();</span>
+        <span class="s3">}</span>
+
+        <span class="s2">if </span><span class="s3">(</span><span class="s1">injuredIcon </span><span class="s3">!= </span><span class="s2">null</span><span class="s3">)</span>
+        <span class="s3">{</span>
+            <span class="s1">injuredIcon</span><span class="s3">.</span><span class="s1">SetActive</span><span class="s3">(</span><span class="s1">isInjured</span><span class="s3">);</span>
+        <span class="s3">}</span>
+
+        <span class="s2">if </span><span class="s3">(</span><span class="s1">tooltipPanel </span><span class="s3">!= </span><span class="s2">null</span><span class="s3">)</span>
+        <span class="s3">{</span>
+            <span class="s1">tooltipPanel</span><span class="s3">.</span><span class="s1">SetActive</span><span class="s3">(</span><span class="s2">false</span><span class="s3">);</span>
+        <span class="s3">}</span>
+    <span class="s3">}</span>
+
+    <span class="s2">public void </span><span class="s1">OnPointerEnter</span><span class="s3">(</span><span class="s1">PointerEventData eventData</span><span class="s3">)</span>
+    <span class="s3">{</span>
+        <span class="s0">// 显示悬停提示</span>
+        <span class="s2">if </span><span class="s3">(</span><span class="s1">tooltipPanel </span><span class="s3">!= </span><span class="s2">null</span><span class="s3">)</span>
+        <span class="s3">{</span>
+            <span class="s1">tooltipPanel</span><span class="s3">.</span><span class="s1">SetActive</span><span class="s3">(</span><span class="s2">true</span><span class="s3">);</span>
+            <span class="s1">tooltipText</span><span class="s3">.</span><span class="s1">text </span><span class="s3">= </span><span class="s1">GetUnitDetails</span><span class="s3">();</span>
+        <span class="s3">}</span>
+    <span class="s3">}</span>
+
+    <span class="s2">public void </span><span class="s1">OnPointerExit</span><span class="s3">(</span><span class="s1">PointerEventData eventData</span><span class="s3">)</span>
+    <span class="s3">{</span>
+        <span class="s0">// 隐藏悬停提示</span>
+        <span class="s2">if </span><span class="s3">(</span><span class="s1">tooltipPanel </span><span class="s3">!= </span><span class="s2">null</span><span class="s3">)</span>
+        <span class="s3">{</span>
+            <span class="s1">tooltipPanel</span><span class="s3">.</span><span class="s1">SetActive</span><span class="s3">(</span><span class="s2">false</span><span class="s3">);</span>
+        <span class="s3">}</span>
+    <span class="s3">}</span>
+
+    <span class="s2">private string </span><span class="s1">GetUnitDetails</span><span class="s3">()</span>
+    <span class="s3">{</span>
+        <span class="s0">// 根据 unitData 获取详细信息</span>
+        <span class="s2">string </span><span class="s1">status </span><span class="s3">= </span><span class="s1">isInjured ? </span><span class="s4">&quot;Injured&quot; </span><span class="s1">: </span><span class="s4">&quot;&quot;</span><span class="s3">;</span>
+        <span class="s2">return </span><span class="s4">$&quot;</span><span class="s3">{</span><span class="s1">unitData</span><span class="s3">.</span><span class="s1">unitName</span><span class="s3">}</span><span class="s4">\nHP:</span><span class="s3">{</span><span class="s1">unitData</span><span class="s3">.</span><span class="s1">maxHealth</span><span class="s3">}</span><span class="s4">\n</span><span class="s3">{</span><span class="s1">status</span><span class="s3">}</span><span class="s4">\n&quot;</span><span class="s3">;</span>
+    <span class="s3">}</span>
+<span class="s3">}</span>
+</pre>
+</body>
+</html>

@@ -1,0 +1,154 @@
+<html>
+<head>
+<title>DeckManager.cs</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #85c46c; font-style: italic;}
+.s1 { color: #d0d0d0;}
+.s2 { color: #6c95eb;}
+.s3 { color: #bdbdbd;}
+.s4 { color: #c9a26d;}
+.s5 { color: #ed94c0;}
+</style>
+</head>
+<body bgcolor="#262626">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#606060" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+DeckManager.cs</font>
+</center></td></tr></table>
+<pre><span class="s0">// DeckManager.cs</span>
+<span class="s2">using </span><span class="s1">UnityEngine</span><span class="s3">;</span>
+<span class="s2">using </span><span class="s1">System</span><span class="s3">.</span><span class="s1">Collections</span><span class="s3">.</span><span class="s1">Generic</span><span class="s3">;</span>
+
+<span class="s2">public class </span><span class="s1">DeckManager : MonoBehaviour</span>
+<span class="s3">{</span>
+    <span class="s2">public static </span><span class="s1">DeckManager Instance</span><span class="s3">;</span>
+
+    <span class="s3">[</span><span class="s1">Header</span><span class="s3">(</span><span class="s4">&quot;Decks&quot;</span><span class="s3">)]</span>
+    <span class="s2">public </span><span class="s1">Deck playerDeck</span><span class="s3">; </span><span class="s0">// 玩家牌組</span>
+    <span class="s2">public </span><span class="s1">Deck enemyDeck</span><span class="s3">;  </span><span class="s0">// 敵人牌組</span>
+    
+    <span class="s0">// 墓地列表</span>
+    <span class="s2">private </span><span class="s1">List</span><span class="s3">&lt;</span><span class="s1">UnitData</span><span class="s3">&gt; </span><span class="s1">graveyardCards </span><span class="s3">= </span><span class="s2">new </span><span class="s1">List</span><span class="s3">&lt;</span><span class="s1">UnitData</span><span class="s3">&gt;();</span>
+    <span class="s2">private </span><span class="s1">List</span><span class="s3">&lt;</span><span class="s1">UnitData</span><span class="s3">&gt; </span><span class="s1">enemyGraveyardCards </span><span class="s3">= </span><span class="s2">new </span><span class="s1">List</span><span class="s3">&lt;</span><span class="s1">UnitData</span><span class="s3">&gt;();</span>
+
+    <span class="s2">private void </span><span class="s1">Awake</span><span class="s3">()</span>
+    <span class="s3">{</span>
+        <span class="s0">// 單例模式</span>
+        <span class="s2">if </span><span class="s3">(</span><span class="s1">Instance </span><span class="s3">== </span><span class="s2">null</span><span class="s3">)</span>
+        <span class="s3">{</span>
+            <span class="s1">Instance </span><span class="s3">= </span><span class="s2">this</span><span class="s3">;</span>
+            <span class="s1">DontDestroyOnLoad</span><span class="s3">(</span><span class="s1">gameObject</span><span class="s3">); </span><span class="s0">// 根據需要設置</span>
+        <span class="s3">}</span>
+        <span class="s2">else</span>
+        <span class="s3">{</span>
+            <span class="s1">Destroy</span><span class="s3">(</span><span class="s1">gameObject</span><span class="s3">);</span>
+        <span class="s3">}</span>
+    <span class="s3">}</span>
+    
+    <span class="s0">/// &lt;summary&gt;</span>
+    <span class="s0">/// 添加卡牌到玩家牌组</span>
+    <span class="s0">/// &lt;/summary&gt;</span>
+    <span class="s2">public void </span><span class="s1">AddCardToPlayerDeck</span><span class="s3">(</span><span class="s1">UnitData unitData</span><span class="s3">, </span><span class="s2">int </span><span class="s1">quantity </span><span class="s3">= </span><span class="s5">1</span><span class="s3">, </span><span class="s2">bool </span><span class="s1">isInjured </span><span class="s3">= </span><span class="s2">false</span><span class="s3">)</span>
+    <span class="s3">{</span>
+        <span class="s2">if </span><span class="s3">(</span><span class="s1">playerDeck </span><span class="s3">!= </span><span class="s2">null</span><span class="s3">)</span>
+        <span class="s3">{</span>
+            <span class="s1">playerDeck</span><span class="s3">.</span><span class="s1">AddCard</span><span class="s3">(</span><span class="s1">unitData</span><span class="s3">, </span><span class="s1">quantity</span><span class="s3">, </span><span class="s1">isInjured</span><span class="s3">);</span>
+        <span class="s3">}</span>
+    <span class="s3">}</span>
+    
+    <span class="s0">/// &lt;summary&gt;</span>
+    <span class="s0">/// 添加卡牌到敵人牌组</span>
+    <span class="s0">/// &lt;/summary&gt;</span>
+    <span class="s2">public void </span><span class="s1">AddCardToEnemyDeck</span><span class="s3">(</span><span class="s1">UnitData unitData</span><span class="s3">, </span><span class="s2">int </span><span class="s1">quantity </span><span class="s3">= </span><span class="s5">1</span><span class="s3">, </span><span class="s2">bool </span><span class="s1">isInjured </span><span class="s3">= </span><span class="s2">false</span><span class="s3">)</span>
+    <span class="s3">{</span>
+        <span class="s2">if </span><span class="s3">(</span><span class="s1">enemyDeck </span><span class="s3">!= </span><span class="s2">null</span><span class="s3">)</span>
+        <span class="s3">{</span>
+            <span class="s1">enemyDeck</span><span class="s3">.</span><span class="s1">AddCard</span><span class="s3">(</span><span class="s1">unitData</span><span class="s3">, </span><span class="s1">quantity</span><span class="s3">, </span><span class="s1">isInjured</span><span class="s3">);</span>
+        <span class="s3">}</span>
+    <span class="s3">}</span>
+
+
+    <span class="s0">/// &lt;summary&gt;</span>
+    <span class="s0">/// 从玩家牌组中移除卡牌</span>
+    <span class="s0">/// &lt;/summary&gt;</span>
+    <span class="s2">public void </span><span class="s1">RemoveCardFromPlayerDeck</span><span class="s3">(</span><span class="s1">UnitData unitData</span><span class="s3">, </span><span class="s2">int </span><span class="s1">quantity </span><span class="s3">= </span><span class="s5">1</span><span class="s3">, </span><span class="s2">bool </span><span class="s1">isInjured </span><span class="s3">= </span><span class="s2">false</span><span class="s3">)</span>
+    <span class="s3">{</span>
+        <span class="s2">if </span><span class="s3">(</span><span class="s1">playerDeck </span><span class="s3">!= </span><span class="s2">null</span><span class="s3">)</span>
+        <span class="s3">{</span>
+            <span class="s1">playerDeck</span><span class="s3">.</span><span class="s1">RemoveCard</span><span class="s3">(</span><span class="s1">unitData</span><span class="s3">, </span><span class="s1">quantity</span><span class="s3">, </span><span class="s1">isInjured</span><span class="s3">);</span>
+        <span class="s3">}</span>
+    <span class="s3">}</span>
+    
+    <span class="s2">public void </span><span class="s1">RemoveCardFromEnemyDeck</span><span class="s3">(</span><span class="s1">UnitData unitData</span><span class="s3">, </span><span class="s2">int </span><span class="s1">quantity </span><span class="s3">= </span><span class="s5">1</span><span class="s3">, </span><span class="s2">bool </span><span class="s1">isInjured </span><span class="s3">= </span><span class="s2">false</span><span class="s3">)</span>
+    <span class="s3">{</span>
+        <span class="s2">if </span><span class="s3">(</span><span class="s1">enemyDeck </span><span class="s3">!= </span><span class="s2">null</span><span class="s3">)</span>
+        <span class="s3">{</span>
+            <span class="s1">enemyDeck</span><span class="s3">.</span><span class="s1">RemoveCard</span><span class="s3">(</span><span class="s1">unitData</span><span class="s3">, </span><span class="s1">quantity</span><span class="s3">, </span><span class="s1">isInjured</span><span class="s3">);</span>
+        <span class="s3">}</span>
+    <span class="s3">}</span>
+
+
+    <span class="s0">/// &lt;summary&gt;</span>
+    <span class="s0">/// 处理单位死亡，将卡牌移至墓地</span>
+    <span class="s0">/// &lt;/summary&gt;</span>
+    <span class="s2">public void </span><span class="s1">HandleUnitDeath</span><span class="s3">(</span><span class="s1">UnitData unitData</span><span class="s3">, </span><span class="s2">bool </span><span class="s1">isInjured</span><span class="s3">, </span><span class="s2">bool </span><span class="s1">isPlayerUnit</span><span class="s3">)</span>
+    <span class="s3">{</span>
+        <span class="s2">if </span><span class="s3">(</span><span class="s1">isPlayerUnit</span><span class="s3">)</span>
+        <span class="s3">{</span>
+            <span class="s0">// 从玩家牌组中移除卡牌</span>
+            <span class="s1">RemoveCardFromPlayerDeck</span><span class="s3">(</span><span class="s1">unitData</span><span class="s3">, </span><span class="s5">1</span><span class="s3">, </span><span class="s1">isInjured</span><span class="s3">);</span>
+
+            <span class="s0">// 将卡牌添加到玩家的墓地</span>
+            <span class="s1">AddCardToPlayerGraveyard</span><span class="s3">(</span><span class="s1">unitData</span><span class="s3">);</span>
+        <span class="s3">}</span>
+        <span class="s2">else</span>
+        <span class="s3">{</span>
+            <span class="s0">// 从敌人牌组中移除卡牌</span>
+            <span class="s1">RemoveCardFromEnemyDeck</span><span class="s3">(</span><span class="s1">unitData</span><span class="s3">, </span><span class="s5">1</span><span class="s3">, </span><span class="s1">isInjured</span><span class="s3">);</span>
+
+            <span class="s0">// 将卡牌添加到敌人的墓地</span>
+            <span class="s1">AddCardToEnemyGraveyard</span><span class="s3">(</span><span class="s1">unitData</span><span class="s3">);</span>
+        <span class="s3">}</span>
+
+        <span class="s0">// 通知 DeckUI 更新墓地显示（如果需要）</span>
+        <span class="s1">DeckUI deckUI </span><span class="s3">= </span><span class="s1">FindObjectOfType</span><span class="s3">&lt;</span><span class="s1">DeckUI</span><span class="s3">&gt;();</span>
+        <span class="s2">if </span><span class="s3">(</span><span class="s1">deckUI </span><span class="s3">!= </span><span class="s2">null </span><span class="s3">&amp;&amp; </span><span class="s1">isPlayerUnit</span><span class="s3">)</span>
+        <span class="s3">{</span>
+            <span class="s1">deckUI</span><span class="s3">.</span><span class="s1">AddToGraveyard</span><span class="s3">(</span><span class="s1">unitData</span><span class="s3">);</span>
+        <span class="s3">}</span>
+    <span class="s3">}</span>
+
+
+    <span class="s0">/// &lt;summary&gt;</span>
+    <span class="s0">/// 添加卡牌到墓地</span>
+    <span class="s0">/// &lt;/summary&gt;</span>
+    <span class="s2">private void </span><span class="s1">AddCardToPlayerGraveyard</span><span class="s3">(</span><span class="s1">UnitData unitData</span><span class="s3">)</span>
+    <span class="s3">{</span>
+        <span class="s2">if </span><span class="s3">(</span><span class="s1">unitData </span><span class="s3">!= </span><span class="s2">null</span><span class="s3">)</span>
+        <span class="s3">{</span>
+            <span class="s1">graveyardCards</span><span class="s3">.</span><span class="s1">Add</span><span class="s3">(</span><span class="s1">unitData</span><span class="s3">);</span>
+        <span class="s3">}</span>
+    <span class="s3">}</span>
+    
+    <span class="s2">private void </span><span class="s1">AddCardToEnemyGraveyard</span><span class="s3">(</span><span class="s1">UnitData unitData</span><span class="s3">)</span>
+    <span class="s3">{</span>
+        <span class="s2">if </span><span class="s3">(</span><span class="s1">unitData </span><span class="s3">!= </span><span class="s2">null</span><span class="s3">)</span>
+        <span class="s3">{</span>
+            <span class="s1">enemyGraveyardCards</span><span class="s3">.</span><span class="s1">Add</span><span class="s3">(</span><span class="s1">unitData</span><span class="s3">);</span>
+        <span class="s3">}</span>
+    <span class="s3">}</span>
+
+    <span class="s0">/// &lt;summary&gt;</span>
+    <span class="s0">/// 获取墓地中的卡牌列表</span>
+    <span class="s0">/// &lt;/summary&gt;</span>
+    <span class="s2">public </span><span class="s1">List</span><span class="s3">&lt;</span><span class="s1">UnitData</span><span class="s3">&gt; </span><span class="s1">GetGraveyardCards</span><span class="s3">()</span>
+    <span class="s3">{</span>
+        <span class="s2">return </span><span class="s1">graveyardCards</span><span class="s3">;</span>
+    <span class="s3">}</span>
+
+    <span class="s0">// 可以在這裡添加更多與牌組相關的方法</span>
+<span class="s3">}</span></pre>
+</body>
+</html>

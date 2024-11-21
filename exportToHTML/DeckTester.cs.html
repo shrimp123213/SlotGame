@@ -1,0 +1,145 @@
+<html>
+<head>
+<title>DeckTester.cs</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #6c95eb;}
+.s1 { color: #d0d0d0;}
+.s2 { color: #bdbdbd;}
+.s3 { color: #c9a26d;}
+.s4 { color: #85c46c; font-style: italic;}
+.s5 { color: #ed94c0;}
+</style>
+</head>
+<body bgcolor="#262626">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#606060" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+DeckTester.cs</font>
+</center></td></tr></table>
+<pre><span class="s0">using </span><span class="s1">System</span><span class="s2">.</span><span class="s1">Collections</span><span class="s2">.</span><span class="s1">Generic</span><span class="s2">;</span>
+<span class="s0">using </span><span class="s1">UnityEngine</span><span class="s2">;</span>
+<span class="s0">using </span><span class="s1">UnityEngine</span><span class="s2">.</span><span class="s1">UI</span><span class="s2">;</span>
+<span class="s0">using </span><span class="s1">TMPro</span><span class="s2">;</span>
+
+<span class="s0">public class </span><span class="s1">DeckTester : MonoBehaviour</span>
+<span class="s2">{</span>
+    <span class="s2">[</span><span class="s1">Header</span><span class="s2">(</span><span class="s3">&quot;Decks&quot;</span><span class="s2">)]</span>
+    <span class="s0">public </span><span class="s1">Deck playerDeck</span><span class="s2">; </span><span class="s4">// 玩家牌组</span>
+    <span class="s0">public </span><span class="s1">Deck enemyDeck</span><span class="s2">;  </span><span class="s4">// 敌人牌组</span>
+
+    <span class="s2">[</span><span class="s1">Header</span><span class="s2">(</span><span class="s3">&quot;UI Elements&quot;</span><span class="s2">)]</span>
+    <span class="s0">public </span><span class="s1">Button increaseAllButton</span><span class="s2">; </span><span class="s4">// 增加所有卡片按钮</span>
+    <span class="s0">public </span><span class="s1">Button decreaseAllButton</span><span class="s2">; </span><span class="s4">// 减少所有卡片按钮</span>
+    <span class="s0">public </span><span class="s1">TMP_InputField amountInputField</span><span class="s2">; </span><span class="s4">// 数量输入字段（可选）</span>
+
+    <span class="s2">[</span><span class="s1">Header</span><span class="s2">(</span><span class="s3">&quot;Amount Settings&quot;</span><span class="s2">)]</span>
+    <span class="s0">public int </span><span class="s1">defaultAmount </span><span class="s2">= </span><span class="s5">1</span><span class="s2">; </span><span class="s4">// 默认增加或减少的数量</span>
+
+    <span class="s0">void </span><span class="s1">Start</span><span class="s2">()</span>
+    <span class="s2">{</span>
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">increaseAllButton </span><span class="s2">!= </span><span class="s0">null</span><span class="s2">)</span>
+        <span class="s2">{</span>
+            <span class="s1">increaseAllButton</span><span class="s2">.</span><span class="s1">onClick</span><span class="s2">.</span><span class="s1">AddListener</span><span class="s2">(</span><span class="s1">IncreaseAllCards</span><span class="s2">);</span>
+        <span class="s2">}</span>
+        <span class="s0">else</span>
+        <span class="s2">{</span>
+            <span class="s1">Debug</span><span class="s2">.</span><span class="s1">LogWarning</span><span class="s2">(</span><span class="s3">&quot;DeckTester: 未分配 IncreaseAllButton！&quot;</span><span class="s2">);</span>
+        <span class="s2">}</span>
+
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">decreaseAllButton </span><span class="s2">!= </span><span class="s0">null</span><span class="s2">)</span>
+        <span class="s2">{</span>
+            <span class="s1">decreaseAllButton</span><span class="s2">.</span><span class="s1">onClick</span><span class="s2">.</span><span class="s1">AddListener</span><span class="s2">(</span><span class="s1">DecreaseAllCards</span><span class="s2">);</span>
+        <span class="s2">}</span>
+        <span class="s0">else</span>
+        <span class="s2">{</span>
+            <span class="s1">Debug</span><span class="s2">.</span><span class="s1">LogWarning</span><span class="s2">(</span><span class="s3">&quot;DeckTester: 未分配 DecreaseAllButton！&quot;</span><span class="s2">);</span>
+        <span class="s2">}</span>
+    <span class="s2">}</span>
+
+    <span class="s4">/// &lt;summary&gt;</span>
+    <span class="s4">/// 增加所有卡片的数量</span>
+    <span class="s4">/// &lt;/summary&gt;</span>
+    <span class="s0">public void </span><span class="s1">IncreaseAllCards</span><span class="s2">()</span>
+    <span class="s2">{</span>
+        <span class="s0">int </span><span class="s1">amount </span><span class="s2">= </span><span class="s1">GetAmount</span><span class="s2">();</span>
+        <span class="s1">Debug</span><span class="s2">.</span><span class="s1">Log</span><span class="s2">(</span><span class="s3">$&quot;DeckTester: 增加所有卡片数量 +</span><span class="s2">{</span><span class="s1">amount</span><span class="s2">}</span><span class="s3">&quot;</span><span class="s2">);</span>
+        <span class="s1">ModifyAllCardsQuantity</span><span class="s2">(</span><span class="s1">amount</span><span class="s2">);</span>
+    <span class="s2">}</span>
+
+    <span class="s4">/// &lt;summary&gt;</span>
+    <span class="s4">/// 减少所有卡片的数量</span>
+    <span class="s4">/// &lt;/summary&gt;</span>
+    <span class="s0">public void </span><span class="s1">DecreaseAllCards</span><span class="s2">()</span>
+    <span class="s2">{</span>
+        <span class="s0">int </span><span class="s1">amount </span><span class="s2">= </span><span class="s1">GetAmount</span><span class="s2">();</span>
+        <span class="s1">Debug</span><span class="s2">.</span><span class="s1">Log</span><span class="s2">(</span><span class="s3">$&quot;DeckTester: 减少所有卡片数量 -</span><span class="s2">{</span><span class="s1">amount</span><span class="s2">}</span><span class="s3">&quot;</span><span class="s2">);</span>
+        <span class="s1">ModifyAllCardsQuantity</span><span class="s2">(-</span><span class="s1">amount</span><span class="s2">);</span>
+    <span class="s2">}</span>
+
+    <span class="s4">/// &lt;summary&gt;</span>
+    <span class="s4">/// 获取用户输入的数量，若无输入则使用默认值</span>
+    <span class="s4">/// &lt;/summary&gt;</span>
+    <span class="s4">/// &lt;returns&gt;数量&lt;/returns&gt;</span>
+    <span class="s0">private int </span><span class="s1">GetAmount</span><span class="s2">()</span>
+    <span class="s2">{</span>
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">amountInputField </span><span class="s2">!= </span><span class="s0">null </span><span class="s2">&amp;&amp; </span><span class="s1">!</span><span class="s0">string</span><span class="s2">.</span><span class="s1">IsNullOrEmpty</span><span class="s2">(</span><span class="s1">amountInputField</span><span class="s2">.</span><span class="s1">text</span><span class="s2">))</span>
+        <span class="s2">{</span>
+            <span class="s0">if </span><span class="s2">(</span><span class="s0">int</span><span class="s2">.</span><span class="s1">TryParse</span><span class="s2">(</span><span class="s1">amountInputField</span><span class="s2">.</span><span class="s1">text</span><span class="s2">, </span><span class="s0">out int </span><span class="s1">parsedAmount</span><span class="s2">))</span>
+            <span class="s2">{</span>
+                <span class="s0">return </span><span class="s1">parsedAmount</span><span class="s2">;</span>
+            <span class="s2">}</span>
+            <span class="s0">else</span>
+            <span class="s2">{</span>
+                <span class="s1">Debug</span><span class="s2">.</span><span class="s1">LogWarning</span><span class="s2">(</span><span class="s3">&quot;DeckTester: 输入的数量无效，使用默认值！&quot;</span><span class="s2">);</span>
+            <span class="s2">}</span>
+        <span class="s2">}</span>
+        <span class="s0">return </span><span class="s1">defaultAmount</span><span class="s2">;</span>
+    <span class="s2">}</span>
+
+    <span class="s4">/// &lt;summary&gt;</span>
+    <span class="s4">/// 修改所有卡片的数量</span>
+    <span class="s4">/// &lt;/summary&gt;</span>
+    <span class="s4">/// &lt;param name=&quot;amount&quot;&gt;增加或减少的数量&lt;/param&gt;</span>
+    <span class="s0">private void </span><span class="s1">ModifyAllCardsQuantity</span><span class="s2">(</span><span class="s0">int </span><span class="s1">amount</span><span class="s2">)</span>
+    <span class="s2">{</span>
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">playerDeck </span><span class="s2">!= </span><span class="s0">null</span><span class="s2">)</span>
+        <span class="s2">{</span>
+            <span class="s0">foreach </span><span class="s2">(</span><span class="s1">var entry </span><span class="s0">in </span><span class="s1">playerDeck</span><span class="s2">.</span><span class="s1">entries</span><span class="s2">)</span>
+            <span class="s2">{</span>
+                <span class="s0">if </span><span class="s2">(</span><span class="s1">entry</span><span class="s2">.</span><span class="s1">unitData </span><span class="s2">!= </span><span class="s0">null</span><span class="s2">)</span>
+                <span class="s2">{</span>
+                    <span class="s1">entry</span><span class="s2">.</span><span class="s1">quantity </span><span class="s2">+= </span><span class="s1">amount</span><span class="s2">;</span>
+                    <span class="s0">if </span><span class="s2">(</span><span class="s1">entry</span><span class="s2">.</span><span class="s1">quantity </span><span class="s2">&lt; </span><span class="s5">0</span><span class="s2">)</span>
+                        <span class="s1">entry</span><span class="s2">.</span><span class="s1">quantity </span><span class="s2">= </span><span class="s5">0</span><span class="s2">;</span>
+                    <span class="s1">Debug</span><span class="s2">.</span><span class="s1">Log</span><span class="s2">(</span><span class="s3">$&quot;DeckTester: 玩家牌组 - </span><span class="s2">{</span><span class="s1">entry</span><span class="s2">.</span><span class="s1">unitData</span><span class="s2">.</span><span class="s1">unitName</span><span class="s2">} </span><span class="s3">数量现在为 </span><span class="s2">{</span><span class="s1">entry</span><span class="s2">.</span><span class="s1">quantity</span><span class="s2">}</span><span class="s3">&quot;</span><span class="s2">);</span>
+                <span class="s2">}</span>
+            <span class="s2">}</span>
+        <span class="s2">}</span>
+        <span class="s0">else</span>
+        <span class="s2">{</span>
+            <span class="s1">Debug</span><span class="s2">.</span><span class="s1">LogWarning</span><span class="s2">(</span><span class="s3">&quot;DeckTester: PlayerDeck 未分配！&quot;</span><span class="s2">);</span>
+        <span class="s2">}</span>
+
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">enemyDeck </span><span class="s2">!= </span><span class="s0">null</span><span class="s2">)</span>
+        <span class="s2">{</span>
+            <span class="s0">foreach </span><span class="s2">(</span><span class="s1">var entry </span><span class="s0">in </span><span class="s1">enemyDeck</span><span class="s2">.</span><span class="s1">entries</span><span class="s2">)</span>
+            <span class="s2">{</span>
+                <span class="s0">if </span><span class="s2">(</span><span class="s1">entry</span><span class="s2">.</span><span class="s1">unitData </span><span class="s2">!= </span><span class="s0">null</span><span class="s2">)</span>
+                <span class="s2">{</span>
+                    <span class="s1">entry</span><span class="s2">.</span><span class="s1">quantity </span><span class="s2">+= </span><span class="s1">amount</span><span class="s2">;</span>
+                    <span class="s0">if </span><span class="s2">(</span><span class="s1">entry</span><span class="s2">.</span><span class="s1">quantity </span><span class="s2">&lt; </span><span class="s5">0</span><span class="s2">)</span>
+                        <span class="s1">entry</span><span class="s2">.</span><span class="s1">quantity </span><span class="s2">= </span><span class="s5">0</span><span class="s2">;</span>
+                    <span class="s1">Debug</span><span class="s2">.</span><span class="s1">Log</span><span class="s2">(</span><span class="s3">$&quot;DeckTester: 敌人牌组 - </span><span class="s2">{</span><span class="s1">entry</span><span class="s2">.</span><span class="s1">unitData</span><span class="s2">.</span><span class="s1">unitName</span><span class="s2">} </span><span class="s3">数量现在为 </span><span class="s2">{</span><span class="s1">entry</span><span class="s2">.</span><span class="s1">quantity</span><span class="s2">}</span><span class="s3">&quot;</span><span class="s2">);</span>
+                <span class="s2">}</span>
+            <span class="s2">}</span>
+        <span class="s2">}</span>
+        <span class="s0">else</span>
+        <span class="s2">{</span>
+            <span class="s1">Debug</span><span class="s2">.</span><span class="s1">LogWarning</span><span class="s2">(</span><span class="s3">&quot;DeckTester: EnemyDeck 未分配！&quot;</span><span class="s2">);</span>
+        <span class="s2">}</span>
+    <span class="s2">}</span>
+<span class="s2">}</span>
+</pre>
+</body>
+</html>

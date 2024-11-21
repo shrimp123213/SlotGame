@@ -1,0 +1,215 @@
+<html>
+<head>
+<title>Deck.cs</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #6c95eb;}
+.s1 { color: #d0d0d0;}
+.s2 { color: #bdbdbd;}
+.s3 { color: #85c46c; font-style: italic;}
+.s4 { color: #c9a26d;}
+.s5 { color: #ed94c0;}
+</style>
+</head>
+<body bgcolor="#262626">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#606060" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+Deck.cs</font>
+</center></td></tr></table>
+<pre><span class="s0">using </span><span class="s1">System</span><span class="s2">.</span><span class="s1">Collections</span><span class="s2">.</span><span class="s1">Generic</span><span class="s2">;</span>
+<span class="s0">using </span><span class="s1">UnityEngine</span><span class="s2">;</span>
+<span class="s0">using </span><span class="s1">System</span><span class="s2">;</span>
+<span class="s0">using </span><span class="s1">Random </span><span class="s2">= </span><span class="s1">UnityEngine</span><span class="s2">.</span><span class="s1">Random</span><span class="s2">;</span>
+
+<span class="s3">/// &lt;summary&gt;</span>
+<span class="s3">/// 管理牌组的类</span>
+<span class="s3">/// &lt;/summary&gt;</span>
+<span class="s2">[</span><span class="s1">CreateAssetMenu</span><span class="s2">(</span><span class="s1">fileName </span><span class="s2">= </span><span class="s4">&quot;NewDeck&quot;</span><span class="s2">, </span><span class="s1">menuName </span><span class="s2">= </span><span class="s4">&quot;ScriptableObjects/Deck&quot;</span><span class="s2">)]</span>
+<span class="s0">public class </span><span class="s1">Deck : ScriptableObject</span>
+<span class="s2">{</span>
+    <span class="s2">[</span><span class="s1">Header</span><span class="s2">(</span><span class="s4">&quot;Deck Entries&quot;</span><span class="s2">)]</span>
+    <span class="s2">[</span><span class="s1">Tooltip</span><span class="s2">(</span><span class="s4">&quot;拖拽不同的 UnitData 进来，并在 DeckEntry 中设置对应的数量&quot;</span><span class="s2">)]</span>
+    <span class="s0">public </span><span class="s1">List</span><span class="s2">&lt;</span><span class="s1">DeckEntry</span><span class="s2">&gt; </span><span class="s1">entries </span><span class="s2">= </span><span class="s0">new </span><span class="s1">List</span><span class="s2">&lt;</span><span class="s1">DeckEntry</span><span class="s2">&gt;();</span>
+    
+    <span class="s0">public event </span><span class="s1">Action OnDeckChanged</span><span class="s2">;</span>
+    
+    <span class="s3">/// &lt;summary&gt;</span>
+    <span class="s3">/// 添加卡牌到牌组</span>
+    <span class="s3">/// &lt;/summary&gt;</span>
+    <span class="s0">public void </span><span class="s1">AddCard</span><span class="s2">(</span><span class="s1">UnitData unitData</span><span class="s2">, </span><span class="s0">int </span><span class="s1">quantity </span><span class="s2">= </span><span class="s5">1</span><span class="s2">, </span><span class="s0">bool </span><span class="s1">isInjured </span><span class="s2">= </span><span class="s0">false</span><span class="s2">)</span>
+    <span class="s2">{</span>
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">unitData </span><span class="s2">== </span><span class="s0">null</span><span class="s2">)</span>
+        <span class="s2">{</span>
+            <span class="s1">Debug</span><span class="s2">.</span><span class="s1">LogWarning</span><span class="s2">(</span><span class="s4">&quot;Deck: 尝试添加 null UnitData！&quot;</span><span class="s2">);</span>
+            <span class="s0">return</span><span class="s2">;</span>
+        <span class="s2">}</span>
+
+        <span class="s1">DeckEntry existingEntry </span><span class="s2">= </span><span class="s1">entries</span><span class="s2">.</span><span class="s1">Find</span><span class="s2">(</span><span class="s1">entry =&gt; entry</span><span class="s2">.</span><span class="s1">unitData </span><span class="s2">== </span><span class="s1">unitData</span><span class="s2">);</span>
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">existingEntry </span><span class="s2">!= </span><span class="s0">null</span><span class="s2">)</span>
+        <span class="s2">{</span>
+            <span class="s0">if </span><span class="s2">(</span><span class="s1">isInjured</span><span class="s2">)</span>
+                <span class="s1">existingEntry</span><span class="s2">.</span><span class="s1">injuredQuantity </span><span class="s2">+= </span><span class="s1">quantity</span><span class="s2">;</span>
+            <span class="s0">else</span>
+                <span class="s1">existingEntry</span><span class="s2">.</span><span class="s1">quantity </span><span class="s2">+= </span><span class="s1">quantity</span><span class="s2">;</span>
+        <span class="s2">}</span>
+        <span class="s0">else</span>
+        <span class="s2">{</span>
+            <span class="s1">DeckEntry newEntry </span><span class="s2">= </span><span class="s0">new </span><span class="s1">DeckEntry</span><span class="s2">(</span><span class="s1">unitData</span><span class="s2">, </span><span class="s1">isInjured ? </span><span class="s5">0 </span><span class="s1">: quantity</span><span class="s2">);</span>
+            <span class="s1">newEntry</span><span class="s2">.</span><span class="s1">injuredQuantity </span><span class="s2">= </span><span class="s1">isInjured ? quantity : </span><span class="s5">0</span><span class="s2">;</span>
+            <span class="s1">entries</span><span class="s2">.</span><span class="s1">Add</span><span class="s2">(</span><span class="s1">newEntry</span><span class="s2">);</span>
+        <span class="s2">}</span>
+
+        <span class="s3">// 触发事件</span>
+        <span class="s1">OnDeckChanged?</span><span class="s2">.</span><span class="s1">Invoke</span><span class="s2">();</span>
+    <span class="s2">}</span>
+
+    <span class="s3">/// &lt;summary&gt;</span>
+    <span class="s3">/// 移除卡牌从牌组</span>
+    <span class="s3">/// &lt;/summary&gt;</span>
+    <span class="s0">public void </span><span class="s1">RemoveCard</span><span class="s2">(</span><span class="s1">UnitData unitData</span><span class="s2">, </span><span class="s0">int </span><span class="s1">quantity </span><span class="s2">= </span><span class="s5">1</span><span class="s2">, </span><span class="s0">bool </span><span class="s1">isInjured </span><span class="s2">= </span><span class="s0">false</span><span class="s2">)</span>
+    <span class="s2">{</span>
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">unitData </span><span class="s2">== </span><span class="s0">null</span><span class="s2">)</span>
+        <span class="s2">{</span>
+            <span class="s1">Debug</span><span class="s2">.</span><span class="s1">LogWarning</span><span class="s2">(</span><span class="s4">&quot;Deck: 尝试移除 null UnitData 的数量！&quot;</span><span class="s2">);</span>
+            <span class="s0">return</span><span class="s2">;</span>
+        <span class="s2">}</span>
+
+        <span class="s1">DeckEntry existingEntry </span><span class="s2">= </span><span class="s1">entries</span><span class="s2">.</span><span class="s1">Find</span><span class="s2">(</span><span class="s1">entry =&gt; entry</span><span class="s2">.</span><span class="s1">unitData </span><span class="s2">== </span><span class="s1">unitData</span><span class="s2">);</span>
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">existingEntry </span><span class="s2">!= </span><span class="s0">null</span><span class="s2">)</span>
+        <span class="s2">{</span>
+            <span class="s0">if </span><span class="s2">(</span><span class="s1">isInjured</span><span class="s2">)</span>
+            <span class="s2">{</span>
+                <span class="s1">existingEntry</span><span class="s2">.</span><span class="s1">injuredQuantity </span><span class="s2">-= </span><span class="s1">quantity</span><span class="s2">;</span>
+                <span class="s0">if </span><span class="s2">(</span><span class="s1">existingEntry</span><span class="s2">.</span><span class="s1">injuredQuantity </span><span class="s2">&lt; </span><span class="s5">0</span><span class="s2">)</span>
+                    <span class="s1">existingEntry</span><span class="s2">.</span><span class="s1">injuredQuantity </span><span class="s2">= </span><span class="s5">0</span><span class="s2">;</span>
+            <span class="s2">}</span>
+            <span class="s0">else</span>
+            <span class="s2">{</span>
+                <span class="s1">existingEntry</span><span class="s2">.</span><span class="s1">quantity </span><span class="s2">-= </span><span class="s1">quantity</span><span class="s2">;</span>
+                <span class="s0">if </span><span class="s2">(</span><span class="s1">existingEntry</span><span class="s2">.</span><span class="s1">quantity </span><span class="s2">&lt; </span><span class="s5">0</span><span class="s2">)</span>
+                    <span class="s1">existingEntry</span><span class="s2">.</span><span class="s1">quantity </span><span class="s2">= </span><span class="s5">0</span><span class="s2">;</span>
+            <span class="s2">}</span>
+        <span class="s2">}</span>
+
+        <span class="s3">// 触发事件</span>
+        <span class="s1">OnDeckChanged?</span><span class="s2">.</span><span class="s1">Invoke</span><span class="s2">();</span>
+    <span class="s2">}</span>
+
+    <span class="s3">/// &lt;summary&gt;</span>
+    <span class="s3">/// 获取当前牌组中的所有卡牌，包括正常和负伤的单位</span>
+    <span class="s3">/// &lt;/summary&gt;</span>
+    <span class="s0">public </span><span class="s1">List</span><span class="s2">&lt;</span><span class="s1">UnitWithInjuryStatus</span><span class="s2">&gt; </span><span class="s1">GetAllUnitsWithInjuryStatus</span><span class="s2">()</span>
+    <span class="s2">{</span>
+        <span class="s1">List</span><span class="s2">&lt;</span><span class="s1">UnitWithInjuryStatus</span><span class="s2">&gt; </span><span class="s1">allUnits </span><span class="s2">= </span><span class="s0">new </span><span class="s1">List</span><span class="s2">&lt;</span><span class="s1">UnitWithInjuryStatus</span><span class="s2">&gt;();</span>
+        <span class="s0">foreach </span><span class="s2">(</span><span class="s1">var entry </span><span class="s0">in </span><span class="s1">entries</span><span class="s2">)</span>
+        <span class="s2">{</span>
+            <span class="s0">for </span><span class="s2">(</span><span class="s0">int </span><span class="s1">i </span><span class="s2">= </span><span class="s5">0</span><span class="s2">; </span><span class="s1">i </span><span class="s2">&lt; </span><span class="s1">entry</span><span class="s2">.</span><span class="s1">quantity</span><span class="s2">; </span><span class="s1">i</span><span class="s2">++)</span>
+            <span class="s2">{</span>
+                <span class="s1">allUnits</span><span class="s2">.</span><span class="s1">Add</span><span class="s2">(</span><span class="s0">new </span><span class="s1">UnitWithInjuryStatus</span><span class="s2">(</span><span class="s1">entry</span><span class="s2">.</span><span class="s1">unitData</span><span class="s2">, </span><span class="s0">false</span><span class="s2">));</span>
+            <span class="s2">}</span>
+            <span class="s0">for </span><span class="s2">(</span><span class="s0">int </span><span class="s1">i </span><span class="s2">= </span><span class="s5">0</span><span class="s2">; </span><span class="s1">i </span><span class="s2">&lt; </span><span class="s1">entry</span><span class="s2">.</span><span class="s1">injuredQuantity</span><span class="s2">; </span><span class="s1">i</span><span class="s2">++)</span>
+            <span class="s2">{</span>
+                <span class="s1">allUnits</span><span class="s2">.</span><span class="s1">Add</span><span class="s2">(</span><span class="s0">new </span><span class="s1">UnitWithInjuryStatus</span><span class="s2">(</span><span class="s1">entry</span><span class="s2">.</span><span class="s1">unitData</span><span class="s2">, </span><span class="s0">true</span><span class="s2">));</span>
+            <span class="s2">}</span>
+        <span class="s2">}</span>
+        <span class="s0">return </span><span class="s1">allUnits</span><span class="s2">;</span>
+    <span class="s2">}</span>
+    
+    <span class="s3">/// &lt;summary&gt;</span>
+    <span class="s3">/// 隨機選取指定數量的不同 UnitData</span>
+    <span class="s3">/// &lt;/summary&gt;</span>
+    <span class="s3">/// &lt;param name=&quot;count&quot;&gt;選取的數量&lt;/param&gt;</span>
+    <span class="s3">/// &lt;returns&gt;選取的 UnitData 列表&lt;/returns&gt;</span>
+    <span class="s0">public </span><span class="s1">List</span><span class="s2">&lt;</span><span class="s1">UnitData</span><span class="s2">&gt; </span><span class="s1">GetRandomUnitChoices</span><span class="s2">(</span><span class="s0">int </span><span class="s1">count</span><span class="s2">)</span>
+    <span class="s2">{</span>
+        <span class="s1">List</span><span class="s2">&lt;</span><span class="s1">UnitData</span><span class="s2">&gt; </span><span class="s1">availableUnits </span><span class="s2">= </span><span class="s0">new </span><span class="s1">List</span><span class="s2">&lt;</span><span class="s1">UnitData</span><span class="s2">&gt;();</span>
+
+        <span class="s3">// 收集所有可用的 UnitData（數量 &gt; 0）</span>
+        <span class="s0">foreach </span><span class="s2">(</span><span class="s1">var entry </span><span class="s0">in </span><span class="s1">entries</span><span class="s2">)</span>
+        <span class="s2">{</span>
+            <span class="s0">if </span><span class="s2">(</span><span class="s1">entry</span><span class="s2">.</span><span class="s1">unitData </span><span class="s2">!= </span><span class="s0">null </span><span class="s2">&amp;&amp; </span><span class="s1">entry</span><span class="s2">.</span><span class="s1">quantity </span><span class="s2">&gt;= </span><span class="s5">0 </span><span class="s2">&amp;&amp; </span><span class="s1">!availableUnits</span><span class="s2">.</span><span class="s1">Contains</span><span class="s2">(</span><span class="s1">entry</span><span class="s2">.</span><span class="s1">unitData</span><span class="s2">))</span>
+            <span class="s2">{</span>
+                <span class="s1">availableUnits</span><span class="s2">.</span><span class="s1">Add</span><span class="s2">(</span><span class="s1">entry</span><span class="s2">.</span><span class="s1">unitData</span><span class="s2">);</span>
+            <span class="s2">}</span>
+        <span class="s2">}</span>
+
+        <span class="s3">// 如果可用單位少於要求數量，返回所有可用的</span>
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">availableUnits</span><span class="s2">.</span><span class="s1">Count </span><span class="s2">&lt;= </span><span class="s1">count</span><span class="s2">)</span>
+        <span class="s2">{</span>
+            <span class="s0">return new </span><span class="s1">List</span><span class="s2">&lt;</span><span class="s1">UnitData</span><span class="s2">&gt;(</span><span class="s1">availableUnits</span><span class="s2">);</span>
+        <span class="s2">}</span>
+
+        <span class="s3">// 隨機選取指定數量的 UnitData</span>
+        <span class="s1">List</span><span class="s2">&lt;</span><span class="s1">UnitData</span><span class="s2">&gt; </span><span class="s1">selectedUnits </span><span class="s2">= </span><span class="s0">new </span><span class="s1">List</span><span class="s2">&lt;</span><span class="s1">UnitData</span><span class="s2">&gt;();</span>
+        <span class="s1">List</span><span class="s2">&lt;</span><span class="s1">UnitData</span><span class="s2">&gt; </span><span class="s1">tempList </span><span class="s2">= </span><span class="s0">new </span><span class="s1">List</span><span class="s2">&lt;</span><span class="s1">UnitData</span><span class="s2">&gt;(</span><span class="s1">availableUnits</span><span class="s2">);</span>
+
+        <span class="s0">for </span><span class="s2">(</span><span class="s0">int </span><span class="s1">i </span><span class="s2">= </span><span class="s5">0</span><span class="s2">; </span><span class="s1">i </span><span class="s2">&lt; </span><span class="s1">count</span><span class="s2">; </span><span class="s1">i</span><span class="s2">++)</span>
+        <span class="s2">{</span>
+            <span class="s0">int </span><span class="s1">randomIndex </span><span class="s2">= </span><span class="s1">Random</span><span class="s2">.</span><span class="s1">Range</span><span class="s2">(</span><span class="s5">0</span><span class="s2">, </span><span class="s1">tempList</span><span class="s2">.</span><span class="s1">Count</span><span class="s2">);</span>
+            <span class="s1">selectedUnits</span><span class="s2">.</span><span class="s1">Add</span><span class="s2">(</span><span class="s1">tempList</span><span class="s2">[</span><span class="s1">randomIndex</span><span class="s2">]);</span>
+            <span class="s1">tempList</span><span class="s2">.</span><span class="s1">RemoveAt</span><span class="s2">(</span><span class="s1">randomIndex</span><span class="s2">);</span>
+        <span class="s2">}</span>
+
+        <span class="s0">return </span><span class="s1">selectedUnits</span><span class="s2">;</span>
+    <span class="s2">}</span>
+
+    <span class="s3">/// &lt;summary&gt;</span>
+    <span class="s3">/// 增加指定 UnitData 的數量</span>
+    <span class="s3">/// &lt;/summary&gt;</span>
+    <span class="s3">/// &lt;param name=&quot;unitData&quot;&gt;要增加數量的 UnitData&lt;/param&gt;</span>
+    <span class="s3">/// &lt;param name=&quot;amount&quot;&gt;增加的數量&lt;/param&gt;</span>
+    <span class="s0">public void </span><span class="s1">IncreaseUnitQuantity</span><span class="s2">(</span><span class="s1">UnitData unitData</span><span class="s2">, </span><span class="s0">int </span><span class="s1">amount </span><span class="s2">= </span><span class="s5">1</span><span class="s2">)</span>
+    <span class="s2">{</span>
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">unitData </span><span class="s2">== </span><span class="s0">null</span><span class="s2">)</span>
+        <span class="s2">{</span>
+            <span class="s1">Debug</span><span class="s2">.</span><span class="s1">LogWarning</span><span class="s2">(</span><span class="s4">&quot;Deck: 嘗試增加 null UnitData 的數量！&quot;</span><span class="s2">);</span>
+            <span class="s0">return</span><span class="s2">;</span>
+        <span class="s2">}</span>
+
+        <span class="s1">DeckEntry existingEntry </span><span class="s2">= </span><span class="s1">entries</span><span class="s2">.</span><span class="s1">Find</span><span class="s2">(</span><span class="s1">entry =&gt; entry</span><span class="s2">.</span><span class="s1">unitData </span><span class="s2">== </span><span class="s1">unitData</span><span class="s2">);</span>
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">existingEntry </span><span class="s2">!= </span><span class="s0">null</span><span class="s2">)</span>
+        <span class="s2">{</span>
+            <span class="s1">existingEntry</span><span class="s2">.</span><span class="s1">quantity </span><span class="s2">+= </span><span class="s1">amount</span><span class="s2">;</span>
+        <span class="s2">}</span>
+        <span class="s0">else</span>
+        <span class="s2">{</span>
+            <span class="s1">entries</span><span class="s2">.</span><span class="s1">Add</span><span class="s2">(</span><span class="s0">new </span><span class="s1">DeckEntry</span><span class="s2">(</span><span class="s1">unitData</span><span class="s2">, </span><span class="s1">amount</span><span class="s2">));</span>
+        <span class="s2">}</span>
+
+        <span class="s1">Debug</span><span class="s2">.</span><span class="s1">Log</span><span class="s2">(</span><span class="s4">$&quot;Deck: 增加 </span><span class="s2">{</span><span class="s1">unitData</span><span class="s2">.</span><span class="s1">unitName</span><span class="s2">} </span><span class="s4">的數量至 </span><span class="s2">{(</span><span class="s1">existingEntry </span><span class="s2">!= </span><span class="s0">null </span><span class="s1">? existingEntry</span><span class="s2">.</span><span class="s1">quantity : amount</span><span class="s2">)}</span><span class="s4">&quot;</span><span class="s2">);</span>
+        <span class="s1">OnDeckChanged?</span><span class="s2">.</span><span class="s1">Invoke</span><span class="s2">();</span>
+    <span class="s2">}</span>
+<span class="s2">}</span>
+
+
+<span class="s2">[</span><span class="s1">System</span><span class="s2">.</span><span class="s1">Serializable</span><span class="s2">]</span>
+<span class="s0">public class </span><span class="s1">DeckEntry</span>
+<span class="s2">{</span>
+    <span class="s0">public </span><span class="s1">UnitData unitData</span><span class="s2">;      </span><span class="s3">// 卡牌类型</span>
+    <span class="s0">public int </span><span class="s1">quantity</span><span class="s2">;           </span><span class="s3">// 正常状态的卡牌数量</span>
+    <span class="s0">public int </span><span class="s1">injuredQuantity</span><span class="s2">;    </span><span class="s3">// 负伤状态的卡牌数量</span>
+
+    <span class="s0">public </span><span class="s1">DeckEntry</span><span class="s2">(</span><span class="s1">UnitData unitData</span><span class="s2">, </span><span class="s0">int </span><span class="s1">quantity</span><span class="s2">)</span>
+    <span class="s2">{</span>
+        <span class="s0">this</span><span class="s2">.</span><span class="s1">unitData </span><span class="s2">= </span><span class="s1">unitData</span><span class="s2">;</span>
+        <span class="s0">this</span><span class="s2">.</span><span class="s1">quantity </span><span class="s2">= </span><span class="s1">quantity</span><span class="s2">;</span>
+        <span class="s0">this</span><span class="s2">.</span><span class="s1">injuredQuantity </span><span class="s2">= </span><span class="s5">0</span><span class="s2">; </span><span class="s3">// 初始为0</span>
+    <span class="s2">}</span>
+<span class="s2">}</span>
+
+<span class="s3">// 定义一个类，用于存储单位和其负伤状态</span>
+<span class="s2">[</span><span class="s1">System</span><span class="s2">.</span><span class="s1">Serializable</span><span class="s2">]</span>
+<span class="s0">public class </span><span class="s1">UnitWithInjuryStatus</span>
+<span class="s2">{</span>
+    <span class="s0">public </span><span class="s1">UnitData unitData</span><span class="s2">;</span>
+    <span class="s0">public bool </span><span class="s1">isInjured</span><span class="s2">;</span>
+
+    <span class="s0">public </span><span class="s1">UnitWithInjuryStatus</span><span class="s2">(</span><span class="s1">UnitData unitData</span><span class="s2">, </span><span class="s0">bool </span><span class="s1">isInjured</span><span class="s2">)</span>
+    <span class="s2">{</span>
+        <span class="s0">this</span><span class="s2">.</span><span class="s1">unitData </span><span class="s2">= </span><span class="s1">unitData</span><span class="s2">;</span>
+        <span class="s0">this</span><span class="s2">.</span><span class="s1">isInjured </span><span class="s2">= </span><span class="s1">isInjured</span><span class="s2">;</span>
+    <span class="s2">}</span>
+<span class="s2">}</span></pre>
+</body>
+</html>

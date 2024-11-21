@@ -1,0 +1,341 @@
+<html>
+<head>
+<title>ConnectionManager.cs</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #6c95eb;}
+.s1 { color: #d0d0d0;}
+.s2 { color: #bdbdbd;}
+.s3 { color: #85c46c; font-style: italic;}
+.s4 { color: #c9a26d;}
+.s5 { color: #ed94c0;}
+</style>
+</head>
+<body bgcolor="#262626">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#606060" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+ConnectionManager.cs</font>
+</center></td></tr></table>
+<pre><span class="s0">using </span><span class="s1">System</span><span class="s2">.</span><span class="s1">Collections</span><span class="s2">.</span><span class="s1">Generic</span><span class="s2">;</span>
+<span class="s0">using </span><span class="s1">System</span><span class="s2">.</span><span class="s1">Linq</span><span class="s2">;</span>
+<span class="s0">using </span><span class="s1">UnityEngine</span><span class="s2">;</span>
+
+<span class="s3">/// &lt;summary&gt;</span>
+<span class="s3">/// 管理連線方式的讀取與檢查</span>
+<span class="s3">/// &lt;/summary&gt;</span>
+<span class="s0">public class </span><span class="s1">ConnectionManager : MonoBehaviour</span>
+<span class="s2">{</span>
+    <span class="s2">[</span><span class="s1">Header</span><span class="s2">(</span><span class="s4">&quot;Grid Manager&quot;</span><span class="s2">)]</span>
+    <span class="s0">public </span><span class="s1">GridManager gridManager</span><span class="s2">; </span><span class="s3">// 引用 GridManager</span>
+
+    <span class="s2">[</span><span class="s1">Header</span><span class="s2">(</span><span class="s4">&quot;Connection Patterns&quot;</span><span class="s2">)]</span>
+    <span class="s0">public </span><span class="s1">TextAsset connectionPatternsJson</span><span class="s2">; </span><span class="s3">// 連線方式的 JSON 文件</span>
+
+    <span class="s0">private </span><span class="s1">List</span><span class="s2">&lt;</span><span class="s1">ConnectionPattern</span><span class="s2">&gt; </span><span class="s1">connectionPatterns </span><span class="s2">= </span><span class="s0">new </span><span class="s1">List</span><span class="s2">&lt;</span><span class="s1">ConnectionPattern</span><span class="s2">&gt;();</span>
+
+    <span class="s0">private </span><span class="s1">UnitController</span><span class="s2">[,] </span><span class="s1">gridCells</span><span class="s2">; </span><span class="s3">// 棋盤格子矩陣，索引順序為 [col, row]</span>
+
+    <span class="s0">void </span><span class="s1">Start</span><span class="s2">()</span>
+    <span class="s2">{</span>
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">gridManager </span><span class="s2">== </span><span class="s0">null</span><span class="s2">)</span>
+        <span class="s2">{</span>
+            <span class="s1">Debug</span><span class="s2">.</span><span class="s1">LogError</span><span class="s2">(</span><span class="s4">&quot;ConnectionManager: 未指定 GridManager 引用！&quot;</span><span class="s2">);</span>
+            <span class="s0">return</span><span class="s2">;</span>
+        <span class="s2">}</span>
+
+        <span class="s1">LoadConnections</span><span class="s2">();</span>
+        <span class="s1">InitializeGridCells</span><span class="s2">();</span>
+    <span class="s2">}</span>
+
+    <span class="s3">/// &lt;summary&gt;</span>
+    <span class="s3">/// 加載連線方式</span>
+    <span class="s3">/// &lt;/summary&gt;</span>
+    <span class="s0">void </span><span class="s1">LoadConnections</span><span class="s2">()</span>
+    <span class="s2">{</span>
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">connectionPatternsJson </span><span class="s2">== </span><span class="s0">null</span><span class="s2">)</span>
+        <span class="s2">{</span>
+            <span class="s1">Debug</span><span class="s2">.</span><span class="s1">LogError</span><span class="s2">(</span><span class="s4">&quot;ConnectionManager: 未指定連線方式的 JSON 文件！&quot;</span><span class="s2">);</span>
+            <span class="s0">return</span><span class="s2">;</span>
+        <span class="s2">}</span>
+
+        <span class="s0">string </span><span class="s1">json </span><span class="s2">= </span><span class="s1">connectionPatternsJson</span><span class="s2">.</span><span class="s1">text</span><span class="s2">;</span>
+
+        <span class="s1">ConnectionList connectionList </span><span class="s2">= </span><span class="s1">JsonUtility</span><span class="s2">.</span><span class="s1">FromJson</span><span class="s2">&lt;</span><span class="s1">ConnectionList</span><span class="s2">&gt;(</span><span class="s1">json</span><span class="s2">);</span>
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">connectionList </span><span class="s2">== </span><span class="s0">null </span><span class="s2">|| </span><span class="s1">connectionList</span><span class="s2">.</span><span class="s1">connections </span><span class="s2">== </span><span class="s0">null</span><span class="s2">)</span>
+        <span class="s2">{</span>
+            <span class="s1">Debug</span><span class="s2">.</span><span class="s1">LogError</span><span class="s2">(</span><span class="s4">&quot;ConnectionManager: 無法解析連線方式的 JSON 文件！&quot;</span><span class="s2">);</span>
+            <span class="s0">return</span><span class="s2">;</span>
+        <span class="s2">}</span>
+
+        <span class="s1">connectionPatterns </span><span class="s2">= </span><span class="s1">connectionList</span><span class="s2">.</span><span class="s1">connections</span><span class="s2">;</span>
+
+        <span class="s3">// 初始化每個連線模式的位置</span>
+        <span class="s0">foreach </span><span class="s2">(</span><span class="s1">var pattern </span><span class="s0">in </span><span class="s1">connectionPatterns</span><span class="s2">)</span>
+        <span class="s2">{</span>
+            <span class="s1">pattern</span><span class="s2">.</span><span class="s1">InitializePositions</span><span class="s2">();</span>
+        <span class="s2">}</span>
+
+        <span class="s1">Debug</span><span class="s2">.</span><span class="s1">Log</span><span class="s2">(</span><span class="s4">$&quot;ConnectionManager: 已加載 </span><span class="s2">{</span><span class="s1">connectionPatterns</span><span class="s2">.</span><span class="s1">Count</span><span class="s2">} </span><span class="s4">種連線方式&quot;</span><span class="s2">);</span>
+    <span class="s2">}</span>
+
+    <span class="s3">/// &lt;summary&gt;</span>
+    <span class="s3">/// 初始化 GridCells，填充棋盤上的單位</span>
+    <span class="s3">/// &lt;/summary&gt;</span>
+    <span class="s0">void </span><span class="s1">InitializeGridCells</span><span class="s2">()</span>
+    <span class="s2">{</span>
+        <span class="s0">int </span><span class="s1">rows </span><span class="s2">= </span><span class="s1">gridManager</span><span class="s2">.</span><span class="s1">rows</span><span class="s2">;</span>
+        <span class="s0">int </span><span class="s1">cols </span><span class="s2">= </span><span class="s1">gridManager</span><span class="s2">.</span><span class="s1">columns</span><span class="s2">;</span>
+        <span class="s1">gridCells </span><span class="s2">= </span><span class="s0">new </span><span class="s1">UnitController</span><span class="s2">[</span><span class="s1">cols</span><span class="s2">, </span><span class="s1">rows</span><span class="s2">]; </span><span class="s3">// 索引順序為 [col, row]</span>
+
+        <span class="s3">// 遍歷 GridManager 中的單位，填充 gridCells</span>
+        <span class="s0">for </span><span class="s2">(</span><span class="s0">int </span><span class="s1">col </span><span class="s2">= </span><span class="s5">0</span><span class="s2">; </span><span class="s1">col </span><span class="s2">&lt; </span><span class="s1">cols</span><span class="s2">; </span><span class="s1">col</span><span class="s2">++)</span>
+        <span class="s2">{</span>
+            <span class="s0">for </span><span class="s2">(</span><span class="s0">int </span><span class="s1">row </span><span class="s2">= </span><span class="s5">0</span><span class="s2">; </span><span class="s1">row </span><span class="s2">&lt; </span><span class="s1">rows</span><span class="s2">; </span><span class="s1">row</span><span class="s2">++)</span>
+            <span class="s2">{</span>
+                <span class="s1">Vector3Int pos </span><span class="s2">= </span><span class="s0">new </span><span class="s1">Vector3Int</span><span class="s2">(</span><span class="s1">col </span><span class="s2">+ </span><span class="s5">1</span><span class="s2">, </span><span class="s1">row</span><span class="s2">, </span><span class="s5">0</span><span class="s2">); </span><span class="s3">// 列從 1 開始，行從 0 開始</span>
+                <span class="s0">if </span><span class="s2">(</span><span class="s1">gridManager</span><span class="s2">.</span><span class="s1">HasSkillUserAt</span><span class="s2">(</span><span class="s1">pos</span><span class="s2">))</span>
+                <span class="s2">{</span>
+                    <span class="s1">gridCells</span><span class="s2">[</span><span class="s1">col</span><span class="s2">, </span><span class="s1">row</span><span class="s2">] = </span><span class="s1">gridManager</span><span class="s2">.</span><span class="s1">GetUnitAt</span><span class="s2">(</span><span class="s1">pos</span><span class="s2">);</span>
+                <span class="s2">}</span>
+                <span class="s0">else</span>
+                <span class="s2">{</span>
+                    <span class="s1">gridCells</span><span class="s2">[</span><span class="s1">col</span><span class="s2">, </span><span class="s1">row</span><span class="s2">] = </span><span class="s0">null</span><span class="s2">;</span>
+                <span class="s2">}</span>
+            <span class="s2">}</span>
+        <span class="s2">}</span>
+
+        <span class="s1">Debug</span><span class="s2">.</span><span class="s1">Log</span><span class="s2">(</span><span class="s4">&quot;ConnectionManager: GridCells 已初始化&quot;</span><span class="s2">);</span>
+    <span class="s2">}</span>
+
+    <span class="s3">/// &lt;summary&gt;</span>
+    <span class="s3">/// 檢查並觸發連線效果</span>
+    <span class="s3">/// &lt;/summary&gt;</span>
+    <span class="s0">public void </span><span class="s1">CheckConnections</span><span class="s2">()</span>
+    <span class="s2">{</span>
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">gridManager </span><span class="s2">== </span><span class="s0">null</span><span class="s2">)</span>
+        <span class="s2">{</span>
+            <span class="s1">Debug</span><span class="s2">.</span><span class="s1">LogError</span><span class="s2">(</span><span class="s4">&quot;ConnectionManager: GridManager 實例為空！&quot;</span><span class="s2">);</span>
+            <span class="s0">return</span><span class="s2">;</span>
+        <span class="s2">}</span>
+
+        <span class="s3">// 每次檢查前更新 gridCells</span>
+        <span class="s1">InitializeGridCells</span><span class="s2">();</span>
+
+        <span class="s0">bool </span><span class="s1">anyConnectionTriggered </span><span class="s2">= </span><span class="s0">false</span><span class="s2">;</span>
+
+        <span class="s3">// 分別檢查玩家和敵人的連線</span>
+        <span class="s0">bool </span><span class="s1">playerLinked </span><span class="s2">= </span><span class="s1">CheckLinksForSide</span><span class="s2">(</span><span class="s1">Camp</span><span class="s2">.</span><span class="s1">Player</span><span class="s2">);</span>
+        <span class="s0">bool </span><span class="s1">enemyLinked </span><span class="s2">= </span><span class="s0">false</span><span class="s2">; </span><span class="s3">//= CheckLinksForSide(Camp.Enemy);</span>
+
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">playerLinked</span><span class="s2">)</span>
+        <span class="s2">{</span>
+            <span class="s1">Debug</span><span class="s2">.</span><span class="s1">Log</span><span class="s2">(</span><span class="s4">&quot;ConnectionManager: 玩家連線成功！&quot;</span><span class="s2">);</span>
+            <span class="s1">anyConnectionTriggered </span><span class="s2">= </span><span class="s0">true</span><span class="s2">;</span>
+        <span class="s2">}</span>
+
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">enemyLinked</span><span class="s2">)</span>
+        <span class="s2">{</span>
+            <span class="s1">Debug</span><span class="s2">.</span><span class="s1">Log</span><span class="s2">(</span><span class="s4">&quot;ConnectionManager: 敵人連線成功！&quot;</span><span class="s2">);</span>
+            <span class="s1">anyConnectionTriggered </span><span class="s2">= </span><span class="s0">true</span><span class="s2">;</span>
+        <span class="s2">}</span>
+
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">!anyConnectionTriggered</span><span class="s2">)</span>
+        <span class="s2">{</span>
+            <span class="s1">Debug</span><span class="s2">.</span><span class="s1">Log</span><span class="s2">(</span><span class="s4">&quot;ConnectionManager: 沒有觸發任何連線&quot;</span><span class="s2">);</span>
+        <span class="s2">}</span>
+    <span class="s2">}</span>
+
+    <span class="s3">/// &lt;summary&gt;</span>
+    <span class="s3">/// 檢查特定陣營的連線</span>
+    <span class="s3">/// &lt;/summary&gt;</span>
+    <span class="s3">/// &lt;param name=&quot;camp&quot;&gt;要檢查的陣營&lt;/param&gt;</span>
+    <span class="s3">/// &lt;returns&gt;是否有連線&lt;/returns&gt;</span>
+    <span class="s0">private bool </span><span class="s1">CheckLinksForSide</span><span class="s2">(</span><span class="s1">Camp camp</span><span class="s2">)</span>
+    <span class="s2">{</span>
+        <span class="s0">bool </span><span class="s1">hasLink </span><span class="s2">= </span><span class="s0">false</span><span class="s2">;</span>
+
+        <span class="s3">// 遍歷所有連線模式</span>
+        <span class="s0">foreach </span><span class="s2">(</span><span class="s1">var pattern </span><span class="s0">in </span><span class="s1">connectionPatterns</span><span class="s2">)</span>
+        <span class="s2">{</span>
+            <span class="s0">if </span><span class="s2">(</span><span class="s1">!pattern</span><span class="s2">.</span><span class="s1">isUnlocked</span><span class="s2">)</span>
+                <span class="s0">continue</span><span class="s2">;</span>
+
+            <span class="s3">// 檢查棋盤是否匹配該模式</span>
+            <span class="s0">if </span><span class="s2">(</span><span class="s1">MatchesPatternForCamp</span><span class="s2">(</span><span class="s1">pattern</span><span class="s2">, </span><span class="s1">camp</span><span class="s2">))</span>
+            <span class="s2">{</span>
+                <span class="s1">hasLink </span><span class="s2">= </span><span class="s0">true</span><span class="s2">;</span>
+
+                <span class="s3">// 繪製連線</span>
+                <span class="s1">DrawConnection</span><span class="s2">(</span><span class="s1">pattern</span><span class="s2">.</span><span class="s1">positions</span><span class="s2">);</span>
+
+                <span class="s3">// 觸發連線效果</span>
+                <span class="s1">TriggerLinkEffect</span><span class="s2">(</span><span class="s1">pattern</span><span class="s2">, </span><span class="s1">camp</span><span class="s2">);</span>
+
+                <span class="s3">// 如果只需要檢查一個連線，可以在此處添加 break</span>
+                <span class="s3">// break;</span>
+            <span class="s2">}</span>
+        <span class="s2">}</span>
+
+        <span class="s0">return </span><span class="s1">hasLink</span><span class="s2">;</span>
+    <span class="s2">}</span>
+
+    <span class="s3">/// &lt;summary&gt;</span>
+    <span class="s3">/// 檢查給定的模式是否匹配指定陣營</span>
+    <span class="s3">/// &lt;/summary&gt;</span>
+    <span class="s3">/// &lt;param name=&quot;pattern&quot;&gt;連線模式&lt;/param&gt;</span>
+    <span class="s3">/// &lt;param name=&quot;camp&quot;&gt;陣營&lt;/param&gt;</span>
+    <span class="s3">/// &lt;returns&gt;是否匹配&lt;/returns&gt;</span>
+    <span class="s0">private bool </span><span class="s1">MatchesPatternForCamp</span><span class="s2">(</span><span class="s1">ConnectionPattern pattern</span><span class="s2">, </span><span class="s1">Camp camp</span><span class="s2">)</span>
+    <span class="s2">{</span>
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">pattern</span><span class="s2">.</span><span class="s1">positions </span><span class="s2">== </span><span class="s0">null </span><span class="s2">|| </span><span class="s1">pattern</span><span class="s2">.</span><span class="s1">positions</span><span class="s2">.</span><span class="s1">Count </span><span class="s2">== </span><span class="s5">0</span><span class="s2">)</span>
+        <span class="s2">{</span>
+            <span class="s1">Debug</span><span class="s2">.</span><span class="s1">LogWarning</span><span class="s2">(</span><span class="s4">$&quot;ConnectionManager: 連線模式 </span><span class="s2">{</span><span class="s1">pattern</span><span class="s2">.</span><span class="s1">name</span><span class="s2">} </span><span class="s4">的位置列表為空！&quot;</span><span class="s2">);</span>
+            <span class="s0">return false</span><span class="s2">;</span>
+        <span class="s2">}</span>
+
+        <span class="s1">HashSet</span><span class="s2">&lt;</span><span class="s0">int</span><span class="s2">&gt; </span><span class="s1">columnsWithUnit </span><span class="s2">= </span><span class="s0">new </span><span class="s1">HashSet</span><span class="s2">&lt;</span><span class="s0">int</span><span class="s2">&gt;();</span>
+
+        <span class="s0">foreach </span><span class="s2">(</span><span class="s1">var pos </span><span class="s0">in </span><span class="s1">pattern</span><span class="s2">.</span><span class="s1">positions</span><span class="s2">)</span>
+        <span class="s2">{</span>
+            <span class="s0">int </span><span class="s1">row </span><span class="s2">= </span><span class="s1">pos</span><span class="s2">.</span><span class="s1">x</span><span class="s2">;     </span><span class="s3">// x 表示行，假設從 0 開始</span>
+            <span class="s0">int </span><span class="s1">col </span><span class="s2">= </span><span class="s1">pos</span><span class="s2">.</span><span class="s1">y</span><span class="s2">; </span><span class="s3">// y 表示列，從 1 調整為 0 索引</span>
+
+            <span class="s3">// 調試輸出</span>
+            <span class="s3">//Debug.Log($&quot;檢查位置：行 {row}, 列 {col + 1} (pos.x: {pos.x}, pos.y: {pos.y})&quot;);</span>
+
+            <span class="s3">// 檢查邊界</span>
+            <span class="s0">if </span><span class="s2">(</span><span class="s1">col </span><span class="s2">&lt; </span><span class="s5">0 </span><span class="s2">|| </span><span class="s1">col </span><span class="s2">&gt;= </span><span class="s1">gridManager</span><span class="s2">.</span><span class="s1">columns </span><span class="s2">|| </span><span class="s1">row </span><span class="s2">&lt; </span><span class="s5">0 </span><span class="s2">|| </span><span class="s1">row </span><span class="s2">&gt;= </span><span class="s1">gridManager</span><span class="s2">.</span><span class="s1">rows</span><span class="s2">)</span>
+            <span class="s2">{</span>
+                <span class="s1">Debug</span><span class="s2">.</span><span class="s1">LogWarning</span><span class="s2">(</span><span class="s4">$&quot;ConnectionManager: 位置 (</span><span class="s2">{</span><span class="s1">row</span><span class="s2">}</span><span class="s4">, </span><span class="s2">{</span><span class="s1">col </span><span class="s2">+ </span><span class="s5">1</span><span class="s2">}</span><span class="s4">) 超出棋盤範圍！&quot;</span><span class="s2">);</span>
+                <span class="s0">return false</span><span class="s2">;</span>
+            <span class="s2">}</span>
+
+            <span class="s3">// 訪問 gridCells[col, row]</span>
+            <span class="s1">UnitController unit </span><span class="s2">= </span><span class="s1">gridCells</span><span class="s2">[</span><span class="s1">col</span><span class="s2">, </span><span class="s1">row</span><span class="s2">];</span>
+
+            <span class="s0">if </span><span class="s2">(</span><span class="s1">unit </span><span class="s2">== </span><span class="s0">null</span><span class="s2">)</span>
+            <span class="s2">{</span>
+                <span class="s3">//Debug.Log($&quot;ConnectionManager: 位置 ({row}, {col + 1}) 無單位&quot;);</span>
+                <span class="s0">return false</span><span class="s2">;</span>
+            <span class="s2">}</span>
+
+            <span class="s0">if </span><span class="s2">(</span><span class="s1">unit</span><span class="s2">.</span><span class="s1">unitData</span><span class="s2">.</span><span class="s1">camp </span><span class="s2">!= </span><span class="s1">camp</span><span class="s2">)</span>
+            <span class="s2">{</span>
+                <span class="s3">//Debug.Log($&quot;ConnectionManager: 位置 ({row}, {col + 1}) 的單位不屬於 {camp} 陣營&quot;);</span>
+                <span class="s0">return false</span><span class="s2">;</span>
+            <span class="s2">}</span>
+
+            <span class="s0">if </span><span class="s2">(</span><span class="s1">columnsWithUnit</span><span class="s2">.</span><span class="s1">Contains</span><span class="s2">(</span><span class="s1">col</span><span class="s2">))</span>
+            <span class="s2">{</span>
+                <span class="s3">// 同一列中有多個單位，返回 false</span>
+                <span class="s1">Debug</span><span class="s2">.</span><span class="s1">Log</span><span class="s2">(</span><span class="s4">$&quot;ConnectionManager: 列 </span><span class="s2">{</span><span class="s1">col </span><span class="s2">+ </span><span class="s5">1</span><span class="s2">} </span><span class="s4">中已有單位，無法重複&quot;</span><span class="s2">);</span>
+                <span class="s0">return false</span><span class="s2">;</span>
+            <span class="s2">}</span>
+            <span class="s0">else</span>
+            <span class="s2">{</span>
+                <span class="s1">columnsWithUnit</span><span class="s2">.</span><span class="s1">Add</span><span class="s2">(</span><span class="s1">col</span><span class="s2">);</span>
+            <span class="s2">}</span>
+        <span class="s2">}</span>
+
+        <span class="s0">return true</span><span class="s2">;</span>
+    <span class="s2">}</span>
+
+    <span class="s3">/// &lt;summary&gt;</span>
+    <span class="s3">/// 繪製連線</span>
+    <span class="s3">/// &lt;/summary&gt;</span>
+    <span class="s3">/// &lt;param name=&quot;positions&quot;&gt;連線包含的格子位置列表&lt;/param&gt;</span>
+    <span class="s0">private void </span><span class="s1">DrawConnection</span><span class="s2">(</span><span class="s1">List</span><span class="s2">&lt;</span><span class="s1">Vector2Int</span><span class="s2">&gt; </span><span class="s1">positions</span><span class="s2">)</span>
+    <span class="s2">{</span>
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">positions </span><span class="s2">== </span><span class="s0">null </span><span class="s2">|| </span><span class="s1">positions</span><span class="s2">.</span><span class="s1">Count </span><span class="s2">&lt; </span><span class="s5">2</span><span class="s2">)</span>
+            <span class="s0">return</span><span class="s2">;</span>
+
+        <span class="s1">Color lineColor </span><span class="s2">= </span><span class="s0">new </span><span class="s1">Color</span><span class="s2">(</span><span class="s1">Random</span><span class="s2">.</span><span class="s1">value</span><span class="s2">, </span><span class="s1">Random</span><span class="s2">.</span><span class="s1">value</span><span class="s2">, </span><span class="s1">Random</span><span class="s2">.</span><span class="s1">value</span><span class="s2">);</span>
+
+        <span class="s1">List</span><span class="s2">&lt;</span><span class="s1">Vector3</span><span class="s2">&gt; </span><span class="s1">linePositions </span><span class="s2">= </span><span class="s0">new </span><span class="s1">List</span><span class="s2">&lt;</span><span class="s1">Vector3</span><span class="s2">&gt;();</span>
+        <span class="s0">foreach </span><span class="s2">(</span><span class="s1">var pos </span><span class="s0">in </span><span class="s1">positions</span><span class="s2">)</span>
+        <span class="s2">{</span>
+            <span class="s0">int </span><span class="s1">row </span><span class="s2">= </span><span class="s1">pos</span><span class="s2">.</span><span class="s1">x</span><span class="s2">; </span><span class="s3">// x 表示行，假設從 0 開始</span>
+            <span class="s0">int </span><span class="s1">col </span><span class="s2">= </span><span class="s1">pos</span><span class="s2">.</span><span class="s1">y</span><span class="s2">; </span><span class="s3">// y 表示列，從 1 開始</span>
+            <span class="s1">Vector3Int gridPos </span><span class="s2">= </span><span class="s0">new </span><span class="s1">Vector3Int</span><span class="s2">(</span><span class="s1">col </span><span class="s2">+ </span><span class="s5">1</span><span class="s2">, </span><span class="s1">row</span><span class="s2">, </span><span class="s5">0</span><span class="s2">);</span>
+            <span class="s1">Vector3 worldPos </span><span class="s2">= </span><span class="s1">gridManager</span><span class="s2">.</span><span class="s1">GetCellCenterWorld</span><span class="s2">(</span><span class="s1">gridPos</span><span class="s2">);</span>
+            <span class="s1">linePositions</span><span class="s2">.</span><span class="s1">Add</span><span class="s2">(</span><span class="s1">worldPos</span><span class="s2">);</span>
+        <span class="s2">}</span>
+
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">linePositions</span><span class="s2">.</span><span class="s1">Count </span><span class="s2">&lt; </span><span class="s5">2</span><span class="s2">)</span>
+            <span class="s0">return</span><span class="s2">;</span>
+
+        <span class="s3">// 創建一個新的 GameObject 用於 LineRenderer</span>
+        <span class="s1">GameObject lineGO </span><span class="s2">= </span><span class="s0">new </span><span class="s1">GameObject</span><span class="s2">(</span><span class="s4">&quot;ConnectionLine&quot;</span><span class="s2">);</span>
+        <span class="s1">LineRenderer lr </span><span class="s2">= </span><span class="s1">lineGO</span><span class="s2">.</span><span class="s1">AddComponent</span><span class="s2">&lt;</span><span class="s1">LineRenderer</span><span class="s2">&gt;();</span>
+        <span class="s1">lr</span><span class="s2">.</span><span class="s1">positionCount </span><span class="s2">= </span><span class="s1">linePositions</span><span class="s2">.</span><span class="s1">Count</span><span class="s2">;</span>
+        <span class="s1">lr</span><span class="s2">.</span><span class="s1">SetPositions</span><span class="s2">(</span><span class="s1">linePositions</span><span class="s2">.</span><span class="s1">ToArray</span><span class="s2">());</span>
+        <span class="s1">lr</span><span class="s2">.</span><span class="s1">startWidth </span><span class="s2">= </span><span class="s5">0.1f</span><span class="s2">;</span>
+        <span class="s1">lr</span><span class="s2">.</span><span class="s1">endWidth </span><span class="s2">= </span><span class="s5">0.1f</span><span class="s2">;</span>
+        <span class="s1">lr</span><span class="s2">.</span><span class="s1">material </span><span class="s2">= </span><span class="s0">new </span><span class="s1">Material</span><span class="s2">(</span><span class="s1">Shader</span><span class="s2">.</span><span class="s1">Find</span><span class="s2">(</span><span class="s4">&quot;Sprites/Default&quot;</span><span class="s2">));</span>
+        <span class="s1">lr</span><span class="s2">.</span><span class="s1">startColor </span><span class="s2">= </span><span class="s1">lineColor</span><span class="s2">; </span><span class="s3">// 可以根據需要調整顏色</span>
+        <span class="s1">lr</span><span class="s2">.</span><span class="s1">endColor </span><span class="s2">= </span><span class="s1">lineColor</span><span class="s2">;</span>
+        <span class="s1">lr</span><span class="s2">.</span><span class="s1">sortingLayerName </span><span class="s2">= </span><span class="s4">&quot;LR&quot;</span><span class="s2">; </span><span class="s3">// 可以根據需要調整排序層</span>
+        <span class="s1">lr</span><span class="s2">.</span><span class="s1">sortingOrder </span><span class="s2">= </span><span class="s5">10</span><span class="s2">;</span>
+
+        <span class="s3">// 使用 Debug.DrawLine 從左到右連接</span>
+        <span class="s0">for </span><span class="s2">(</span><span class="s0">int </span><span class="s1">i </span><span class="s2">= </span><span class="s5">0</span><span class="s2">; </span><span class="s1">i </span><span class="s2">&lt; </span><span class="s1">linePositions</span><span class="s2">.</span><span class="s1">Count </span><span class="s2">- </span><span class="s5">1</span><span class="s2">; </span><span class="s1">i</span><span class="s2">++)</span>
+        <span class="s2">{</span>
+            <span class="s1">Debug</span><span class="s2">.</span><span class="s1">DrawLine</span><span class="s2">(</span><span class="s1">linePositions</span><span class="s2">[</span><span class="s1">i</span><span class="s2">], </span><span class="s1">linePositions</span><span class="s2">[</span><span class="s1">i </span><span class="s2">+ </span><span class="s5">1</span><span class="s2">], </span><span class="s1">lineColor</span><span class="s2">, </span><span class="s5">5f</span><span class="s2">);</span>
+        <span class="s2">}</span>
+
+        <span class="s3">// 可選：自動刪除連線線條</span>
+        <span class="s1">Destroy</span><span class="s2">(</span><span class="s1">lineGO</span><span class="s2">, </span><span class="s5">5f</span><span class="s2">); </span><span class="s3">// 5 秒後刪除</span>
+    <span class="s2">}</span>
+
+    <span class="s3">/// &lt;summary&gt;</span>
+    <span class="s3">/// 触发连线效果，例如造成伤害等</span>
+    <span class="s3">/// &lt;/summary&gt;</span>
+    <span class="s3">/// &lt;param name=&quot;pattern&quot;&gt;匹配的连线模式&lt;/param&gt;</span>
+    <span class="s3">/// &lt;param name=&quot;camp&quot;&gt;阵营&lt;/param&gt;</span>
+    <span class="s0">private void </span><span class="s1">TriggerLinkEffect</span><span class="s2">(</span><span class="s1">ConnectionPattern pattern</span><span class="s2">, </span><span class="s1">Camp camp</span><span class="s2">)</span>
+    <span class="s2">{</span>
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">pattern </span><span class="s2">== </span><span class="s0">null</span><span class="s2">)</span>
+        <span class="s2">{</span>
+            <span class="s1">Debug</span><span class="s2">.</span><span class="s1">LogWarning</span><span class="s2">(</span><span class="s4">&quot;ConnectionManager: 匹配的连线模式为空！&quot;</span><span class="s2">);</span>
+            <span class="s0">return</span><span class="s2">;</span>
+        <span class="s2">}</span>
+
+        <span class="s0">int </span><span class="s1">linkedUnitCount </span><span class="s2">= </span><span class="s1">pattern</span><span class="s2">.</span><span class="s1">positions</span><span class="s2">.</span><span class="s1">Count</span><span class="s2">;</span>
+
+        <span class="s3">// 定义每个单位造成的伤害值</span>
+        <span class="s0">int </span><span class="s1">damagePerUnit </span><span class="s2">= </span><span class="s5">1</span><span class="s2">; </span><span class="s3">// 可以根据需要调整</span>
+
+        <span class="s3">// 计算总伤害</span>
+        <span class="s0">int </span><span class="s1">totalDamage </span><span class="s2">= </span><span class="s1">linkedUnitCount </span><span class="s2">* </span><span class="s1">damagePerUnit</span><span class="s2">;</span>
+
+        <span class="s3">// 获取连线中最后一个单位的位置</span>
+        <span class="s1">Vector2Int lastUnitPos </span><span class="s2">= </span><span class="s1">pattern</span><span class="s2">.</span><span class="s1">positions</span><span class="s2">[</span><span class="s1">pattern</span><span class="s2">.</span><span class="s1">positions</span><span class="s2">.</span><span class="s1">Count </span><span class="s2">- </span><span class="s5">1</span><span class="s2">];</span>
+        <span class="s0">int </span><span class="s1">lastUnitRow </span><span class="s2">= </span><span class="s1">lastUnitPos</span><span class="s2">.</span><span class="s1">x</span><span class="s2">; </span><span class="s3">// x 表示行（row）</span>
+        <span class="s0">int </span><span class="s1">lastUnitCol </span><span class="s2">= </span><span class="s1">lastUnitPos</span><span class="s2">.</span><span class="s1">y</span><span class="s2">; </span><span class="s3">// y 表示列（column）</span>
+
+        <span class="s3">// 获取最后一个单位的实际格子位置</span>
+        <span class="s1">Vector3Int lastUnitGridPos </span><span class="s2">= </span><span class="s0">new </span><span class="s1">Vector3Int</span><span class="s2">(</span><span class="s1">lastUnitCol </span><span class="s2">+ </span><span class="s5">1</span><span class="s2">, </span><span class="s1">lastUnitRow</span><span class="s2">, </span><span class="s5">0</span><span class="s2">); </span><span class="s3">// 列从 1 开始</span>
+
+        <span class="s3">// 根据阵营，确定敌方建筑的位置</span>
+        <span class="s1">Vector3Int enemyBuildingPosition </span><span class="s2">= </span><span class="s1">gridManager</span><span class="s2">.</span><span class="s1">GetEnemyBuildingPositionInRow</span><span class="s2">(</span><span class="s1">lastUnitRow</span><span class="s2">, </span><span class="s1">camp</span><span class="s2">);</span>
+
+        <span class="s3">// 获取敌方建筑</span>
+        <span class="s1">BuildingController enemyBuilding </span><span class="s2">= </span><span class="s1">gridManager</span><span class="s2">.</span><span class="s1">GetBuildingAt</span><span class="s2">(</span><span class="s1">enemyBuildingPosition</span><span class="s2">);</span>
+
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">enemyBuilding </span><span class="s2">!= </span><span class="s0">null </span><span class="s2">&amp;&amp; </span><span class="s1">enemyBuilding</span><span class="s2">.</span><span class="s1">buildingData</span><span class="s2">.</span><span class="s1">camp </span><span class="s2">!= </span><span class="s1">camp</span><span class="s2">)</span>
+        <span class="s2">{</span>
+            <span class="s3">// 对敌方建筑造成伤害</span>
+            <span class="s1">enemyBuilding</span><span class="s2">.</span><span class="s1">TakeDamage</span><span class="s2">(</span><span class="s1">totalDamage</span><span class="s2">);</span>
+            <span class="s1">Debug</span><span class="s2">.</span><span class="s1">Log</span><span class="s2">(</span><span class="s4">$&quot;ConnectionManager: 对敌方建筑 </span><span class="s2">{</span><span class="s1">enemyBuilding</span><span class="s2">.</span><span class="s1">buildingData</span><span class="s2">.</span><span class="s1">buildingName</span><span class="s2">} </span><span class="s4">造成 </span><span class="s2">{</span><span class="s1">totalDamage</span><span class="s2">} </span><span class="s4">点伤害！&quot;</span><span class="s2">);</span>
+        <span class="s2">}</span>
+        <span class="s0">else</span>
+        <span class="s2">{</span>
+            <span class="s1">Debug</span><span class="s2">.</span><span class="s1">Log</span><span class="s2">(</span><span class="s4">$&quot;ConnectionManager: 在位置 </span><span class="s2">{</span><span class="s1">enemyBuildingPosition</span><span class="s2">} </span><span class="s4">未找到敌方建筑，无法造成伤害。&quot;</span><span class="s2">);</span>
+        <span class="s2">}</span>
+    <span class="s2">}</span>
+
+<span class="s2">}</span>
+</pre>
+</body>
+</html>

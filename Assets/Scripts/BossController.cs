@@ -373,11 +373,11 @@ public class BossController : MonoBehaviour, ISkillUser
         // 动画序列
         Sequence hitSequence = DOTween.Sequence();
 
-        // 向后移动
-        hitSequence.Append(spriteTransform.DOMove(spriteTransform.position + direction * moveDistance, animationDuration));
+        // 向后移动（使用本地坐标）
+        hitSequence.Append(spriteTransform.DOLocalMove(spriteTransform.localPosition + direction * moveDistance, animationDuration));
 
-        // 返回原位
-        hitSequence.Append(spriteTransform.DOMove(spriteTransform.position, animationDuration));
+        // 返回原位（使用本地坐标）
+        hitSequence.Append(spriteTransform.DOLocalMove(Vector3.zero, animationDuration)); // 假设原位为本地坐标的 (0,0,0)
 
         // 动画完成回调
         if (onComplete != null)

@@ -1,0 +1,198 @@
+<html>
+<head>
+<title>SkillManager.cs</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #6c95eb;}
+.s1 { color: #d0d0d0;}
+.s2 { color: #bdbdbd;}
+.s3 { color: #85c46c; font-style: italic;}
+.s4 { color: #c9a26d;}
+.s5 { color: #ed94c0;}
+</style>
+</head>
+<body bgcolor="#262626">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#606060" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+SkillManager.cs</font>
+</center></td></tr></table>
+<pre><span class="s0">using </span><span class="s1">System</span><span class="s2">.</span><span class="s1">Collections</span><span class="s2">;</span>
+<span class="s0">using </span><span class="s1">UnityEngine</span><span class="s2">;</span>
+
+<span class="s3">/// &lt;summary&gt;</span>
+<span class="s3">/// 管理技能的执行</span>
+<span class="s3">/// &lt;/summary&gt;</span>
+<span class="s0">public class </span><span class="s1">SkillManager : MonoBehaviour</span>
+<span class="s2">{</span>
+    <span class="s0">public static </span><span class="s1">SkillManager Instance </span><span class="s2">{ </span><span class="s1">get</span><span class="s2">; </span><span class="s0">private </span><span class="s1">set</span><span class="s2">; }</span>
+
+    <span class="s0">void </span><span class="s1">Awake</span><span class="s2">()</span>
+    <span class="s2">{</span>
+        <span class="s3">// 单例模式实现</span>
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">Instance </span><span class="s2">== </span><span class="s0">null</span><span class="s2">)</span>
+        <span class="s2">{</span>
+            <span class="s1">Instance </span><span class="s2">= </span><span class="s0">this</span><span class="s2">;</span>
+            <span class="s1">DontDestroyOnLoad</span><span class="s2">(</span><span class="s1">gameObject</span><span class="s2">); </span><span class="s3">// 可选：保持在场景切换中不被销毁</span>
+        <span class="s2">}</span>
+        <span class="s0">else</span>
+        <span class="s2">{</span>
+            <span class="s1">Destroy</span><span class="s2">(</span><span class="s1">gameObject</span><span class="s2">);</span>
+        <span class="s2">}</span>
+    <span class="s2">}</span>
+
+    <span class="s3">/// &lt;summary&gt;</span>
+    <span class="s3">/// 执行技能，支持动作的前后顺序和阻塞</span>
+    <span class="s3">/// &lt;/summary&gt;</span>
+    <span class="s3">/// &lt;param name=&quot;skillSO&quot;&gt;要执行的技能ScriptableObject&lt;/param&gt;</span>
+    <span class="s3">/// &lt;param name=&quot;user&quot;&gt;执行技能的用户（单位或建筑物）&lt;/param&gt;</span>
+    <span class="s0">public void </span><span class="s1">ExecuteSkill</span><span class="s2">(</span><span class="s1">SkillSO skillSO</span><span class="s2">, </span><span class="s1">ISkillUser user</span><span class="s2">)</span>
+    <span class="s2">{</span>
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">skillSO </span><span class="s2">== </span><span class="s0">null </span><span class="s2">|| </span><span class="s1">user </span><span class="s2">== </span><span class="s0">null</span><span class="s2">)</span>
+        <span class="s2">{</span>
+            <span class="s1">Debug</span><span class="s2">.</span><span class="s1">LogError</span><span class="s2">(</span><span class="s4">&quot;SkillManager: SkillSO 或 ISkillUser 为 null！&quot;</span><span class="s2">);</span>
+            <span class="s0">return</span><span class="s2">;</span>
+        <span class="s2">}</span>
+
+        <span class="s3">// 启动协程执行技能</span>
+        <span class="s1">StartCoroutine</span><span class="s2">(</span><span class="s1">ExecuteSkillCoroutine</span><span class="s2">(</span><span class="s1">skillSO</span><span class="s2">, </span><span class="s1">user</span><span class="s2">));</span>
+    <span class="s2">}</span>
+
+    <span class="s3">/// &lt;summary&gt;</span>
+    <span class="s3">/// 协程执行技能动作</span>
+    <span class="s3">/// &lt;/summary&gt;</span>
+    <span class="s3">/// &lt;param name=&quot;skillSO&quot;&gt;技能ScriptableObject&lt;/param&gt;</span>
+    <span class="s3">/// &lt;param name=&quot;user&quot;&gt;技能执行者&lt;/param&gt;</span>
+    <span class="s3">/// &lt;returns&gt;&lt;/returns&gt;</span>
+    <span class="s0">private </span><span class="s1">IEnumerator ExecuteSkillCoroutine</span><span class="s2">(</span><span class="s1">SkillSO skillSO</span><span class="s2">, </span><span class="s1">ISkillUser user</span><span class="s2">)</span>
+    <span class="s2">{</span>
+        <span class="s3">// 克隆SkillSO为运行时Skill实例</span>
+        <span class="s1">Skill runtimeSkill </span><span class="s2">= </span><span class="s1">Skill</span><span class="s2">.</span><span class="s1">FromSkillSO</span><span class="s2">(</span><span class="s1">skillSO</span><span class="s2">);</span>
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">runtimeSkill </span><span class="s2">== </span><span class="s0">null </span><span class="s2">|| </span><span class="s1">runtimeSkill</span><span class="s2">.</span><span class="s1">Actions </span><span class="s2">== </span><span class="s0">null</span><span class="s2">)</span>
+        <span class="s2">{</span>
+            <span class="s1">Debug</span><span class="s2">.</span><span class="s1">LogError</span><span class="s2">(</span><span class="s4">&quot;SkillManager: 无法克隆 SkillSO！&quot;</span><span class="s2">);</span>
+            <span class="s1">yield </span><span class="s0">break</span><span class="s2">;</span>
+        <span class="s2">}</span>
+
+        <span class="s3">// 验证每个SkillAction的TargetType是否与SkillType匹配</span>
+        <span class="s0">foreach </span><span class="s2">(</span><span class="s1">var action </span><span class="s0">in </span><span class="s1">runtimeSkill</span><span class="s2">.</span><span class="s1">Actions</span><span class="s2">)</span>
+        <span class="s2">{</span>
+            <span class="s0">switch </span><span class="s2">(</span><span class="s1">action</span><span class="s2">.</span><span class="s1">Type</span><span class="s2">)</span>
+            <span class="s2">{</span>
+                <span class="s0">case </span><span class="s1">SkillType</span><span class="s2">.</span><span class="s1">Melee:</span>
+                <span class="s0">case </span><span class="s1">SkillType</span><span class="s2">.</span><span class="s1">Ranged:</span>
+                <span class="s0">case </span><span class="s1">SkillType</span><span class="s2">.</span><span class="s1">Breakage:</span>
+                    <span class="s0">if </span><span class="s2">(</span><span class="s1">action</span><span class="s2">.</span><span class="s1">TargetType </span><span class="s2">!= </span><span class="s1">TargetType</span><span class="s2">.</span><span class="s1">Enemy</span><span class="s2">)</span>
+                    <span class="s2">{</span>
+                        <span class="s1">Debug</span><span class="s2">.</span><span class="s1">LogWarning</span><span class="s2">(</span><span class="s4">$&quot;SkillManager: SkillAction </span><span class="s2">{</span><span class="s1">action</span><span class="s2">.</span><span class="s1">Type</span><span class="s2">} </span><span class="s4">应该只对敌方生效。强制设置为 Enemy。&quot;</span><span class="s2">);</span>
+                        <span class="s1">action</span><span class="s2">.</span><span class="s1">TargetType </span><span class="s2">= </span><span class="s1">TargetType</span><span class="s2">.</span><span class="s1">Enemy</span><span class="s2">;</span>
+                    <span class="s2">}</span>
+                    <span class="s0">break</span><span class="s2">;</span>
+                <span class="s0">case </span><span class="s1">SkillType</span><span class="s2">.</span><span class="s1">Defense:</span>
+                    <span class="s0">if </span><span class="s2">(</span><span class="s1">action</span><span class="s2">.</span><span class="s1">TargetType </span><span class="s2">!= </span><span class="s1">TargetType</span><span class="s2">.</span><span class="s1">Friendly </span><span class="s2">&amp;&amp; </span><span class="s1">action</span><span class="s2">.</span><span class="s1">TargetType </span><span class="s2">!= </span><span class="s1">TargetType</span><span class="s2">.</span><span class="s1">Self</span><span class="s2">)</span>
+                    <span class="s2">{</span>
+                        <span class="s1">Debug</span><span class="s2">.</span><span class="s1">LogWarning</span><span class="s2">(</span><span class="s4">$&quot;SkillManager: SkillAction </span><span class="s2">{</span><span class="s1">action</span><span class="s2">.</span><span class="s1">Type</span><span class="s2">} </span><span class="s4">应该只对友方或自身生效。强制设置为 Friendly。&quot;</span><span class="s2">);</span>
+                        <span class="s1">action</span><span class="s2">.</span><span class="s1">TargetType </span><span class="s2">= </span><span class="s1">TargetType</span><span class="s2">.</span><span class="s1">Friendly</span><span class="s2">;</span>
+                    <span class="s2">}</span>
+                    <span class="s0">break</span><span class="s2">;</span>
+                <span class="s3">// 可以为更多SkillType添加验证逻辑</span>
+                <span class="s1">default:</span>
+                    <span class="s0">break</span><span class="s2">;</span>
+            <span class="s2">}</span>
+        <span class="s2">}</span>
+
+        <span class="s0">bool </span><span class="s1">movementBlocked </span><span class="s2">= </span><span class="s0">false</span><span class="s2">;</span>
+
+        <span class="s3">// 按动作的顺序执行</span>
+        <span class="s0">foreach </span><span class="s2">(</span><span class="s1">var action </span><span class="s0">in </span><span class="s1">runtimeSkill</span><span class="s2">.</span><span class="s1">Actions</span><span class="s2">)</span>
+        <span class="s2">{</span>
+            <span class="s0">switch </span><span class="s2">(</span><span class="s1">action</span><span class="s2">.</span><span class="s1">Type</span><span class="s2">)</span>
+            <span class="s2">{</span>
+                <span class="s0">case </span><span class="s1">SkillType</span><span class="s2">.</span><span class="s1">Move:</span>
+                    <span class="s0">for </span><span class="s2">(</span><span class="s0">int </span><span class="s1">i </span><span class="s2">= </span><span class="s5">0</span><span class="s2">; </span><span class="s1">i </span><span class="s2">&lt; </span><span class="s1">action</span><span class="s2">.</span><span class="s1">Value</span><span class="s2">; </span><span class="s1">i</span><span class="s2">++)</span>
+                    <span class="s2">{</span>
+                        <span class="s0">if </span><span class="s2">(</span><span class="s1">user</span><span class="s2">.</span><span class="s1">CanMoveForward</span><span class="s2">())</span>
+                        <span class="s2">{</span>
+                            <span class="s1">yield </span><span class="s0">return </span><span class="s1">StartCoroutine</span><span class="s2">(</span><span class="s1">user</span><span class="s2">.</span><span class="s1">MoveForward</span><span class="s2">()); </span><span class="s3">// 等待移动完成</span>
+                            <span class="s1">yield </span><span class="s0">return new </span><span class="s1">WaitForSeconds</span><span class="s2">(</span><span class="s5">0.1f</span><span class="s2">); </span><span class="s3">// 可根据需要调整移动间隔</span>
+                        <span class="s2">}</span>
+                        <span class="s0">else</span>
+                        <span class="s2">{</span>
+                            <span class="s1">Debug</span><span class="s2">.</span><span class="s1">Log</span><span class="s2">(</span><span class="s4">&quot;SkillManager: 用户无法继续移动，动作被阻挡！&quot;</span><span class="s2">);</span>
+                            <span class="s1">movementBlocked </span><span class="s2">= </span><span class="s0">true</span><span class="s2">;</span>
+                            <span class="s0">break</span><span class="s2">;</span>
+                        <span class="s2">}</span>
+                    <span class="s2">}</span>
+                    <span class="s0">break</span><span class="s2">;</span>
+
+                <span class="s0">case </span><span class="s1">SkillType</span><span class="s2">.</span><span class="s1">Melee:</span>
+                    <span class="s1">yield </span><span class="s0">return </span><span class="s1">StartCoroutine</span><span class="s2">(</span><span class="s1">user</span><span class="s2">.</span><span class="s1">PerformMeleeAttack</span><span class="s2">(</span><span class="s1">action</span><span class="s2">.</span><span class="s1">TargetType</span><span class="s2">)); </span><span class="s3">// 等待攻击完成</span>
+                    <span class="s1">yield </span><span class="s0">return new </span><span class="s1">WaitForSeconds</span><span class="s2">(</span><span class="s5">0.1f</span><span class="s2">); </span><span class="s3">// 可根据需要调整攻击间隔</span>
+                    <span class="s0">break</span><span class="s2">;</span>
+
+                <span class="s0">case </span><span class="s1">SkillType</span><span class="s2">.</span><span class="s1">Ranged:</span>
+                    <span class="s1">yield </span><span class="s0">return </span><span class="s1">StartCoroutine</span><span class="s2">(</span><span class="s1">user</span><span class="s2">.</span><span class="s1">PerformRangedAttack</span><span class="s2">(</span><span class="s1">action</span><span class="s2">.</span><span class="s1">TargetType</span><span class="s2">)); </span><span class="s3">// 等待攻击完成</span>
+                    <span class="s1">yield </span><span class="s0">return new </span><span class="s1">WaitForSeconds</span><span class="s2">(</span><span class="s5">0.1f</span><span class="s2">); </span><span class="s3">// 可根据需要调整攻击间隔</span>
+                    <span class="s0">break</span><span class="s2">;</span>
+
+                <span class="s0">case </span><span class="s1">SkillType</span><span class="s2">.</span><span class="s1">Defense:</span>
+                    <span class="s1">yield </span><span class="s0">return </span><span class="s1">StartCoroutine</span><span class="s2">(</span><span class="s1">user</span><span class="s2">.</span><span class="s1">IncreaseDefense</span><span class="s2">(</span><span class="s1">action</span><span class="s2">.</span><span class="s1">Value</span><span class="s2">, </span><span class="s1">action</span><span class="s2">.</span><span class="s1">TargetType</span><span class="s2">)); </span><span class="s3">// 等待防御完成</span>
+                    <span class="s1">yield </span><span class="s0">return null</span><span class="s2">; </span><span class="s3">// 防御动作通常是即时的</span>
+                    <span class="s0">break</span><span class="s2">;</span>
+                
+                <span class="s0">case </span><span class="s1">SkillType</span><span class="s2">.</span><span class="s1">Breakage:</span>
+                    <span class="s1">yield </span><span class="s0">return </span><span class="s1">StartCoroutine</span><span class="s2">(</span><span class="s1">user</span><span class="s2">.</span><span class="s1">PerformBreakage</span><span class="s2">(</span><span class="s1">action</span><span class="s2">.</span><span class="s1">Value</span><span class="s2">)); </span><span class="s3">// 等待破壞完成</span>
+                    <span class="s1">yield </span><span class="s0">return new </span><span class="s1">WaitForSeconds</span><span class="s2">(</span><span class="s5">0.1f</span><span class="s2">); </span><span class="s3">// 可根据需要调整破壞间隔</span>
+                    <span class="s0">break</span><span class="s2">;</span>
+
+                <span class="s1">default:</span>
+                    <span class="s1">Debug</span><span class="s2">.</span><span class="s1">LogWarning</span><span class="s2">(</span><span class="s4">$&quot;SkillManager: 未处理的技能类型：</span><span class="s2">{</span><span class="s1">action</span><span class="s2">.</span><span class="s1">Type</span><span class="s2">}</span><span class="s4">&quot;</span><span class="s2">);</span>
+                    <span class="s0">break</span><span class="s2">;</span>
+            <span class="s2">}</span>
+
+            <span class="s3">// 如果移动被阻挡，跳出动作执行循环</span>
+            <span class="s0">if </span><span class="s2">(</span><span class="s1">movementBlocked</span><span class="s2">)</span>
+            <span class="s2">{</span>
+                <span class="s0">if </span><span class="s2">(</span><span class="s1">user </span><span class="s0">is </span><span class="s1">UnitController unit</span><span class="s2">)</span>
+                <span class="s2">{</span>
+                    <span class="s1">UnitController frontUnit </span><span class="s2">= </span><span class="s1">GridManager</span><span class="s2">.</span><span class="s1">Instance</span><span class="s2">.</span><span class="s1">GetFrontUnitInRow</span><span class="s2">(</span><span class="s1">unit</span><span class="s2">);</span>
+                    <span class="s0">if </span><span class="s2">(</span><span class="s1">frontUnit </span><span class="s2">!= </span><span class="s0">null </span><span class="s2">&amp;&amp; </span><span class="s1">frontUnit</span><span class="s2">.</span><span class="s1">unitData</span><span class="s2">.</span><span class="s1">camp </span><span class="s2">== </span><span class="s1">unit</span><span class="s2">.</span><span class="s1">unitData</span><span class="s2">.</span><span class="s1">camp</span><span class="s2">)</span>
+                    <span class="s2">{</span>
+                        <span class="s1">Debug</span><span class="s2">.</span><span class="s1">Log</span><span class="s2">(</span><span class="s4">$&quot;SkillManager: </span><span class="s2">{</span><span class="s1">unit</span><span class="s2">.</span><span class="s1">unitData</span><span class="s2">.</span><span class="s1">unitName</span><span class="s2">} </span><span class="s4">被阻挡，应用支援技能到前方单位 </span><span class="s2">{</span><span class="s1">frontUnit</span><span class="s2">.</span><span class="s1">unitData</span><span class="s2">.</span><span class="s1">unitName</span><span class="s2">}</span><span class="s4">。&quot;</span><span class="s2">);</span>
+                        <span class="s1">ApplySupportSkill</span><span class="s2">(</span><span class="s1">unit</span><span class="s2">.</span><span class="s1">unitData</span><span class="s2">.</span><span class="s1">supportSkillSO</span><span class="s2">, </span><span class="s1">frontUnit</span><span class="s2">);</span>
+                    <span class="s2">}</span>
+                    <span class="s0">else</span>
+                    <span class="s2">{</span>
+                        <span class="s1">Debug</span><span class="s2">.</span><span class="s1">Log</span><span class="s2">(</span><span class="s4">$&quot;SkillManager: </span><span class="s2">{</span><span class="s1">unit</span><span class="s2">.</span><span class="s1">unitData</span><span class="s2">.</span><span class="s1">unitName</span><span class="s2">} </span><span class="s4">被阻挡，前方无友方单位，执行主技能的剩余动作。&quot;</span><span class="s2">);</span>
+                        <span class="s3">// 根据需要，决定是否执行剩余动作</span>
+                    <span class="s2">}</span>
+                <span class="s2">}</span>
+                <span class="s0">else</span>
+                <span class="s2">{</span>
+                    <span class="s3">// 对于建筑物，直接继续执行</span>
+                <span class="s2">}</span>
+                <span class="s0">break</span><span class="s2">; </span><span class="s3">// 退出动作循环</span>
+            <span class="s2">}</span>
+        <span class="s2">}</span>
+    <span class="s2">}</span>
+
+    <span class="s3">/// &lt;summary&gt;</span>
+    <span class="s3">/// 应用支援技能到目标用户</span>
+    <span class="s3">/// &lt;/summary&gt;</span>
+    <span class="s3">/// &lt;param name=&quot;supportSkillSO&quot;&gt;支援技能ScriptableObject&lt;/param&gt;</span>
+    <span class="s3">/// &lt;param name=&quot;targetUser&quot;&gt;目标用户（单位或建筑物）&lt;/param&gt;</span>
+    <span class="s0">public void </span><span class="s1">ApplySupportSkill</span><span class="s2">(</span><span class="s1">SkillSO supportSkillSO</span><span class="s2">, </span><span class="s1">ISkillUser targetUser</span><span class="s2">)</span>
+    <span class="s2">{</span>
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">supportSkillSO </span><span class="s2">== </span><span class="s0">null </span><span class="s2">|| </span><span class="s1">targetUser </span><span class="s2">== </span><span class="s0">null</span><span class="s2">)</span>
+        <span class="s2">{</span>
+            <span class="s1">Debug</span><span class="s2">.</span><span class="s1">LogError</span><span class="s2">(</span><span class="s4">&quot;SkillManager: 支援技能的SkillSO或目标用户为 null！&quot;</span><span class="s2">);</span>
+            <span class="s0">return</span><span class="s2">;</span>
+        <span class="s2">}</span>
+
+        <span class="s3">// 执行支援技能</span>
+        <span class="s1">ExecuteSkill</span><span class="s2">(</span><span class="s1">supportSkillSO</span><span class="s2">, </span><span class="s1">targetUser</span><span class="s2">);</span>
+    <span class="s2">}</span>
+<span class="s2">}</span>
+</pre>
+</body>
+</html>

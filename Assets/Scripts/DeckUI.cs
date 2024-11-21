@@ -116,7 +116,7 @@ public class DeckUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
         if (unitData == null)
             return;
 
-        graveyardCards.Add(unitData);
+        //graveyardCards.Add(unitData);
 
         // 更新墓地卡牌数显示
         if (graveyardCountText != null)

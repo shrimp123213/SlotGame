@@ -605,26 +605,8 @@ public class UnitController : MonoBehaviour, ISkillUser
     {
         // 从战场移除
         GridManager.Instance.RemoveSkillUserAt(gridPosition);
-
-        // 更新牌组，减少单位数量
-        if (unitData.camp == Camp.Player)
-        {
-            // 更新玩家牌组
-            Deck playerDeck = DeckManager.Instance.playerDeck;
-            playerDeck.RemoveCard(unitData, 1, isInjured);
-            Debug.Log($"{unitData.unitName} 移动到玩家墓地");
-        }
-        else if (unitData.camp == Camp.Enemy)
-        {
-            // 更新敌人牌组
-            Deck enemyDeck = DeckManager.Instance.enemyDeck;
-            enemyDeck.RemoveCard(unitData, 1, isInjured);
-            Debug.Log($"{unitData.unitName} 移动到敌人墓地");
-        }
-        else
-        {
-            Debug.LogWarning($"{unitData.unitName} 的阵营未知，无法移动到墓地");
-        }
+        
+        DeckManager.Instance.HandleUnitDeath(unitData, isInjured, isPlayerUnit: unitData.camp == Camp.Player);
 
         // 销毁单位的游戏对象
         Destroy(gameObject);

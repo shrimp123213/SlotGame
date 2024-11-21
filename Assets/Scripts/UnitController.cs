@@ -20,7 +20,7 @@ public class UnitController : MonoBehaviour, ISkillUser
     public SpriteRenderer spriteRenderer;
     
     // 新增状态管理字段
-    private List<IUnitState> currentStates = new List<IUnitState>();
+    private List<UnitStateBase> currentStates = new List<UnitStateBase>();
 
     [Header("UI Elements")]
     public Transform statusIconsParent; // 状态图标的父对象
@@ -38,6 +38,10 @@ public class UnitController : MonoBehaviour, ISkillUser
     
     // 添加对 Sprite 子对象的引用
     private Transform spriteTransform;
+    
+    // 新增：疾病层数管理
+    private int diseaseLayers = 0;
+    public int DiseaseLayers => diseaseLayers;
 
     void Awake()
     {
@@ -80,8 +84,13 @@ public class UnitController : MonoBehaviour, ISkillUser
         Init();
         
         // 添加初始状态
-        //AddState<InvincibleState>();
-        //AddState<InjuredState>();
+        if (unitData.initialStates != null)
+        {
+            foreach(var state in unitData.initialStates)
+            {
+                AddState(state);
+            }
+        }
     }
 
     /// <summary>
@@ -275,8 +284,7 @@ public class UnitController : MonoBehaviour, ISkillUser
         
         //Debug.Log("UnitController: 执行近战攻击");
     }
-
-
+    
     /// <summary>
     /// 执行远程攻击
     /// </summary>
@@ -323,7 +331,7 @@ public class UnitController : MonoBehaviour, ISkillUser
             BossController boss = GridManager.Instance.GetBossUnit(unitData.camp == Camp.Player ? Camp.Enemy : Camp.Player);
             if (boss != null)
             {
-                boss.TakeDamage(damage);
+                boss.TakeDamage(damage, DamageSource.Normal); // 以正常伤害来源攻击Boss);
                 Debug.Log($"UnitController: {name} 对 Boss 进行攻击，造成 {damage} 点伤害！");
                 return true;
             }
@@ -621,17 +629,25 @@ public class UnitController : MonoBehaviour, ISkillUser
             Debug.Log($"UnitController: {name} 没有找到可以{action}。");
         }
     }
-
     
     /// <summary>
-    /// 接受伤害
+    /// 接受伤害逻辑
     /// </summary>
     /// <param name="damage">伤害值</param>
-    public virtual void TakeDamage(int damage)
+    /// <param name="source">伤害来源</param>
+    public virtual void TakeDamage(int damage, DamageSource source = DamageSource.Normal)
     {
         if (HasState<InvincibleState>())
         {
             Debug.Log($"{name} 处于无敌状态，免疫伤害");
+            return;
+        }
+
+        // 如果单位处于脆弱状态，且伤害来源不是疾病，则立即死亡
+        if (HasState<FragileState>() && source == DamageSource.Normal)
+        {
+            Debug.Log($"UnitController: 单位 {name} 处于脆弱状态，受到正常伤害，将立即死亡！");
+            Die();
             return;
         }
 
@@ -651,34 +667,41 @@ public class UnitController : MonoBehaviour, ISkillUser
 
         if (currentHealth <= 0 && !isDead)
         {
-            isDead = true; // 设置死亡标志
-
-            if (HasState<InjuredState>())
-            {
-                // 负伤状态下再次死亡，进入墓地
-                Debug.Log($"UnitController: 单位 {name} 在负伤状态下再次死亡，进入墓地");
-                MoveToGraveyard();
-            }
-            else
-            {
-                // 第一次死亡，进入负伤状态并返回牌库
-                Debug.Log($"UnitController: 单位 {name} 第一次死亡，进入负伤状态并返回牌库");
-                AddState<InjuredState>();
-                MoveToDeck();
-            }
-
-            // 播放死亡动画后销毁
-            //PlayDeathAnimation(() =>
-            PlayHitAnimation(() =>
-            {
-                Destroy(gameObject);
-            });
+            Die();
         }
         else
         {
             // 如果未死亡，播放受击动画
             PlayHitAnimation();
         }
+    }
+    
+    /// <summary>
+    /// 处理单位死亡逻辑
+    /// </summary>
+    private void Die()
+    {
+        isDead = true; // 设置死亡标志
+
+        if (HasState<InjuredState>())
+        {
+            // 负伤状态下再次死亡，进入墓地
+            Debug.Log($"UnitController: 单位 {name} 在负伤状态下再次死亡，进入墓地");
+            MoveToGraveyard();
+        }
+        else
+        {
+            // 第一次死亡，进入负伤状态并返回牌库
+            Debug.Log($"UnitController: 单位 {name} 第一次死亡，进入负伤状态并返回牌库");
+            AddState<InjuredState>();
+            MoveToDeck();
+        }
+
+        // 播放死亡动画后销毁
+        PlayHitAnimation(() =>
+        {
+            Destroy(gameObject);
+        });
     }
     
     /// <summary>
@@ -751,6 +774,65 @@ public class UnitController : MonoBehaviour, ISkillUser
         {
             AddState<HealedState>();
         }
+
+        // 如果单位有疾病，优先治疗疾病
+        if (diseaseLayers > 0)
+        {
+            HealDisease();
+        }
+    }
+    
+    /// <summary>
+    /// 治疗疾病，每次调用减少一层
+    /// </summary>
+    public void HealDisease()
+    {
+        if (diseaseLayers > 0)
+        {
+            diseaseLayers--;
+            Debug.Log($"UnitController: 单位 {name} 疾病层数减少到: {diseaseLayers}");
+            if (diseaseLayers == 0)
+            {
+                RemoveState<DiseaseState>();
+            }
+            else
+            {
+                UpdateUnitUI();
+            }
+        }
+    }
+    
+    /// <summary>
+    /// 每回合结束时调用，减少一层疾病
+    /// </summary>
+    public void OnEndTurn()
+    {
+        if (diseaseLayers > 0)
+        {
+            diseaseLayers--;
+            Debug.Log($"UnitController: 单位 {name} 疾病层数减少到: {diseaseLayers}");
+            if (diseaseLayers == 0)
+            {
+                RemoveState<DiseaseState>();
+            }
+            else
+            {
+                UpdateUnitUI();
+            }
+        }
+    }
+    
+    /// <summary>
+    /// 添加疾病
+    /// </summary>
+    public void AddDisease()
+    {
+        diseaseLayers++;
+        if (diseaseLayers == 1)
+        {
+            AddState<DiseaseState>();
+        }
+        Debug.Log($"UnitController: 单位 {name} 受到了疾病，目前疾病层数: {diseaseLayers}");
     }
 
     /// <summary>
@@ -944,34 +1026,53 @@ public class UnitController : MonoBehaviour, ISkillUser
         }
     }
     
+    /// <summary>
+    /// 添加一个状态到单位
+    /// </summary>
+    /// <param name="state">要添加的状态实例</param>
+    public void AddState(UnitStateBase state)
+    {
+        if(state == null)
+        {
+            Debug.LogError("UnitController: 尝试添加空的状态");
+            return;
+        }
+
+        // 查找是否已存在该状态
+        foreach(var existingState in currentStates)
+        {
+            if(existingState.GetType() == state.GetType())
+            {
+                Debug.LogWarning($"{name} 已经拥有 {existingState.StateName} 状态");
+                return;
+            }
+        }
+
+        // 添加状态
+        currentStates.Add(state);
+        state.OnEnter(this);
+        AddStatusIcon(state);
+    }
     
     /// <summary>
     /// 添加一個狀態到單位
     /// </summary>
     /// <typeparam name="T">狀態類型</typeparam>
-    public void AddState<T>() where T : ScriptableObject, IUnitState
+    public void AddState<T>() where T : UnitStateBase
     {
-        // 先檢查是否有互斥的狀態
-        if (typeof(T) == typeof(InvincibleState))
+        // 检查是否已拥有该状态
+        foreach(var existingState in currentStates)
         {
-            // 移除所有可能與無敵狀態互斥的狀態
-            //RemoveState<InjuredState>();
-            //RemoveState<HealedState>();
-        }
-        
-        // 查找是否已經存在該類型的狀態
-        foreach (var state in currentStates)
-        {
-            if (state.GetType() == typeof(T))
+            if(existingState.GetType() == typeof(T))
             {
-                Debug.LogWarning($"{name} 已經擁有 {state.StateName} 狀態");
+                Debug.LogWarning($"{name} 已经拥有 {existingState.StateName} 状态");
                 return;
             }
         }
 
-        // 加載狀態資源
+        // 加载状态资源
         T newState = Resources.Load<T>($"UnitStates/{typeof(T).Name}");
-        if (newState != null)
+        if(newState != null)
         {
             currentStates.Add(newState);
             newState.OnEnter(this);
@@ -979,7 +1080,7 @@ public class UnitController : MonoBehaviour, ISkillUser
         }
         else
         {
-            Debug.LogError($"無法加載狀態類型: {typeof(T).Name}");
+            Debug.LogError($"无法加载状态类型: {typeof(T).Name}");
         }
     }
 
@@ -987,9 +1088,9 @@ public class UnitController : MonoBehaviour, ISkillUser
     /// 移除一個狀態從單位
     /// </summary>
     /// <typeparam name="T">狀態類型</typeparam>
-    public void RemoveState<T>() where T : ScriptableObject, IUnitState
+    public void RemoveState<T>() where T : UnitStateBase
     {
-        IUnitState stateToRemove = null;
+        UnitStateBase stateToRemove = null;
         foreach (var state in currentStates)
         {
             if (state.GetType() == typeof(T))
@@ -1007,16 +1108,16 @@ public class UnitController : MonoBehaviour, ISkillUser
         }
         else
         {
-            Debug.LogWarning($"{name} 不存在 {typeof(T).Name} 狀態");
+            Debug.LogWarning($"{name} 不存在 {typeof(T).Name} 状态");
         }
     }
 
     /// <summary>
-    /// 檢查單位是否擁有某個狀態
+    /// 检查单位是否拥有某个状态
     /// </summary>
-    /// <typeparam name="T">狀態類型</typeparam>
-    /// <returns>是否擁有該狀態</returns>
-    public bool HasState<T>() where T : ScriptableObject, IUnitState
+    /// <typeparam name="T">状态类型</typeparam>
+    /// <returns>是否拥有该状态</returns>
+    public bool HasState<T>() where T : UnitStateBase
     {
         foreach (var state in currentStates)
         {
@@ -1027,14 +1128,14 @@ public class UnitController : MonoBehaviour, ISkillUser
     }
 
     /// <summary>
-    /// 添加狀態圖標到 Unit 的子物件
+    /// 添加状态图标到 Unit 的子物件
     /// </summary>
-    /// <param name="state">要添加的狀態</param>
-    private void AddStatusIcon(IUnitState state)
+    /// <param name="state">要添加的状态</param>
+    private void AddStatusIcon(UnitStateBase state)
     {
         if (statusIconsParent != null && StatusIconPool.Instance != null)
         {
-            // 從對象池中獲取一個狀態圖標
+            // 从对象池中获取一个状态图标
             GameObject iconGO = StatusIconPool.Instance.GetStatusIcon();
             SpriteRenderer iconSpriteRenderer = iconGO.GetComponent<SpriteRenderer>();
             if (iconSpriteRenderer != null)
@@ -1042,44 +1143,44 @@ public class UnitController : MonoBehaviour, ISkillUser
                 iconSpriteRenderer.sprite = state.Icon;
                 iconSpriteRenderer.enabled = true;
 
-                // 設置圖標的父對象為 statusIconsParent
+                // 设置图标的父对象为 statusIconsParent
                 iconGO.transform.SetParent(statusIconsParent, false);
 
-                // 設置圖標的位置，根據當前活躍圖標數量
+                // 设置图标的位置，依据当前活跃图标数量
                 int iconCount = activeStatusIcons.Count;
-                iconGO.transform.localPosition = new Vector3(iconCount * 0.2f, 0, 0); // 水平排列，每個圖標間隔0.2單位
+                iconGO.transform.localPosition = new Vector3(iconCount * 0.2f, 0, 0); // 水平排列，每个图标间隔0.2单位
             }
             else
             {
-                Debug.LogError("StatusIconPrefab 沒有 SpriteRenderer 組件！");
+                Debug.LogError("StatusIconPrefab 没有 SpriteRenderer 组件！");
             }
             activeStatusIcons[state.StateName] = iconGO;
         }
         else
         {
-            Debug.LogError("UnitController: statusIconsParent 或 StatusIconPool.Instance 未設置！");
+            Debug.LogError("UnitController: statusIconsParent 或 StatusIconPool.Instance 未设置！");
         }
     }
 
     /// <summary>
-    /// 從 Unit 的子物件移除狀態圖標
+    /// 从 Unit 的子物件移除状态图标
     /// </summary>
-    /// <param name="state">要移除的狀態</param>
-    private void RemoveStatusIcon(IUnitState state)
+    /// <param name="state">要移除的状态</param>
+    private void RemoveStatusIcon(UnitStateBase state)
     {
         if (activeStatusIcons.ContainsKey(state.StateName))
         {
             GameObject iconGO = activeStatusIcons[state.StateName];
-            // 將圖標返回對象池
+            // 将图标返回对象池
             StatusIconPool.Instance.ReturnStatusIcon(iconGO);
             activeStatusIcons.Remove(state.StateName);
 
-            // 重新排列剩餘的圖標位置
+            // 重新排列剩余的图标位置
             RepositionStatusIcons();
         }
         else
         {
-            Debug.LogWarning($"UnitController: 狀態圖標 {state.StateName} 不存在於 activeStatusIcons 中");
+            Debug.LogWarning($"UnitController: 状态图标 {state.StateName} 不存在于 activeStatusIcons 中");
         }
     }
 

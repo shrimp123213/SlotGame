@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections.Generic;
 
 /// <summary>
 /// 單位的數據定義
@@ -17,6 +18,9 @@ public class UnitData : ScriptableObject
     
     [Header("Preferred Position")]
     public PreferredPosition preferredPosition; // 新增：单元的偏好位置
+    
+    [Header("Initial States")]
+    public List<UnitStateBase> initialStates; // 新增：单位的初始状态
 
     // 可以根据需要添加更多属性，如速度、攻击范围等
 }

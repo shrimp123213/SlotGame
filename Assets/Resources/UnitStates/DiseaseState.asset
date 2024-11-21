@@ -1,0 +1,15 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 513c120fd97bd1a4fb5cfe17e8098d47, type: 3}
+  m_Name: DiseaseState
+  m_EditorClassIdentifier: 
+  icon: {fileID: -1570283803, guid: 4e5f88f7e54c0bd44bf8cbe0c6675cbf, type: 3}

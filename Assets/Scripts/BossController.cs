@@ -300,9 +300,17 @@ public class BossController : MonoBehaviour, ISkillUser
         // 破壞逻辑已经在 PerformBreakage 方法中实现
     }
 
-    public void TakeDamage(int damage)
+    /// <summary>
+    /// 接受伤害
+    /// </summary>
+    /// <param name="damage">伤害值</param>
+    /// <param name="source">伤害来源</param>
+    public virtual void TakeDamage(int damage, DamageSource source = DamageSource.Normal)
     {
-        StartCoroutine(HandleTakeDamage(damage));
+        if (isDead)
+            return;
+        
+        StartCoroutine(HandleTakeDamage(damage, source));
         /*PlayHitAnimation(() =>
         {
             currentHealth -= damage;
@@ -321,7 +329,7 @@ public class BossController : MonoBehaviour, ISkillUser
         });*/
     }
     
-    private IEnumerator HandleTakeDamage(int damage)
+    private IEnumerator HandleTakeDamage(int damage, DamageSource source = DamageSource.Normal)
     {
         // 执行受击动画
         yield return StartCoroutine(PlayHitAnimation());

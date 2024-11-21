@@ -342,7 +342,7 @@ public class BuildingController : MonoBehaviour, ISkillUser
     /// 接受伤害
     /// </summary>
     /// <param name="damage">伤害值</param>
-    public virtual void TakeDamage(int damage)
+    public virtual void TakeDamage(int damage, DamageSource source = DamageSource.Normal)
     {
         if(isRuin)
             return;

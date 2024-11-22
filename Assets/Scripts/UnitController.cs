@@ -8,9 +8,10 @@ public class UnitController : MonoBehaviour, ISkillUser
 {
     public UnitData unitData;       // 单位的静态数据
     public Vector3Int gridPosition; // 单位在格子上的位置
+    [HideInInspector]
+    public int columnIndex; // 新增：单位所在的列索引
     
     public int currentHealth;      // 单位的当前生命值
-
     [SerializeField]
     private int defensePoints = 0;  // 防御点数
 
@@ -18,6 +19,8 @@ public class UnitController : MonoBehaviour, ISkillUser
 
     // 新增一个公共变量，用于引用子物件的 SpriteRenderer
     public SpriteRenderer spriteRenderer;
+    // 添加对 Sprite 子对象的引用
+    private Transform spriteTransform;
     
     // 新增状态管理字段
     private List<UnitStateBase> currentStates = new List<UnitStateBase>();
@@ -26,9 +29,6 @@ public class UnitController : MonoBehaviour, ISkillUser
     public Transform statusIconsParent; // 状态图标的父对象
     public GameObject statusIconPrefab; // 状态图标预制体
     
-    [HideInInspector]
-    public int columnIndex; // 新增：单位所在的列索引
-
     private Dictionary<string, GameObject> activeStatusIcons = new Dictionary<string, GameObject>();
 
     public bool isInjured => HasState<InjuredState>();
@@ -36,15 +36,21 @@ public class UnitController : MonoBehaviour, ISkillUser
     private bool isDead = false;
     public bool IsDead => isDead;
     
-    // 添加对 Sprite 子对象的引用
-    private Transform spriteTransform;
-    
     // 新增：疾病层数管理
     private int diseaseLayers = 0;
     public int DiseaseLayers => diseaseLayers;
     
     private bool hasActedThisTurn = false;
 
+    private List<ScheduledAction> scheduledActions = new List<ScheduledAction>();
+
+    [System.Serializable]
+    public class ScheduledAction
+    {
+        public SkillActionData action;
+        public int remainingDelay;
+    }
+    
     void Awake()
     {
         // 如果没有在 Inspector 中手动设置 spriteRenderer，则自动查找
@@ -692,17 +698,20 @@ public class UnitController : MonoBehaviour, ISkillUser
 
         if (HasState<InjuredState>())
         {
-            // 负伤状态下再次死亡，进入墓地
-            Debug.Log($"UnitController: 单位 {name} 在负伤状态下再次死亡，进入墓地");
+            // 負傷狀態下再次死亡，進入墓地
+            Debug.Log($"UnitController: 單位 {name} 在負傷狀態下再次死亡，進入墓地");
             MoveToGraveyard();
         }
         else
         {
-            // 第一次死亡，进入负伤状态并返回牌库
-            Debug.Log($"UnitController: 单位 {name} 第一次死亡，进入负伤状态并返回牌库");
+            // 第一次死亡，進入負傷狀態並返回牌庫
+            Debug.Log($"UnitController: 單位 {name} 第一次死亡，進入負傷狀態並返回牌庫");
             AddState<InjuredState>();
             MoveToDeck();
         }
+        
+        // 清空所有已排程的延遲動作
+        scheduledActions.Clear();
 
         // 播放死亡动画后销毁
         PlayHitAnimation(() =>
@@ -1002,6 +1011,26 @@ public class UnitController : MonoBehaviour, ISkillUser
         {
             foreach (var action in currentSkill.Actions)
             {
+                if (action.Delay > 0)
+                {
+                    ScheduleAction(action);
+                }
+                else
+                {
+                    yield return StartCoroutine(ExecuteAction(action));
+                }
+            }
+
+            // 清空當前技能動作，防止重複執行
+            currentSkill.Actions.Clear();
+        }
+
+        #region Old Code
+        /*
+        if (currentSkill != null)
+        {
+            foreach (var action in currentSkill.Actions)
+            {
                 switch (action.Type)
                 {
                     case SkillType.Move:
@@ -1044,6 +1073,8 @@ public class UnitController : MonoBehaviour, ISkillUser
             // 清空当前技能动作，防止重复执行
             currentSkill.Actions.Clear();
         }
+        */
+        #endregion
     }
 
     
@@ -1321,4 +1352,89 @@ public class UnitController : MonoBehaviour, ISkillUser
             hitSequence.OnComplete(() => onComplete());
         }
     }
+    
+    public void ScheduleAction(SkillActionData action)
+    {
+        if (action.Delay > 0)
+        {
+            scheduledActions.Add(new ScheduledAction { action = action, remainingDelay = action.Delay });
+            Debug.Log($"UnitController: {name} 計劃執行技能 {action.Type}，延遲 {action.Delay} 回合");
+        }
+        else
+        {
+            StartCoroutine(ExecuteAction(action));
+        }
+    }
+
+    private IEnumerator ExecuteAction(SkillActionData action)
+    {
+        switch (action.Type)
+        {
+            case SkillType.Move:
+                for (int i = 0; i < action.Value; i++)
+                {
+                    if (!CanMoveForward())
+                    {
+                        Debug.Log($"UnitController: 單位 {name} 無法繼續移動，技能執行被阻擋！");
+                        break;
+                    }
+                    yield return StartCoroutine(MoveForward());
+                }
+                break;
+            case SkillType.Melee:
+                yield return StartCoroutine(PerformMeleeAttack(action.TargetType));
+                break;
+            case SkillType.Ranged:
+                yield return StartCoroutine(PerformRangedAttack(action.TargetType));
+                break;
+            case SkillType.Defense:
+                yield return StartCoroutine(IncreaseDefense(action.Value, action.TargetType));
+                break;
+            case SkillType.Breakage:
+                yield return StartCoroutine(PerformBreakage(action.Value));
+                break;
+            case SkillType.Repair:
+                RepairRuin(action.Value, action.TargetType);
+                yield return null;
+                break;
+            // 其他 SkillType
+            default:
+                Debug.LogWarning($"UnitController: 未處理的技能類型：{action.Type}");
+                yield return null;
+                break;
+        }
+    }
+    
+    public void ReduceDelay()
+    {
+        List<ScheduledAction> actionsToExecute = new List<ScheduledAction>();
+
+        foreach (var scheduled in scheduledActions)
+        {
+            scheduled.remainingDelay--;
+            if (scheduled.remainingDelay <= 0)
+            {
+                actionsToExecute.Add(scheduled);
+            }
+        }
+
+        // 移除並執行這些動作
+        foreach (var action in actionsToExecute)
+        {
+            scheduledActions.Remove(action);
+            if (IsOnField())
+            {
+                StartCoroutine(ExecuteAction(action.action));
+                // 執行後重新倒數
+                ScheduleAction(action.action);
+            }
+        }
+    }
+
+    public bool IsOnField()
+    {
+        return GridManager.Instance.HasSkillUserAt(gridPosition);
+    }
+
+    
 }

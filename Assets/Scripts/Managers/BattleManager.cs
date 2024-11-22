@@ -119,6 +119,9 @@ public class BattleManager : MonoBehaviour
     /// <returns></returns>
     private IEnumerator BattleSequence()
     {
+        // 處理延遲
+        yield return StartCoroutine(HandleDelays());
+
         // 2.1 战斗画面 转盘
         yield return StartCoroutine(ExecuteSlotMachine());
 
@@ -387,7 +390,6 @@ public class BattleManager : MonoBehaviour
             AllowUnitsAttackBoss(row);
         }
     }
-
     
     public void AllowUnitsAttackBoss(int row)
     {
@@ -411,4 +413,39 @@ public class BattleManager : MonoBehaviour
             GameManager.Instance.EndGame("You Win!");
         }
     }
+    
+    private IEnumerator HandleDelays()
+    {
+        Debug.Log("BattleManager: 處理單位延遲...");
+
+        // 獲取所有單位，包括場上和牌庫中的
+        List<UnitController> allUnits = GetAllUnits();
+        foreach (var unit in allUnits)
+        {
+            unit.ReduceDelay();
+        }
+
+        yield return null;
+    }
+
+    private List<UnitController> GetAllUnits()
+    {
+        List<UnitController> allUnits = new List<UnitController>();
+
+        // 獲取場上單位
+        allUnits.AddRange(gridManager.GetAllUnits());
+
+        // 獲取牌庫中的單位（假設 DeckManager 有 GetAllDeckUnits 方法）
+        if (DeckManager.Instance != null)
+        {
+            //allUnits.AddRange(DeckManager.Instance.GetAllDeckUnits());
+        }
+        else
+        {
+            Debug.LogError("BattleManager: DeckManager.Instance 未找到！");
+        }
+
+        return allUnits;
+    }
+
 }

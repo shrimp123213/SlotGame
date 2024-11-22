@@ -227,7 +227,7 @@ public class BattleManager : MonoBehaviour
         {
             if (unit != null && unit.gameObject.activeSelf)
             {
-                unit.UseMainSkillOrSupport();
+                yield return StartCoroutine(unit.UseMainSkillOrSupport());
                 yield return new WaitForSeconds(0.1f); // 每个单位间隔执行
             }
         }
@@ -353,6 +353,13 @@ public class BattleManager : MonoBehaviour
     /// <returns></returns>
     private IEnumerator NextTurnRoutine()
     {
+        // 重置所有單位的回合標誌
+        var allUnits = gridManager.GetAllUnits();
+        foreach (var unit in allUnits)
+        {
+            unit.ResetTurn();
+        }
+        
         // 可以添加回合開始前的邏輯，如準備階段
 
         // 觸發選擇面板讓玩家選擇增加卡牌

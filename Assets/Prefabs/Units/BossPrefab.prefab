@@ -48,6 +48,7 @@ MonoBehaviour:
   bossData: {fileID: 0}
   currentHealth: 0
   maxHealth: 0
+  defensePoints: 0
   gridPosition: {x: 0, y: 0, z: 0}
   currentSkill:
     Actions: []

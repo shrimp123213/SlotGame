@@ -10,14 +10,14 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 154b13b9e80b44744be4ba91457e8c5a, type: 3}
-  m_Name: 1_Goblin_1
+  m_Name: 1_Timid Goblin
   m_EditorClassIdentifier: 
-  unitName: Goblin_1
-  unitSprite: {fileID: 1238363452, guid: 197bcfde909abe1469ab49fe7764a45b, type: 3}
+  unitName: Timid Goblin
+  unitSprite: {fileID: -1514293508, guid: 197bcfde909abe1469ab49fe7764a45b, type: 3}
   maxHealth: 1
   camp: 1
-  mainSkillSO: {fileID: 11400000, guid: 4f9a74477969eb84cb54e31f03402651, type: 2}
-  supportSkillSO: {fileID: 11400000, guid: 19f69ec6875a4a34aab3c1c8da23b1b0, type: 2}
-  preferredPosition: 0
+  mainSkillSO: {fileID: 11400000, guid: 5900447a9ba9ee545b7a755cce774dc0, type: 2}
+  supportSkillSO: {fileID: 0}
+  preferredPosition: 1
   initialStates:
   - {fileID: 11400000, guid: fdd2cfe66255b6c43a5e672899575ac7, type: 2}

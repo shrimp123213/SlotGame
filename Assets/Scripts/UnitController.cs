@@ -42,6 +42,8 @@ public class UnitController : MonoBehaviour, ISkillUser
     // 新增：疾病层数管理
     private int diseaseLayers = 0;
     public int DiseaseLayers => diseaseLayers;
+    
+    private bool hasActedThisTurn = false;
 
     void Awake()
     {
@@ -91,6 +93,11 @@ public class UnitController : MonoBehaviour, ISkillUser
                 AddState(state);
             }
         }
+    }
+    
+    public void ResetTurn()
+    {
+        hasActedThisTurn = false;
     }
 
     /// <summary>
@@ -905,27 +912,35 @@ public class UnitController : MonoBehaviour, ISkillUser
     /// <summary>
     /// 使用主技能或支援技能
     /// </summary>
-    public virtual void UseMainSkillOrSupport()
+    public virtual IEnumerator UseMainSkillOrSupport()
     {
+        if (hasActedThisTurn)
+        {
+            yield break; // 單位已經行動過，跳過
+        }
+        
         if (isDead)
         {
             Debug.Log($"UnitController: 单位 {name} 已死亡，无法使用任何技能！");
-            return;
+            yield break;
         }
-        
+    
         if (CanUseMainSkill())
         {
-            UseMainSkill();
+            yield return StartCoroutine(UseMainSkill());
         }
         else if (CanUseSupportSkill())
         {
-            UseSupportSkill();
+            yield return StartCoroutine(UseSupportSkill());
         }
         else
         {
             Debug.Log($"UnitController: 单位 {name} 无法使用任何技能！");
         }
+        
+        hasActedThisTurn = true; // 標記為已行動
     }
+
 
     /// <summary>
     /// 判断是否可以使用支援技能
@@ -941,52 +956,52 @@ public class UnitController : MonoBehaviour, ISkillUser
     /// <summary>
     /// 使用主技能
     /// </summary>
-    public virtual void UseMainSkill()
+    public virtual IEnumerator UseMainSkill()
     {
         if (unitData.mainSkillSO != null)
         {
-            // 为 currentSkill 赋值
+            // 為 currentSkill 賦值
             currentSkill = Skill.FromSkillSO(unitData.mainSkillSO);
 
-            // 执行当前技能
-            ExecuteCurrentSkill();
+            // 執行當前技能
+            yield return StartCoroutine(ExecuteCurrentSkill());
         }
         else
         {
             Debug.LogWarning($"UnitController: 单位 {name} 没有配置主技能！");
+            yield break;
         }
     }
 
     /// <summary>
     /// 使用支援技能
     /// </summary>
-    public virtual void UseSupportSkill()
+    public virtual IEnumerator UseSupportSkill()
     {
         if (unitData.supportSkillSO != null)
         {
-            // 为 currentSkill 赋值
+            // 為 currentSkill 賦值
             currentSkill = Skill.FromSkillSO(unitData.supportSkillSO);
 
-            // 执行当前技能
-            ExecuteCurrentSkill();
+            // 執行當前技能
+            yield return StartCoroutine(ExecuteCurrentSkill());
         }
         else
         {
             Debug.LogWarning($"UnitController: 单位 {name} 没有配置支援技能！");
+            yield break;
         }
     }
 
     /// <summary>
     /// 重新执行当前技能
     /// </summary>
-    public virtual void ExecuteCurrentSkill()
+    public virtual IEnumerator ExecuteCurrentSkill()
     {
         if (currentSkill != null)
         {
-            // 执行当前技能的所有动作
             foreach (var action in currentSkill.Actions)
             {
-                //Debug.Log($"Action Type: {action.Type}, TargetType: {action.TargetType}, Value: {action.Value}");
                 switch (action.Type)
                 {
                     case SkillType.Move:
@@ -997,26 +1012,31 @@ public class UnitController : MonoBehaviour, ISkillUser
                                 Debug.Log($"UnitController: 单位 {name} 无法继续移动，技能执行被阻挡！");
                                 break;
                             }
-                            StartCoroutine(MoveForward());
+                            yield return StartCoroutine(MoveForward());
                         }
                         break;
                     case SkillType.Melee:
-                        StartCoroutine(PerformMeleeAttack(action.TargetType));
+                        yield return StartCoroutine(PerformMeleeAttack(action.TargetType));
                         break;
                     case SkillType.Ranged:
-                        StartCoroutine(PerformRangedAttack(action.TargetType));
+                        yield return StartCoroutine(PerformRangedAttack(action.TargetType));
                         break;
                     case SkillType.Defense:
-                        //IncreaseDefense(action.Value, action.TargetType);
+                        // Handle Defense if needed
+                        //yield return StartCoroutine(IncreaseDefense(action.Value, action.TargetType));
+                        yield return null;
                         break;
                     case SkillType.Breakage:
-                        StartCoroutine(PerformBreakage(action.Value));
+                        yield return StartCoroutine(PerformBreakage(action.Value));
                         break;
                     case SkillType.Repair:
                         RepairRuin(action.Value, action.TargetType);
+                        yield return null;
                         break;
+                    // 其他 SkillType
                     default:
                         Debug.LogWarning($"UnitController: 未处理的技能类型：{action.Type}");
+                        yield return null;
                         break;
                 }
             }
@@ -1025,6 +1045,7 @@ public class UnitController : MonoBehaviour, ISkillUser
             currentSkill.Actions.Clear();
         }
     }
+
     
     /// <summary>
     /// 添加一个状态到单位

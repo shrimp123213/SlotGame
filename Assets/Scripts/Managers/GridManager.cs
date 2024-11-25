@@ -353,6 +353,9 @@ public class GridManager : MonoBehaviour
         buildingController.buildingData = buildingData;
         buildingController.buildingData.camp = camp; // 设置阵营
         buildingController.SetPosition(position);
+        
+        // 在这里调用初始化方法
+        buildingController.Initialize();
 
         // 设置为 Buildings 父对象的子对象
         if (buildingsParent != null)
@@ -427,6 +430,20 @@ public class GridManager : MonoBehaviour
         }
         return null;
     }
+    
+    public Vector3Int GetUnitPosition(string unitId)
+    {
+        foreach (var kvp in skillUsersPositions)
+        {
+            if (kvp.Value is UnitController unit && unit.unitId == unitId)
+            {
+                return kvp.Key;
+            }
+        }
+        Debug.LogWarning($"GridManager: 未找到 unitId 为 {unitId} 的单位位置。");
+        return Vector3Int.zero; // 或者抛出异常，或者返回一个无效的位置
+    }
+
 
     /// <summary>
     /// 获取指定位置的建筑物

@@ -246,7 +246,7 @@ BattleManager.cs</font>
         <span class="s2">{</span>
             <span class="s0">if </span><span class="s2">(</span><span class="s1">unit </span><span class="s2">!= </span><span class="s0">null </span><span class="s2">&amp;&amp; </span><span class="s1">unit</span><span class="s2">.</span><span class="s1">gameObject</span><span class="s2">.</span><span class="s1">activeSelf</span><span class="s2">)</span>
             <span class="s2">{</span>
-                <span class="s1">unit</span><span class="s2">.</span><span class="s1">UseMainSkillOrSupport</span><span class="s2">();</span>
+                <span class="s1">yield </span><span class="s0">return </span><span class="s1">StartCoroutine</span><span class="s2">(</span><span class="s1">unit</span><span class="s2">.</span><span class="s1">UseMainSkillOrSupport</span><span class="s2">());</span>
                 <span class="s1">yield </span><span class="s0">return new </span><span class="s1">WaitForSeconds</span><span class="s2">(</span><span class="s5">0.1f</span><span class="s2">); </span><span class="s3">// 每个单位间隔执行</span>
             <span class="s2">}</span>
         <span class="s2">}</span>
@@ -372,6 +372,36 @@ BattleManager.cs</font>
     <span class="s3">/// &lt;returns&gt;&lt;/returns&gt;</span>
     <span class="s0">private </span><span class="s1">IEnumerator NextTurnRoutine</span><span class="s2">()</span>
     <span class="s2">{</span>
+        <span class="s3">// 重置所有单位的回合标志</span>
+        <span class="s1">var allUnits </span><span class="s2">= </span><span class="s1">gridManager</span><span class="s2">.</span><span class="s1">GetAllUnits</span><span class="s2">();</span>
+        <span class="s0">foreach </span><span class="s2">(</span><span class="s1">var unit </span><span class="s0">in </span><span class="s1">allUnits</span><span class="s2">)</span>
+        <span class="s2">{</span>
+            <span class="s1">unit</span><span class="s2">.</span><span class="s1">ResetTurn</span><span class="s2">();</span>
+        <span class="s2">}</span>
+    
+        <span class="s3">// 重置所有建筑物的回合标志（如果适用）</span>
+        <span class="s1">var allBuildings </span><span class="s2">= </span><span class="s1">gridManager</span><span class="s2">.</span><span class="s1">GetAllBuildings</span><span class="s2">();</span>
+        <span class="s0">foreach </span><span class="s2">(</span><span class="s1">var building </span><span class="s0">in </span><span class="s1">allBuildings</span><span class="s2">)</span>
+        <span class="s2">{</span>
+            <span class="s1">building</span><span class="s2">.</span><span class="s1">ResetTurn</span><span class="s2">(); </span><span class="s3">// 需要在 BuildingController 中实现 ResetTurn 方法</span>
+        <span class="s2">}</span>
+
+        <span class="s3">// 减少所有单位的技能延迟</span>
+        <span class="s1">Debug</span><span class="s2">.</span><span class="s1">Log</span><span class="s2">(</span><span class="s4">&quot;BattleManager: 减少所有单位的技能延迟&quot;</span><span class="s2">);</span>
+        <span class="s0">foreach </span><span class="s2">(</span><span class="s1">var unit </span><span class="s0">in </span><span class="s1">allUnits</span><span class="s2">)</span>
+        <span class="s2">{</span>
+            <span class="s1">unit</span><span class="s2">.</span><span class="s1">ReduceSkillDelays</span><span class="s2">();</span>
+        <span class="s2">}</span>
+
+        <span class="s3">// 减少所有建筑物的技能延迟（如果适用）</span>
+        <span class="s0">foreach </span><span class="s2">(</span><span class="s1">var building </span><span class="s0">in </span><span class="s1">allBuildings</span><span class="s2">)</span>
+        <span class="s2">{</span>
+            <span class="s1">building</span><span class="s2">.</span><span class="s1">ReduceSkillDelays</span><span class="s2">(); </span><span class="s3">// 需要在 BuildingController 中实现 ReduceSkillDelays 方法</span>
+        <span class="s2">}</span>
+        
+        <span class="s3">//减少牌库中所有单位的技能延迟</span>
+        <span class="s1">DeckManager</span><span class="s2">.</span><span class="s1">Instance</span><span class="s2">.</span><span class="s1">ReduceSkillDelaysAtStartOfTurn</span><span class="s2">();</span>
+        
         <span class="s3">// 可以添加回合開始前的邏輯，如準備階段</span>
 
         <span class="s3">// 觸發選擇面板讓玩家選擇增加卡牌</span>

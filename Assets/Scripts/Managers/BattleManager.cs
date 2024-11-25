@@ -353,12 +353,35 @@ public class BattleManager : MonoBehaviour
     /// <returns></returns>
     private IEnumerator NextTurnRoutine()
     {
-        // 重置所有單位的回合標誌
+        // 重置所有单位的回合标志
         var allUnits = gridManager.GetAllUnits();
         foreach (var unit in allUnits)
         {
             unit.ResetTurn();
         }
+    
+        // 重置所有建筑物的回合标志（如果适用）
+        var allBuildings = gridManager.GetAllBuildings();
+        foreach (var building in allBuildings)
+        {
+            building.ResetTurn(); // 需要在 BuildingController 中实现 ResetTurn 方法
+        }
+
+        // 减少所有单位的技能延迟
+        Debug.Log("BattleManager: 减少所有单位的技能延迟");
+        foreach (var unit in allUnits)
+        {
+            unit.ReduceSkillDelays();
+        }
+
+        // 减少所有建筑物的技能延迟（如果适用）
+        foreach (var building in allBuildings)
+        {
+            building.ReduceSkillDelays(); // 需要在 BuildingController 中实现 ReduceSkillDelays 方法
+        }
+        
+        //减少牌库中所有单位的技能延迟
+        DeckManager.Instance.ReduceSkillDelaysAtStartOfTurn();
         
         // 可以添加回合開始前的邏輯，如準備階段
 

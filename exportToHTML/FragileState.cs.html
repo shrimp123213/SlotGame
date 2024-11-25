@@ -1,0 +1,41 @@
+<html>
+<head>
+<title>FragileState.cs</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #6c95eb;}
+.s1 { color: #d0d0d0;}
+.s2 { color: #bdbdbd;}
+.s3 { color: #c9a26d;}
+</style>
+</head>
+<body bgcolor="#262626">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#606060" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+FragileState.cs</font>
+</center></td></tr></table>
+<pre><span class="s0">using </span><span class="s1">UnityEngine</span><span class="s2">;</span>
+
+<span class="s2">[</span><span class="s1">CreateAssetMenu</span><span class="s2">(</span><span class="s1">menuName </span><span class="s2">= </span><span class="s3">&quot;UnitStates/FragileState&quot;</span><span class="s2">)]</span>
+<span class="s0">public class </span><span class="s1">FragileState : UnitStateBase</span>
+<span class="s2">{</span>
+    <span class="s0">public override string </span><span class="s1">StateName =&gt; </span><span class="s3">&quot;Fragile&quot;</span><span class="s2">;</span>
+
+    <span class="s2">[</span><span class="s1">SerializeField</span><span class="s2">]</span>
+    <span class="s0">private </span><span class="s1">Sprite icon</span><span class="s2">;</span>
+    <span class="s0">public override </span><span class="s1">Sprite Icon =&gt; icon</span><span class="s2">;</span>
+
+    <span class="s0">public override void </span><span class="s1">OnEnter</span><span class="s2">(</span><span class="s1">UnitController unit</span><span class="s2">)</span>
+    <span class="s2">{</span>
+        <span class="s1">Debug</span><span class="s2">.</span><span class="s1">Log</span><span class="s2">(</span><span class="s3">$&quot;</span><span class="s2">{</span><span class="s1">unit</span><span class="s2">.</span><span class="s1">unitData</span><span class="s2">.</span><span class="s1">unitName</span><span class="s2">} </span><span class="s3">进入脆弱状态&quot;</span><span class="s2">);</span>
+        <span class="s1">unit</span><span class="s2">.</span><span class="s1">UpdateUnitUI</span><span class="s2">();</span>
+    <span class="s2">}</span>
+
+    <span class="s0">public override void </span><span class="s1">OnExit</span><span class="s2">(</span><span class="s1">UnitController unit</span><span class="s2">)</span>
+    <span class="s2">{</span>
+        <span class="s1">Debug</span><span class="s2">.</span><span class="s1">Log</span><span class="s2">(</span><span class="s3">$&quot;</span><span class="s2">{</span><span class="s1">unit</span><span class="s2">.</span><span class="s1">unitData</span><span class="s2">.</span><span class="s1">unitName</span><span class="s2">} </span><span class="s3">退出脆弱状态&quot;</span><span class="s2">);</span>
+    <span class="s2">}</span>
+<span class="s2">}</span></pre>
+</body>
+</html>

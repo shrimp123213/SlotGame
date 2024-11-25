@@ -8,9 +8,10 @@ public class UnitController : MonoBehaviour, ISkillUser
 {
     public UnitData unitData;       // 单位的静态数据
     public Vector3Int gridPosition; // 单位在格子上的位置
+    [HideInInspector]
+    public int columnIndex; // 新增：单位所在的列索引
     
     public int currentHealth;      // 单位的当前生命值
-
     [SerializeField]
     private int defensePoints = 0;  // 防御点数
 
@@ -18,6 +19,8 @@ public class UnitController : MonoBehaviour, ISkillUser
 
     // 新增一个公共变量，用于引用子物件的 SpriteRenderer
     public SpriteRenderer spriteRenderer;
+    // 添加对 Sprite 子对象的引用
+    private Transform spriteTransform;
     
     // 新增状态管理字段
     private List<UnitStateBase> currentStates = new List<UnitStateBase>();
@@ -26,18 +29,19 @@ public class UnitController : MonoBehaviour, ISkillUser
     public Transform statusIconsParent; // 状态图标的父对象
     public GameObject statusIconPrefab; // 状态图标预制体
     
-    [HideInInspector]
-    public int columnIndex; // 新增：单位所在的列索引
-
     private Dictionary<string, GameObject> activeStatusIcons = new Dictionary<string, GameObject>();
+    
+    // 跟踪每个技能的剩余延迟回合数
+    private Dictionary<string, int> skillDelays = new Dictionary<string, int>();
+    
+    // 唯一标识符，用于在 DeckEntry 中保存技能延迟
+    [SerializeField]
+    public string unitId { get; private set; }
 
     public bool isInjured => HasState<InjuredState>();
     
     private bool isDead = false;
     public bool IsDead => isDead;
-    
-    // 添加对 Sprite 子对象的引用
-    private Transform spriteTransform;
     
     // 新增：疾病层数管理
     private int diseaseLayers = 0;
@@ -66,6 +70,7 @@ public class UnitController : MonoBehaviour, ISkillUser
         {
             Debug.LogError("UnitController: 无法获取 SpriteRenderer 的 Transform！");
         }
+        
     }
 
     void Start()
@@ -95,9 +100,85 @@ public class UnitController : MonoBehaviour, ISkillUser
         }
     }
     
+    private void OnEnable()
+    {
+        // 当单位进入场地时，加载其技能延迟
+        //LoadSkillDelays();
+    }
+
+    private void OnDisable()
+    {
+        // 当单位离开场地时，保存其技能延迟
+        SaveSkillDelays();
+    }
+    
+    /// <summary>
+    /// 获取技能的当前延迟回合数（深拷贝，防止外部修改）
+    /// </summary>
+    public Dictionary<string, int> GetSkillDelays()
+    {
+        return new Dictionary<string, int>(skillDelays);
+    }
+    
+    /// <summary>
+    /// 从牌库加载技能延迟
+    /// </summary>
+    private void LoadSkillDelays()
+    {
+        if (unitData == null)
+        {
+            Debug.LogError("UnitController: unitData 未赋值，无法加载技能延迟！");
+            return;
+        }
+        
+        Dictionary<string, int> loadedDelays = DeckManager.Instance.GetUnitSkillDelays(unitData, unitId);
+        if (loadedDelays != null)
+        {
+            skillDelays = new Dictionary<string, int>(loadedDelays);
+            Debug.Log($"UnitController: 单位 {unitData.unitName} 的技能延迟已加载。");
+        }
+        else
+        {
+            // 初始化技能延迟，如果没有保存的数据
+            InitializeSkillDelays();
+            Debug.Log($"UnitController: 单位 {unitData.unitName} 的技能延迟已初始化。");
+        }
+    }
+
+    /// <summary>
+    /// 保存技能延迟到牌库
+    /// </summary>
+    private void SaveSkillDelays()
+    {
+        DeckManager.Instance.SaveUnitSkillDelays(unitData, unitId, skillDelays);
+        Debug.Log($"UnitController: 单位 {unitData.unitName} 的技能延迟已保存。");
+    }
+    
     public void ResetTurn()
     {
         hasActedThisTurn = false;
+    }
+
+    public void Initialize()
+    {
+        if (unitData == null)
+        {
+            Debug.LogError("UnitController: unitData 未赋值，无法初始化！");
+            return;
+        }
+
+        if (string.IsNullOrEmpty(unitId))
+        {
+            unitId = Guid.NewGuid().ToString();
+            Debug.Log($"UnitController: 为 {unitData.unitName} 生成了新的 unitId: {unitId}");
+        }
+        else
+        {
+            Debug.Log($"UnitController: {unitData.unitName} 已有 unitId: {unitId}");
+        }
+    
+        // 初始化技能延迟
+        LoadSkillDelays();
     }
 
     /// <summary>
@@ -105,8 +186,14 @@ public class UnitController : MonoBehaviour, ISkillUser
     /// </summary>
     void InitializeUnit()
     {
+        if (unitData == null)
+        {
+            Debug.LogError("UnitController: unitData 未赋值，无法初始化！");
+            return;
+        }
+        
         InitializeUnitSprite();
-
+        
         // 根据单位数据设置其他属性
         // 例如，设置速度、攻击范围等
     }
@@ -145,6 +232,63 @@ public class UnitController : MonoBehaviour, ISkillUser
 
         //Debug.Log($"UnitController: 单位 {unitData.unitName} 放置在格子中心: {cellWorldPosition}");
     }
+    
+    /// <summary>
+    /// 初始化技能延迟
+    /// </summary>
+    private void InitializeSkillDelays()
+    {
+        if (unitData == null)
+        {
+            Debug.LogError("UnitController: unitData 未赋值，无法初始化技能延迟！");
+            return;
+        }
+        
+        foreach (var skillSO in new List<SkillSO> { unitData.mainSkillSO, unitData.supportSkillSO })
+        {
+            if (skillSO != null)
+            {
+                foreach (var action in skillSO.actions)
+                {
+                    if (!skillDelays.ContainsKey(skillSO.skillName))
+                    {
+                        skillDelays[skillSO.skillName] = action.Delay;
+                    }
+                }
+            }
+        }
+    }
+    
+    /// <summary>
+    /// 在每回合开始时减少所有技能的延迟值
+    /// </summary>
+    public void ReduceSkillDelays()
+    {
+        List<string> keys = new List<string>(skillDelays.Keys);
+        foreach (var skillName in keys)
+        {
+            if (skillDelays.ContainsKey(skillName))
+            {
+                if (skillDelays[skillName] > 0)
+                {
+                    skillDelays[skillName]--;
+                    Debug.Log($"UnitController: 单位 {name} 技能 {skillName} 的延迟减少到 {skillDelays[skillName]} 回合");
+                }
+            }
+        }
+    }
+    
+    /// <summary>
+    /// 检查技能是否准备就绪（延迟为0）
+    /// </summary>
+    private bool IsSkillReady(string skillName)
+    {
+        if (skillDelays.ContainsKey(skillName))
+        {
+            return skillDelays[skillName] <= 0;
+        }
+        return true; // 如果没有记录延迟，则认为已准备就绪
+    }
 
     /// <summary>
     /// 判断是否可以使用主技能，依据技能的TargetType检查是否有有效目标
@@ -154,7 +298,7 @@ public class UnitController : MonoBehaviour, ISkillUser
     {
         if (unitData.mainSkillSO == null || unitData.mainSkillSO.actions == null)
         {
-            Debug.LogWarning("UnitController: mainSkillSO 或其动作列表为 null！");
+            Debug.LogWarning($"{name}: mainSkillSO 或其动作列表为 null！");
             return false;
         }
 
@@ -654,7 +798,7 @@ public class UnitController : MonoBehaviour, ISkillUser
         if (HasState<FragileState>() && source == DamageSource.Normal)
         {
             Debug.Log($"UnitController: 单位 {name} 处于脆弱状态，受到正常伤害，将立即死亡！");
-            Die();
+            MoveToGraveyard();
             return;
         }
 
@@ -688,20 +832,22 @@ public class UnitController : MonoBehaviour, ISkillUser
     /// </summary>
     private void Die()
     {
+        if (isDead)
+            return;
+        
         isDead = true; // 设置死亡标志
 
-        if (HasState<InjuredState>())
+        // 调用 DeckManager 的 HandleUnitDeath 方法
+        DeckManager.Instance.HandleUnitDeath(unitData, unitId, isInjured, unitData.camp == Camp.Player);
+        
+        // 从 DeckManager 中移除技能延迟
+        if (!string.IsNullOrEmpty(unitId))
         {
-            // 负伤状态下再次死亡，进入墓地
-            Debug.Log($"UnitController: 单位 {name} 在负伤状态下再次死亡，进入墓地");
-            MoveToGraveyard();
+            DeckManager.Instance.RemoveUnitSkillDelays(unitData, unitId);
         }
         else
         {
-            // 第一次死亡，进入负伤状态并返回牌库
-            Debug.Log($"UnitController: 单位 {name} 第一次死亡，进入负伤状态并返回牌库");
-            AddState<InjuredState>();
-            MoveToDeck();
+            Debug.LogWarning("UnitController.Die: unitId 为 null，无法移除技能延迟！");
         }
 
         // 播放死亡动画后销毁
@@ -723,13 +869,13 @@ public class UnitController : MonoBehaviour, ISkillUser
         if (unitData.camp == Camp.Player)
         {
             // 更新玩家牌组
-            DeckManager.Instance.AddCardToPlayerDeck(unitData, 1, isInjured);
+            DeckManager.Instance.AddCardToPlayerDeck(unitData, unitId, 1, isInjured);
             Debug.Log($"{name} 负伤，返回玩家牌库");
         }
         else if (unitData.camp == Camp.Enemy)
         {
             // 更新敌人牌组
-            DeckManager.Instance.AddCardToEnemyDeck(unitData, 1, isInjured);
+            DeckManager.Instance.AddCardToEnemyDeck(unitData, unitId, 1, isInjured);
             Debug.Log($"{name} 负伤，返回敌人牌库");
         }
         else
@@ -743,17 +889,29 @@ public class UnitController : MonoBehaviour, ISkillUser
     /// </summary>
     private void MoveToGraveyard()
     {
+        isDead = true; // 设置死亡标志
+        
         // 从战场移除
         GridManager.Instance.RemoveSkillUserAt(gridPosition);
         
         // 将单位移动到墓地
         if (unitData.camp == Camp.Player)
         {
-            GraveyardManager.Instance.AddToPlayerGraveyard(unitData);
+            GraveyardManager.Instance.AddToPlayerGraveyard(unitData, unitId);
         }
         else if (unitData.camp == Camp.Enemy)
         {
-            GraveyardManager.Instance.AddToEnemyGraveyard(unitData);
+            GraveyardManager.Instance.AddToEnemyGraveyard(unitData, unitId);
+        }
+        
+        // 从 DeckManager 中移除技能延迟
+        if (!string.IsNullOrEmpty(unitId))
+        {
+            DeckManager.Instance.RemoveUnitSkillDelays(unitData, unitId);
+        }
+        else
+        {
+            Debug.LogWarning("UnitController.Die: unitId 为 null，无法移除技能延迟！");
         }
 
         // 销毁单位的游戏对象
@@ -916,32 +1074,51 @@ public class UnitController : MonoBehaviour, ISkillUser
     {
         if (hasActedThisTurn)
         {
-            yield break; // 單位已經行動過，跳過
+            yield break; // 单位已经行动过，跳过
         }
-        
+
         if (isDead)
         {
             Debug.Log($"UnitController: 单位 {name} 已死亡，无法使用任何技能！");
             yield break;
         }
-    
+
+        bool skillUsed = false;
+
+        // 尝试使用主技能
         if (CanUseMainSkill())
         {
             yield return StartCoroutine(UseMainSkill());
+            skillUsed = true;
         }
-        else if (CanUseSupportSkill())
+
+        // 如果主技能未使用，尝试使用支援技能
+        if (!skillUsed && CanUseSupportSkill())
         {
             yield return StartCoroutine(UseSupportSkill());
+            skillUsed = true;
         }
-        else
+
+        if (!skillUsed)
         {
             Debug.Log($"UnitController: 单位 {name} 无法使用任何技能！");
         }
-        
-        hasActedThisTurn = true; // 標記為已行動
+
+        hasActedThisTurn = true; // 标记为已行动
     }
-
-
+    
+    /// <summary>
+    /// 获取技能的当前延迟回合数
+    /// </summary>
+    private int GetSkillDelay(string skillName)
+    {
+        if (skillDelays.ContainsKey(skillName))
+        {
+            return skillDelays[skillName];
+        }
+        return 0;
+    }
+    
     /// <summary>
     /// 判断是否可以使用支援技能
     /// </summary>
@@ -954,17 +1131,50 @@ public class UnitController : MonoBehaviour, ISkillUser
     }
 
     /// <summary>
+    /// 重置技能延迟
+    /// </summary>
+    private void ResetSkillDelay(string skillName, SkillSO skillSO)
+    {
+        if (skillSO == null)
+            return;
+
+        SkillActionData firstAction = skillSO.actions != null && skillSO.actions.Count > 0 ? skillSO.actions[0] : null;
+        if (firstAction == null)
+        {
+            Debug.LogWarning($"UnitController: 技能 {skillName} 没有配置任何动作，无法重置延迟。");
+            skillDelays[skillName] = 0;
+        }
+        else
+        {
+            int delay = firstAction.Delay;
+            skillDelays[skillName] = delay;
+            Debug.Log($"UnitController: 单位 {name} 技能 {skillName} 的延迟已重置为 {delay} 回合");
+        }
+    }
+
+    /// <summary>
     /// 使用主技能
     /// </summary>
     public virtual IEnumerator UseMainSkill()
     {
         if (unitData.mainSkillSO != null)
         {
-            // 為 currentSkill 賦值
-            currentSkill = Skill.FromSkillSO(unitData.mainSkillSO);
+            // 检查技能是否准备就绪
+            if (IsSkillReady(unitData.mainSkillSO.skillName))
+            {
+                // 为 currentSkill 赋值
+                currentSkill = Skill.FromSkillSO(unitData.mainSkillSO);
 
-            // 執行當前技能
-            yield return StartCoroutine(ExecuteCurrentSkill());
+                // 执行当前技能
+                yield return StartCoroutine(ExecuteCurrentSkill());
+
+                // 重置技能延迟
+                ResetSkillDelay(unitData.mainSkillSO.skillName, unitData.mainSkillSO);
+            }
+            else
+            {
+                Debug.Log($"UnitController: 单位 {name} 的主技能 {unitData.mainSkillSO.skillName} 还在延迟中（剩余 {skillDelays[unitData.mainSkillSO.skillName]} 回合）");
+            }
         }
         else
         {
@@ -980,11 +1190,22 @@ public class UnitController : MonoBehaviour, ISkillUser
     {
         if (unitData.supportSkillSO != null)
         {
-            // 為 currentSkill 賦值
-            currentSkill = Skill.FromSkillSO(unitData.supportSkillSO);
+            // 检查技能是否准备就绪
+            if (IsSkillReady(unitData.supportSkillSO.skillName))
+            {
+                // 为 currentSkill 支援技能赋值
+                currentSkill = Skill.FromSkillSO(unitData.supportSkillSO);
 
-            // 執行當前技能
-            yield return StartCoroutine(ExecuteCurrentSkill());
+                // 执行当前技能
+                yield return StartCoroutine(ExecuteCurrentSkill());
+
+                // 重置技能延迟
+                ResetSkillDelay(unitData.supportSkillSO.skillName, unitData.supportSkillSO);
+            }
+            else
+            {
+                Debug.Log($"UnitController: 单位 {name} 的支援技能 {unitData.supportSkillSO.skillName} 还在延迟中（剩余 {skillDelays[unitData.supportSkillSO.skillName]} 回合）");
+            }
         }
         else
         {
@@ -992,7 +1213,25 @@ public class UnitController : MonoBehaviour, ISkillUser
             yield break;
         }
     }
-
+    
+    /// <summary>
+    /// 初始化技能的延迟
+    /// </summary>
+    private void InitializeSkillDelay(Skill skill)
+    {
+        if (skill != null && !string.IsNullOrEmpty(skill.skillName))
+        {
+            foreach (var action in skill.Actions)
+            {
+                // 假设同一个技能的所有动作共享相同的延迟
+                if (!skillDelays.ContainsKey(skill.skillName))
+                {
+                    skillDelays[skill.skillName] = action.Delay;
+                }
+            }
+        }
+    }
+    
     /// <summary>
     /// 重新执行当前技能
     /// </summary>

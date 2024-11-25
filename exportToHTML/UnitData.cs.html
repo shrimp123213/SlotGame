@@ -17,6 +17,7 @@
 UnitData.cs</font>
 </center></td></tr></table>
 <pre><span class="s0">using </span><span class="s1">UnityEngine</span><span class="s2">;</span>
+<span class="s0">using </span><span class="s1">System</span><span class="s2">.</span><span class="s1">Collections</span><span class="s2">.</span><span class="s1">Generic</span><span class="s2">;</span>
 
 <span class="s3">/// &lt;summary&gt;</span>
 <span class="s3">/// 單位的數據定義</span>
@@ -35,6 +36,9 @@ UnitData.cs</font>
     
     <span class="s2">[</span><span class="s1">Header</span><span class="s2">(</span><span class="s4">&quot;Preferred Position&quot;</span><span class="s2">)]</span>
     <span class="s0">public </span><span class="s1">PreferredPosition preferredPosition</span><span class="s2">; </span><span class="s3">// 新增：单元的偏好位置</span>
+    
+    <span class="s2">[</span><span class="s1">Header</span><span class="s2">(</span><span class="s4">&quot;Initial States&quot;</span><span class="s2">)]</span>
+    <span class="s0">public </span><span class="s1">List</span><span class="s2">&lt;</span><span class="s1">UnitStateBase</span><span class="s2">&gt; </span><span class="s1">initialStates</span><span class="s2">; </span><span class="s3">// 新增：单位的初始状态</span>
 
     <span class="s3">// 可以根据需要添加更多属性，如速度、攻击范围等</span>
 <span class="s2">}</span>

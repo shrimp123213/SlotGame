@@ -10,10 +10,11 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ff217bcea079e4e41b5eecd87066fc92, type: 3}
-  m_Name: Guard_MainSkill
+  m_Name: Militia_SS
   m_EditorClassIdentifier: 
-  skillName: 
+  skillName: Militia_SS
   actions:
-  - Type: 3
+  - Type: 1
     Value: 1
-    TargetType: 0
+    TargetType: 1
+    Delay: 0

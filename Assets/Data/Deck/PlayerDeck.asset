@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   entries:
   - unitData: {fileID: 11400000, guid: 232ff39822cc9af4688264eb202623ed, type: 2}
-    quantity: 0
+    quantity: 2
     injuredQuantity: 0
   - unitData: {fileID: 11400000, guid: 2f0dd851c7e746f4486d2f55353d7da8, type: 2}
     quantity: 0
@@ -38,7 +38,7 @@ MonoBehaviour:
     quantity: 0
     injuredQuantity: 0
   - unitData: {fileID: 11400000, guid: 402227f40a7a66645bea6205d7028860, type: 2}
-    quantity: 3
+    quantity: 0
     injuredQuantity: 0
   - unitData: {fileID: 11400000, guid: 5088c442eb6dc4b4e9b1d211ea39d138, type: 2}
     quantity: 0

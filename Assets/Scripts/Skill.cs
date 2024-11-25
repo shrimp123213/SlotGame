@@ -33,7 +33,8 @@ public class Skill
             {
                 Type = action.Type,
                 Value = action.Value,
-                TargetType = action.TargetType
+                TargetType = action.TargetType,
+                Delay = action.Delay
             };
             newSkill.Actions.Add(newAction);
         }
@@ -65,6 +66,7 @@ public class SkillActionData
     public SkillType Type;
     public int Value;
     public TargetType TargetType;
+    public int Delay = 0; // 默认为0，无延迟
 }
 
 public enum SkillType

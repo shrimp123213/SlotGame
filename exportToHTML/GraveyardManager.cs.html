@@ -1,0 +1,163 @@
+<html>
+<head>
+<title>GraveyardManager.cs</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #85c46c; font-style: italic;}
+.s1 { color: #d0d0d0;}
+.s2 { color: #6c95eb;}
+.s3 { color: #bdbdbd;}
+.s4 { color: #c9a26d;}
+.s5 { color: #ed94c0;}
+</style>
+</head>
+<body bgcolor="#262626">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#606060" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+GraveyardManager.cs</font>
+</center></td></tr></table>
+<pre><span class="s0">// GraveyardManager.cs</span>
+<span class="s2">using </span><span class="s1">System</span><span class="s3">.</span><span class="s1">Collections</span><span class="s3">.</span><span class="s1">Generic</span><span class="s3">;</span>
+<span class="s2">using </span><span class="s1">UnityEngine</span><span class="s3">;</span>
+
+<span class="s2">public class </span><span class="s1">GraveyardManager : MonoBehaviour</span>
+<span class="s3">{</span>
+    <span class="s2">public static </span><span class="s1">GraveyardManager Instance </span><span class="s3">{ </span><span class="s1">get</span><span class="s3">; </span><span class="s2">private </span><span class="s1">set</span><span class="s3">; }</span>
+
+    <span class="s3">[</span><span class="s1">Header</span><span class="s3">(</span><span class="s4">&quot;Graveyards&quot;</span><span class="s3">)]</span>
+    <span class="s2">private </span><span class="s1">Deck playerGraveyard</span><span class="s3">;</span>
+    <span class="s2">private </span><span class="s1">Deck enemyGraveyard</span><span class="s3">;</span>
+    <span class="s0">// 事件，当墓地有新卡牌时触发</span>
+    <span class="s2">public delegate void </span><span class="s1">GraveyardUpdated</span><span class="s3">();</span>
+    <span class="s2">public event </span><span class="s1">GraveyardUpdated OnPlayerGraveyardUpdated</span><span class="s3">;</span>
+    <span class="s2">public event </span><span class="s1">GraveyardUpdated OnEnemyGraveyardUpdated</span><span class="s3">;</span>
+
+    <span class="s2">private void </span><span class="s1">Awake</span><span class="s3">()</span>
+    <span class="s3">{</span>
+        <span class="s0">// 单例模式</span>
+        <span class="s2">if </span><span class="s3">(</span><span class="s1">Instance </span><span class="s3">== </span><span class="s2">null</span><span class="s3">)</span>
+        <span class="s3">{</span>
+            <span class="s1">Instance </span><span class="s3">= </span><span class="s2">this</span><span class="s3">;</span>
+            <span class="s1">DontDestroyOnLoad</span><span class="s3">(</span><span class="s1">gameObject</span><span class="s3">); </span><span class="s0">// 根据需要保持在场景切换中不被销毁</span>
+        <span class="s3">}</span>
+        <span class="s2">else</span>
+        <span class="s3">{</span>
+            <span class="s1">Destroy</span><span class="s3">(</span><span class="s1">gameObject</span><span class="s3">);</span>
+        <span class="s3">}</span>
+    <span class="s3">}</span>
+    
+    <span class="s2">private void </span><span class="s1">Start</span><span class="s3">()</span>
+    <span class="s3">{</span>
+        <span class="s0">// 确保 DeckManager 已初始化</span>
+        <span class="s2">if </span><span class="s3">(</span><span class="s1">DeckManager</span><span class="s3">.</span><span class="s1">Instance </span><span class="s3">== </span><span class="s2">null</span><span class="s3">)</span>
+        <span class="s3">{</span>
+            <span class="s1">Debug</span><span class="s3">.</span><span class="s1">LogError</span><span class="s3">(</span><span class="s4">&quot;GraveyardManager: DeckManager 实例未找到！&quot;</span><span class="s3">);</span>
+            <span class="s2">return</span><span class="s3">;</span>
+        <span class="s3">}</span>
+    <span class="s3">}</span>
+
+    <span class="s0">/// &lt;summary&gt;</span>
+    <span class="s0">/// 添加单位到玩家墓地</span>
+    <span class="s0">/// &lt;/summary&gt;</span>
+    <span class="s2">public void </span><span class="s1">AddToPlayerGraveyard</span><span class="s3">(</span><span class="s1">UnitController unitController</span><span class="s3">)</span>
+    <span class="s3">{</span>
+        <span class="s2">if </span><span class="s3">(</span><span class="s1">playerGraveyard </span><span class="s3">!= </span><span class="s2">null </span><span class="s3">&amp;&amp; </span><span class="s1">unitController </span><span class="s3">!= </span><span class="s2">null</span><span class="s3">)</span>
+        <span class="s3">{</span>
+            <span class="s1">Dictionary</span><span class="s3">&lt;</span><span class="s2">string</span><span class="s3">, </span><span class="s2">int</span><span class="s3">&gt; </span><span class="s1">skillDelays </span><span class="s3">= </span><span class="s1">unitController</span><span class="s3">.</span><span class="s1">GetSkillDelays</span><span class="s3">();</span>
+            <span class="s1">playerGraveyard</span><span class="s3">.</span><span class="s1">AddCard</span><span class="s3">(</span><span class="s1">unitController</span><span class="s3">.</span><span class="s1">unitData</span><span class="s3">, </span><span class="s1">unitController</span><span class="s3">.</span><span class="s1">unitId</span><span class="s3">, </span><span class="s5">1</span><span class="s3">, </span><span class="s2">false</span><span class="s3">, </span><span class="s1">skillDelays</span><span class="s3">);</span>
+            <span class="s1">OnPlayerGraveyardUpdated?</span><span class="s3">.</span><span class="s1">Invoke</span><span class="s3">();</span>
+        <span class="s3">}</span>
+        <span class="s2">else</span>
+        <span class="s3">{</span>
+            <span class="s1">Debug</span><span class="s3">.</span><span class="s1">LogError</span><span class="s3">(</span><span class="s4">&quot;GraveyardManager: playerGraveyard 或 unitController 为 null！&quot;</span><span class="s3">);</span>
+        <span class="s3">}</span>
+    <span class="s3">}</span>
+
+    <span class="s2">public void </span><span class="s1">AddToEnemyGraveyard</span><span class="s3">(</span><span class="s1">UnitController unitController</span><span class="s3">)</span>
+    <span class="s3">{</span>
+        <span class="s2">if </span><span class="s3">(</span><span class="s1">enemyGraveyard </span><span class="s3">!= </span><span class="s2">null </span><span class="s3">&amp;&amp; </span><span class="s1">unitController </span><span class="s3">!= </span><span class="s2">null</span><span class="s3">)</span>
+        <span class="s3">{</span>
+            <span class="s1">Dictionary</span><span class="s3">&lt;</span><span class="s2">string</span><span class="s3">, </span><span class="s2">int</span><span class="s3">&gt; </span><span class="s1">skillDelays </span><span class="s3">= </span><span class="s1">unitController</span><span class="s3">.</span><span class="s1">GetSkillDelays</span><span class="s3">();</span>
+            <span class="s1">enemyGraveyard</span><span class="s3">.</span><span class="s1">AddCard</span><span class="s3">(</span><span class="s1">unitController</span><span class="s3">.</span><span class="s1">unitData</span><span class="s3">, </span><span class="s1">unitController</span><span class="s3">.</span><span class="s1">unitId</span><span class="s3">, </span><span class="s5">1</span><span class="s3">, </span><span class="s2">false</span><span class="s3">, </span><span class="s1">skillDelays</span><span class="s3">);</span>
+            <span class="s1">OnEnemyGraveyardUpdated?</span><span class="s3">.</span><span class="s1">Invoke</span><span class="s3">();</span>
+        <span class="s3">}</span>
+        <span class="s2">else</span>
+        <span class="s3">{</span>
+            <span class="s1">Debug</span><span class="s3">.</span><span class="s1">LogError</span><span class="s3">(</span><span class="s4">&quot;GraveyardManager: enemyGraveyard 或 unitController 为 null！&quot;</span><span class="s3">);</span>
+        <span class="s3">}</span>
+    <span class="s3">}</span>
+
+    <span class="s0">/// &lt;summary&gt;</span>
+    <span class="s0">/// 获取玩家墓地的所有卡牌</span>
+    <span class="s0">/// &lt;/summary&gt;</span>
+    <span class="s2">public </span><span class="s1">List</span><span class="s3">&lt;</span><span class="s1">UnitData</span><span class="s3">&gt; </span><span class="s1">GetPlayerGraveyard</span><span class="s3">()</span>
+    <span class="s3">{</span>
+        <span class="s2">if </span><span class="s3">(</span><span class="s1">playerGraveyard </span><span class="s3">!= </span><span class="s2">null</span><span class="s3">)</span>
+        <span class="s3">{</span>
+            <span class="s1">List</span><span class="s3">&lt;</span><span class="s1">UnitData</span><span class="s3">&gt; </span><span class="s1">unitDatas </span><span class="s3">= </span><span class="s2">new </span><span class="s1">List</span><span class="s3">&lt;</span><span class="s1">UnitData</span><span class="s3">&gt;();</span>
+            <span class="s2">foreach </span><span class="s3">(</span><span class="s1">var unitsWithInjuryStatu </span><span class="s2">in </span><span class="s1">playerGraveyard</span><span class="s3">.</span><span class="s1">GetAllUnitsWithInjuryStatus</span><span class="s3">())</span>
+            <span class="s3">{</span>
+                <span class="s1">UnitData unitData </span><span class="s3">= </span><span class="s1">unitsWithInjuryStatu</span><span class="s3">.</span><span class="s1">unitData</span><span class="s3">;</span>
+                <span class="s2">if </span><span class="s3">(</span><span class="s1">unitData </span><span class="s3">!= </span><span class="s2">null</span><span class="s3">)</span>
+                <span class="s3">{</span>
+                    <span class="s1">unitDatas</span><span class="s3">.</span><span class="s1">Add</span><span class="s3">(</span><span class="s1">unitData</span><span class="s3">);</span>
+                <span class="s3">}</span>
+            <span class="s3">}</span>
+            
+            <span class="s2">return </span><span class="s1">unitDatas</span><span class="s3">;</span>
+        <span class="s3">}</span>
+        <span class="s2">else</span>
+        <span class="s3">{</span>
+            <span class="s1">Debug</span><span class="s3">.</span><span class="s1">LogError</span><span class="s3">(</span><span class="s4">&quot;GraveyardManager: playerGraveyard 未赋值！&quot;</span><span class="s3">);</span>
+            <span class="s2">return new </span><span class="s1">List</span><span class="s3">&lt;</span><span class="s1">UnitData</span><span class="s3">&gt;();</span>
+        <span class="s3">}</span>
+    <span class="s3">}</span>
+
+    <span class="s0">/// &lt;summary&gt;</span>
+    <span class="s0">/// 获取敌人墓地的所有卡牌</span>
+    <span class="s0">/// &lt;/summary&gt;</span>
+    <span class="s2">public </span><span class="s1">List</span><span class="s3">&lt;</span><span class="s1">UnitData</span><span class="s3">&gt; </span><span class="s1">GetEnemyGraveyard</span><span class="s3">()</span>
+    <span class="s3">{</span>
+        <span class="s2">if </span><span class="s3">(</span><span class="s1">enemyGraveyard </span><span class="s3">!= </span><span class="s2">null</span><span class="s3">)</span>
+        <span class="s3">{</span>
+            <span class="s1">List</span><span class="s3">&lt;</span><span class="s1">UnitData</span><span class="s3">&gt; </span><span class="s1">unitDatas </span><span class="s3">= </span><span class="s2">new </span><span class="s1">List</span><span class="s3">&lt;</span><span class="s1">UnitData</span><span class="s3">&gt;();</span>
+            <span class="s2">foreach </span><span class="s3">(</span><span class="s1">var unitsWithInjuryStatu </span><span class="s2">in </span><span class="s1">enemyGraveyard</span><span class="s3">.</span><span class="s1">GetAllUnitsWithInjuryStatus</span><span class="s3">())</span>
+            <span class="s3">{</span>
+                <span class="s1">UnitData unitData </span><span class="s3">= </span><span class="s1">unitsWithInjuryStatu</span><span class="s3">.</span><span class="s1">unitData</span><span class="s3">;</span>
+                <span class="s2">if </span><span class="s3">(</span><span class="s1">unitData </span><span class="s3">!= </span><span class="s2">null</span><span class="s3">)</span>
+                <span class="s3">{</span>
+                    <span class="s1">unitDatas</span><span class="s3">.</span><span class="s1">Add</span><span class="s3">(</span><span class="s1">unitData</span><span class="s3">);</span>
+                <span class="s3">}</span>
+            <span class="s3">}</span>
+            
+            <span class="s2">return </span><span class="s1">unitDatas</span><span class="s3">;</span>
+        <span class="s3">}</span>
+        <span class="s2">else</span>
+        <span class="s3">{</span>
+            <span class="s1">Debug</span><span class="s3">.</span><span class="s1">LogError</span><span class="s3">(</span><span class="s4">&quot;GraveyardManager: enemyGraveyard 未赋值！&quot;</span><span class="s3">);</span>
+            <span class="s2">return new </span><span class="s1">List</span><span class="s3">&lt;</span><span class="s1">UnitData</span><span class="s3">&gt;();</span>
+        <span class="s3">}</span>
+    <span class="s3">}</span>
+
+    <span class="s0">/// &lt;summary&gt;</span>
+    <span class="s0">/// 清空玩家墓地</span>
+    <span class="s0">/// &lt;/summary&gt;</span>
+    <span class="s2">public void </span><span class="s1">ClearPlayerGraveyard</span><span class="s3">()</span>
+    <span class="s3">{</span>
+        <span class="s1">playerGraveyard</span><span class="s3">.</span><span class="s1">Clear</span><span class="s3">();</span>
+        <span class="s1">OnPlayerGraveyardUpdated?</span><span class="s3">.</span><span class="s1">Invoke</span><span class="s3">();</span>
+    <span class="s3">}</span>
+
+    <span class="s0">/// &lt;summary&gt;</span>
+    <span class="s0">/// 清空敌人墓地</span>
+    <span class="s0">/// &lt;/summary&gt;</span>
+    <span class="s2">public void </span><span class="s1">ClearEnemyGraveyard</span><span class="s3">()</span>
+    <span class="s3">{</span>
+        <span class="s1">enemyGraveyard</span><span class="s3">.</span><span class="s1">Clear</span><span class="s3">();</span>
+        <span class="s1">OnEnemyGraveyardUpdated?</span><span class="s3">.</span><span class="s1">Invoke</span><span class="s3">();</span>
+    <span class="s3">}</span>
+<span class="s3">}</span>
+</pre>
+</body>
+</html>

@@ -319,9 +319,17 @@ BossController.cs</font>
         <span class="s3">// 破壞逻辑已经在 PerformBreakage 方法中实现</span>
     <span class="s2">}</span>
 
-    <span class="s0">public void </span><span class="s1">TakeDamage</span><span class="s2">(</span><span class="s0">int </span><span class="s1">damage</span><span class="s2">)</span>
+    <span class="s3">/// &lt;summary&gt;</span>
+    <span class="s3">/// 接受伤害</span>
+    <span class="s3">/// &lt;/summary&gt;</span>
+    <span class="s3">/// &lt;param name=&quot;damage&quot;&gt;伤害值&lt;/param&gt;</span>
+    <span class="s3">/// &lt;param name=&quot;source&quot;&gt;伤害来源&lt;/param&gt;</span>
+    <span class="s0">public virtual void </span><span class="s1">TakeDamage</span><span class="s2">(</span><span class="s0">int </span><span class="s1">damage</span><span class="s2">, </span><span class="s1">DamageSource source </span><span class="s2">= </span><span class="s1">DamageSource</span><span class="s2">.</span><span class="s1">Normal</span><span class="s2">)</span>
     <span class="s2">{</span>
-        <span class="s1">StartCoroutine</span><span class="s2">(</span><span class="s1">HandleTakeDamage</span><span class="s2">(</span><span class="s1">damage</span><span class="s2">));</span>
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">isDead</span><span class="s2">)</span>
+            <span class="s0">return</span><span class="s2">;</span>
+        
+        <span class="s1">StartCoroutine</span><span class="s2">(</span><span class="s1">HandleTakeDamage</span><span class="s2">(</span><span class="s1">damage</span><span class="s2">, </span><span class="s1">source</span><span class="s2">));</span>
         <span class="s3">/*PlayHitAnimation(() =&gt; 
         { 
             currentHealth -= damage; 
@@ -340,7 +348,7 @@ BossController.cs</font>
         });*/</span>
     <span class="s2">}</span>
     
-    <span class="s0">private </span><span class="s1">IEnumerator HandleTakeDamage</span><span class="s2">(</span><span class="s0">int </span><span class="s1">damage</span><span class="s2">)</span>
+    <span class="s0">private </span><span class="s1">IEnumerator HandleTakeDamage</span><span class="s2">(</span><span class="s0">int </span><span class="s1">damage</span><span class="s2">, </span><span class="s1">DamageSource source </span><span class="s2">= </span><span class="s1">DamageSource</span><span class="s2">.</span><span class="s1">Normal</span><span class="s2">)</span>
     <span class="s2">{</span>
         <span class="s3">// 执行受击动画</span>
         <span class="s1">yield </span><span class="s0">return </span><span class="s1">StartCoroutine</span><span class="s2">(</span><span class="s1">PlayHitAnimation</span><span class="s2">());</span>
@@ -392,11 +400,11 @@ BossController.cs</font>
         <span class="s3">// 动画序列</span>
         <span class="s1">Sequence hitSequence </span><span class="s2">= </span><span class="s1">DOTween</span><span class="s2">.</span><span class="s1">Sequence</span><span class="s2">();</span>
 
-        <span class="s3">// 向后移动</span>
-        <span class="s1">hitSequence</span><span class="s2">.</span><span class="s1">Append</span><span class="s2">(</span><span class="s1">spriteTransform</span><span class="s2">.</span><span class="s1">DOMove</span><span class="s2">(</span><span class="s1">spriteTransform</span><span class="s2">.</span><span class="s1">position </span><span class="s2">+ </span><span class="s1">direction </span><span class="s2">* </span><span class="s1">moveDistance</span><span class="s2">, </span><span class="s1">animationDuration</span><span class="s2">));</span>
+        <span class="s3">// 向后移动（使用本地坐标）</span>
+        <span class="s1">hitSequence</span><span class="s2">.</span><span class="s1">Append</span><span class="s2">(</span><span class="s1">spriteTransform</span><span class="s2">.</span><span class="s1">DOLocalMove</span><span class="s2">(</span><span class="s1">spriteTransform</span><span class="s2">.</span><span class="s1">localPosition </span><span class="s2">+ </span><span class="s1">direction </span><span class="s2">* </span><span class="s1">moveDistance</span><span class="s2">, </span><span class="s1">animationDuration</span><span class="s2">));</span>
 
-        <span class="s3">// 返回原位</span>
-        <span class="s1">hitSequence</span><span class="s2">.</span><span class="s1">Append</span><span class="s2">(</span><span class="s1">spriteTransform</span><span class="s2">.</span><span class="s1">DOMove</span><span class="s2">(</span><span class="s1">spriteTransform</span><span class="s2">.</span><span class="s1">position</span><span class="s2">, </span><span class="s1">animationDuration</span><span class="s2">));</span>
+        <span class="s3">// 返回原位（使用本地坐标）</span>
+        <span class="s1">hitSequence</span><span class="s2">.</span><span class="s1">Append</span><span class="s2">(</span><span class="s1">spriteTransform</span><span class="s2">.</span><span class="s1">DOLocalMove</span><span class="s2">(</span><span class="s1">Vector3</span><span class="s2">.</span><span class="s1">zero</span><span class="s2">, </span><span class="s1">animationDuration</span><span class="s2">)); </span><span class="s3">// 假设原位为本地坐标的 (0,0,0)</span>
 
         <span class="s3">// 动画完成回调</span>
         <span class="s0">if </span><span class="s2">(</span><span class="s1">onComplete </span><span class="s2">!= </span><span class="s0">null</span><span class="s2">)</span>

@@ -1,0 +1,78 @@
+<html>
+<head>
+<title>TurnManager.cs</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #6c95eb;}
+.s1 { color: #d0d0d0;}
+.s2 { color: #bdbdbd;}
+.s3 { color: #85c46c; font-style: italic;}
+.s4 { color: #c9a26d;}
+</style>
+</head>
+<body bgcolor="#262626">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#606060" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+TurnManager.cs</font>
+</center></td></tr></table>
+<pre><span class="s0">using </span><span class="s1">UnityEngine</span><span class="s2">;</span>
+<span class="s0">using </span><span class="s1">System</span><span class="s2">.</span><span class="s1">Collections</span><span class="s2">.</span><span class="s1">Generic</span><span class="s2">;</span>
+
+<span class="s0">public class </span><span class="s1">TurnManager : MonoBehaviour</span>
+<span class="s2">{</span>
+    <span class="s0">public static </span><span class="s1">TurnManager Instance</span><span class="s2">;</span>
+
+    <span class="s2">[</span><span class="s1">SerializeField</span><span class="s2">]</span>
+    <span class="s0">private </span><span class="s1">List</span><span class="s2">&lt;</span><span class="s1">UnitController</span><span class="s2">&gt; </span><span class="s1">units </span><span class="s2">= </span><span class="s0">new </span><span class="s1">List</span><span class="s2">&lt;</span><span class="s1">UnitController</span><span class="s2">&gt;();</span>
+
+    <span class="s0">void </span><span class="s1">Awake</span><span class="s2">()</span>
+    <span class="s2">{</span>
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">Instance </span><span class="s2">== </span><span class="s0">null</span><span class="s2">)</span>
+        <span class="s2">{</span>
+            <span class="s1">Instance </span><span class="s2">= </span><span class="s0">this</span><span class="s2">;</span>
+            <span class="s3">//DontDestroyOnLoad(gameObject); // 根据需要设置</span>
+        <span class="s2">}</span>
+        <span class="s0">else</span>
+        <span class="s2">{</span>
+            <span class="s1">Destroy</span><span class="s2">(</span><span class="s1">gameObject</span><span class="s2">);</span>
+        <span class="s2">}</span>
+    <span class="s2">}</span>
+
+    <span class="s0">void </span><span class="s1">Start</span><span class="s2">()</span>
+    <span class="s2">{</span>
+        <span class="s3">// 初始化游戏单位列表</span>
+        <span class="s1">units</span><span class="s2">.</span><span class="s1">AddRange</span><span class="s2">(</span><span class="s1">FindObjectsOfType</span><span class="s2">&lt;</span><span class="s1">UnitController</span><span class="s2">&gt;());</span>
+    <span class="s2">}</span>
+
+    <span class="s3">/// &lt;summary&gt;</span>
+    <span class="s3">/// 开始新回合</span>
+    <span class="s3">/// &lt;/summary&gt;</span>
+    <span class="s0">public void </span><span class="s1">StartNewTurn</span><span class="s2">()</span>
+    <span class="s2">{</span>
+        <span class="s1">Debug</span><span class="s2">.</span><span class="s1">Log</span><span class="s2">(</span><span class="s4">&quot;TurnManager: 新回合开始&quot;</span><span class="s2">);</span>
+        <span class="s0">foreach </span><span class="s2">(</span><span class="s1">var unit </span><span class="s0">in </span><span class="s1">units</span><span class="s2">)</span>
+        <span class="s2">{</span>
+            <span class="s0">if </span><span class="s2">(</span><span class="s1">unit </span><span class="s2">!= </span><span class="s0">null</span><span class="s2">)</span>
+            <span class="s2">{</span>
+                <span class="s1">unit</span><span class="s2">.</span><span class="s1">OnEndTurn</span><span class="s2">();</span>
+            <span class="s2">}</span>
+        <span class="s2">}</span>
+
+        <span class="s3">// 其他回合开始逻辑</span>
+    <span class="s2">}</span>
+
+    <span class="s3">/// &lt;summary&gt;</span>
+    <span class="s3">/// 结束当前回合</span>
+    <span class="s3">/// &lt;/summary&gt;</span>
+    <span class="s0">public void </span><span class="s1">EndTurn</span><span class="s2">()</span>
+    <span class="s2">{</span>
+        <span class="s1">Debug</span><span class="s2">.</span><span class="s1">Log</span><span class="s2">(</span><span class="s4">&quot;TurnManager: 当前回合结束&quot;</span><span class="s2">);</span>
+        <span class="s3">// 其他回合结束逻辑</span>
+
+        <span class="s3">// 开始新回合</span>
+        <span class="s1">StartNewTurn</span><span class="s2">();</span>
+    <span class="s2">}</span>
+<span class="s2">}</span></pre>
+</body>
+</html>

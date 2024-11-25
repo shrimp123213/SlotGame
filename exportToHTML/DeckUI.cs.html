@@ -52,14 +52,15 @@ DeckUI.cs</font>
             <span class="s2">return</span><span class="s3">;</span>
         <span class="s3">}</span>
 
-        <span class="s0">// 設置牌組變更事件</span>
-        <span class="s1">playerDeck</span><span class="s3">.</span><span class="s1">OnDeckChanged </span><span class="s3">+= </span><span class="s1">RefreshDeckUI</span><span class="s3">;</span>
-        
+        <span class="s0">// 设置墓地变更事件</span>
+        <span class="s1">GraveyardManager</span><span class="s3">.</span><span class="s1">Instance</span><span class="s3">.</span><span class="s1">OnPlayerGraveyardUpdated </span><span class="s3">+= </span><span class="s1">RefreshGraveyardUI</span><span class="s3">;</span>
+
         <span class="s0">// 初始化墓地卡牌列表</span>
-        <span class="s1">graveyardCards </span><span class="s3">= </span><span class="s1">DeckManager</span><span class="s3">.</span><span class="s1">Instance</span><span class="s3">.</span><span class="s1">GetGraveyardCards</span><span class="s3">();</span>
+        <span class="s1">graveyardCards </span><span class="s3">= </span><span class="s1">GraveyardManager</span><span class="s3">.</span><span class="s1">Instance</span><span class="s3">.</span><span class="s1">GetPlayerGraveyard</span><span class="s3">();</span>
 
         <span class="s0">// 初始刷新</span>
         <span class="s1">RefreshDeckUI</span><span class="s3">();</span>
+        <span class="s1">RefreshGraveyardUI</span><span class="s3">();</span>
     <span class="s3">}</span>
 
     <span class="s2">private void </span><span class="s1">OnDestroy</span><span class="s3">()</span>
@@ -67,6 +68,11 @@ DeckUI.cs</font>
         <span class="s2">if </span><span class="s3">(</span><span class="s1">playerDeck </span><span class="s3">!= </span><span class="s2">null</span><span class="s3">)</span>
         <span class="s3">{</span>
             <span class="s1">playerDeck</span><span class="s3">.</span><span class="s1">OnDeckChanged </span><span class="s3">-= </span><span class="s1">RefreshDeckUI</span><span class="s3">;</span>
+        <span class="s3">}</span>
+
+        <span class="s2">if </span><span class="s3">(</span><span class="s1">GraveyardManager</span><span class="s3">.</span><span class="s1">Instance </span><span class="s3">!= </span><span class="s2">null</span><span class="s3">)</span>
+        <span class="s3">{</span>
+            <span class="s1">GraveyardManager</span><span class="s3">.</span><span class="s1">Instance</span><span class="s3">.</span><span class="s1">OnPlayerGraveyardUpdated </span><span class="s3">-= </span><span class="s1">RefreshGraveyardUI</span><span class="s3">;</span>
         <span class="s3">}</span>
     <span class="s3">}</span>
 
@@ -107,8 +113,16 @@ DeckUI.cs</font>
         <span class="s0">// 更新总卡牌数</span>
         <span class="s2">if </span><span class="s3">(</span><span class="s1">totalCardCountText </span><span class="s3">!= </span><span class="s2">null</span><span class="s3">)</span>
             <span class="s1">totalCardCountText</span><span class="s3">.</span><span class="s1">text </span><span class="s3">= </span><span class="s4">$&quot;</span><span class="s3">{</span><span class="s1">totalCardCount</span><span class="s3">}</span><span class="s4">&quot;</span><span class="s3">;</span>
+    <span class="s3">}</span>
+    
+    <span class="s0">/// &lt;summary&gt;</span>
+    <span class="s0">/// 刷新墓地的 UI 显示</span>
+    <span class="s0">/// &lt;/summary&gt;</span>
+    <span class="s2">private void </span><span class="s1">RefreshGraveyardUI</span><span class="s3">()</span>
+    <span class="s3">{</span>
+        <span class="s1">graveyardCards </span><span class="s3">= </span><span class="s1">GraveyardManager</span><span class="s3">.</span><span class="s1">Instance</span><span class="s3">.</span><span class="s1">GetPlayerGraveyard</span><span class="s3">();</span>
 
-        <span class="s0">// 更新墓地卡牌数</span>
+        <span class="s0">// 更新墓地卡牌数显示</span>
         <span class="s2">if </span><span class="s3">(</span><span class="s1">graveyardCountText </span><span class="s3">!= </span><span class="s2">null</span><span class="s3">)</span>
             <span class="s1">graveyardCountText</span><span class="s3">.</span><span class="s1">text </span><span class="s3">= </span><span class="s1">graveyardCards</span><span class="s3">.</span><span class="s1">Count</span><span class="s3">.</span><span class="s1">ToString</span><span class="s3">();</span>
     <span class="s3">}</span>
@@ -134,8 +148,6 @@ DeckUI.cs</font>
     <span class="s3">{</span>
         <span class="s2">if </span><span class="s3">(</span><span class="s1">unitData </span><span class="s3">== </span><span class="s2">null</span><span class="s3">)</span>
             <span class="s2">return</span><span class="s3">;</span>
-
-        <span class="s0">//graveyardCards.Add(unitData);</span>
 
         <span class="s0">// 更新墓地卡牌数显示</span>
         <span class="s2">if </span><span class="s3">(</span><span class="s1">graveyardCountText </span><span class="s3">!= </span><span class="s2">null</span><span class="s3">)</span>

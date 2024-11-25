@@ -17,7 +17,9 @@
 <font face="Arial, Helvetica" color="#000000">
 BuildingController.cs</font>
 </center></td></tr></table>
-<pre><span class="s0">using </span><span class="s1">System</span><span class="s2">.</span><span class="s1">Collections</span><span class="s2">;</span>
+<pre><span class="s0">using </span><span class="s1">System</span><span class="s2">;</span>
+<span class="s0">using </span><span class="s1">System</span><span class="s2">.</span><span class="s1">Collections</span><span class="s2">;</span>
+<span class="s0">using </span><span class="s1">System</span><span class="s2">.</span><span class="s1">Collections</span><span class="s2">.</span><span class="s1">Generic</span><span class="s2">;</span>
 <span class="s0">using </span><span class="s1">UnityEngine</span><span class="s2">;</span>
 <span class="s0">using </span><span class="s1">UnityEngine</span><span class="s2">.</span><span class="s1">UI</span><span class="s2">;</span>
 
@@ -41,7 +43,35 @@ BuildingController.cs</font>
 
     <span class="s2">[</span><span class="s1">HideInInspector</span><span class="s2">]</span>
     <span class="s0">public </span><span class="s1">Skill currentSkill</span><span class="s2">;        </span><span class="s3">// 当前技能的运行时实例</span>
+    
+    <span class="s0">private bool </span><span class="s1">hasActedThisTurn </span><span class="s2">= </span><span class="s0">false</span><span class="s2">;</span>
+    
+    <span class="s3">// 跟踪每个技能的剩余延迟回合数</span>
+    <span class="s0">private </span><span class="s1">Dictionary</span><span class="s2">&lt;</span><span class="s0">string</span><span class="s2">, </span><span class="s0">int</span><span class="s2">&gt; </span><span class="s1">skillDelays </span><span class="s2">= </span><span class="s0">new </span><span class="s1">Dictionary</span><span class="s2">&lt;</span><span class="s0">string</span><span class="s2">, </span><span class="s0">int</span><span class="s2">&gt;();</span>
+    
+    <span class="s3">// 唯一标识符，用于在 DeckEntry 中保存技能延迟</span>
+    <span class="s3">// 唯一标识符，用于在 DeckEntry 中保存技能延迟</span>
+    <span class="s2">[</span><span class="s1">SerializeField</span><span class="s2">]</span>
+    <span class="s0">private string </span><span class="s1">_buildingId </span><span class="s2">= </span><span class="s5">&quot;&quot;</span><span class="s2">;</span>
 
+    <span class="s0">public string </span><span class="s1">buildingId</span>
+    <span class="s2">{</span>
+        <span class="s1">get</span>
+        <span class="s2">{</span>
+            <span class="s0">if </span><span class="s2">(</span><span class="s0">string</span><span class="s2">.</span><span class="s1">IsNullOrEmpty</span><span class="s2">(</span><span class="s1">_buildingId</span><span class="s2">))</span>
+            <span class="s2">{</span>
+                <span class="s1">_buildingId </span><span class="s2">= </span><span class="s1">Guid</span><span class="s2">.</span><span class="s1">NewGuid</span><span class="s2">().</span><span class="s1">ToString</span><span class="s2">();</span>
+            <span class="s2">}</span>
+            <span class="s0">return </span><span class="s1">_buildingId</span><span class="s2">;</span>
+        <span class="s2">}</span>
+    <span class="s2">}</span>
+    
+    <span class="s0">private void </span><span class="s1">Awake</span><span class="s2">()</span>
+    <span class="s2">{</span>
+        <span class="s3">// 生成唯一标识符</span>
+        <span class="s1">_buildingId </span><span class="s2">= </span><span class="s1">Guid</span><span class="s2">.</span><span class="s1">NewGuid</span><span class="s2">().</span><span class="s1">ToString</span><span class="s2">();</span>
+    <span class="s2">}</span>
+    
     <span class="s0">void </span><span class="s1">Start</span><span class="s2">()</span>
     <span class="s2">{</span>
         <span class="s3">// 初始化建筑物属性</span>
@@ -68,6 +98,18 @@ BuildingController.cs</font>
 
         <span class="s3">// 调用初始化方法</span>
         <span class="s1">Init</span><span class="s2">();</span>
+    <span class="s2">}</span>
+    
+    <span class="s0">private void </span><span class="s1">OnEnable</span><span class="s2">()</span>
+    <span class="s2">{</span>
+        <span class="s3">// 当建筑物进入场地时，加载其技能延迟</span>
+        <span class="s1">LoadSkillDelays</span><span class="s2">();</span>
+    <span class="s2">}</span>
+
+    <span class="s0">private void </span><span class="s1">OnDisable</span><span class="s2">()</span>
+    <span class="s2">{</span>
+        <span class="s3">// 当建筑物离开场地时，保存其技能延迟</span>
+        <span class="s1">SaveSkillDelays</span><span class="s2">();</span>
     <span class="s2">}</span>
 
     <span class="s3">/// &lt;summary&gt;</span>
@@ -154,6 +196,85 @@ BuildingController.cs</font>
     <span class="s2">}</span>
 
     <span class="s3">/// &lt;summary&gt;</span>
+    <span class="s3">/// 从牌库加载技能延迟</span>
+    <span class="s3">/// &lt;/summary&gt;</span>
+    <span class="s0">private void </span><span class="s1">LoadSkillDelays</span><span class="s2">()</span>
+    <span class="s2">{</span>
+        <span class="s1">Dictionary</span><span class="s2">&lt;</span><span class="s0">string</span><span class="s2">, </span><span class="s0">int</span><span class="s2">&gt; </span><span class="s1">loadedDelays </span><span class="s2">= </span><span class="s1">DeckManager</span><span class="s2">.</span><span class="s1">Instance</span><span class="s2">.</span><span class="s1">GetUnitSkillDelays</span><span class="s2">(</span><span class="s1">buildingData</span><span class="s2">, </span><span class="s1">buildingId</span><span class="s2">);</span>
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">loadedDelays </span><span class="s2">!= </span><span class="s0">null</span><span class="s2">)</span>
+        <span class="s2">{</span>
+            <span class="s1">skillDelays </span><span class="s2">= </span><span class="s0">new </span><span class="s1">Dictionary</span><span class="s2">&lt;</span><span class="s0">string</span><span class="s2">, </span><span class="s0">int</span><span class="s2">&gt;(</span><span class="s1">loadedDelays</span><span class="s2">);</span>
+            <span class="s1">Debug</span><span class="s2">.</span><span class="s1">Log</span><span class="s2">(</span><span class="s5">$&quot;BuildingController: 建筑物 </span><span class="s2">{</span><span class="s1">buildingData</span><span class="s2">.</span><span class="s1">buildingName</span><span class="s2">} </span><span class="s5">的技能延迟已加载。&quot;</span><span class="s2">);</span>
+        <span class="s2">}</span>
+        <span class="s0">else</span>
+        <span class="s2">{</span>
+            <span class="s3">// 初始化技能延迟，如果没有保存的数据</span>
+            <span class="s1">InitializeSkillDelays</span><span class="s2">();</span>
+            <span class="s1">Debug</span><span class="s2">.</span><span class="s1">Log</span><span class="s2">(</span><span class="s5">$&quot;BuildingController: 建筑物 </span><span class="s2">{</span><span class="s1">buildingData</span><span class="s2">.</span><span class="s1">buildingName</span><span class="s2">} </span><span class="s5">的技能延迟已初始化。&quot;</span><span class="s2">);</span>
+        <span class="s2">}</span>
+    <span class="s2">}</span>
+
+    <span class="s3">/// &lt;summary&gt;</span>
+    <span class="s3">/// 保存技能延迟到牌库</span>
+    <span class="s3">/// &lt;/summary&gt;</span>
+    <span class="s0">private void </span><span class="s1">SaveSkillDelays</span><span class="s2">()</span>
+    <span class="s2">{</span>
+        <span class="s1">DeckManager</span><span class="s2">.</span><span class="s1">Instance</span><span class="s2">.</span><span class="s1">SaveUnitSkillDelays</span><span class="s2">(</span><span class="s1">buildingData</span><span class="s2">, </span><span class="s1">buildingId</span><span class="s2">, </span><span class="s1">skillDelays</span><span class="s2">);</span>
+        <span class="s1">Debug</span><span class="s2">.</span><span class="s1">Log</span><span class="s2">(</span><span class="s5">$&quot;BuildingController: 建筑物 </span><span class="s2">{</span><span class="s1">buildingData</span><span class="s2">.</span><span class="s1">buildingName</span><span class="s2">} </span><span class="s5">的技能延迟已保存。&quot;</span><span class="s2">);</span>
+    <span class="s2">}</span>
+
+    <span class="s3">/// &lt;summary&gt;</span>
+    <span class="s3">/// 初始化技能延迟</span>
+    <span class="s3">/// &lt;/summary&gt;</span>
+    <span class="s0">private void </span><span class="s1">InitializeSkillDelays</span><span class="s2">()</span>
+    <span class="s2">{</span>
+        <span class="s0">foreach </span><span class="s2">(</span><span class="s1">var skillSO </span><span class="s0">in new </span><span class="s1">List</span><span class="s2">&lt;</span><span class="s1">SkillSO</span><span class="s2">&gt; { </span><span class="s1">buildingData</span><span class="s2">.</span><span class="s1">actionSkillSO</span><span class="s2">, </span><span class="s1">buildingData</span><span class="s2">.</span><span class="s1">defenseSkillSO </span><span class="s2">})</span>
+        <span class="s2">{</span>
+            <span class="s0">if </span><span class="s2">(</span><span class="s1">skillSO </span><span class="s2">!= </span><span class="s0">null</span><span class="s2">)</span>
+            <span class="s2">{</span>
+                <span class="s0">foreach </span><span class="s2">(</span><span class="s1">var action </span><span class="s0">in </span><span class="s1">skillSO</span><span class="s2">.</span><span class="s1">actions</span><span class="s2">)</span>
+                <span class="s2">{</span>
+                    <span class="s0">if </span><span class="s2">(</span><span class="s1">!skillDelays</span><span class="s2">.</span><span class="s1">ContainsKey</span><span class="s2">(</span><span class="s1">skillSO</span><span class="s2">.</span><span class="s1">skillName</span><span class="s2">))</span>
+                    <span class="s2">{</span>
+                        <span class="s1">skillDelays</span><span class="s2">[</span><span class="s1">skillSO</span><span class="s2">.</span><span class="s1">skillName</span><span class="s2">] = </span><span class="s1">action</span><span class="s2">.</span><span class="s1">Delay</span><span class="s2">;</span>
+                    <span class="s2">}</span>
+                <span class="s2">}</span>
+            <span class="s2">}</span>
+        <span class="s2">}</span>
+    <span class="s2">}</span>
+
+    <span class="s3">/// &lt;summary&gt;</span>
+    <span class="s3">/// 在每回合开始时减少所有技能的延迟值</span>
+    <span class="s3">/// &lt;/summary&gt;</span>
+    <span class="s0">public void </span><span class="s1">ReduceSkillDelays</span><span class="s2">()</span>
+    <span class="s2">{</span>
+        <span class="s1">List</span><span class="s2">&lt;</span><span class="s0">string</span><span class="s2">&gt; </span><span class="s1">keys </span><span class="s2">= </span><span class="s0">new </span><span class="s1">List</span><span class="s2">&lt;</span><span class="s0">string</span><span class="s2">&gt;(</span><span class="s1">skillDelays</span><span class="s2">.</span><span class="s1">Keys</span><span class="s2">);</span>
+        <span class="s0">foreach </span><span class="s2">(</span><span class="s1">var skillName </span><span class="s0">in </span><span class="s1">keys</span><span class="s2">)</span>
+        <span class="s2">{</span>
+            <span class="s0">if </span><span class="s2">(</span><span class="s1">skillDelays</span><span class="s2">.</span><span class="s1">ContainsKey</span><span class="s2">(</span><span class="s1">skillName</span><span class="s2">))</span>
+            <span class="s2">{</span>
+                <span class="s0">if </span><span class="s2">(</span><span class="s1">skillDelays</span><span class="s2">[</span><span class="s1">skillName</span><span class="s2">] &gt; </span><span class="s4">0</span><span class="s2">)</span>
+                <span class="s2">{</span>
+                    <span class="s1">skillDelays</span><span class="s2">[</span><span class="s1">skillName</span><span class="s2">]--;</span>
+                    <span class="s1">Debug</span><span class="s2">.</span><span class="s1">Log</span><span class="s2">(</span><span class="s5">$&quot;BuildingController: 建筑物 </span><span class="s2">{</span><span class="s1">name</span><span class="s2">} </span><span class="s5">技能 </span><span class="s2">{</span><span class="s1">skillName</span><span class="s2">} </span><span class="s5">的延迟减少到 </span><span class="s2">{</span><span class="s1">skillDelays</span><span class="s2">[</span><span class="s1">skillName</span><span class="s2">]} </span><span class="s5">回合&quot;</span><span class="s2">);</span>
+                <span class="s2">}</span>
+            <span class="s2">}</span>
+        <span class="s2">}</span>
+    <span class="s2">}</span>
+
+    <span class="s3">/// &lt;summary&gt;</span>
+    <span class="s3">/// 检查技能是否准备就绪（延迟为0）</span>
+    <span class="s3">/// &lt;/summary&gt;</span>
+    <span class="s0">private bool </span><span class="s1">IsSkillReady</span><span class="s2">(</span><span class="s0">string </span><span class="s1">skillName</span><span class="s2">)</span>
+    <span class="s2">{</span>
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">skillDelays</span><span class="s2">.</span><span class="s1">ContainsKey</span><span class="s2">(</span><span class="s1">skillName</span><span class="s2">))</span>
+        <span class="s2">{</span>
+            <span class="s0">return </span><span class="s1">skillDelays</span><span class="s2">[</span><span class="s1">skillName</span><span class="s2">] &lt;= </span><span class="s4">0</span><span class="s2">;</span>
+        <span class="s2">}</span>
+        <span class="s0">return true</span><span class="s2">; </span><span class="s3">// 如果没有记录延迟，则认为已准备就绪</span>
+    <span class="s2">}</span>
+    
+    <span class="s3">/// &lt;summary&gt;</span>
     <span class="s3">/// 检查建筑物是否可以执行行动</span>
     <span class="s3">/// &lt;/summary&gt;</span>
     <span class="s3">/// &lt;returns&gt;是否可以执行行动&lt;/returns&gt;</span>
@@ -170,6 +291,11 @@ BuildingController.cs</font>
     <span class="s3">/// &lt;/summary&gt;</span>
     <span class="s0">public virtual void </span><span class="s1">ExecuteAction</span><span class="s2">()</span>
     <span class="s2">{</span>
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">hasActedThisTurn</span><span class="s2">)</span>
+        <span class="s2">{</span>
+            <span class="s0">return</span><span class="s2">; </span><span class="s3">// 單位已經行動過，跳過</span>
+        <span class="s2">}</span>
+        
         <span class="s0">if </span><span class="s2">(</span><span class="s1">isRuin</span><span class="s2">)</span>
         <span class="s2">{</span>
             <span class="s1">Debug</span><span class="s2">.</span><span class="s1">Log</span><span class="s2">(</span><span class="s5">$&quot;BuildingController: 废墟无法执行行动！&quot;</span><span class="s2">);</span>
@@ -183,6 +309,9 @@ BuildingController.cs</font>
                 <span class="s3">// 初始化当前技能为行动技能的克隆</span>
                 <span class="s1">currentSkill </span><span class="s2">= </span><span class="s1">Skill</span><span class="s2">.</span><span class="s1">FromSkillSO</span><span class="s2">(</span><span class="s1">buildingData</span><span class="s2">.</span><span class="s1">actionSkillSO</span><span class="s2">);</span>
 
+                <span class="s3">// 初始化技能延迟</span>
+                <span class="s1">InitializeSkillDelay</span><span class="s2">(</span><span class="s1">currentSkill</span><span class="s2">);</span>
+                
                 <span class="s3">// 执行当前技能</span>
                 <span class="s1">ExecuteCurrentSkill</span><span class="s2">();</span>
 
@@ -196,6 +325,26 @@ BuildingController.cs</font>
         <span class="s0">else</span>
         <span class="s2">{</span>
             <span class="s1">Debug</span><span class="s2">.</span><span class="s1">Log</span><span class="s2">(</span><span class="s5">$&quot;建筑物 </span><span class="s2">{</span><span class="s1">buildingData</span><span class="s2">.</span><span class="s1">buildingName</span><span class="s2">} </span><span class="s5">无法执行行动！&quot;</span><span class="s2">);</span>
+        <span class="s2">}</span>
+        
+        <span class="s1">hasActedThisTurn </span><span class="s2">= </span><span class="s0">true</span><span class="s2">; </span><span class="s3">// 标记为已行动</span>
+    <span class="s2">}</span>
+    
+    <span class="s3">/// &lt;summary&gt;</span>
+    <span class="s3">/// 初始化技能的延迟</span>
+    <span class="s3">/// &lt;/summary&gt;</span>
+    <span class="s0">private void </span><span class="s1">InitializeSkillDelay</span><span class="s2">(</span><span class="s1">Skill skill</span><span class="s2">)</span>
+    <span class="s2">{</span>
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">skill </span><span class="s2">!= </span><span class="s0">null </span><span class="s2">&amp;&amp; </span><span class="s1">!</span><span class="s0">string</span><span class="s2">.</span><span class="s1">IsNullOrEmpty</span><span class="s2">(</span><span class="s1">skill</span><span class="s2">.</span><span class="s1">skillName</span><span class="s2">))</span>
+        <span class="s2">{</span>
+            <span class="s0">foreach </span><span class="s2">(</span><span class="s1">var action </span><span class="s0">in </span><span class="s1">skill</span><span class="s2">.</span><span class="s1">Actions</span><span class="s2">)</span>
+            <span class="s2">{</span>
+                <span class="s3">// 假设同一个技能的所有动作共享相同的延迟</span>
+                <span class="s0">if </span><span class="s2">(</span><span class="s1">!skillDelays</span><span class="s2">.</span><span class="s1">ContainsKey</span><span class="s2">(</span><span class="s1">skill</span><span class="s2">.</span><span class="s1">skillName</span><span class="s2">))</span>
+                <span class="s2">{</span>
+                    <span class="s1">skillDelays</span><span class="s2">[</span><span class="s1">skill</span><span class="s2">.</span><span class="s1">skillName</span><span class="s2">] = </span><span class="s1">action</span><span class="s2">.</span><span class="s1">Delay</span><span class="s2">;</span>
+                <span class="s2">}</span>
+            <span class="s2">}</span>
         <span class="s2">}</span>
     <span class="s2">}</span>
 
@@ -361,7 +510,7 @@ BuildingController.cs</font>
     <span class="s3">/// 接受伤害</span>
     <span class="s3">/// &lt;/summary&gt;</span>
     <span class="s3">/// &lt;param name=&quot;damage&quot;&gt;伤害值&lt;/param&gt;</span>
-    <span class="s0">public virtual void </span><span class="s1">TakeDamage</span><span class="s2">(</span><span class="s0">int </span><span class="s1">damage</span><span class="s2">)</span>
+    <span class="s0">public virtual void </span><span class="s1">TakeDamage</span><span class="s2">(</span><span class="s0">int </span><span class="s1">damage</span><span class="s2">, </span><span class="s1">DamageSource source </span><span class="s2">= </span><span class="s1">DamageSource</span><span class="s2">.</span><span class="s1">Normal</span><span class="s2">)</span>
     <span class="s2">{</span>
         <span class="s0">if</span><span class="s2">(</span><span class="s1">isRuin</span><span class="s2">)</span>
             <span class="s0">return</span><span class="s2">;</span>
@@ -439,37 +588,69 @@ BuildingController.cs</font>
     <span class="s3">/// &lt;summary&gt;</span>
     <span class="s3">/// 使用行动技能</span>
     <span class="s3">/// &lt;/summary&gt;</span>
-    <span class="s0">public virtual void </span><span class="s1">UseActionSkill</span><span class="s2">()</span>
+    <span class="s0">public virtual </span><span class="s1">IEnumerator UseActionSkill</span><span class="s2">()</span>
     <span class="s2">{</span>
         <span class="s0">if </span><span class="s2">(</span><span class="s1">buildingData</span><span class="s2">.</span><span class="s1">actionSkillSO </span><span class="s2">!= </span><span class="s0">null</span><span class="s2">)</span>
         <span class="s2">{</span>
-            <span class="s1">buildingData</span><span class="s2">.</span><span class="s1">actionSkillSO</span><span class="s2">.</span><span class="s1">Execute</span><span class="s2">(</span><span class="s0">this</span><span class="s2">);</span>
+            <span class="s3">// 检查技能是否准备就绪</span>
+            <span class="s0">if </span><span class="s2">(</span><span class="s1">IsSkillReady</span><span class="s2">(</span><span class="s1">buildingData</span><span class="s2">.</span><span class="s1">actionSkillSO</span><span class="s2">.</span><span class="s1">skillName</span><span class="s2">))</span>
+            <span class="s2">{</span>
+                <span class="s3">// 为 currentSkill 行动技能赋值</span>
+                <span class="s1">currentSkill </span><span class="s2">= </span><span class="s1">Skill</span><span class="s2">.</span><span class="s1">FromSkillSO</span><span class="s2">(</span><span class="s1">buildingData</span><span class="s2">.</span><span class="s1">actionSkillSO</span><span class="s2">);</span>
+
+                <span class="s3">// 执行当前技能</span>
+                <span class="s1">yield </span><span class="s0">return </span><span class="s1">StartCoroutine</span><span class="s2">(</span><span class="s1">ExecuteCurrentSkill</span><span class="s2">());</span>
+
+                <span class="s3">// 重置技能延迟</span>
+                <span class="s1">ResetSkillDelay</span><span class="s2">(</span><span class="s1">buildingData</span><span class="s2">.</span><span class="s1">actionSkillSO</span><span class="s2">.</span><span class="s1">skillName</span><span class="s2">, </span><span class="s1">buildingData</span><span class="s2">.</span><span class="s1">actionSkillSO</span><span class="s2">);</span>
+            <span class="s2">}</span>
+            <span class="s0">else</span>
+            <span class="s2">{</span>
+                <span class="s1">Debug</span><span class="s2">.</span><span class="s1">Log</span><span class="s2">(</span><span class="s5">$&quot;BuildingController: 建筑物 </span><span class="s2">{</span><span class="s1">name</span><span class="s2">} </span><span class="s5">的行动技能 </span><span class="s2">{</span><span class="s1">buildingData</span><span class="s2">.</span><span class="s1">actionSkillSO</span><span class="s2">.</span><span class="s1">skillName</span><span class="s2">} </span><span class="s5">还在延迟中（剩余 </span><span class="s2">{</span><span class="s1">skillDelays</span><span class="s2">[</span><span class="s1">buildingData</span><span class="s2">.</span><span class="s1">actionSkillSO</span><span class="s2">.</span><span class="s1">skillName</span><span class="s2">]} </span><span class="s5">回合）&quot;</span><span class="s2">);</span>
+            <span class="s2">}</span>
         <span class="s2">}</span>
         <span class="s0">else</span>
         <span class="s2">{</span>
-            <span class="s1">Debug</span><span class="s2">.</span><span class="s1">LogWarning</span><span class="s2">(</span><span class="s5">$&quot;BuildingController: 建筑物 </span><span class="s2">{</span><span class="s1">buildingData</span><span class="s2">.</span><span class="s1">buildingName</span><span class="s2">} </span><span class="s5">没有配置行动技能！&quot;</span><span class="s2">);</span>
+            <span class="s1">Debug</span><span class="s2">.</span><span class="s1">LogWarning</span><span class="s2">(</span><span class="s5">$&quot;BuildingController: 建筑物 </span><span class="s2">{</span><span class="s1">name</span><span class="s2">} </span><span class="s5">没有配置行动技能！&quot;</span><span class="s2">);</span>
+            <span class="s1">yield </span><span class="s0">break</span><span class="s2">;</span>
         <span class="s2">}</span>
     <span class="s2">}</span>
 
     <span class="s3">/// &lt;summary&gt;</span>
     <span class="s3">/// 使用防卫技能</span>
     <span class="s3">/// &lt;/summary&gt;</span>
-    <span class="s0">public virtual void </span><span class="s1">UseDefenseSkill</span><span class="s2">()</span>
+    <span class="s0">public virtual </span><span class="s1">IEnumerator UseDefenseSkill</span><span class="s2">()</span>
     <span class="s2">{</span>
         <span class="s0">if </span><span class="s2">(</span><span class="s1">buildingData</span><span class="s2">.</span><span class="s1">defenseSkillSO </span><span class="s2">!= </span><span class="s0">null</span><span class="s2">)</span>
         <span class="s2">{</span>
-            <span class="s1">buildingData</span><span class="s2">.</span><span class="s1">defenseSkillSO</span><span class="s2">.</span><span class="s1">Execute</span><span class="s2">(</span><span class="s0">this</span><span class="s2">);</span>
+            <span class="s3">// 检查技能是否准备就绪</span>
+            <span class="s0">if </span><span class="s2">(</span><span class="s1">IsSkillReady</span><span class="s2">(</span><span class="s1">buildingData</span><span class="s2">.</span><span class="s1">defenseSkillSO</span><span class="s2">.</span><span class="s1">skillName</span><span class="s2">))</span>
+            <span class="s2">{</span>
+                <span class="s3">// 为 currentSkill 防卫技能赋值</span>
+                <span class="s1">currentSkill </span><span class="s2">= </span><span class="s1">Skill</span><span class="s2">.</span><span class="s1">FromSkillSO</span><span class="s2">(</span><span class="s1">buildingData</span><span class="s2">.</span><span class="s1">defenseSkillSO</span><span class="s2">);</span>
+
+                <span class="s3">// 执行当前技能</span>
+                <span class="s1">yield </span><span class="s0">return </span><span class="s1">StartCoroutine</span><span class="s2">(</span><span class="s1">ExecuteCurrentSkill</span><span class="s2">());</span>
+
+                <span class="s3">// 重置技能延迟</span>
+                <span class="s1">ResetSkillDelay</span><span class="s2">(</span><span class="s1">buildingData</span><span class="s2">.</span><span class="s1">defenseSkillSO</span><span class="s2">.</span><span class="s1">skillName</span><span class="s2">, </span><span class="s1">buildingData</span><span class="s2">.</span><span class="s1">defenseSkillSO</span><span class="s2">);</span>
+            <span class="s2">}</span>
+            <span class="s0">else</span>
+            <span class="s2">{</span>
+                <span class="s1">Debug</span><span class="s2">.</span><span class="s1">Log</span><span class="s2">(</span><span class="s5">$&quot;BuildingController: 建筑物 </span><span class="s2">{</span><span class="s1">name</span><span class="s2">} </span><span class="s5">的防卫技能 </span><span class="s2">{</span><span class="s1">buildingData</span><span class="s2">.</span><span class="s1">defenseSkillSO</span><span class="s2">.</span><span class="s1">skillName</span><span class="s2">} </span><span class="s5">还在延迟中（剩余 </span><span class="s2">{</span><span class="s1">skillDelays</span><span class="s2">[</span><span class="s1">buildingData</span><span class="s2">.</span><span class="s1">defenseSkillSO</span><span class="s2">.</span><span class="s1">skillName</span><span class="s2">]} </span><span class="s5">回合）&quot;</span><span class="s2">);</span>
+            <span class="s2">}</span>
         <span class="s2">}</span>
         <span class="s0">else</span>
         <span class="s2">{</span>
-            <span class="s1">Debug</span><span class="s2">.</span><span class="s1">LogWarning</span><span class="s2">(</span><span class="s5">$&quot;BuildingController: 建筑物 </span><span class="s2">{</span><span class="s1">buildingData</span><span class="s2">.</span><span class="s1">buildingName</span><span class="s2">} </span><span class="s5">没有配置防卫技能！&quot;</span><span class="s2">);</span>
+            <span class="s1">Debug</span><span class="s2">.</span><span class="s1">LogWarning</span><span class="s2">(</span><span class="s5">$&quot;BuildingController: 建筑物 </span><span class="s2">{</span><span class="s1">name</span><span class="s2">} </span><span class="s5">没有配置防卫技能！&quot;</span><span class="s2">);</span>
+            <span class="s1">yield </span><span class="s0">break</span><span class="s2">;</span>
         <span class="s2">}</span>
     <span class="s2">}</span>
 
     <span class="s3">/// &lt;summary&gt;</span>
     <span class="s3">/// 重新执行当前技能</span>
     <span class="s3">/// &lt;/summary&gt;</span>
-    <span class="s0">public virtual void </span><span class="s1">ExecuteCurrentSkill</span><span class="s2">()</span>
+    <span class="s0">public virtual </span><span class="s1">IEnumerator ExecuteCurrentSkill</span><span class="s2">()</span>
     <span class="s2">{</span>
         <span class="s0">if </span><span class="s2">(</span><span class="s1">currentSkill </span><span class="s2">!= </span><span class="s0">null</span><span class="s2">)</span>
         <span class="s2">{</span>
@@ -486,26 +667,107 @@ BuildingController.cs</font>
                                 <span class="s1">Debug</span><span class="s2">.</span><span class="s1">Log</span><span class="s2">(</span><span class="s5">$&quot;BuildingController: 建筑物 </span><span class="s2">{</span><span class="s1">buildingData</span><span class="s2">.</span><span class="s1">buildingName</span><span class="s2">} </span><span class="s5">无法继续移动，技能执行被阻挡！&quot;</span><span class="s2">);</span>
                                 <span class="s0">break</span><span class="s2">;</span>
                             <span class="s2">}</span>
-                            <span class="s1">StartCoroutine</span><span class="s2">(</span><span class="s1">MoveForward</span><span class="s2">());</span>
+                            <span class="s1">yield </span><span class="s0">return </span><span class="s1">StartCoroutine</span><span class="s2">(</span><span class="s1">MoveForward</span><span class="s2">());</span>
                         <span class="s2">}</span>
                         <span class="s0">break</span><span class="s2">;</span>
                     <span class="s0">case </span><span class="s1">SkillType</span><span class="s2">.</span><span class="s1">Melee:</span>
-                        <span class="s1">StartCoroutine</span><span class="s2">(</span><span class="s1">PerformMeleeAttack</span><span class="s2">(</span><span class="s1">action</span><span class="s2">.</span><span class="s1">TargetType</span><span class="s2">));</span>
+                        <span class="s1">yield </span><span class="s0">return </span><span class="s1">StartCoroutine</span><span class="s2">(</span><span class="s1">PerformMeleeAttack</span><span class="s2">(</span><span class="s1">action</span><span class="s2">.</span><span class="s1">TargetType</span><span class="s2">));</span>
                         <span class="s0">break</span><span class="s2">;</span>
                     <span class="s0">case </span><span class="s1">SkillType</span><span class="s2">.</span><span class="s1">Ranged:</span>
-                        <span class="s1">StartCoroutine</span><span class="s2">(</span><span class="s1">PerformRangedAttack</span><span class="s2">(</span><span class="s1">action</span><span class="s2">.</span><span class="s1">TargetType</span><span class="s2">));</span>
+                        <span class="s1">yield </span><span class="s0">return </span><span class="s1">StartCoroutine</span><span class="s2">(</span><span class="s1">PerformRangedAttack</span><span class="s2">(</span><span class="s1">action</span><span class="s2">.</span><span class="s1">TargetType</span><span class="s2">));</span>
                         <span class="s0">break</span><span class="s2">;</span>
                     <span class="s0">case </span><span class="s1">SkillType</span><span class="s2">.</span><span class="s1">Defense:</span>
                         <span class="s3">//IncreaseDefense(action.Value, action.TargetType);</span>
+                        <span class="s1">yield </span><span class="s0">return null</span><span class="s2">;</span>
                         <span class="s0">break</span><span class="s2">;</span>
                     <span class="s1">default:</span>
                         <span class="s1">Debug</span><span class="s2">.</span><span class="s1">LogWarning</span><span class="s2">(</span><span class="s5">$&quot;BuildingController: 未处理的技能类型：</span><span class="s2">{</span><span class="s1">action</span><span class="s2">.</span><span class="s1">Type</span><span class="s2">}</span><span class="s5">&quot;</span><span class="s2">);</span>
+                        <span class="s1">yield </span><span class="s0">return null</span><span class="s2">;</span>
                         <span class="s0">break</span><span class="s2">;</span>
                 <span class="s2">}</span>
             <span class="s2">}</span>
 
             <span class="s3">// 清空当前技能动作，防止重复执行</span>
             <span class="s1">currentSkill</span><span class="s2">.</span><span class="s1">Actions</span><span class="s2">.</span><span class="s1">Clear</span><span class="s2">();</span>
+        <span class="s2">}</span>
+    <span class="s2">}</span>
+    
+    <span class="s3">/// &lt;summary&gt;</span>
+    <span class="s3">/// 重置技能延迟</span>
+    <span class="s3">/// &lt;/summary&gt;</span>
+    <span class="s0">private void </span><span class="s1">ResetSkillDelay</span><span class="s2">(</span><span class="s0">string </span><span class="s1">skillName</span><span class="s2">, </span><span class="s1">SkillSO skillSO</span><span class="s2">)</span>
+    <span class="s2">{</span>
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">skillSO </span><span class="s2">== </span><span class="s0">null</span><span class="s2">)</span>
+            <span class="s0">return</span><span class="s2">;</span>
+
+        <span class="s1">SkillActionData firstAction </span><span class="s2">= </span><span class="s1">skillSO</span><span class="s2">.</span><span class="s1">actions </span><span class="s2">!= </span><span class="s0">null </span><span class="s2">&amp;&amp; </span><span class="s1">skillSO</span><span class="s2">.</span><span class="s1">actions</span><span class="s2">.</span><span class="s1">Count </span><span class="s2">&gt; </span><span class="s4">0 </span><span class="s1">? skillSO</span><span class="s2">.</span><span class="s1">actions</span><span class="s2">[</span><span class="s4">0</span><span class="s2">] </span><span class="s1">: </span><span class="s0">null</span><span class="s2">;</span>
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">firstAction </span><span class="s2">== </span><span class="s0">null</span><span class="s2">)</span>
+        <span class="s2">{</span>
+            <span class="s1">Debug</span><span class="s2">.</span><span class="s1">LogWarning</span><span class="s2">(</span><span class="s5">$&quot;BuildingController: 技能 </span><span class="s2">{</span><span class="s1">skillName</span><span class="s2">} </span><span class="s5">没有配置任何动作，无法重置延迟。&quot;</span><span class="s2">);</span>
+            <span class="s1">skillDelays</span><span class="s2">[</span><span class="s1">skillName</span><span class="s2">] = </span><span class="s4">0</span><span class="s2">;</span>
+        <span class="s2">}</span>
+        <span class="s0">else</span>
+        <span class="s2">{</span>
+            <span class="s0">int </span><span class="s1">delay </span><span class="s2">= </span><span class="s1">firstAction</span><span class="s2">.</span><span class="s1">Delay</span><span class="s2">;</span>
+            <span class="s1">skillDelays</span><span class="s2">[</span><span class="s1">skillName</span><span class="s2">] = </span><span class="s1">delay</span><span class="s2">;</span>
+            <span class="s1">Debug</span><span class="s2">.</span><span class="s1">Log</span><span class="s2">(</span><span class="s5">$&quot;BuildingController: 建筑物 </span><span class="s2">{</span><span class="s1">name</span><span class="s2">} </span><span class="s5">技能 </span><span class="s2">{</span><span class="s1">skillName</span><span class="s2">} </span><span class="s5">的延迟已重置为 </span><span class="s2">{</span><span class="s1">delay</span><span class="s2">} </span><span class="s5">回合&quot;</span><span class="s2">);</span>
+        <span class="s2">}</span>
+    <span class="s2">}</span>
+    
+    <span class="s3">/// &lt;summary&gt;</span>
+    <span class="s3">/// 使用技能后重置延迟</span>
+    <span class="s3">/// &lt;/summary&gt;</span>
+    <span class="s0">private void </span><span class="s1">ResetSkillDelay</span><span class="s2">(</span><span class="s0">string </span><span class="s1">skillName</span><span class="s2">)</span>
+    <span class="s2">{</span>
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">skillDelays</span><span class="s2">.</span><span class="s1">ContainsKey</span><span class="s2">(</span><span class="s1">skillName</span><span class="s2">))</span>
+        <span class="s2">{</span>
+            <span class="s3">// 查找技能的初始延迟</span>
+            <span class="s1">Skill skill </span><span class="s2">= </span><span class="s1">currentSkill</span><span class="s2">; </span><span class="s3">// 假设当前技能是使用的技能</span>
+            <span class="s0">foreach </span><span class="s2">(</span><span class="s1">var action </span><span class="s0">in </span><span class="s1">skill</span><span class="s2">.</span><span class="s1">Actions</span><span class="s2">)</span>
+            <span class="s2">{</span>
+                <span class="s0">if </span><span class="s2">(</span><span class="s1">action</span><span class="s2">.</span><span class="s1">Delay </span><span class="s2">&gt; </span><span class="s4">0</span><span class="s2">)</span>
+                <span class="s2">{</span>
+                    <span class="s1">skillDelays</span><span class="s2">[</span><span class="s1">skillName</span><span class="s2">] = </span><span class="s1">action</span><span class="s2">.</span><span class="s1">Delay</span><span class="s2">;</span>
+                    <span class="s1">Debug</span><span class="s2">.</span><span class="s1">Log</span><span class="s2">(</span><span class="s5">$&quot;BuildingController: 建筑物 </span><span class="s2">{</span><span class="s1">name</span><span class="s2">} </span><span class="s5">技能 </span><span class="s2">{</span><span class="s1">skillName</span><span class="s2">} </span><span class="s5">的延迟已重置为 </span><span class="s2">{</span><span class="s1">action</span><span class="s2">.</span><span class="s1">Delay</span><span class="s2">} </span><span class="s5">回合&quot;</span><span class="s2">);</span>
+                    <span class="s0">break</span><span class="s2">; </span><span class="s3">// 假设所有动作共享相同的延迟</span>
+                <span class="s2">}</span>
+            <span class="s2">}</span>
+        <span class="s2">}</span>
+    <span class="s2">}</span>
+    
+    <span class="s3">/// &lt;summary&gt;</span>
+    <span class="s3">/// 使用行动技能后重置延迟</span>
+    <span class="s3">/// &lt;/summary&gt;</span>
+    <span class="s0">public virtual </span><span class="s1">IEnumerator UseActionSkillCoroutine</span><span class="s2">()</span>
+    <span class="s2">{</span>
+        <span class="s1">yield </span><span class="s0">return </span><span class="s1">StartCoroutine</span><span class="s2">(</span><span class="s1">UseActionSkill</span><span class="s2">());</span>
+
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">buildingData</span><span class="s2">.</span><span class="s1">actionSkillSO </span><span class="s2">!= </span><span class="s0">null</span><span class="s2">)</span>
+        <span class="s2">{</span>
+            <span class="s1">DeckManager</span><span class="s2">.</span><span class="s1">Instance</span><span class="s2">.</span><span class="s1">ResetSkillDelayInDeck</span><span class="s2">(</span>
+                <span class="s1">buildingData</span><span class="s2">,</span>
+                <span class="s1">buildingData</span><span class="s2">.</span><span class="s1">actionSkillSO</span><span class="s2">.</span><span class="s1">skillName</span><span class="s2">,</span>
+                <span class="s1">buildingData</span><span class="s2">.</span><span class="s1">actionSkillSO</span><span class="s2">,</span>
+                <span class="s1">buildingData</span><span class="s2">.</span><span class="s1">camp </span><span class="s2">== </span><span class="s1">Camp</span><span class="s2">.</span><span class="s1">Player</span>
+            <span class="s2">);</span>
+        <span class="s2">}</span>
+    <span class="s2">}</span>
+    
+    <span class="s3">/// &lt;summary&gt;</span>
+    <span class="s3">/// 使用防卫技能后重置延迟</span>
+    <span class="s3">/// &lt;/summary&gt;</span>
+    <span class="s0">public virtual </span><span class="s1">IEnumerator UseDefenseSkillCoroutine</span><span class="s2">()</span>
+    <span class="s2">{</span>
+        <span class="s1">yield </span><span class="s0">return </span><span class="s1">StartCoroutine</span><span class="s2">(</span><span class="s1">UseDefenseSkill</span><span class="s2">());</span>
+
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">buildingData</span><span class="s2">.</span><span class="s1">defenseSkillSO </span><span class="s2">!= </span><span class="s0">null</span><span class="s2">)</span>
+        <span class="s2">{</span>
+            <span class="s1">DeckManager</span><span class="s2">.</span><span class="s1">Instance</span><span class="s2">.</span><span class="s1">ResetSkillDelayInDeck</span><span class="s2">(</span>
+                <span class="s1">buildingData</span><span class="s2">,</span>
+                <span class="s1">buildingData</span><span class="s2">.</span><span class="s1">defenseSkillSO</span><span class="s2">.</span><span class="s1">skillName</span><span class="s2">,</span>
+                <span class="s1">buildingData</span><span class="s2">.</span><span class="s1">defenseSkillSO</span><span class="s2">,</span>
+                <span class="s1">buildingData</span><span class="s2">.</span><span class="s1">camp </span><span class="s2">== </span><span class="s1">Camp</span><span class="s2">.</span><span class="s1">Player</span>
+            <span class="s2">);</span>
         <span class="s2">}</span>
     <span class="s2">}</span>
 
@@ -563,6 +825,11 @@ BuildingController.cs</font>
         <span class="s2">{</span>
             <span class="s1">yield </span><span class="s0">return null</span><span class="s2">;</span>
         <span class="s2">}</span>
+    <span class="s2">}</span>
+    
+    <span class="s0">public void </span><span class="s1">ResetTurn</span><span class="s2">()</span>
+    <span class="s2">{</span>
+        <span class="s1">hasActedThisTurn </span><span class="s2">= </span><span class="s0">false</span><span class="s2">;</span>
     <span class="s2">}</span>
 <span class="s2">}</span>
 </pre>

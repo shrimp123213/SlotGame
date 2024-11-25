@@ -12,8 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ff217bcea079e4e41b5eecd87066fc92, type: 3}
   m_Name: Exploding Goblins_MS
   m_EditorClassIdentifier: 
-  skillName: 
+  skillName: Exploding Goblins_MS
   actions:
   - Type: 5
     Value: 6
     TargetType: 1
+    Delay: 0

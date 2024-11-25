@@ -1,4 +1,6 @@
+using System;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -22,7 +24,35 @@ public class BuildingController : MonoBehaviour, ISkillUser
 
     [HideInInspector]
     public Skill currentSkill;        // 当前技能的运行时实例
+    
+    private bool hasActedThisTurn = false;
+    
+    // 跟踪每个技能的剩余延迟回合数
+    private Dictionary<string, int> skillDelays = new Dictionary<string, int>();
+    
+    // 唯一标识符，用于在 DeckEntry 中保存技能延迟
+    // 唯一标识符，用于在 DeckEntry 中保存技能延迟
+    [SerializeField]
+    private string _buildingId = "";
 
+    public string buildingId
+    {
+        get
+        {
+            if (string.IsNullOrEmpty(_buildingId))
+            {
+                _buildingId = Guid.NewGuid().ToString();
+            }
+            return _buildingId;
+        }
+    }
+    
+    private void Awake()
+    {
+        // 生成唯一标识符
+        _buildingId = Guid.NewGuid().ToString();
+    }
+    
     void Start()
     {
         // 初始化建筑物属性
@@ -50,6 +80,18 @@ public class BuildingController : MonoBehaviour, ISkillUser
         // 调用初始化方法
         Init();
     }
+    
+    private void OnEnable()
+    {
+        // 不再在这里调用 InitializeSkillDelays()
+        // 因为此时 buildingData 可能还未赋值
+    }
+
+    private void OnDisable()
+    {
+        // 移除对 SaveSkillDelays 的调用
+        // SaveSkillDelays();
+    }
 
     /// <summary>
     /// 初始化建筑物
@@ -74,6 +116,11 @@ public class BuildingController : MonoBehaviour, ISkillUser
         // 例如，设置防御值、功能等
     }
 
+    public void Initialize()
+    {
+        InitializeSkillDelays();
+    }
+
     /// <summary>
     /// 虚拟初始化方法，允许派生类重写
     /// </summary>
@@ -81,7 +128,7 @@ public class BuildingController : MonoBehaviour, ISkillUser
     {
         // 初始化生命值条
         InitializeHealthBar();
-
+        
         // 其他需要的初始化逻辑
     }
     
@@ -135,6 +182,81 @@ public class BuildingController : MonoBehaviour, ISkillUser
     }
 
     /// <summary>
+    /// 从牌库加载技能延迟
+    /// </summary>
+    private void LoadSkillDelays()
+    {
+        // 建筑物不需要从 DeckManager 加载技能延迟，直接初始化技能延迟
+        InitializeSkillDelays();
+        Debug.Log($"BuildingController: 建筑物 {buildingData.buildingName} 的技能延迟已初始化。");
+    }
+
+    /// <summary>
+    /// 保存技能延迟到牌库
+    /// </summary>
+    private void SaveSkillDelays()
+    {
+        
+    }
+
+    /// <summary>
+    /// 初始化技能延迟
+    /// </summary>
+    private void InitializeSkillDelays()
+    {
+        if (buildingData == null)
+        {
+            Debug.LogError("BuildingController: buildingData 未赋值，无法初始化技能延迟！");
+            return;
+        }
+        
+        foreach (var skillSO in new List<SkillSO> { buildingData.actionSkillSO, buildingData.defenseSkillSO })
+        {
+            if (skillSO != null)
+            {
+                foreach (var action in skillSO.actions)
+                {
+                    if (!skillDelays.ContainsKey(skillSO.skillName))
+                    {
+                        skillDelays[skillSO.skillName] = action.Delay;
+                    }
+                }
+            }
+        }
+    }
+
+    /// <summary>
+    /// 在每回合开始时减少所有技能的延迟值
+    /// </summary>
+    public void ReduceSkillDelays()
+    {
+        List<string> keys = new List<string>(skillDelays.Keys);
+        foreach (var skillName in keys)
+        {
+            if (skillDelays.ContainsKey(skillName))
+            {
+                if (skillDelays[skillName] > 0)
+                {
+                    skillDelays[skillName]--;
+                    Debug.Log($"BuildingController: 建筑物 {name} 技能 {skillName} 的延迟减少到 {skillDelays[skillName]} 回合");
+                }
+            }
+        }
+    }
+
+    /// <summary>
+    /// 检查技能是否准备就绪（延迟为0）
+    /// </summary>
+    private bool IsSkillReady(string skillName)
+    {
+        if (skillDelays.ContainsKey(skillName))
+        {
+            return skillDelays[skillName] <= 0;
+        }
+        return true; // 如果没有记录延迟，则认为已准备就绪
+    }
+    
+    /// <summary>
     /// 检查建筑物是否可以执行行动
     /// </summary>
     /// <returns>是否可以执行行动</returns>
@@ -151,6 +273,11 @@ public class BuildingController : MonoBehaviour, ISkillUser
     /// </summary>
     public virtual void ExecuteAction()
     {
+        if (hasActedThisTurn)
+        {
+            return; // 單位已經行動過，跳過
+        }
+        
         if (isRuin)
         {
             Debug.Log($"BuildingController: 废墟无法执行行动！");
@@ -164,6 +291,9 @@ public class BuildingController : MonoBehaviour, ISkillUser
                 // 初始化当前技能为行动技能的克隆
                 currentSkill = Skill.FromSkillSO(buildingData.actionSkillSO);
 
+                // 初始化技能延迟
+                InitializeSkillDelay(currentSkill);
+                
                 // 执行当前技能
                 ExecuteCurrentSkill();
 
@@ -177,6 +307,26 @@ public class BuildingController : MonoBehaviour, ISkillUser
         else
         {
             Debug.Log($"建筑物 {buildingData.buildingName} 无法执行行动！");
+        }
+        
+        hasActedThisTurn = true; // 标记为已行动
+    }
+    
+    /// <summary>
+    /// 初始化技能的延迟
+    /// </summary>
+    private void InitializeSkillDelay(Skill skill)
+    {
+        if (skill != null && !string.IsNullOrEmpty(skill.skillName))
+        {
+            foreach (var action in skill.Actions)
+            {
+                // 假设同一个技能的所有动作共享相同的延迟
+                if (!skillDelays.ContainsKey(skill.skillName))
+                {
+                    skillDelays[skill.skillName] = action.Delay;
+                }
+            }
         }
     }
 
@@ -420,37 +570,69 @@ public class BuildingController : MonoBehaviour, ISkillUser
     /// <summary>
     /// 使用行动技能
     /// </summary>
-    public virtual void UseActionSkill()
+    public virtual IEnumerator UseActionSkill()
     {
         if (buildingData.actionSkillSO != null)
         {
-            buildingData.actionSkillSO.Execute(this);
+            // 检查技能是否准备就绪
+            if (IsSkillReady(buildingData.actionSkillSO.skillName))
+            {
+                // 为 currentSkill 行动技能赋值
+                currentSkill = Skill.FromSkillSO(buildingData.actionSkillSO);
+
+                // 执行当前技能
+                yield return StartCoroutine(ExecuteCurrentSkill());
+
+                // 重置技能延迟
+                ResetSkillDelay(buildingData.actionSkillSO.skillName, buildingData.actionSkillSO);
+            }
+            else
+            {
+                Debug.Log($"BuildingController: 建筑物 {name} 的行动技能 {buildingData.actionSkillSO.skillName} 还在延迟中（剩余 {skillDelays[buildingData.actionSkillSO.skillName]} 回合）");
+            }
         }
         else
         {
-            Debug.LogWarning($"BuildingController: 建筑物 {buildingData.buildingName} 没有配置行动技能！");
+            Debug.LogWarning($"BuildingController: 建筑物 {name} 没有配置行动技能！");
+            yield break;
         }
     }
 
     /// <summary>
     /// 使用防卫技能
     /// </summary>
-    public virtual void UseDefenseSkill()
+    public virtual IEnumerator UseDefenseSkill()
     {
         if (buildingData.defenseSkillSO != null)
         {
-            buildingData.defenseSkillSO.Execute(this);
+            // 检查技能是否准备就绪
+            if (IsSkillReady(buildingData.defenseSkillSO.skillName))
+            {
+                // 为 currentSkill 防卫技能赋值
+                currentSkill = Skill.FromSkillSO(buildingData.defenseSkillSO);
+
+                // 执行当前技能
+                yield return StartCoroutine(ExecuteCurrentSkill());
+
+                // 重置技能延迟
+                ResetSkillDelay(buildingData.defenseSkillSO.skillName, buildingData.defenseSkillSO);
+            }
+            else
+            {
+                Debug.Log($"BuildingController: 建筑物 {name} 的防卫技能 {buildingData.defenseSkillSO.skillName} 还在延迟中（剩余 {skillDelays[buildingData.defenseSkillSO.skillName]} 回合）");
+            }
         }
         else
         {
-            Debug.LogWarning($"BuildingController: 建筑物 {buildingData.buildingName} 没有配置防卫技能！");
+            Debug.LogWarning($"BuildingController: 建筑物 {name} 没有配置防卫技能！");
+            yield break;
         }
     }
 
     /// <summary>
     /// 重新执行当前技能
     /// </summary>
-    public virtual void ExecuteCurrentSkill()
+    public virtual IEnumerator ExecuteCurrentSkill()
     {
         if (currentSkill != null)
         {
@@ -467,26 +649,97 @@ public class BuildingController : MonoBehaviour, ISkillUser
                                 Debug.Log($"BuildingController: 建筑物 {buildingData.buildingName} 无法继续移动，技能执行被阻挡！");
                                 break;
                             }
-                            StartCoroutine(MoveForward());
+                            yield return StartCoroutine(MoveForward());
                         }
                         break;
                     case SkillType.Melee:
-                        StartCoroutine(PerformMeleeAttack(action.TargetType));
+                        yield return StartCoroutine(PerformMeleeAttack(action.TargetType));
                         break;
                     case SkillType.Ranged:
-                        StartCoroutine(PerformRangedAttack(action.TargetType));
+                        yield return StartCoroutine(PerformRangedAttack(action.TargetType));
                         break;
                     case SkillType.Defense:
                         //IncreaseDefense(action.Value, action.TargetType);
+                        yield return null;
                         break;
                     default:
                         Debug.LogWarning($"BuildingController: 未处理的技能类型：{action.Type}");
+                        yield return null;
                         break;
                 }
             }
 
             // 清空当前技能动作，防止重复执行
             currentSkill.Actions.Clear();
+        }
+    }
+    
+    /// <summary>
+    /// 重置技能延迟
+    /// </summary>
+    private void ResetSkillDelay(string skillName, SkillSO skillSO)
+    {
+        if (skillSO == null)
+            return;
+
+        SkillActionData firstAction = skillSO.actions != null && skillSO.actions.Count > 0 ? skillSO.actions[0] : null;
+        if (firstAction == null)
+        {
+            Debug.LogWarning($"BuildingController: 技能 {skillName} 没有配置任何动作，无法重置延迟。");
+            skillDelays[skillName] = 0;
+        }
+        else
+        {
+            int delay = firstAction.Delay;
+            skillDelays[skillName] = delay;
+            Debug.Log($"BuildingController: 建筑物 {name} 技能 {skillName} 的延迟已重置为 {delay} 回合");
+        }
+    }
+    
+    /// <summary>
+    /// 使用技能后重置延迟
+    /// </summary>
+    private void ResetSkillDelay(string skillName)
+    {
+        if (skillDelays.ContainsKey(skillName))
+        {
+            // 查找技能的初始延迟
+            Skill skill = currentSkill; // 假设当前技能是使用的技能
+            foreach (var action in skill.Actions)
+            {
+                if (action.Delay > 0)
+                {
+                    skillDelays[skillName] = action.Delay;
+                    Debug.Log($"BuildingController: 建筑物 {name} 技能 {skillName} 的延迟已重置为 {action.Delay} 回合");
+                    break; // 假设所有动作共享相同的延迟
+                }
+            }
+        }
+    }
+    
+    /// <summary>
+    /// 使用行动技能后重置延迟
+    /// </summary>
+    public virtual IEnumerator UseActionSkillCoroutine()
+    {
+        yield return StartCoroutine(UseActionSkill());
+
+        if (buildingData.actionSkillSO != null)
+        {
+            
+        }
+    }
+    
+    /// <summary>
+    /// 使用防卫技能后重置延迟
+    /// </summary>
+    public virtual IEnumerator UseDefenseSkillCoroutine()
+    {
+        yield return StartCoroutine(UseDefenseSkill());
+
+        if (buildingData.defenseSkillSO != null)
+        {
+            
         }
     }
 
@@ -544,5 +797,10 @@ public class BuildingController : MonoBehaviour, ISkillUser
         {
             yield return null;
         }
+    }
+    
+    public void ResetTurn()
+    {
+        hasActedThisTurn = false;
     }
 }

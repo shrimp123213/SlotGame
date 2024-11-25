@@ -10,13 +10,15 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ff217bcea079e4e41b5eecd87066fc92, type: 3}
-  m_Name: Mercenary Captain_MainSkill
+  m_Name: Mercenary Captain_MS
   m_EditorClassIdentifier: 
-  skillName: 
+  skillName: Mercenary Captain_MS
   actions:
   - Type: 3
     Value: 1
     TargetType: 0
+    Delay: 0
   - Type: 1
     Value: 1
     TargetType: 1
+    Delay: 0

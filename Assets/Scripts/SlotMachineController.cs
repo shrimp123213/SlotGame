@@ -200,6 +200,9 @@ public class SlotMachineController : MonoBehaviour
                 UnitController unitController = unitGO.GetComponent<UnitController>();
                 unitController.unitData = unitData;
                 unitController.InitializeUnitSprite();
+                
+                // 调用 Initialize 方法
+                unitController.Initialize();
 
                 // 设置单位的列索引
                 unitController.columnIndex = col;
@@ -218,7 +221,7 @@ public class SlotMachineController : MonoBehaviour
         allEntries.AddRange(enemyDeck.entries);
 
         // 过滤掉数量为0的卡牌
-        allEntries.RemoveAll(entry => entry.quantity <= 0);
+        allEntries.RemoveAll(entry => (entry.quantity + entry.injuredQuantity) <= 0);
 
         if (allEntries.Count == 0)
             return null;
@@ -488,7 +491,7 @@ public class SlotMachineController : MonoBehaviour
                         if (unit.currentHealth > 0)
                         {
                             // 单位仍然活着，添加回牌组
-                            deck.AddCard(unit.unitData, 1, unit.isInjured);
+                            deck.AddCard(unit.unitData, unit.unitId, 1, unit.isInjured);
                             Debug.Log($"ClearBattleAreaUnits: 单位 {unit.unitData.unitName} 添加回牌组");
                         }
                         else

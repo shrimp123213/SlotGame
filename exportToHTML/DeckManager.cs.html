@@ -28,10 +28,6 @@ DeckManager.cs</font>
     <span class="s3">[</span><span class="s1">Header</span><span class="s3">(</span><span class="s4">&quot;Decks&quot;</span><span class="s3">)]</span>
     <span class="s2">public </span><span class="s1">Deck playerDeck</span><span class="s3">; </span><span class="s0">// 玩家牌組</span>
     <span class="s2">public </span><span class="s1">Deck enemyDeck</span><span class="s3">;  </span><span class="s0">// 敵人牌組</span>
-    
-    <span class="s0">// 墓地列表</span>
-    <span class="s2">private </span><span class="s1">List</span><span class="s3">&lt;</span><span class="s1">UnitData</span><span class="s3">&gt; </span><span class="s1">graveyardCards </span><span class="s3">= </span><span class="s2">new </span><span class="s1">List</span><span class="s3">&lt;</span><span class="s1">UnitData</span><span class="s3">&gt;();</span>
-    <span class="s2">private </span><span class="s1">List</span><span class="s3">&lt;</span><span class="s1">UnitData</span><span class="s3">&gt; </span><span class="s1">enemyGraveyardCards </span><span class="s3">= </span><span class="s2">new </span><span class="s1">List</span><span class="s3">&lt;</span><span class="s1">UnitData</span><span class="s3">&gt;();</span>
 
     <span class="s2">private void </span><span class="s1">Awake</span><span class="s3">()</span>
     <span class="s3">{</span>
@@ -50,104 +46,192 @@ DeckManager.cs</font>
     <span class="s0">/// &lt;summary&gt;</span>
     <span class="s0">/// 添加卡牌到玩家牌组</span>
     <span class="s0">/// &lt;/summary&gt;</span>
-    <span class="s2">public void </span><span class="s1">AddCardToPlayerDeck</span><span class="s3">(</span><span class="s1">UnitData unitData</span><span class="s3">, </span><span class="s2">int </span><span class="s1">quantity </span><span class="s3">= </span><span class="s5">1</span><span class="s3">, </span><span class="s2">bool </span><span class="s1">isInjured </span><span class="s3">= </span><span class="s2">false</span><span class="s3">)</span>
+    <span class="s2">public void </span><span class="s1">AddCardToPlayerDeck</span><span class="s3">(</span><span class="s1">UnitData unitData</span><span class="s3">, </span><span class="s2">string </span><span class="s1">unitId</span><span class="s3">, </span><span class="s2">int </span><span class="s1">quantity </span><span class="s3">= </span><span class="s5">1</span><span class="s3">, </span><span class="s2">bool </span><span class="s1">isInjured </span><span class="s3">= </span><span class="s2">false</span><span class="s3">, </span><span class="s1">Dictionary</span><span class="s3">&lt;</span><span class="s2">string</span><span class="s3">, </span><span class="s2">int</span><span class="s3">&gt; </span><span class="s1">skillDelays </span><span class="s3">= </span><span class="s2">null</span><span class="s3">)</span>
     <span class="s3">{</span>
         <span class="s2">if </span><span class="s3">(</span><span class="s1">playerDeck </span><span class="s3">!= </span><span class="s2">null</span><span class="s3">)</span>
         <span class="s3">{</span>
-            <span class="s1">playerDeck</span><span class="s3">.</span><span class="s1">AddCard</span><span class="s3">(</span><span class="s1">unitData</span><span class="s3">, </span><span class="s1">quantity</span><span class="s3">, </span><span class="s1">isInjured</span><span class="s3">);</span>
+            <span class="s1">playerDeck</span><span class="s3">.</span><span class="s1">AddCard</span><span class="s3">(</span><span class="s1">unitData</span><span class="s3">, </span><span class="s1">unitId</span><span class="s3">, </span><span class="s1">quantity</span><span class="s3">, </span><span class="s1">isInjured</span><span class="s3">, </span><span class="s1">skillDelays</span><span class="s3">);</span>
         <span class="s3">}</span>
     <span class="s3">}</span>
     
     <span class="s0">/// &lt;summary&gt;</span>
-    <span class="s0">/// 添加卡牌到敵人牌组</span>
+    <span class="s0">/// 添加卡牌到敌人牌组</span>
     <span class="s0">/// &lt;/summary&gt;</span>
-    <span class="s2">public void </span><span class="s1">AddCardToEnemyDeck</span><span class="s3">(</span><span class="s1">UnitData unitData</span><span class="s3">, </span><span class="s2">int </span><span class="s1">quantity </span><span class="s3">= </span><span class="s5">1</span><span class="s3">, </span><span class="s2">bool </span><span class="s1">isInjured </span><span class="s3">= </span><span class="s2">false</span><span class="s3">)</span>
+    <span class="s2">public void </span><span class="s1">AddCardToEnemyDeck</span><span class="s3">(</span><span class="s1">UnitData unitData</span><span class="s3">, </span><span class="s2">string </span><span class="s1">unitId</span><span class="s3">, </span><span class="s2">int </span><span class="s1">quantity </span><span class="s3">= </span><span class="s5">1</span><span class="s3">, </span><span class="s2">bool </span><span class="s1">isInjured </span><span class="s3">= </span><span class="s2">false</span><span class="s3">, </span><span class="s1">Dictionary</span><span class="s3">&lt;</span><span class="s2">string</span><span class="s3">, </span><span class="s2">int</span><span class="s3">&gt; </span><span class="s1">skillDelays </span><span class="s3">= </span><span class="s2">null</span><span class="s3">)</span>
     <span class="s3">{</span>
         <span class="s2">if </span><span class="s3">(</span><span class="s1">enemyDeck </span><span class="s3">!= </span><span class="s2">null</span><span class="s3">)</span>
         <span class="s3">{</span>
-            <span class="s1">enemyDeck</span><span class="s3">.</span><span class="s1">AddCard</span><span class="s3">(</span><span class="s1">unitData</span><span class="s3">, </span><span class="s1">quantity</span><span class="s3">, </span><span class="s1">isInjured</span><span class="s3">);</span>
+            <span class="s1">enemyDeck</span><span class="s3">.</span><span class="s1">AddCard</span><span class="s3">(</span><span class="s1">unitData</span><span class="s3">, </span><span class="s1">unitId</span><span class="s3">, </span><span class="s1">quantity</span><span class="s3">, </span><span class="s1">isInjured</span><span class="s3">, </span><span class="s1">skillDelays</span><span class="s3">);</span>
         <span class="s3">}</span>
     <span class="s3">}</span>
-
 
     <span class="s0">/// &lt;summary&gt;</span>
     <span class="s0">/// 从玩家牌组中移除卡牌</span>
     <span class="s0">/// &lt;/summary&gt;</span>
-    <span class="s2">public void </span><span class="s1">RemoveCardFromPlayerDeck</span><span class="s3">(</span><span class="s1">UnitData unitData</span><span class="s3">, </span><span class="s2">int </span><span class="s1">quantity </span><span class="s3">= </span><span class="s5">1</span><span class="s3">, </span><span class="s2">bool </span><span class="s1">isInjured </span><span class="s3">= </span><span class="s2">false</span><span class="s3">)</span>
+    <span class="s2">public void </span><span class="s1">RemoveCardFromPlayerDeck</span><span class="s3">(</span><span class="s1">UnitData unitData</span><span class="s3">, </span><span class="s2">string </span><span class="s1">unitId</span><span class="s3">, </span><span class="s2">int </span><span class="s1">quantity </span><span class="s3">= </span><span class="s5">1</span><span class="s3">, </span><span class="s2">bool </span><span class="s1">isInjured </span><span class="s3">= </span><span class="s2">false</span><span class="s3">)</span>
     <span class="s3">{</span>
         <span class="s2">if </span><span class="s3">(</span><span class="s1">playerDeck </span><span class="s3">!= </span><span class="s2">null</span><span class="s3">)</span>
         <span class="s3">{</span>
-            <span class="s1">playerDeck</span><span class="s3">.</span><span class="s1">RemoveCard</span><span class="s3">(</span><span class="s1">unitData</span><span class="s3">, </span><span class="s1">quantity</span><span class="s3">, </span><span class="s1">isInjured</span><span class="s3">);</span>
-        <span class="s3">}</span>
-    <span class="s3">}</span>
-    
-    <span class="s2">public void </span><span class="s1">RemoveCardFromEnemyDeck</span><span class="s3">(</span><span class="s1">UnitData unitData</span><span class="s3">, </span><span class="s2">int </span><span class="s1">quantity </span><span class="s3">= </span><span class="s5">1</span><span class="s3">, </span><span class="s2">bool </span><span class="s1">isInjured </span><span class="s3">= </span><span class="s2">false</span><span class="s3">)</span>
-    <span class="s3">{</span>
-        <span class="s2">if </span><span class="s3">(</span><span class="s1">enemyDeck </span><span class="s3">!= </span><span class="s2">null</span><span class="s3">)</span>
-        <span class="s3">{</span>
-            <span class="s1">enemyDeck</span><span class="s3">.</span><span class="s1">RemoveCard</span><span class="s3">(</span><span class="s1">unitData</span><span class="s3">, </span><span class="s1">quantity</span><span class="s3">, </span><span class="s1">isInjured</span><span class="s3">);</span>
+            <span class="s1">playerDeck</span><span class="s3">.</span><span class="s1">RemoveCard</span><span class="s3">(</span><span class="s1">unitData</span><span class="s3">, </span><span class="s1">unitId</span><span class="s3">, </span><span class="s1">quantity</span><span class="s3">, </span><span class="s1">isInjured</span><span class="s3">);</span>
         <span class="s3">}</span>
     <span class="s3">}</span>
 
+    <span class="s0">/// &lt;summary&gt;</span>
+    <span class="s0">/// 从敌人牌组中移除卡牌</span>
+    <span class="s0">/// &lt;/summary&gt;</span>
+    <span class="s2">public void </span><span class="s1">RemoveCardFromEnemyDeck</span><span class="s3">(</span><span class="s1">UnitData unitData</span><span class="s3">, </span><span class="s2">string </span><span class="s1">unitId</span><span class="s3">, </span><span class="s2">int </span><span class="s1">quantity </span><span class="s3">= </span><span class="s5">1</span><span class="s3">, </span><span class="s2">bool </span><span class="s1">isInjured </span><span class="s3">= </span><span class="s2">false</span><span class="s3">)</span>
+    <span class="s3">{</span>
+        <span class="s2">if </span><span class="s3">(</span><span class="s1">enemyDeck </span><span class="s3">!= </span><span class="s2">null</span><span class="s3">)</span>
+        <span class="s3">{</span>
+            <span class="s1">enemyDeck</span><span class="s3">.</span><span class="s1">RemoveCard</span><span class="s3">(</span><span class="s1">unitData</span><span class="s3">, </span><span class="s1">unitId</span><span class="s3">, </span><span class="s1">quantity</span><span class="s3">, </span><span class="s1">isInjured</span><span class="s3">);</span>
+        <span class="s3">}</span>
+    <span class="s3">}</span>
 
     <span class="s0">/// &lt;summary&gt;</span>
     <span class="s0">/// 处理单位死亡，将卡牌移至墓地</span>
     <span class="s0">/// &lt;/summary&gt;</span>
-    <span class="s2">public void </span><span class="s1">HandleUnitDeath</span><span class="s3">(</span><span class="s1">UnitData unitData</span><span class="s3">, </span><span class="s2">bool </span><span class="s1">isInjured</span><span class="s3">, </span><span class="s2">bool </span><span class="s1">isPlayerUnit</span><span class="s3">)</span>
+    <span class="s2">public void </span><span class="s1">HandleUnitDeath</span><span class="s3">(</span><span class="s1">UnitData unitData</span><span class="s3">, </span><span class="s2">string </span><span class="s1">unitId</span><span class="s3">, </span><span class="s2">bool </span><span class="s1">isInjured</span><span class="s3">, </span><span class="s2">bool </span><span class="s1">isPlayerUnit</span><span class="s3">)</span>
     <span class="s3">{</span>
         <span class="s2">if </span><span class="s3">(</span><span class="s1">isPlayerUnit</span><span class="s3">)</span>
         <span class="s3">{</span>
             <span class="s0">// 从玩家牌组中移除卡牌</span>
-            <span class="s1">RemoveCardFromPlayerDeck</span><span class="s3">(</span><span class="s1">unitData</span><span class="s3">, </span><span class="s5">1</span><span class="s3">, </span><span class="s1">isInjured</span><span class="s3">);</span>
+            <span class="s1">RemoveCardFromPlayerDeck</span><span class="s3">(</span><span class="s1">unitData</span><span class="s3">, </span><span class="s1">unitId</span><span class="s3">, </span><span class="s5">1</span><span class="s3">, </span><span class="s1">isInjured</span><span class="s3">);</span>
 
             <span class="s0">// 将卡牌添加到玩家的墓地</span>
-            <span class="s1">AddCardToPlayerGraveyard</span><span class="s3">(</span><span class="s1">unitData</span><span class="s3">);</span>
+            <span class="s1">GraveyardManager</span><span class="s3">.</span><span class="s1">Instance</span><span class="s3">.</span><span class="s1">AddToPlayerGraveyard</span><span class="s3">(</span><span class="s1">unitData</span><span class="s3">, </span><span class="s1">unitId</span><span class="s3">);</span>
+
+            <span class="s0">// 这里不再重置技能延迟，因为技能延迟会在单位重新进入场地时加载</span>
         <span class="s3">}</span>
         <span class="s2">else</span>
         <span class="s3">{</span>
             <span class="s0">// 从敌人牌组中移除卡牌</span>
-            <span class="s1">RemoveCardFromEnemyDeck</span><span class="s3">(</span><span class="s1">unitData</span><span class="s3">, </span><span class="s5">1</span><span class="s3">, </span><span class="s1">isInjured</span><span class="s3">);</span>
+            <span class="s1">RemoveCardFromEnemyDeck</span><span class="s3">(</span><span class="s1">unitData</span><span class="s3">, </span><span class="s1">unitId</span><span class="s3">, </span><span class="s5">1</span><span class="s3">, </span><span class="s1">isInjured</span><span class="s3">);</span>
 
             <span class="s0">// 将卡牌添加到敌人的墓地</span>
-            <span class="s1">AddCardToEnemyGraveyard</span><span class="s3">(</span><span class="s1">unitData</span><span class="s3">);</span>
-        <span class="s3">}</span>
+            <span class="s1">GraveyardManager</span><span class="s3">.</span><span class="s1">Instance</span><span class="s3">.</span><span class="s1">AddToEnemyGraveyard</span><span class="s3">(</span><span class="s1">unitData</span><span class="s3">, </span><span class="s1">unitId</span><span class="s3">);</span>
 
-        <span class="s0">// 通知 DeckUI 更新墓地显示（如果需要）</span>
-        <span class="s1">DeckUI deckUI </span><span class="s3">= </span><span class="s1">FindObjectOfType</span><span class="s3">&lt;</span><span class="s1">DeckUI</span><span class="s3">&gt;();</span>
-        <span class="s2">if </span><span class="s3">(</span><span class="s1">deckUI </span><span class="s3">!= </span><span class="s2">null </span><span class="s3">&amp;&amp; </span><span class="s1">isPlayerUnit</span><span class="s3">)</span>
-        <span class="s3">{</span>
-            <span class="s1">deckUI</span><span class="s3">.</span><span class="s1">AddToGraveyard</span><span class="s3">(</span><span class="s1">unitData</span><span class="s3">);</span>
-        <span class="s3">}</span>
-    <span class="s3">}</span>
-
-
-    <span class="s0">/// &lt;summary&gt;</span>
-    <span class="s0">/// 添加卡牌到墓地</span>
-    <span class="s0">/// &lt;/summary&gt;</span>
-    <span class="s2">private void </span><span class="s1">AddCardToPlayerGraveyard</span><span class="s3">(</span><span class="s1">UnitData unitData</span><span class="s3">)</span>
-    <span class="s3">{</span>
-        <span class="s2">if </span><span class="s3">(</span><span class="s1">unitData </span><span class="s3">!= </span><span class="s2">null</span><span class="s3">)</span>
-        <span class="s3">{</span>
-            <span class="s1">graveyardCards</span><span class="s3">.</span><span class="s1">Add</span><span class="s3">(</span><span class="s1">unitData</span><span class="s3">);</span>
+            <span class="s0">// 这里不再重置技能延迟</span>
         <span class="s3">}</span>
     <span class="s3">}</span>
     
-    <span class="s2">private void </span><span class="s1">AddCardToEnemyGraveyard</span><span class="s3">(</span><span class="s1">UnitData unitData</span><span class="s3">)</span>
+    <span class="s0">/// &lt;summary&gt;</span>
+    <span class="s0">/// 在每回合开始时减少牌库中所有单位的技能延迟</span>
+    <span class="s0">/// &lt;/summary&gt;</span>
+    <span class="s2">public void </span><span class="s1">ReduceSkillDelaysAtStartOfTurn</span><span class="s3">()</span>
     <span class="s3">{</span>
-        <span class="s2">if </span><span class="s3">(</span><span class="s1">unitData </span><span class="s3">!= </span><span class="s2">null</span><span class="s3">)</span>
+        <span class="s2">if </span><span class="s3">(</span><span class="s1">playerDeck </span><span class="s3">!= </span><span class="s2">null</span><span class="s3">)</span>
         <span class="s3">{</span>
-            <span class="s1">enemyGraveyardCards</span><span class="s3">.</span><span class="s1">Add</span><span class="s3">(</span><span class="s1">unitData</span><span class="s3">);</span>
+            <span class="s1">playerDeck</span><span class="s3">.</span><span class="s1">ReduceSkillDelays</span><span class="s3">();</span>
         <span class="s3">}</span>
+
+        <span class="s2">if </span><span class="s3">(</span><span class="s1">enemyDeck </span><span class="s3">!= </span><span class="s2">null</span><span class="s3">)</span>
+        <span class="s3">{</span>
+            <span class="s1">enemyDeck</span><span class="s3">.</span><span class="s1">ReduceSkillDelays</span><span class="s3">();</span>
+        <span class="s3">}</span>
+
+        <span class="s1">Debug</span><span class="s3">.</span><span class="s1">Log</span><span class="s3">(</span><span class="s4">&quot;DeckManager: 所有牌库中单位的技能延迟已减少&quot;</span><span class="s3">);</span>
     <span class="s3">}</span>
 
     <span class="s0">/// &lt;summary&gt;</span>
-    <span class="s0">/// 获取墓地中的卡牌列表</span>
+    <span class="s0">/// 检查牌库中单位的技能是否准备就绪</span>
     <span class="s0">/// &lt;/summary&gt;</span>
-    <span class="s2">public </span><span class="s1">List</span><span class="s3">&lt;</span><span class="s1">UnitData</span><span class="s3">&gt; </span><span class="s1">GetGraveyardCards</span><span class="s3">()</span>
+    <span class="s2">public bool </span><span class="s1">IsSkillReadyInDeck</span><span class="s3">(</span><span class="s1">UnitData unitData</span><span class="s3">, </span><span class="s2">string </span><span class="s1">skillName</span><span class="s3">)</span>
     <span class="s3">{</span>
-        <span class="s2">return </span><span class="s1">graveyardCards</span><span class="s3">;</span>
+        <span class="s2">if </span><span class="s3">(</span><span class="s1">playerDeck </span><span class="s3">!= </span><span class="s2">null </span><span class="s3">&amp;&amp; </span><span class="s1">playerDeck</span><span class="s3">.</span><span class="s1">IsSkillReady</span><span class="s3">(</span><span class="s1">unitData</span><span class="s3">, </span><span class="s1">skillName</span><span class="s3">))</span>
+        <span class="s3">{</span>
+            <span class="s2">return true</span><span class="s3">;</span>
+        <span class="s3">}</span>
+
+        <span class="s2">if </span><span class="s3">(</span><span class="s1">enemyDeck </span><span class="s3">!= </span><span class="s2">null </span><span class="s3">&amp;&amp; </span><span class="s1">enemyDeck</span><span class="s3">.</span><span class="s1">IsSkillReady</span><span class="s3">(</span><span class="s1">unitData</span><span class="s3">, </span><span class="s1">skillName</span><span class="s3">))</span>
+        <span class="s3">{</span>
+            <span class="s2">return true</span><span class="s3">;</span>
+        <span class="s3">}</span>
+
+        <span class="s2">return false</span><span class="s3">;</span>
+    <span class="s3">}</span>
+    
+    <span class="s0">/// &lt;summary&gt;</span>
+    <span class="s0">/// 重置牌库中单位的技能延迟</span>
+    <span class="s0">/// &lt;/summary&gt;</span>
+    <span class="s2">public void </span><span class="s1">ResetSkillDelayInDeck</span><span class="s3">(</span><span class="s1">UnitData unitData</span><span class="s3">, </span><span class="s2">string </span><span class="s1">skillName</span><span class="s3">, </span><span class="s1">SkillSO skillSO</span><span class="s3">, </span><span class="s2">bool </span><span class="s1">isPlayerUnit</span><span class="s3">)</span>
+    <span class="s3">{</span>
+        <span class="s2">if </span><span class="s3">(</span><span class="s1">unitData </span><span class="s3">== </span><span class="s2">null </span><span class="s3">|| </span><span class="s2">string</span><span class="s3">.</span><span class="s1">IsNullOrEmpty</span><span class="s3">(</span><span class="s1">skillName</span><span class="s3">) || </span><span class="s1">skillSO </span><span class="s3">== </span><span class="s2">null</span><span class="s3">)</span>
+        <span class="s3">{</span>
+            <span class="s1">Debug</span><span class="s3">.</span><span class="s1">LogWarning</span><span class="s3">(</span><span class="s4">&quot;DeckManager.ResetSkillDelayInDeck: Invalid parameters.&quot;</span><span class="s3">);</span>
+            <span class="s2">return</span><span class="s3">;</span>
+        <span class="s3">}</span>
+
+        <span class="s2">if </span><span class="s3">(</span><span class="s1">isPlayerUnit </span><span class="s3">&amp;&amp; </span><span class="s1">playerDeck </span><span class="s3">!= </span><span class="s2">null</span><span class="s3">)</span>
+        <span class="s3">{</span>
+            <span class="s1">playerDeck</span><span class="s3">.</span><span class="s1">ResetSkillDelay</span><span class="s3">(</span><span class="s1">unitData</span><span class="s3">, </span><span class="s1">skillName</span><span class="s3">, </span><span class="s1">skillSO</span><span class="s3">);</span>
+        <span class="s3">}</span>
+
+        <span class="s2">if </span><span class="s3">(</span><span class="s1">!isPlayerUnit </span><span class="s3">&amp;&amp; </span><span class="s1">enemyDeck </span><span class="s3">!= </span><span class="s2">null</span><span class="s3">)</span>
+        <span class="s3">{</span>
+            <span class="s1">enemyDeck</span><span class="s3">.</span><span class="s1">ResetSkillDelay</span><span class="s3">(</span><span class="s1">unitData</span><span class="s3">, </span><span class="s1">skillName</span><span class="s3">, </span><span class="s1">skillSO</span><span class="s3">);</span>
+        <span class="s3">}</span>
+    <span class="s3">}</span>
+    
+    <span class="s0">/// &lt;summary&gt;</span>
+    <span class="s0">/// 获取单位的技能延迟</span>
+    <span class="s0">/// &lt;/summary&gt;</span>
+    <span class="s2">public </span><span class="s1">Dictionary</span><span class="s3">&lt;</span><span class="s2">string</span><span class="s3">, </span><span class="s2">int</span><span class="s3">&gt; </span><span class="s1">GetUnitSkillDelays</span><span class="s3">(</span><span class="s1">UnitData unitData</span><span class="s3">, </span><span class="s2">string </span><span class="s1">unitId</span><span class="s3">)</span>
+    <span class="s3">{</span>
+        <span class="s2">if </span><span class="s3">(</span><span class="s1">playerDeck </span><span class="s3">!= </span><span class="s2">null</span><span class="s3">)</span>
+        <span class="s3">{</span>
+            <span class="s1">var delays </span><span class="s3">= </span><span class="s1">playerDeck</span><span class="s3">.</span><span class="s1">GetUnitSkillDelays</span><span class="s3">(</span><span class="s1">unitData</span><span class="s3">, </span><span class="s1">unitId</span><span class="s3">);</span>
+            <span class="s2">if </span><span class="s3">(</span><span class="s1">delays </span><span class="s3">!= </span><span class="s2">null</span><span class="s3">)</span>
+                <span class="s2">return </span><span class="s1">delays</span><span class="s3">;</span>
+        <span class="s3">}</span>
+
+        <span class="s2">if </span><span class="s3">(</span><span class="s1">enemyDeck </span><span class="s3">!= </span><span class="s2">null</span><span class="s3">)</span>
+        <span class="s3">{</span>
+            <span class="s1">var delays </span><span class="s3">= </span><span class="s1">enemyDeck</span><span class="s3">.</span><span class="s1">GetUnitSkillDelays</span><span class="s3">(</span><span class="s1">unitData</span><span class="s3">, </span><span class="s1">unitId</span><span class="s3">);</span>
+            <span class="s2">if </span><span class="s3">(</span><span class="s1">delays </span><span class="s3">!= </span><span class="s2">null</span><span class="s3">)</span>
+                <span class="s2">return </span><span class="s1">delays</span><span class="s3">;</span>
+        <span class="s3">}</span>
+
+        <span class="s2">return null</span><span class="s3">;</span>
+    <span class="s3">}</span>
+    
+    <span class="s0">/// &lt;summary&gt;</span>
+    <span class="s0">/// 保存单位的技能延迟</span>
+    <span class="s0">/// &lt;/summary&gt;</span>
+    <span class="s2">public void </span><span class="s1">SaveUnitSkillDelays</span><span class="s3">(</span><span class="s1">UnitData unitData</span><span class="s3">, </span><span class="s2">string </span><span class="s1">unitId</span><span class="s3">, </span><span class="s1">Dictionary</span><span class="s3">&lt;</span><span class="s2">string</span><span class="s3">, </span><span class="s2">int</span><span class="s3">&gt; </span><span class="s1">skillDelays</span><span class="s3">)</span>
+    <span class="s3">{</span>
+        <span class="s2">if </span><span class="s3">(</span><span class="s1">playerDeck </span><span class="s3">!= </span><span class="s2">null </span><span class="s3">&amp;&amp; </span><span class="s1">IsPlayerUnit</span><span class="s3">(</span><span class="s1">unitData</span><span class="s3">))</span>
+        <span class="s3">{</span>
+            <span class="s1">playerDeck</span><span class="s3">.</span><span class="s1">SaveUnitSkillDelays</span><span class="s3">(</span><span class="s1">unitData</span><span class="s3">, </span><span class="s1">unitId</span><span class="s3">, </span><span class="s1">skillDelays</span><span class="s3">);</span>
+            <span class="s2">return</span><span class="s3">;</span>
+        <span class="s3">}</span>
+
+        <span class="s2">if </span><span class="s3">(</span><span class="s1">enemyDeck </span><span class="s3">!= </span><span class="s2">null </span><span class="s3">&amp;&amp; </span><span class="s1">IsEnemyUnit</span><span class="s3">(</span><span class="s1">unitData</span><span class="s3">))</span>
+        <span class="s3">{</span>
+            <span class="s1">enemyDeck</span><span class="s3">.</span><span class="s1">SaveUnitSkillDelays</span><span class="s3">(</span><span class="s1">unitData</span><span class="s3">, </span><span class="s1">unitId</span><span class="s3">, </span><span class="s1">skillDelays</span><span class="s3">);</span>
+            <span class="s2">return</span><span class="s3">;</span>
+        <span class="s3">}</span>
+
+        <span class="s1">Debug</span><span class="s3">.</span><span class="s1">LogWarning</span><span class="s3">(</span><span class="s4">&quot;DeckManager.SaveUnitSkillDelays: 无法确定单位所属的牌组。&quot;</span><span class="s3">);</span>
+    <span class="s3">}</span>
+    
+    <span class="s0">/// &lt;summary&gt;</span>
+    <span class="s0">/// 判断单位是否属于玩家</span>
+    <span class="s0">/// &lt;/summary&gt;</span>
+    <span class="s2">private bool </span><span class="s1">IsPlayerUnit</span><span class="s3">(</span><span class="s1">UnitData unitData</span><span class="s3">)</span>
+    <span class="s3">{</span>
+        <span class="s0">// 根据您的游戏逻辑实现</span>
+        <span class="s2">return </span><span class="s1">unitData</span><span class="s3">.</span><span class="s1">camp </span><span class="s3">== </span><span class="s1">Camp</span><span class="s3">.</span><span class="s1">Player</span><span class="s3">;</span>
     <span class="s3">}</span>
 
+    <span class="s0">/// &lt;summary&gt;</span>
+    <span class="s0">/// 判断单位是否属于敌人</span>
+    <span class="s0">/// &lt;/summary&gt;</span>
+    <span class="s2">private bool </span><span class="s1">IsEnemyUnit</span><span class="s3">(</span><span class="s1">UnitData unitData</span><span class="s3">)</span>
+    <span class="s3">{</span>
+        <span class="s0">// 根据您的游戏逻辑实现</span>
+        <span class="s2">return </span><span class="s1">unitData</span><span class="s3">.</span><span class="s1">camp </span><span class="s3">== </span><span class="s1">Camp</span><span class="s3">.</span><span class="s1">Enemy</span><span class="s3">;</span>
+    <span class="s3">}</span>
+    
     <span class="s0">// 可以在這裡添加更多與牌組相關的方法</span>
 <span class="s3">}</span></pre>
 </body>

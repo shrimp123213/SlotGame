@@ -8,6 +8,7 @@
 .s2 { color: #bdbdbd;}
 .s3 { color: #85c46c; font-style: italic;}
 .s4 { color: #c9a26d;}
+.s5 { color: #ed94c0;}
 </style>
 </head>
 <body bgcolor="#262626">
@@ -51,7 +52,8 @@ Skill.cs</font>
             <span class="s2">{</span>
                 <span class="s1">Type </span><span class="s2">= </span><span class="s1">action</span><span class="s2">.</span><span class="s1">Type</span><span class="s2">,</span>
                 <span class="s1">Value </span><span class="s2">= </span><span class="s1">action</span><span class="s2">.</span><span class="s1">Value</span><span class="s2">,</span>
-                <span class="s1">TargetType </span><span class="s2">= </span><span class="s1">action</span><span class="s2">.</span><span class="s1">TargetType</span>
+                <span class="s1">TargetType </span><span class="s2">= </span><span class="s1">action</span><span class="s2">.</span><span class="s1">TargetType</span><span class="s2">,</span>
+                <span class="s1">Delay </span><span class="s2">= </span><span class="s1">action</span><span class="s2">.</span><span class="s1">Delay</span>
             <span class="s2">};</span>
             <span class="s1">newSkill</span><span class="s2">.</span><span class="s1">Actions</span><span class="s2">.</span><span class="s1">Add</span><span class="s2">(</span><span class="s1">newAction</span><span class="s2">);</span>
         <span class="s2">}</span>
@@ -83,6 +85,7 @@ Skill.cs</font>
     <span class="s0">public </span><span class="s1">SkillType Type</span><span class="s2">;</span>
     <span class="s0">public int </span><span class="s1">Value</span><span class="s2">;</span>
     <span class="s0">public </span><span class="s1">TargetType TargetType</span><span class="s2">;</span>
+    <span class="s0">public int </span><span class="s1">Delay </span><span class="s2">= </span><span class="s5">0</span><span class="s2">; </span><span class="s3">// 默认为0，无延迟</span>
 <span class="s2">}</span>
 
 <span class="s0">public enum </span><span class="s1">SkillType</span>

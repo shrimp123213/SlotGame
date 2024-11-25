@@ -35,9 +35,9 @@ Deck.cs</font>
     <span class="s0">public event </span><span class="s1">Action OnDeckChanged</span><span class="s2">;</span>
     
     <span class="s3">/// &lt;summary&gt;</span>
-    <span class="s3">/// 添加卡牌到牌组</span>
+    <span class="s3">/// 添加卡牌到牌组，并初始化技能延迟</span>
     <span class="s3">/// &lt;/summary&gt;</span>
-    <span class="s0">public void </span><span class="s1">AddCard</span><span class="s2">(</span><span class="s1">UnitData unitData</span><span class="s2">, </span><span class="s0">int </span><span class="s1">quantity </span><span class="s2">= </span><span class="s5">1</span><span class="s2">, </span><span class="s0">bool </span><span class="s1">isInjured </span><span class="s2">= </span><span class="s0">false</span><span class="s2">)</span>
+    <span class="s0">public void </span><span class="s1">AddCard</span><span class="s2">(</span><span class="s1">UnitData unitData</span><span class="s2">, </span><span class="s0">string </span><span class="s1">unitId</span><span class="s2">, </span><span class="s0">int </span><span class="s1">quantity </span><span class="s2">= </span><span class="s5">1</span><span class="s2">, </span><span class="s0">bool </span><span class="s1">isInjured </span><span class="s2">= </span><span class="s0">false</span><span class="s2">, </span><span class="s1">Dictionary</span><span class="s2">&lt;</span><span class="s0">string</span><span class="s2">, </span><span class="s0">int</span><span class="s2">&gt; </span><span class="s1">skillDelays </span><span class="s2">= </span><span class="s0">null</span><span class="s2">)</span>
     <span class="s2">{</span>
         <span class="s0">if </span><span class="s2">(</span><span class="s1">unitData </span><span class="s2">== </span><span class="s0">null</span><span class="s2">)</span>
         <span class="s2">{</span>
@@ -52,11 +52,21 @@ Deck.cs</font>
                 <span class="s1">existingEntry</span><span class="s2">.</span><span class="s1">injuredQuantity </span><span class="s2">+= </span><span class="s1">quantity</span><span class="s2">;</span>
             <span class="s0">else</span>
                 <span class="s1">existingEntry</span><span class="s2">.</span><span class="s1">quantity </span><span class="s2">+= </span><span class="s1">quantity</span><span class="s2">;</span>
+
+            <span class="s3">// 保存技能延迟</span>
+            <span class="s0">if </span><span class="s2">(</span><span class="s1">!</span><span class="s0">string</span><span class="s2">.</span><span class="s1">IsNullOrEmpty</span><span class="s2">(</span><span class="s1">unitId</span><span class="s2">) &amp;&amp; </span><span class="s1">skillDelays </span><span class="s2">!= </span><span class="s0">null</span><span class="s2">)</span>
+            <span class="s2">{</span>
+                <span class="s1">existingEntry</span><span class="s2">.</span><span class="s1">unitSkillDelays</span><span class="s2">[</span><span class="s1">unitId</span><span class="s2">] = </span><span class="s0">new </span><span class="s1">Dictionary</span><span class="s2">&lt;</span><span class="s0">string</span><span class="s2">, </span><span class="s0">int</span><span class="s2">&gt;(</span><span class="s1">skillDelays</span><span class="s2">);</span>
+            <span class="s2">}</span>
         <span class="s2">}</span>
         <span class="s0">else</span>
         <span class="s2">{</span>
             <span class="s1">DeckEntry newEntry </span><span class="s2">= </span><span class="s0">new </span><span class="s1">DeckEntry</span><span class="s2">(</span><span class="s1">unitData</span><span class="s2">, </span><span class="s1">isInjured ? </span><span class="s5">0 </span><span class="s1">: quantity</span><span class="s2">);</span>
             <span class="s1">newEntry</span><span class="s2">.</span><span class="s1">injuredQuantity </span><span class="s2">= </span><span class="s1">isInjured ? quantity : </span><span class="s5">0</span><span class="s2">;</span>
+            <span class="s0">if </span><span class="s2">(</span><span class="s1">!</span><span class="s0">string</span><span class="s2">.</span><span class="s1">IsNullOrEmpty</span><span class="s2">(</span><span class="s1">unitId</span><span class="s2">) &amp;&amp; </span><span class="s1">skillDelays </span><span class="s2">!= </span><span class="s0">null</span><span class="s2">)</span>
+            <span class="s2">{</span>
+                <span class="s1">newEntry</span><span class="s2">.</span><span class="s1">unitSkillDelays</span><span class="s2">[</span><span class="s1">unitId</span><span class="s2">] = </span><span class="s0">new </span><span class="s1">Dictionary</span><span class="s2">&lt;</span><span class="s0">string</span><span class="s2">, </span><span class="s0">int</span><span class="s2">&gt;(</span><span class="s1">skillDelays</span><span class="s2">);</span>
+            <span class="s2">}</span>
             <span class="s1">entries</span><span class="s2">.</span><span class="s1">Add</span><span class="s2">(</span><span class="s1">newEntry</span><span class="s2">);</span>
         <span class="s2">}</span>
 
@@ -67,7 +77,7 @@ Deck.cs</font>
     <span class="s3">/// &lt;summary&gt;</span>
     <span class="s3">/// 移除卡牌从牌组</span>
     <span class="s3">/// &lt;/summary&gt;</span>
-    <span class="s0">public void </span><span class="s1">RemoveCard</span><span class="s2">(</span><span class="s1">UnitData unitData</span><span class="s2">, </span><span class="s0">int </span><span class="s1">quantity </span><span class="s2">= </span><span class="s5">1</span><span class="s2">, </span><span class="s0">bool </span><span class="s1">isInjured </span><span class="s2">= </span><span class="s0">false</span><span class="s2">)</span>
+    <span class="s0">public void </span><span class="s1">RemoveCard</span><span class="s2">(</span><span class="s1">UnitData unitData</span><span class="s2">, </span><span class="s0">string </span><span class="s1">unitId</span><span class="s2">, </span><span class="s0">int </span><span class="s1">quantity </span><span class="s2">= </span><span class="s5">1</span><span class="s2">, </span><span class="s0">bool </span><span class="s1">isInjured </span><span class="s2">= </span><span class="s0">false</span><span class="s2">)</span>
     <span class="s2">{</span>
         <span class="s0">if </span><span class="s2">(</span><span class="s1">unitData </span><span class="s2">== </span><span class="s0">null</span><span class="s2">)</span>
         <span class="s2">{</span>
@@ -89,6 +99,12 @@ Deck.cs</font>
                 <span class="s1">existingEntry</span><span class="s2">.</span><span class="s1">quantity </span><span class="s2">-= </span><span class="s1">quantity</span><span class="s2">;</span>
                 <span class="s0">if </span><span class="s2">(</span><span class="s1">existingEntry</span><span class="s2">.</span><span class="s1">quantity </span><span class="s2">&lt; </span><span class="s5">0</span><span class="s2">)</span>
                     <span class="s1">existingEntry</span><span class="s2">.</span><span class="s1">quantity </span><span class="s2">= </span><span class="s5">0</span><span class="s2">;</span>
+            <span class="s2">}</span>
+
+            <span class="s3">// 移除技能延迟</span>
+            <span class="s0">if </span><span class="s2">(</span><span class="s1">!</span><span class="s0">string</span><span class="s2">.</span><span class="s1">IsNullOrEmpty</span><span class="s2">(</span><span class="s1">unitId</span><span class="s2">))</span>
+            <span class="s2">{</span>
+                <span class="s1">existingEntry</span><span class="s2">.</span><span class="s1">unitSkillDelays</span><span class="s2">.</span><span class="s1">Remove</span><span class="s2">(</span><span class="s1">unitId</span><span class="s2">);</span>
             <span class="s2">}</span>
         <span class="s2">}</span>
 
@@ -125,7 +141,7 @@ Deck.cs</font>
     <span class="s2">{</span>
         <span class="s1">List</span><span class="s2">&lt;</span><span class="s1">UnitData</span><span class="s2">&gt; </span><span class="s1">availableUnits </span><span class="s2">= </span><span class="s0">new </span><span class="s1">List</span><span class="s2">&lt;</span><span class="s1">UnitData</span><span class="s2">&gt;();</span>
 
-        <span class="s3">// 收集所有可用的 UnitData（數量 &gt; 0）</span>
+        <span class="s3">// 收集所有的 UnitData</span>
         <span class="s0">foreach </span><span class="s2">(</span><span class="s1">var entry </span><span class="s0">in </span><span class="s1">entries</span><span class="s2">)</span>
         <span class="s2">{</span>
             <span class="s0">if </span><span class="s2">(</span><span class="s1">entry</span><span class="s2">.</span><span class="s1">unitData </span><span class="s2">!= </span><span class="s0">null </span><span class="s2">&amp;&amp; </span><span class="s1">entry</span><span class="s2">.</span><span class="s1">quantity </span><span class="s2">&gt;= </span><span class="s5">0 </span><span class="s2">&amp;&amp; </span><span class="s1">!availableUnits</span><span class="s2">.</span><span class="s1">Contains</span><span class="s2">(</span><span class="s1">entry</span><span class="s2">.</span><span class="s1">unitData</span><span class="s2">))</span>
@@ -180,6 +196,122 @@ Deck.cs</font>
         <span class="s1">Debug</span><span class="s2">.</span><span class="s1">Log</span><span class="s2">(</span><span class="s4">$&quot;Deck: 增加 </span><span class="s2">{</span><span class="s1">unitData</span><span class="s2">.</span><span class="s1">unitName</span><span class="s2">} </span><span class="s4">的數量至 </span><span class="s2">{(</span><span class="s1">existingEntry </span><span class="s2">!= </span><span class="s0">null </span><span class="s1">? existingEntry</span><span class="s2">.</span><span class="s1">quantity : amount</span><span class="s2">)}</span><span class="s4">&quot;</span><span class="s2">);</span>
         <span class="s1">OnDeckChanged?</span><span class="s2">.</span><span class="s1">Invoke</span><span class="s2">();</span>
     <span class="s2">}</span>
+    
+    <span class="s3">/// &lt;summary&gt;</span>
+    <span class="s3">/// 获取特定单位的技能延迟</span>
+    <span class="s3">/// &lt;/summary&gt;</span>
+    <span class="s0">public </span><span class="s1">Dictionary</span><span class="s2">&lt;</span><span class="s0">string</span><span class="s2">, </span><span class="s0">int</span><span class="s2">&gt; </span><span class="s1">GetUnitSkillDelays</span><span class="s2">(</span><span class="s1">UnitData unitData</span><span class="s2">, </span><span class="s0">string </span><span class="s1">unitId</span><span class="s2">)</span>
+    <span class="s2">{</span>
+        <span class="s1">DeckEntry entry </span><span class="s2">= </span><span class="s1">entries</span><span class="s2">.</span><span class="s1">Find</span><span class="s2">(</span><span class="s1">e =&gt; e</span><span class="s2">.</span><span class="s1">unitData </span><span class="s2">== </span><span class="s1">unitData</span><span class="s2">);</span>
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">entry </span><span class="s2">!= </span><span class="s0">null </span><span class="s2">&amp;&amp; </span><span class="s1">entry</span><span class="s2">.</span><span class="s1">unitSkillDelays</span><span class="s2">.</span><span class="s1">ContainsKey</span><span class="s2">(</span><span class="s1">unitId</span><span class="s2">))</span>
+        <span class="s2">{</span>
+            <span class="s0">return </span><span class="s1">entry</span><span class="s2">.</span><span class="s1">unitSkillDelays</span><span class="s2">[</span><span class="s1">unitId</span><span class="s2">];</span>
+        <span class="s2">}</span>
+        <span class="s0">return null</span><span class="s2">;</span>
+    <span class="s2">}</span>
+
+    <span class="s3">/// &lt;summary&gt;</span>
+    <span class="s3">/// 保存单位的技能延迟</span>
+    <span class="s3">/// &lt;/summary&gt;</span>
+    <span class="s0">public void </span><span class="s1">SaveUnitSkillDelays</span><span class="s2">(</span><span class="s1">UnitData unitData</span><span class="s2">, </span><span class="s0">string </span><span class="s1">unitId</span><span class="s2">, </span><span class="s1">Dictionary</span><span class="s2">&lt;</span><span class="s0">string</span><span class="s2">, </span><span class="s0">int</span><span class="s2">&gt; </span><span class="s1">skillDelays</span><span class="s2">)</span>
+    <span class="s2">{</span>
+        <span class="s1">DeckEntry entry </span><span class="s2">= </span><span class="s1">entries</span><span class="s2">.</span><span class="s1">Find</span><span class="s2">(</span><span class="s1">e =&gt; e</span><span class="s2">.</span><span class="s1">unitData </span><span class="s2">== </span><span class="s1">unitData</span><span class="s2">);</span>
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">entry </span><span class="s2">!= </span><span class="s0">null</span><span class="s2">)</span>
+        <span class="s2">{</span>
+            <span class="s1">entry</span><span class="s2">.</span><span class="s1">unitSkillDelays</span><span class="s2">[</span><span class="s1">unitId</span><span class="s2">] = </span><span class="s0">new </span><span class="s1">Dictionary</span><span class="s2">&lt;</span><span class="s0">string</span><span class="s2">, </span><span class="s0">int</span><span class="s2">&gt;(</span><span class="s1">skillDelays</span><span class="s2">);</span>
+        <span class="s2">}</span>
+        <span class="s0">else</span>
+        <span class="s2">{</span>
+            <span class="s1">Debug</span><span class="s2">.</span><span class="s1">LogWarning</span><span class="s2">(</span><span class="s4">$&quot;Deck: No DeckEntry found for UnitData </span><span class="s2">{</span><span class="s1">unitData?</span><span class="s2">.</span><span class="s1">unitName ?? </span><span class="s4">&quot;null&quot;</span><span class="s2">}</span><span class="s4">.&quot;</span><span class="s2">);</span>
+        <span class="s2">}</span>
+    <span class="s2">}</span>
+    
+    <span class="s3">/// &lt;summary&gt;</span>
+    <span class="s3">/// 在每回合开始时减少所有单位的技能延迟</span>
+    <span class="s3">/// &lt;/summary&gt;</span>
+    <span class="s0">public void </span><span class="s1">ReduceSkillDelays</span><span class="s2">()</span>
+    <span class="s2">{</span>
+        <span class="s0">foreach </span><span class="s2">(</span><span class="s1">var entry </span><span class="s0">in </span><span class="s1">entries</span><span class="s2">)</span>
+        <span class="s2">{</span>
+            <span class="s0">foreach </span><span class="s2">(</span><span class="s1">var unitDelays </span><span class="s0">in </span><span class="s1">entry</span><span class="s2">.</span><span class="s1">unitSkillDelays</span><span class="s2">)</span>
+            <span class="s2">{</span>
+                <span class="s1">var skillDelays </span><span class="s2">= </span><span class="s1">unitDelays</span><span class="s2">.</span><span class="s1">Value</span><span class="s2">;</span>
+                <span class="s1">List</span><span class="s2">&lt;</span><span class="s0">string</span><span class="s2">&gt; </span><span class="s1">skills </span><span class="s2">= </span><span class="s0">new </span><span class="s1">List</span><span class="s2">&lt;</span><span class="s0">string</span><span class="s2">&gt;(</span><span class="s1">skillDelays</span><span class="s2">.</span><span class="s1">Keys</span><span class="s2">);</span>
+                <span class="s0">foreach </span><span class="s2">(</span><span class="s1">var skillName </span><span class="s0">in </span><span class="s1">skills</span><span class="s2">)</span>
+                <span class="s2">{</span>
+                    <span class="s0">if </span><span class="s2">(</span><span class="s1">skillDelays</span><span class="s2">[</span><span class="s1">skillName</span><span class="s2">] &gt; </span><span class="s5">0</span><span class="s2">)</span>
+                    <span class="s2">{</span>
+                        <span class="s1">skillDelays</span><span class="s2">[</span><span class="s1">skillName</span><span class="s2">]--;</span>
+                        <span class="s1">Debug</span><span class="s2">.</span><span class="s1">Log</span><span class="s2">(</span><span class="s4">$&quot;Deck: 单位 </span><span class="s2">{</span><span class="s1">entry</span><span class="s2">.</span><span class="s1">unitData</span><span class="s2">.</span><span class="s1">unitName</span><span class="s2">} </span><span class="s4">技能 </span><span class="s2">{</span><span class="s1">skillName</span><span class="s2">} </span><span class="s4">的延迟减少到 </span><span class="s2">{</span><span class="s1">skillDelays</span><span class="s2">[</span><span class="s1">skillName</span><span class="s2">]} </span><span class="s4">回合&quot;</span><span class="s2">);</span>
+                    <span class="s2">}</span>
+                <span class="s2">}</span>
+            <span class="s2">}</span>
+        <span class="s2">}</span>
+    <span class="s2">}</span>
+
+    <span class="s3">/// &lt;summary&gt;</span>
+    <span class="s3">/// 检查单位的技能是否准备就绪（延迟为0）</span>
+    <span class="s3">/// &lt;/summary&gt;</span>
+    <span class="s0">public bool </span><span class="s1">IsSkillReady</span><span class="s2">(</span><span class="s1">UnitData unitData</span><span class="s2">, </span><span class="s0">string </span><span class="s1">skillName</span><span class="s2">)</span>
+    <span class="s2">{</span>
+        <span class="s0">foreach </span><span class="s2">(</span><span class="s1">var entry </span><span class="s0">in </span><span class="s1">entries</span><span class="s2">)</span>
+        <span class="s2">{</span>
+            <span class="s0">if </span><span class="s2">(</span><span class="s1">entry</span><span class="s2">.</span><span class="s1">unitData </span><span class="s2">== </span><span class="s1">unitData</span><span class="s2">)</span>
+            <span class="s2">{</span>
+                <span class="s0">foreach </span><span class="s2">(</span><span class="s1">var unitDelays </span><span class="s0">in </span><span class="s1">entry</span><span class="s2">.</span><span class="s1">unitSkillDelays</span><span class="s2">)</span>
+                <span class="s2">{</span>
+                    <span class="s0">if </span><span class="s2">(</span><span class="s1">unitDelays</span><span class="s2">.</span><span class="s1">Value</span><span class="s2">.</span><span class="s1">ContainsKey</span><span class="s2">(</span><span class="s1">skillName</span><span class="s2">) &amp;&amp; </span><span class="s1">unitDelays</span><span class="s2">.</span><span class="s1">Value</span><span class="s2">[</span><span class="s1">skillName</span><span class="s2">] &lt;= </span><span class="s5">0</span><span class="s2">)</span>
+                    <span class="s2">{</span>
+                        <span class="s0">return true</span><span class="s2">;</span>
+                    <span class="s2">}</span>
+                <span class="s2">}</span>
+            <span class="s2">}</span>
+        <span class="s2">}</span>
+        <span class="s0">return false</span><span class="s2">; </span><span class="s3">// 默认认为未准备就绪</span>
+    <span class="s2">}</span>
+
+    <span class="s3">/// &lt;summary&gt;</span>
+    <span class="s3">/// 重置单位的技能延迟</span>
+    <span class="s3">/// &lt;/summary&gt;</span>
+    <span class="s0">public void </span><span class="s1">ResetSkillDelay</span><span class="s2">(</span><span class="s1">UnitData unitData</span><span class="s2">, </span><span class="s0">string </span><span class="s1">skillName</span><span class="s2">, </span><span class="s1">SkillSO skillSO</span><span class="s2">)</span>
+    <span class="s2">{</span>
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">skillSO </span><span class="s2">== </span><span class="s0">null</span><span class="s2">)</span>
+        <span class="s2">{</span>
+            <span class="s1">Debug</span><span class="s2">.</span><span class="s1">LogWarning</span><span class="s2">(</span><span class="s4">&quot;Deck.ResetSkillDelay: skillSO is null.&quot;</span><span class="s2">);</span>
+            <span class="s0">return</span><span class="s2">;</span>
+        <span class="s2">}</span>
+
+        <span class="s0">foreach </span><span class="s2">(</span><span class="s1">var entry </span><span class="s0">in </span><span class="s1">entries</span><span class="s2">)</span>
+        <span class="s2">{</span>
+            <span class="s0">if </span><span class="s2">(</span><span class="s1">entry</span><span class="s2">.</span><span class="s1">unitData </span><span class="s2">== </span><span class="s1">unitData</span><span class="s2">)</span>
+            <span class="s2">{</span>
+                <span class="s0">foreach </span><span class="s2">(</span><span class="s1">var unitDelays </span><span class="s0">in </span><span class="s1">entry</span><span class="s2">.</span><span class="s1">unitSkillDelays</span><span class="s2">)</span>
+                <span class="s2">{</span>
+                    <span class="s0">if </span><span class="s2">(</span><span class="s1">unitDelays</span><span class="s2">.</span><span class="s1">Value</span><span class="s2">.</span><span class="s1">ContainsKey</span><span class="s2">(</span><span class="s1">skillName</span><span class="s2">))</span>
+                    <span class="s2">{</span>
+                        <span class="s1">SkillActionData firstAction </span><span class="s2">= </span><span class="s1">skillSO</span><span class="s2">.</span><span class="s1">actions </span><span class="s2">!= </span><span class="s0">null </span><span class="s2">&amp;&amp; </span><span class="s1">skillSO</span><span class="s2">.</span><span class="s1">actions</span><span class="s2">.</span><span class="s1">Count </span><span class="s2">&gt; </span><span class="s5">0 </span><span class="s1">? skillSO</span><span class="s2">.</span><span class="s1">actions</span><span class="s2">[</span><span class="s5">0</span><span class="s2">] </span><span class="s1">: </span><span class="s0">null</span><span class="s2">;</span>
+                        <span class="s0">if </span><span class="s2">(</span><span class="s1">firstAction </span><span class="s2">== </span><span class="s0">null</span><span class="s2">)</span>
+                        <span class="s2">{</span>
+                            <span class="s1">Debug</span><span class="s2">.</span><span class="s1">LogWarning</span><span class="s2">(</span><span class="s4">$&quot;Deck.ResetSkillDelay: No actions found in SkillSO </span><span class="s2">{</span><span class="s1">skillSO</span><span class="s2">.</span><span class="s1">skillName</span><span class="s2">}</span><span class="s4">.&quot;</span><span class="s2">);</span>
+                            <span class="s1">unitDelays</span><span class="s2">.</span><span class="s1">Value</span><span class="s2">[</span><span class="s1">skillName</span><span class="s2">] = </span><span class="s5">0</span><span class="s2">; </span><span class="s3">// 或其他默认值</span>
+                        <span class="s2">}</span>
+                        <span class="s0">else</span>
+                        <span class="s2">{</span>
+                            <span class="s0">int </span><span class="s1">delay </span><span class="s2">= </span><span class="s1">firstAction</span><span class="s2">.</span><span class="s1">Delay</span><span class="s2">;</span>
+                            <span class="s1">unitDelays</span><span class="s2">.</span><span class="s1">Value</span><span class="s2">[</span><span class="s1">skillName</span><span class="s2">] = </span><span class="s1">delay</span><span class="s2">;</span>
+                            <span class="s1">Debug</span><span class="s2">.</span><span class="s1">Log</span><span class="s2">(</span><span class="s4">$&quot;Deck: 单位 </span><span class="s2">{</span><span class="s1">unitData</span><span class="s2">.</span><span class="s1">unitName</span><span class="s2">} </span><span class="s4">技能 </span><span class="s2">{</span><span class="s1">skillName</span><span class="s2">} </span><span class="s4">的延迟已重置为 </span><span class="s2">{</span><span class="s1">delay</span><span class="s2">} </span><span class="s4">回合&quot;</span><span class="s2">);</span>
+                        <span class="s2">}</span>
+                    <span class="s2">}</span>
+                <span class="s2">}</span>
+            <span class="s2">}</span>
+        <span class="s2">}</span>
+    <span class="s2">}</span>
+    
+    <span class="s0">public void </span><span class="s1">Clear</span><span class="s2">()</span>
+    <span class="s2">{</span>
+        <span class="s1">entries</span><span class="s2">.</span><span class="s1">Clear</span><span class="s2">();</span>
+        <span class="s1">OnDeckChanged?</span><span class="s2">.</span><span class="s1">Invoke</span><span class="s2">();</span>
+    <span class="s2">}</span>
 <span class="s2">}</span>
 
 
@@ -189,6 +321,9 @@ Deck.cs</font>
     <span class="s0">public </span><span class="s1">UnitData unitData</span><span class="s2">;      </span><span class="s3">// 卡牌类型</span>
     <span class="s0">public int </span><span class="s1">quantity</span><span class="s2">;           </span><span class="s3">// 正常状态的卡牌数量</span>
     <span class="s0">public int </span><span class="s1">injuredQuantity</span><span class="s2">;    </span><span class="s3">// 负伤状态的卡牌数量</span>
+    
+    <span class="s3">// 保存每个单位实例的技能延迟，使用唯一标识符（如GUID）作为键</span>
+    <span class="s0">public </span><span class="s1">Dictionary</span><span class="s2">&lt;</span><span class="s0">string</span><span class="s2">, </span><span class="s1">Dictionary</span><span class="s2">&lt;</span><span class="s0">string</span><span class="s2">, </span><span class="s0">int</span><span class="s2">&gt;&gt; </span><span class="s1">unitSkillDelays </span><span class="s2">= </span><span class="s0">new </span><span class="s1">Dictionary</span><span class="s2">&lt;</span><span class="s0">string</span><span class="s2">, </span><span class="s1">Dictionary</span><span class="s2">&lt;</span><span class="s0">string</span><span class="s2">, </span><span class="s0">int</span><span class="s2">&gt;&gt;();</span>
 
     <span class="s0">public </span><span class="s1">DeckEntry</span><span class="s2">(</span><span class="s1">UnitData unitData</span><span class="s2">, </span><span class="s0">int </span><span class="s1">quantity</span><span class="s2">)</span>
     <span class="s2">{</span>

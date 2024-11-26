@@ -14,28 +14,28 @@ public class Skill
     /// <returns>克隆的 Skill 实例</returns>
     public static Skill FromSkillSO(SkillSO skillSO)
     {
-        if (skillSO == null)
-        {
-            Debug.LogError("Skill: 无法从 null SkillSO 创建 Skill 实例！");
-            return null;
-        }
-
-        Skill newSkill = new Skill
-        {
-            skillName = skillSO.skillName,
-            Actions = new List<SkillActionData>()
-        };
+        Skill newSkill = new Skill();
+        newSkill.skillName = skillSO.skillName;
+        newSkill.Actions = new List<SkillActionData>();
 
         foreach (var action in skillSO.actions)
         {
             // 创建 SkillActionData 的深拷贝
-            SkillActionData newAction = new SkillActionData
+            SkillActionData newAction = new SkillActionData();
+            newAction.Type = action.Type;
+            newAction.TargetType = action.TargetType;
+            newAction.Value = action.Value;
+            newAction.Delay = action.Delay;
+
+            // 确保复制 UnitsToAdd 列表
+            if (action.UnitsToAdd != null)
             {
-                Type = action.Type,
-                Value = action.Value,
-                TargetType = action.TargetType,
-                Delay = action.Delay
-            };
+                newAction.UnitsToAdd = new List<UnitToAdd>(action.UnitsToAdd);
+            }
+            else
+            {
+                newAction.UnitsToAdd = new List<UnitToAdd>();
+            }
             newSkill.Actions.Add(newAction);
         }
 
@@ -67,6 +67,15 @@ public class SkillActionData
     public int Value;
     public TargetType TargetType;
     public int Delay = 0; // 默认为0，无延迟
+    
+    public List<UnitToAdd> UnitsToAdd; // 要添加到牌组的单位列表
+}
+
+[System.Serializable]
+public class UnitToAdd
+{
+    public UnitData unitData; // 要添加的单位
+    public int quantity;      // 添加的数量
 }
 
 public enum SkillType
@@ -77,6 +86,7 @@ public enum SkillType
     Defense,
     Repair,
     Breakage,
+    AddToDeck,
     // 可以根据需要添加更多的技能类型
 }
 

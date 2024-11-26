@@ -11,14 +11,14 @@ public class BattleManager : MonoBehaviour
     public static BattleManager Instance { get; private set; }
 
     [Header("Battle Components")]
-    public SlotMachineController slotMachine; // 转盘组件
+    public SlotMachineController slotMachine; // 轉盤組件
     public SkillManager skillManager;         // 技能管理器
-    public GridManager gridManager;           // 网格管理器
-    public ConnectionManager connectionManager; // 连接管理器
+    public GridManager gridManager;           // 網格管理器
+    public ConnectionManager connectionManager; // 連接管理器
 
     [Header("Battle Settings")]
-    public float slotMachineSpinTime = 5f;    // 转盘旋转时间
-    public float slotMachineSpinSpeed = 10f;  // 转盘旋转速度
+    public float slotMachineSpinTime = 5f;    // 轉盤旋轉時間
+    public float slotMachineSpinSpeed = 10f;  // 轉盤旋轉速度
     
     [Header("Enemy Buildings")]
     public List<EnemyBuildingInfo> enemyBuildings = new List<EnemyBuildingInfo>();
@@ -36,11 +36,11 @@ public class BattleManager : MonoBehaviour
     
     private void Awake()
     {
-        // 单例模式实现
+        // 單例模式實現
         if (Instance == null)
         {
             Instance = this;
-            DontDestroyOnLoad(gameObject); // 可选：保持在场景切换中不被销毁
+            DontDestroyOnLoad(gameObject); // 可選：保持在場景切換中不被銷毀
         }
         else
         {
@@ -50,34 +50,34 @@ public class BattleManager : MonoBehaviour
 
     private void Start()
     {
-        // 检查所有必要的组件是否已正确设置
+        // 檢查所有必要的組件是否已正確設置
         if (slotMachine == null)
         {
-            Debug.LogError("BattleManager: 未设置 SlotMachine 组件！");
+            Debug.LogError("BattleManager: 未設置 SlotMachine 組件！");
             return;
         }
         if (skillManager == null)
         {
-            Debug.LogError("BattleManager: 未设置 SkillManager 组件！");
+            Debug.LogError("BattleManager: 未設置 SkillManager 組件！");
             return;
         }
         if (gridManager == null)
         {
-            Debug.LogError("BattleManager: 未设置 GridManager 组件！");
+            Debug.LogError("BattleManager: 未設置 GridManager 組件！");
             return;
         }
         if (connectionManager == null)
         {
-            Debug.LogError("BattleManager: 未设置 ConnectionManager 组件！");
+            Debug.LogError("BattleManager: 未設置 ConnectionManager 組件！");
             return;
         }
-        // 初始化建筑物
+        // 初始化建築物
         GridManager.Instance.InitializeBuildings(playerBuildings, enemyBuildings);
 
-        // 订阅 SlotMachine 的转动完成事件
+        // 訂閱 SlotMachine 的轉動完成事件
         slotMachine.OnSpinCompleted += OnSlotMachineSpun;
         
-        // 开始战斗流程
+        // 開始戰鬥流程
         StartBattleSequence();
     }
     
@@ -98,7 +98,7 @@ public class BattleManager : MonoBehaviour
 
     private void OnDestroy()
     {
-        // 取消订阅事件，防止内存泄漏
+        // 取消訂閱事件，防止內存洩漏
         if (slotMachine != null)
         {
             slotMachine.OnSpinCompleted -= OnSlotMachineSpun;
@@ -106,7 +106,7 @@ public class BattleManager : MonoBehaviour
     }
     
     /// <summary>
-    /// 启动战斗流程
+    /// 啟動戰鬥流程
     /// </summary>
     public void StartBattleSequence()
     {

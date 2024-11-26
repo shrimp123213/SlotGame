@@ -10,11 +10,10 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4deb0fd5d11dffd419c2c983573289c6, type: 3}
-  m_Name: Claw
+  m_Name: Goblin_Claw
   m_EditorClassIdentifier: 
-  buildingName: 
+  buildingName: Goblin Claw
   buildingSprite: {fileID: 1493283308, guid: a9296d1b2bb696e4b99e10b5468a532d, type: 3}
   maxHealth: 10
-  defenseSkillSO: {fileID: 0}
-  actionSkillSO: {fileID: 0}
+  actionSkillSO: {fileID: 11400000, guid: eeaa79056c59d804c9edbd0302182f63, type: 2}
   camp: 1

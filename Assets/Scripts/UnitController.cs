@@ -1693,5 +1693,8 @@ public class UnitController : MonoBehaviour, ISkillUser
         return GridManager.Instance.HasSkillUserAt(gridPosition);
     }
 
-    
+    public Camp GetCamp()
+    {
+        return unitData != null ? unitData.camp : Camp.Player; // 默认返回玩家阵营
+    }
 }

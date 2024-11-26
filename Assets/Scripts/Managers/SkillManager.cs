@@ -76,6 +76,11 @@ public class SkillManager : MonoBehaviour
                         action.TargetType = TargetType.Friendly;
                     }
                     break;
+                case SkillType.AddToDeck:
+                    // 调用处理添加到牌组的方法
+                    yield return StartCoroutine(HandleAddToDeckAction(action, user));
+                    yield return null;
+                    break;
                 // 可以为更多SkillType添加验证逻辑
                 default:
                     break;
@@ -172,5 +177,41 @@ public class SkillManager : MonoBehaviour
 
         // 执行支援技能
         ExecuteSkill(supportSkillSO, targetUser);
+    }
+    
+    public IEnumerator HandleAddToDeckAction(SkillActionData action, ISkillUser user)
+    {
+        if (action.UnitsToAdd == null || action.UnitsToAdd.Count == 0)
+        {
+            Debug.LogWarning("SkillManager: AddToDeck 动作未指定任何单位！");
+            yield break;
+        }
+
+        // 获取 DeckManager 实例
+        DeckManager deckManager = DeckManager.Instance;
+        if (deckManager == null)
+        {
+            Debug.LogError("SkillManager: 未找到 DeckManager 实例！");
+            yield break;
+        }
+
+        // 确定要添加到哪个牌组
+        Camp userCamp = user.GetCamp(); // 假设 ISkillUser 有 GetCamp() 方法
+        Deck targetDeck = userCamp == Camp.Player ? deckManager.playerDeck : deckManager.enemyDeck;
+
+        // 将指定的单位添加到牌组
+        foreach (var unitToAdd in action.UnitsToAdd)
+        {
+            if (unitToAdd.unitData == null || unitToAdd.quantity <= 0)
+            {
+                Debug.LogWarning("SkillManager: AddToDeck 动作包含无效的单位或数量！");
+                continue;
+            }
+
+            targetDeck.AddCard(unitToAdd.unitData, null, unitToAdd.quantity, false);
+            Debug.Log($"SkillManager: 已将 {unitToAdd.quantity} 张 {unitToAdd.unitData.unitName} 添加到 {userCamp} 的牌组中。");
+        }
+
+        yield return null;
     }
 }

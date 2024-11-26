@@ -11,7 +11,6 @@ public class BuildingData : ScriptableObject
     public int maxHealth;               // 建筑物的最大生命值
 
     [Header("Skills")]
-    public SkillSO defenseSkillSO;      // 防卫技能
     public SkillSO actionSkillSO;       // 建筑物的其他行动技能（如攻击）
 
     [Header("Camp")]

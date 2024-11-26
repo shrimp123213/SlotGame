@@ -210,7 +210,7 @@ public class BuildingController : MonoBehaviour, ISkillUser
             return;
         }
         
-        foreach (var skillSO in new List<SkillSO> { buildingData.actionSkillSO, buildingData.defenseSkillSO })
+        foreach (var skillSO in new List<SkillSO> { buildingData.actionSkillSO, buildingData.actionSkillSO })
         {
             if (skillSO != null)
             {
@@ -295,7 +295,7 @@ public class BuildingController : MonoBehaviour, ISkillUser
                 InitializeSkillDelay(currentSkill);
                 
                 // 执行当前技能
-                ExecuteCurrentSkill();
+                StartCoroutine(ExecuteCurrentSkill());
 
                 Debug.Log($"建筑物 {buildingData.buildingName} 执行了行动技能！");
             }
@@ -327,33 +327,6 @@ public class BuildingController : MonoBehaviour, ISkillUser
                     skillDelays[skill.skillName] = action.Delay;
                 }
             }
-        }
-    }
-
-    /// <summary>
-    /// 执行防卫效果
-    /// </summary>
-    public virtual void ExecuteDefense()
-    {
-        if (isRuin)
-        {
-            Debug.Log($"BuildingController: 废墟无法执行防卫技能！");
-            return;
-        }
-        
-        if (buildingData.defenseSkillSO != null)
-        {
-            // 初始化当前技能为防卫技能的克隆
-            currentSkill = Skill.FromSkillSO(buildingData.defenseSkillSO);
-
-            // 执行当前技能
-            ExecuteCurrentSkill();
-
-            Debug.Log($"建筑物 {buildingData.buildingName} 执行了防卫技能！");
-        }
-        else
-        {
-            Debug.LogWarning($"建筑物 {buildingData.buildingName} 没有配置防卫技能！");
         }
     }
 
@@ -599,37 +572,6 @@ public class BuildingController : MonoBehaviour, ISkillUser
     }
 
     /// <summary>
-    /// 使用防卫技能
-    /// </summary>
-    public virtual IEnumerator UseDefenseSkill()
-    {
-        if (buildingData.defenseSkillSO != null)
-        {
-            // 检查技能是否准备就绪
-            if (IsSkillReady(buildingData.defenseSkillSO.skillName))
-            {
-                // 为 currentSkill 防卫技能赋值
-                currentSkill = Skill.FromSkillSO(buildingData.defenseSkillSO);
-
-                // 执行当前技能
-                yield return StartCoroutine(ExecuteCurrentSkill());
-
-                // 重置技能延迟
-                ResetSkillDelay(buildingData.defenseSkillSO.skillName, buildingData.defenseSkillSO);
-            }
-            else
-            {
-                Debug.Log($"BuildingController: 建筑物 {name} 的防卫技能 {buildingData.defenseSkillSO.skillName} 还在延迟中（剩余 {skillDelays[buildingData.defenseSkillSO.skillName]} 回合）");
-            }
-        }
-        else
-        {
-            Debug.LogWarning($"BuildingController: 建筑物 {name} 没有配置防卫技能！");
-            yield break;
-        }
-    }
-
-    /// <summary>
     /// 重新执行当前技能
     /// </summary>
     public virtual IEnumerator ExecuteCurrentSkill()
@@ -654,13 +596,19 @@ public class BuildingController : MonoBehaviour, ISkillUser
                         break;
                     case SkillType.Melee:
                         yield return StartCoroutine(PerformMeleeAttack(action.TargetType));
+                        yield return null;
                         break;
                     case SkillType.Ranged:
                         yield return StartCoroutine(PerformRangedAttack(action.TargetType));
+                        yield return null;
                         break;
                     case SkillType.Defense:
                         //IncreaseDefense(action.Value, action.TargetType);
                         yield return null;
+                        break;
+                    case SkillType.AddToDeck:
+                        // 调用处理添加到牌组的方法
+                        yield return StartCoroutine(HandleAddToDeckAction(action));
                         break;
                     default:
                         Debug.LogWarning($"BuildingController: 未处理的技能类型：{action.Type}");
@@ -668,6 +616,7 @@ public class BuildingController : MonoBehaviour, ISkillUser
                         break;
                 }
             }
+            Debug.Log($"{name}: 当前技能执行完毕！");
 
             // 清空当前技能动作，防止重复执行
             currentSkill.Actions.Clear();
@@ -725,19 +674,6 @@ public class BuildingController : MonoBehaviour, ISkillUser
         yield return StartCoroutine(UseActionSkill());
 
         if (buildingData.actionSkillSO != null)
-        {
-            
-        }
-    }
-    
-    /// <summary>
-    /// 使用防卫技能后重置延迟
-    /// </summary>
-    public virtual IEnumerator UseDefenseSkillCoroutine()
-    {
-        yield return StartCoroutine(UseDefenseSkill());
-
-        if (buildingData.defenseSkillSO != null)
         {
             
         }
@@ -802,5 +738,48 @@ public class BuildingController : MonoBehaviour, ISkillUser
     public void ResetTurn()
     {
         hasActedThisTurn = false;
+    }
+    
+    public Camp GetCamp()
+    {
+        return buildingData != null ? buildingData.camp : Camp.Player; // 默认返回玩家阵营
+    }
+    
+    private IEnumerator HandleAddToDeckAction(SkillActionData action)
+    {
+        Debug.Log("BuildingController: 处理 AddToDeck 动作");
+        
+        if (action.UnitsToAdd == null || action.UnitsToAdd.Count == 0)
+        {
+            Debug.LogWarning("BuildingController: AddToDeck 动作未指定任何单位！");
+            yield break;
+        }
+
+        // 获取 DeckManager 实例
+        DeckManager deckManager = DeckManager.Instance;
+        if (deckManager == null)
+        {
+            Debug.LogError("BuildingController: 未找到 DeckManager 实例！");
+            yield break;
+        }
+
+        // 确定要添加到哪个牌组
+        Camp buildingCamp = GetCamp();
+        Deck targetDeck = buildingCamp == Camp.Player ? deckManager.playerDeck : deckManager.enemyDeck;
+
+        // 将指定的单位添加到牌组
+        foreach (var unitToAdd in action.UnitsToAdd)
+        {
+            if (unitToAdd.unitData == null || unitToAdd.quantity <= 0)
+            {
+                Debug.LogWarning("BuildingController: AddToDeck 动作包含无效的单位或数量！");
+                continue;
+            }
+
+            targetDeck.AddCard(unitToAdd.unitData, null, unitToAdd.quantity, false);
+            Debug.Log($"BuildingController: 已将 {unitToAdd.quantity} 张 {unitToAdd.unitData.unitName} 添加到 {buildingCamp} 的牌组中。");
+        }
+
+        yield return null;
     }
 }

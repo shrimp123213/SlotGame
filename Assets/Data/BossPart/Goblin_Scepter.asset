@@ -10,9 +10,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4deb0fd5d11dffd419c2c983573289c6, type: 3}
-  m_Name: Scepter
+  m_Name: Goblin_Scepter
   m_EditorClassIdentifier: 
-  buildingName: 
+  buildingName: Goblin Scepter
   buildingSprite: {fileID: -1392758253, guid: a9296d1b2bb696e4b99e10b5468a532d, type: 3}
   maxHealth: 10
   defenseSkillSO: {fileID: 0}

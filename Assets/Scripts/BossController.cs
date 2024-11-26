@@ -453,4 +453,9 @@ public class BossController : MonoBehaviour, ISkillUser
         scale.x = bossData.camp == Camp.Player ? 1 : -1;
         spriteTransform.localScale = scale;
     }
+    
+    public Camp GetCamp()
+    {
+        return bossData != null ? bossData.camp : Camp.Player; // 默认返回玩家阵营
+    }
 }

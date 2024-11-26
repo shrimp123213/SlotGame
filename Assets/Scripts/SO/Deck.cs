@@ -34,7 +34,7 @@ public class Deck : ScriptableObject
             else
                 existingEntry.quantity += quantity;
 
-            // 保存技能延迟
+            // 仅当 unitId 和 skillDelays 都不为 null 时，才保存技能延迟
             if (!string.IsNullOrEmpty(unitId) && skillDelays != null)
             {
                 existingEntry.unitSkillDelays[unitId] = new Dictionary<string, int>(skillDelays);
@@ -49,6 +49,7 @@ public class Deck : ScriptableObject
             if (newEntry.unitSkillDelays == null)
                 newEntry.unitSkillDelays = new Dictionary<string, Dictionary<string, int>>();
 
+            // 仅当 unitId 和 skillDelays 都不为 null 时，才保存技能延迟
             if (!string.IsNullOrEmpty(unitId) && skillDelays != null)
             {
                 newEntry.unitSkillDelays[unitId] = new Dictionary<string, int>(skillDelays);

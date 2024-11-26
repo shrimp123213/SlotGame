@@ -202,17 +202,16 @@ public class SlotMachineController : MonoBehaviour
                 unitController.InitializeUnitSprite();
                 
                 // 调用 Initialize 方法
-                unitController.Initialize();
+                //unitController.Initialize();
 
                 // 设置单位的列索引
                 unitController.columnIndex = col;
 
+                
                 spinningUnits.Add(unitGO);
             }
         }
     }
-
-
     
     private UnitData GetRandomUnitData()
     {
@@ -229,7 +228,6 @@ public class SlotMachineController : MonoBehaviour
         int index = Random.Range(0, allEntries.Count);
         return allEntries[index].unitData;
     }
-
 
     private void PlaceSpunUnits()
     {
@@ -487,21 +485,33 @@ public class SlotMachineController : MonoBehaviour
                     {
                         Debug.Log($"ClearBattleAreaUnits: 销毁位置 {pos} 上的 {unit.gameObject.name}");
                         var deck = unit.unitData.camp == Camp.Player ? playerDeck : enemyDeck;
+                        
+                        // 从 GridManager 中移除
+                        gridManager.RemoveSkillUserAt(pos);
 
-                        if (unit.currentHealth > 0)
+                        // 如果 unitController 已经初始化
+                        if (!string.IsNullOrEmpty(unit.unitId))
                         {
-                            // 单位仍然活着，添加回牌组
-                            deck.AddCard(unit.unitData, unit.unitId, 1, unit.isInjured);
-                            Debug.Log($"ClearBattleAreaUnits: 单位 {unit.unitData.unitName} 添加回牌组");
+                            // 如果单位还活着，添加回牌组
+                            if (unit.currentHealth > 0)
+                            {
+                                deck.AddCard(unit.unitData, unit.unitId, 1, unit.isInjured);
+                                Debug.Log($"ClearBattleAreaUnits: 单位 {unit.unitData.unitName} 添加回牌组");
+                            }
+                            else
+                            {
+                                // 单位已死亡，不处理（已经在其他地方处理）
+                                Debug.Log($"ClearBattleAreaUnits: 单位 {unit.unitData.unitName} 已死亡，不添加回牌组");
+                            }
+
+                            // 销毁单位游戏对象
+                            Destroy(unit.gameObject);
                         }
                         else
                         {
-                            // 单位已死亡，不处理（已经在 MoveToDeck 或 MoveToGraveyard 中处理过）
-                            Debug.Log($"ClearBattleAreaUnits: 单位 {unit.unitData.unitName} 已死亡，不添加回牌组");
+                            Debug.LogWarning($"ClearBattleAreaUnits: 尝试销毁未初始化的单位 {unit.unitData?.unitName ?? "未指定"}");
+                            // 根据需要，先初始化，或者避免销毁
                         }
-
-                        // 销毁单位游戏对象
-                        Destroy(unit.gameObject);
 
                         // 从 GridManager 中移除
                         gridManager.RemoveSkillUserAt(pos);

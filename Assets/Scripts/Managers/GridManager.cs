@@ -205,6 +205,9 @@ public class GridManager : MonoBehaviour
         unit.SetPosition(position);
         //Debug.Log($"${unit.name} Injured: {{isInjured}}");
         if (isInjured) unit.AddState<InjuredState>();
+        
+        // 调用 Initialize 方法
+        unit.Initialize();
 
         // 设置为 Units 父对象的子对象
         if (unitsParent != null)

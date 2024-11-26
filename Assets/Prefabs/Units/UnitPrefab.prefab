@@ -166,6 +166,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   unitData: {fileID: 0}
   gridPosition: {x: 0, y: 0, z: 0}
+  columnIndex: 0
   currentHealth: 0
   defensePoints: 0
   currentSkill:
@@ -174,4 +175,3 @@ MonoBehaviour:
   spriteRenderer: {fileID: 0}
   statusIconsParent: {fileID: 8929496238843555435}
   statusIconPrefab: {fileID: 8362399076307174261, guid: 4a1e9a5ed1307b747b37c27a9c8f2220, type: 3}
-  columnIndex: 0

@@ -76,7 +76,7 @@ public class BattleManager : MonoBehaviour
 
         // 订阅 SlotMachine 的转动完成事件
         slotMachine.OnSpinCompleted += OnSlotMachineSpun;
-
+        
         // 开始战斗流程
         StartBattleSequence();
     }

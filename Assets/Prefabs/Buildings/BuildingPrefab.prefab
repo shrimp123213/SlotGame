@@ -112,6 +112,7 @@ MonoBehaviour:
   currentSkill:
     Actions: []
     skillName: 
+  _buildingId: 
 --- !u!1001 &2906839761926724208
 PrefabInstance:
   m_ObjectHideFlags: 0

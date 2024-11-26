@@ -118,7 +118,14 @@ public class UnitController : MonoBehaviour, ISkillUser
     private void OnDisable()
     {
         // 当单位离开场地时，保存其技能延迟
-        SaveSkillDelays();
+        if (!string.IsNullOrEmpty(unitId))
+        {
+            SaveSkillDelays();
+        }
+        else
+        {
+            Debug.LogWarning($"UnitController.OnDisable: unitId 为 null 或空，无法保存技能延迟。Unit: {unitData?.unitName ?? "未指定"}");
+        }
     }
     
     /// <summary>
@@ -144,13 +151,13 @@ public class UnitController : MonoBehaviour, ISkillUser
         if (loadedDelays != null)
         {
             skillDelays = new Dictionary<string, int>(loadedDelays);
-            Debug.Log($"UnitController: 单位 {unitData.unitName} 的技能延迟已加载。");
+            Debug.Log($"UnitController: 单位 {unitData.name} 的技能延迟已加载。");
         }
         else
         {
             // 初始化技能延迟，如果没有保存的数据
             InitializeSkillDelays();
-            Debug.Log($"UnitController: 单位 {unitData.unitName} 的技能延迟已初始化。");
+            Debug.Log($"UnitController: 单位 {unitData.name} 的技能延迟已初始化。");
         }
     }
 
@@ -159,8 +166,15 @@ public class UnitController : MonoBehaviour, ISkillUser
     /// </summary>
     private void SaveSkillDelays()
     {
-        DeckManager.Instance.SaveUnitSkillDelays(unitData, unitId, skillDelays);
-        Debug.Log($"UnitController: 单位 {unitData.unitName} 的技能延迟已保存。");
+        if (unitData != null && !string.IsNullOrEmpty(unitId))
+        {
+            DeckManager.Instance.SaveUnitSkillDelays(unitData, unitId, skillDelays);
+            Debug.Log($"UnitController: 已保存 {unitData.unitName} 的技能延迟。unitId: {unitId}");
+        }
+        else
+        {
+            Debug.LogWarning($"UnitController.SaveSkillDelays: unitData 或 unitId 为 null 或空，无法保存技能延迟。");
+        }
     }
     
     public void ResetTurn()
@@ -807,7 +821,8 @@ public class UnitController : MonoBehaviour, ISkillUser
         if (HasState<FragileState>() && source == DamageSource.Normal)
         {
             Debug.Log($"UnitController: 单位 {name} 处于脆弱状态，受到正常伤害，将立即死亡！");
-            MoveToGraveyard();
+            //MoveToGraveyard();
+            Die();
             return;
         }
 

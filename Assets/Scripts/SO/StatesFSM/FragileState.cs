@@ -11,12 +11,12 @@ public class FragileState : UnitStateBase
 
     public override void OnEnter(UnitController unit)
     {
-        Debug.Log($"{unit.unitData.unitName} 进入脆弱状态");
+        Debug.Log($"{unit.name} 进入脆弱状态");
         unit.UpdateUnitUI();
     }
 
     public override void OnExit(UnitController unit)
     {
-        Debug.Log($"{unit.unitData.unitName} 退出脆弱状态");
+        Debug.Log($"{unit.name} 退出脆弱状态");
     }
 }

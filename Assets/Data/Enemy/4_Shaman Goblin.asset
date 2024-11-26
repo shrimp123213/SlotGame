@@ -10,9 +10,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 154b13b9e80b44744be4ba91457e8c5a, type: 3}
-  m_Name: 4_Shaman Goblins
+  m_Name: 4_Shaman Goblin
   m_EditorClassIdentifier: 
-  unitName: Goblin_3
+  unitName: Shaman Goblin
   unitSprite: {fileID: -441852951, guid: 197bcfde909abe1469ab49fe7764a45b, type: 3}
   maxHealth: 1
   camp: 1

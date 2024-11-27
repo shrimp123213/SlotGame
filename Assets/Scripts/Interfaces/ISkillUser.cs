@@ -10,6 +10,10 @@ public interface ISkillUser
     IEnumerator PerformBreakage(int breakagePoints);
     void TakeDamage(int damage, DamageSource source = DamageSource.Normal);
     void Heal(int amount);
-    
     Camp GetCamp(); // 获取单位的阵营
+    
+    void ScheduleAction(SkillActionData action);
+    IEnumerator ExecuteAction(SkillActionData action);
+    //void ApplyStatusEffect(StatusEffect statusEffect);
+    void PrepareForNextTurn();
 }

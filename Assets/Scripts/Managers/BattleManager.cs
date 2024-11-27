@@ -15,10 +15,6 @@ public class BattleManager : MonoBehaviour
     public SkillManager skillManager;         // 技能管理器
     public GridManager gridManager;           // 網格管理器
     public ConnectionManager connectionManager; // 連接管理器
-
-    [Header("Battle Settings")]
-    public float slotMachineSpinTime = 5f;    // 轉盤旋轉時間
-    public float slotMachineSpinSpeed = 10f;  // 轉盤旋轉速度
     
     [Header("Enemy Buildings")]
     public List<EnemyBuildingInfo> enemyBuildings = new List<EnemyBuildingInfo>();
@@ -33,6 +29,33 @@ public class BattleManager : MonoBehaviour
 
     private BossController playerBoss;
     private BossController enemyBoss;
+    
+    private BattlePhase currentPhase;
+    
+    public enum BattlePhase
+    {
+        SkillActivation,                // 第一阶段：单位发动技能
+        EffectResolution,               // 第二阶段：数值与状态结算
+        Movement,                       // 第三阶段：单位移动与触发技能
+        PostMovementEffectResolution,   // 第四阶段：技能后的数值与状态结算
+        PrepareNextTurn                 // 第五阶段：准备下一回合
+    }
+    
+    private List<Effect> effectQueue = new List<Effect>();              // 数值变化队列
+    private List<SkillExecution> skillExecutionQueue = new List<SkillExecution>();  // 技能执行队列
+
+    // 用于存储技能和其执行者的类
+    public class SkillExecution
+    {
+        public Skill skill;
+        public ISkillUser user;
+
+        public SkillExecution(Skill skill, ISkillUser user)
+        {
+            this.skill = skill;
+            this.user = user;
+        }
+    }
     
     private void Awake()
     {
@@ -119,14 +142,42 @@ public class BattleManager : MonoBehaviour
     /// <returns></returns>
     private IEnumerator BattleSequence()
     {
-        // 處理延遲
-        yield return StartCoroutine(HandleDelays());
+        while (true)
+        {
+            // 第一阶段：单位发动技能
+            currentPhase = BattlePhase.SkillActivation;
+            yield return StartCoroutine(ExecuteSkillActivationPhase());
 
-        // 2.1 战斗画面 转盘
-        yield return StartCoroutine(ExecuteSlotMachine());
+            // 第二阶段：数值与状态结算
+            currentPhase = BattlePhase.EffectResolution;
+            yield return StartCoroutine(ExecuteEffectResolutionPhase());
 
-        // 以下流程将由转盘完成后的回调继续
+            // 第三阶段：单位移动与触发技能
+            currentPhase = BattlePhase.Movement;
+            yield return StartCoroutine(ExecuteMovementPhase());
+
+            // 第四阶段：技能后的数值与状态结算
+            currentPhase = BattlePhase.PostMovementEffectResolution;
+            yield return StartCoroutine(ExecutePostMovementEffectResolutionPhase());
+
+            // 第五阶段：准备下一回合
+            currentPhase = BattlePhase.PrepareNextTurn;
+            yield return StartCoroutine(PrepareNextTurnPhase());
+
+            // 战斗结束逻辑，根据连线结果决定
+            CheckBattleOutcome();
+            
+            // // 检查游戏是否结束
+            // if (CheckBattleOutcome())
+            // {
+            //     break;
+            // }
+
+            // 等待一小段时间，避免过快循环
+            //yield return new WaitForSeconds(0.1f);
+        }
     }
+
 
     /// <summary>
     /// 2.1 战斗画面 转盘
@@ -212,7 +263,7 @@ public class BattleManager : MonoBehaviour
         var buildings = GridManager.Instance.GetPlayerBuildings();
         foreach (var building in buildings)
         {
-            building.ExecuteAction();
+            //building.ExecuteAction();
             yield return new WaitForSeconds(0.1f); // 每个建筑间隔执行
         }
     }
@@ -230,7 +281,7 @@ public class BattleManager : MonoBehaviour
         {
             if (unit != null && unit.gameObject.activeSelf)
             {
-                yield return StartCoroutine(unit.UseMainSkillOrSupport());
+                //yield return StartCoroutine(unit.UseSkill());
                 yield return new WaitForSeconds(0.1f); // 每个单位间隔执行
             }
         }
@@ -249,7 +300,7 @@ public class BattleManager : MonoBehaviour
         {
             if (building != null && building.gameObject.activeSelf)
             {
-                building.ExecuteAction();
+                //building.ExecuteAction();
                 yield return new WaitForSeconds(0.1f); // 每个部位间隔执行
             }
         }
@@ -340,6 +391,136 @@ public class BattleManager : MonoBehaviour
             // 敌方Boss阵亡，玩家胜利
             //GameManager.Instance.EndGame("You Win!");
         }
+    }
+    
+    /// <summary>
+    /// 第一阶段：单位发动技能
+    /// </summary>
+    private IEnumerator ExecuteSkillActivationPhase()
+    {
+        Debug.Log("BattleManager: 第一阶段 - 单位发动技能");
+
+        var allSunits = gridManager.GetAllUnits();
+        foreach (var unit in allSunits)
+        {
+            if (unit != null)
+            {
+                unit.UseSkill();
+            }
+        }
+
+        // 执行技能队列中的技能
+        foreach (var skillExec in skillExecutionQueue)
+        {
+            yield return StartCoroutine(ExecuteSkill(skillExec.skill, skillExec.user));
+        }
+
+        // 清空技能执行队列
+        skillExecutionQueue.Clear();
+
+        yield return null;
+    }
+
+    /// <summary>
+    /// 第二阶段：数值与状态结算
+    /// </summary>
+    private IEnumerator ExecuteEffectResolutionPhase()
+    {
+        Debug.Log("BattleManager: 第二阶段 - 数值与状态结算");
+
+        foreach (var effect in effectQueue)
+        {
+            ApplyEffect(effect);
+        }
+
+        effectQueue.Clear(); // 清空效果队列
+
+        yield return null;
+    }
+    
+    /// <summary>
+    /// 第三阶段：单位移动与触发技能
+    /// </summary>
+    private IEnumerator ExecuteMovementPhase()
+    {
+        Debug.Log("BattleManager: 第三阶段 - 单位移动与触发技能");
+
+        var allUnits = gridManager.GetAllUnits();
+        foreach (var unit in allUnits)
+        {
+            var skills = unit.unitData.mainSkillSO.actions;
+            foreach (var action in skills)
+            {
+                if(action.Type == SkillType.Move)
+                {
+                    for (int i = 0; i < action.Value; i++)
+                    {
+                        if (unit.CanMoveForward())
+                        {
+                            yield return StartCoroutine(unit.MoveForward());
+                        }
+                        else
+                        {
+                            Debug.Log("BattleManager: 用户无法继续移动，动作被阻挡！");
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
+        yield return null;
+    }
+
+    /// <summary>
+    /// 第四阶段：技能后的数值与状态结算
+    /// </summary>
+    private IEnumerator ExecutePostMovementEffectResolutionPhase()
+    {
+        Debug.Log("BattleManager: 第四阶段 - 技能后的数值与状态结算");
+
+        // 执行移动后触发的技能
+        foreach (var skillExec in skillExecutionQueue)
+        {
+            yield return StartCoroutine(ExecuteSkill(skillExec.skill, skillExec.user));
+        }
+
+        // 清空技能执行队列
+        skillExecutionQueue.Clear();
+
+        // 结算效果队列中的效果
+        foreach (var effect in effectQueue)
+        {
+            ApplyEffect(effect);
+        }
+
+        effectQueue.Clear(); // 清空效果队列
+
+        yield return null;
+    }
+
+    /// <summary>
+    /// 第五阶段：准备下一回合
+    /// </summary>
+    private IEnumerator PrepareNextTurnPhase()
+    {
+        Debug.Log("BattleManager: 第五阶段 - 准备下一回合");
+
+        // 更新单位的延迟、状态等
+        var allUnits = gridManager.GetAllUnits();
+        foreach (var unit in allUnits)
+        {
+            unit.PrepareForNextTurn();
+        }
+
+        // 更新建筑物的状态
+        var allBuildings = gridManager.GetAllBuildings();
+        foreach (var building in allBuildings)
+        {
+            building.PrepareForNextTurn();
+        }
+
+        yield return null;
     }
     
     /// <summary>
@@ -470,5 +651,63 @@ public class BattleManager : MonoBehaviour
 
         return allUnits;
     }
+    
+    public void AddEffectToQueue(Effect effect)
+    {
+        effectQueue.Add(effect);
+    }
+    
+    public void ScheduleSkillExecution(Skill skill, ISkillUser user)
+    {
+        skillExecutionQueue.Add(new SkillExecution(skill, user));
+    }
+    
+    private IEnumerator ExecuteSkill(Skill skill, ISkillUser user)
+    {
+        foreach (var action in skill.Actions)
+        {
+            user.ScheduleAction(action);
+        }
+        yield return null;
+    }
+    
+    private void ApplyEffect(Effect effect)
+    {
+        if (effect.target != null)
+        {
+            if (effect.damage > 0)
+            {
+                effect.target.TakeDamage(effect.damage);
+            }
+            if (effect.heal > 0)
+            {
+                effect.target.Heal(effect.heal);
+            }
+            // 处理状态效果（如果有）
+            /*if (effect.statusEffect != null)
+            {
+                effect.target.ApplyStatusEffect(effect.statusEffect);
+            }*/
+        }
+    }
 
+
+
+}
+
+public class Effect
+{
+    public ISkillUser target;          // 目标单位
+    public int damage;                 // 伤害值
+    public int heal;                   // 治疗值
+    //public StatusEffect statusEffect;  // 状态效果（如果有）
+
+    // 构造函数（可选）
+    public Effect(ISkillUser target, int damage = 0, int heal = 0) //StatusEffect statusEffect = null)
+    {
+        this.target = target;
+        this.damage = damage;
+        this.heal = heal;
+        //this.statusEffect = statusEffect;
+    }
 }

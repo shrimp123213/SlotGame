@@ -3,6 +3,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using System;
 using System.Collections;
+using System.Collections.Generic;
 
 public class BossController : MonoBehaviour, ISkillUser
 {
@@ -25,6 +26,18 @@ public class BossController : MonoBehaviour, ISkillUser
     
     private bool isDead = false;
     public bool IsDead => isDead;
+    
+    // 跟踪每个技能的剩余延迟回合数
+    private Dictionary<string, int> skillDelays = new Dictionary<string, int>();
+
+    private List<ScheduledAction> scheduledActions = new List<ScheduledAction>();
+
+    [System.Serializable]
+    public class ScheduledAction
+    {
+        public SkillActionData action;
+        public int remainingDelay;
+    }
 
     private void Start()
     {
@@ -99,7 +112,220 @@ public class BossController : MonoBehaviour, ISkillUser
 
         transform.position = cellWorldPosition;
 
+        name = bossData.bossName + "_" + position.x + "_" + position.y;
         //Debug.Log($"UnitController: 单位 {unitData.unitName} 放置在格子中心: {cellWorldPosition}");
+    }
+    
+    /// <summary>
+    /// 初始化技能延迟
+    /// </summary>
+    private void InitializeSkillDelays()
+    {
+        if (bossData == null)
+        {
+            Debug.LogError("BossController: bossData 未赋值，无法初始化技能延迟！");
+            return;
+        }
+
+        if (bossData.bossSkillSO != null)
+        {
+            foreach (var action in bossData.bossSkillSO.actions)
+            {
+                if (!skillDelays.ContainsKey(bossData.bossSkillSO.skillName))
+                {
+                    skillDelays[bossData.bossSkillSO.skillName] = action.Delay;
+                }
+            }
+        }
+    }
+    
+    /// <summary>
+    /// 在每回合开始时减少所有技能的延迟值
+    /// </summary>
+    public void ReduceSkillDelays()
+    {
+        List<string> keys = new List<string>(skillDelays.Keys);
+        foreach (var skillName in keys)
+        {
+            if (skillDelays.ContainsKey(skillName))
+            {
+                if (skillDelays[skillName] > 0)
+                {
+                    skillDelays[skillName]--;
+                    Debug.Log($"BossController: Boss {name} 技能 {skillName} 的延迟减少到 {skillDelays[skillName]} 回合");
+                }
+            }
+        }
+    }
+    
+    /// <summary>
+    /// 检查技能是否准备就绪（延迟为0）
+    /// </summary>
+    private bool IsSkillReady(string skillName)
+    {
+        if (skillDelays.ContainsKey(skillName))
+        {
+            return skillDelays[skillName] <= 0;
+        }
+        return true; // 如果没有记录延迟，则认为已准备就绪
+    }
+    
+    /// <summary>
+    /// 使用 Boss 的技能
+    /// </summary>
+    public void UseSkill()
+    {
+        if (isDead)
+        {
+            Debug.Log($"BossController: Boss {name} 已死亡，无法使用技能！");
+            return;
+        }
+
+        if (bossData.bossSkillSO == null || bossData.bossSkillSO.actions == null)
+        {
+            Debug.LogWarning($"{name}: bossSkillSO 或其动作列表为 null！");
+            return;
+        }
+
+        if (IsSkillReady(bossData.bossSkillSO.skillName))
+        {
+            Skill currentSkill = Skill.FromSkillSO(bossData.bossSkillSO);
+            ScheduleSkillExecution(currentSkill);
+        }
+        else
+        {
+            Debug.Log($"BossController: Boss {name} 的技能还未准备好！");
+        }
+    }
+    
+    private void ScheduleSkillExecution(Skill skill)
+    {
+        BattleManager.Instance.ScheduleSkillExecution(skill, this);
+    }
+    
+    public void ScheduleAction(SkillActionData action)
+    {
+        if (action.Delay > 0)
+        {
+            scheduledActions.Add(new ScheduledAction { action = action, remainingDelay = action.Delay });
+            Debug.Log($"BossController: {name} 计划执行技能 {action.Type}，延迟 {action.Delay} 回合");
+        }
+        else
+        {
+            StartCoroutine(ExecuteAction(action));
+        }
+    }
+    
+    public IEnumerator ExecuteAction(SkillActionData action)
+    {
+        switch (action.Type)
+        {
+            case SkillType.Melee:
+                ISkillUser meleeTarget = GetMeleeTarget(action.TargetType);
+                if (meleeTarget != null)
+                {
+                    Effect effect = new Effect(meleeTarget, damage: action.Value);
+                    BattleManager.Instance.AddEffectToQueue(effect);
+                    Debug.Log($"{name} 计划对 {meleeTarget} 造成 {action.Value} 点伤害");
+                }
+                else
+                {
+                    Debug.Log($"{name} 没有找到近战目标");
+                }
+                break;
+
+            case SkillType.Ranged:
+                ISkillUser rangedTarget = GetRangedTarget(action.TargetType);
+                if (rangedTarget != null)
+                {
+                    Effect effect = new Effect(rangedTarget, damage: action.Value);
+                    BattleManager.Instance.AddEffectToQueue(effect);
+                    Debug.Log($"{name} 计划对 {rangedTarget} 造成 {action.Value} 点远程伤害");
+                }
+                else
+                {
+                    Debug.Log($"{name} 没有找到远程目标");
+                }
+                break;
+
+            case SkillType.Defense:
+                defensePoints += action.Value;
+                Debug.Log($"BossController: Boss {name} 防御点数增加 {action.Value}，当前防御点数：{defensePoints}");
+                break;
+
+            // 其他技能类型的处理...
+
+            default:
+                Debug.LogWarning($"BossController: 未处理的技能类型：{action.Type}");
+                break;
+        }
+        yield return null;
+    }
+    
+    /// <summary>
+    /// 在每个回合结束时调用，处理延迟的动作
+    /// </summary>
+    public void ReduceDelay()
+    {
+        List<ScheduledAction> actionsToExecute = new List<ScheduledAction>();
+
+        foreach (var scheduled in scheduledActions)
+        {
+            scheduled.remainingDelay--;
+            if (scheduled.remainingDelay <= 0)
+            {
+                actionsToExecute.Add(scheduled);
+            }
+        }
+
+        foreach (var action in actionsToExecute)
+        {
+            scheduledActions.Remove(action);
+            StartCoroutine(ExecuteAction(action.action));
+        }
+    }
+    
+    private ISkillUser GetMeleeTarget(TargetType targetType)
+    {
+        Vector3Int attackDirection = bossData.camp == Camp.Player ? Vector3Int.left : Vector3Int.right;
+        Vector3Int targetPosition = gridPosition + attackDirection;
+
+        ISkillUser target = GridManager.Instance.GetSkillUserAt(targetPosition);
+
+        if (target != null && target.GetCamp() != bossData.camp)
+        {
+            return target;
+        }
+        return null;
+    }
+
+    private ISkillUser GetRangedTarget(TargetType targetType)
+    {
+        Vector3Int attackDirection = bossData.camp == Camp.Player ? Vector3Int.left : Vector3Int.right;
+        Vector3Int currentPos = gridPosition + attackDirection;
+
+        while (GridManager.Instance.IsWithinBattleArea(currentPos))
+        {
+            ISkillUser target = GridManager.Instance.GetSkillUserAt(currentPos);
+
+            if (target != null && target.GetCamp() != bossData.camp)
+            {
+                return target;
+            }
+
+            currentPos += attackDirection;
+        }
+
+        return null;
+    }
+    
+    public void PrepareForNextTurn()
+    {
+        // 减少技能延迟
+        ReduceSkillDelays();
+
+        // 处理延迟的动作
+        ReduceDelay();
     }
 
     public bool CanMoveForward()
@@ -352,7 +578,6 @@ public class BossController : MonoBehaviour, ISkillUser
 
         if (currentHealth <= 0 && !isDead)
         {
-            isDead = true;
             OnBossDefeated();
         }
     }
@@ -421,20 +646,16 @@ public class BossController : MonoBehaviour, ISkillUser
 
     private void OnBossDefeated()
     {
+        if (isDead)
+            return;
+
+        isDead = true;
+        
         // 处理 BOSS 被击败的逻辑
         Debug.Log($"{bossData.bossName} 被击败了！");
         
         // 通知 BattleManager 或 GameManager
         BattleManager.Instance.OnBossDefeated(this);
-    }
-    
-    public void ExecuteSkill()
-    {
-        if (currentSkill != null)
-        {
-            // 执行技能逻辑
-            // 类似于 UnitController 中的 ExecuteCurrentSkill
-        }
     }
     
     public void InitializeUnitSprite()

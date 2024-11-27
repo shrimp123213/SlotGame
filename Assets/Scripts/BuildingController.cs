@@ -30,7 +30,15 @@ public class BuildingController : MonoBehaviour, ISkillUser
     // 跟踪每个技能的剩余延迟回合数
     private Dictionary<string, int> skillDelays = new Dictionary<string, int>();
     
-    // 唯一标识符，用于在 DeckEntry 中保存技能延迟
+    private List<ScheduledAction> scheduledActions = new List<ScheduledAction>();
+
+    [System.Serializable]
+    public class ScheduledAction
+    {
+        public SkillActionData action;
+        public int remainingDelay;
+    }
+    
     // 唯一标识符，用于在 DeckEntry 中保存技能延迟
     [SerializeField]
     private string _buildingId = "";
@@ -210,16 +218,13 @@ public class BuildingController : MonoBehaviour, ISkillUser
             return;
         }
         
-        foreach (var skillSO in new List<SkillSO> { buildingData.actionSkillSO, buildingData.actionSkillSO })
+        if (buildingData.actionSkillSO != null)
         {
-            if (skillSO != null)
+            foreach (var action in buildingData.actionSkillSO.actions)
             {
-                foreach (var action in skillSO.actions)
+                if (!skillDelays.ContainsKey(buildingData.actionSkillSO.skillName))
                 {
-                    if (!skillDelays.ContainsKey(skillSO.skillName))
-                    {
-                        skillDelays[skillSO.skillName] = action.Delay;
-                    }
+                    skillDelays[buildingData.actionSkillSO.skillName] = action.Delay;
                 }
             }
         }
@@ -257,59 +262,139 @@ public class BuildingController : MonoBehaviour, ISkillUser
     }
     
     /// <summary>
-    /// 检查建筑物是否可以执行行动
+    /// 判断建筑物是否可以使用行动技能
     /// </summary>
-    /// <returns>是否可以执行行动</returns>
-    public virtual bool CanExecuteAction()
+    public bool CanUseActionSkill()
     {
-        // 定义建筑物是否可以执行行动的条件
-        // 例如，是否有敌人接近，或者根据其他游戏机制
-        // 这里以始终可以执行行动为例
-        return true;
+        if (buildingData.actionSkillSO == null || buildingData.actionSkillSO.actions == null)
+        {
+            Debug.LogWarning($"{name}: actionSkillSO 或其动作列表为 null！");
+            return false;
+        }
+
+        return IsSkillReady(buildingData.actionSkillSO.skillName);
     }
 
     /// <summary>
     /// 执行建筑物的行动
     /// </summary>
-    public virtual void ExecuteAction()
+    public IEnumerator ExecuteAction(SkillActionData action)
     {
         if (hasActedThisTurn)
         {
-            return; // 單位已經行動過，跳過
+            yield break; // 單位已經行動過，跳過
         }
-        
+
         if (isRuin)
         {
             Debug.Log($"BuildingController: 废墟无法执行行动！");
-            return;
+            yield break;
         }
-        
-        if (CanExecuteAction())
+
+        if (buildingData.actionSkillSO != null)
         {
-            if (buildingData.actionSkillSO != null)
-            {
-                // 初始化当前技能为行动技能的克隆
-                currentSkill = Skill.FromSkillSO(buildingData.actionSkillSO);
+            // 初始化当前技能为行动技能的克隆
+            currentSkill = Skill.FromSkillSO(buildingData.actionSkillSO);
 
-                // 初始化技能延迟
-                InitializeSkillDelay(currentSkill);
-                
-                // 执行当前技能
-                StartCoroutine(ExecuteCurrentSkill());
+            // 初始化技能延迟
+            InitializeSkillDelay(currentSkill);
 
-                Debug.Log($"建筑物 {buildingData.buildingName} 执行了行动技能！");
-            }
-            else
+            if (currentSkill != null)
             {
-                Debug.LogWarning($"建筑物 {buildingData.buildingName} 没有配置行动技能！");
+                // 执行当前技能的所有动作
+                switch (action.Type)
+                {
+                    case SkillType.Melee:
+                        ISkillUser meleeTarget = GetMeleeTarget(action.TargetType);
+                        if (meleeTarget != null)
+                        {
+                            Effect effect = new Effect(meleeTarget, damage: action.Value);
+                            BattleManager.Instance.AddEffectToQueue(effect);
+                            Debug.Log($"{name} 计划对 {meleeTarget} 造成 {action.Value} 点伤害");
+                        }
+                        else
+                        {
+                            Debug.Log($"{name} 没有找到近战目标");
+                        }
+
+                        break;
+
+                    case SkillType.Ranged:
+                        ISkillUser rangedTarget = GetRangedTarget(action.TargetType);
+                        if (rangedTarget != null)
+                        {
+                            Effect effect = new Effect(rangedTarget, damage: action.Value);
+                            BattleManager.Instance.AddEffectToQueue(effect);
+                            Debug.Log($"{name} 计划对 {rangedTarget} 造成 {action.Value} 点远程伤害");
+                        }
+                        else
+                        {
+                            Debug.Log($"{name} 没有找到远程目标");
+                        }
+
+                        break;
+                    case SkillType.Defense:
+                        //IncreaseDefense(action.Value, action.TargetType);
+                        yield return null;
+                        break;
+                    case SkillType.AddToDeck:
+                        // 调用处理添加到牌组的方法
+                        yield return StartCoroutine(HandleAddToDeckAction(action));
+                        break;
+                    default:
+                        Debug.LogWarning($"BuildingController: 未处理的技能类型：{action.Type}");
+                        yield return null;
+                        break;
+                }
+
+                Debug.Log($"{name}: 当前技能执行完毕！");
+
+                // 清空当前技能动作，防止重复执行
+                currentSkill.Actions.Clear();
             }
+
+            Debug.Log($"建筑物 {buildingData.buildingName} 执行了行动技能！");
         }
         else
         {
-            Debug.Log($"建筑物 {buildingData.buildingName} 无法执行行动！");
+            Debug.LogWarning($"建筑物 {buildingData.buildingName} 没有配置行动技能！");
         }
-        
+
         hasActedThisTurn = true; // 标记为已行动
+    }
+    
+    private ISkillUser GetMeleeTarget(TargetType targetType)
+    {
+        Vector3Int attackDirection = buildingData.camp == Camp.Player ? Vector3Int.right : Vector3Int.left;
+        Vector3Int targetPosition = gridPosition + attackDirection;
+
+        ISkillUser target = GridManager.Instance.GetSkillUserAt(targetPosition);
+
+        if (target != null && target.GetCamp() != buildingData.camp)
+        {
+            return target;
+        }
+        return null;
+    }
+
+    private ISkillUser GetRangedTarget(TargetType targetType)
+    {
+        Vector3Int attackDirection = buildingData.camp == Camp.Player ? Vector3Int.right : Vector3Int.left;
+        Vector3Int currentPos = gridPosition + attackDirection;
+
+        while (GridManager.Instance.IsWithinBattleArea(currentPos))
+        {
+            ISkillUser target = GridManager.Instance.GetSkillUserAt(currentPos);
+
+            if (target != null && target.GetCamp() != buildingData.camp)
+            {
+                return target;
+            }
+
+            currentPos += attackDirection;
+        }
+
+        return null;
     }
     
     /// <summary>
@@ -470,15 +555,22 @@ public class BuildingController : MonoBehaviour, ISkillUser
         if(isRuin)
             return;
         
-        currentHealth -= damage;
-        Debug.Log($"BuildingController: 建筑物 {buildingData.buildingName} 受到 {damage} 点伤害，当前生命值：{currentHealth}");
+        int remainingDamage = damage - defensePoints;
+        if (remainingDamage > 0)
+        {
+            currentHealth -= remainingDamage;
+            defensePoints = 0;
+            Debug.Log($"BuildingController: 建筑物 {name} 接受 {remainingDamage} 点伤害，当前生命值: {currentHealth}");
+        }
+        else
+        {
+            defensePoints -= damage;
+            Debug.Log($"BuildingController: 建筑物 {name} 防卫点数抵消了 {damage} 点伤害，剩余防卫点数: {defensePoints}");
+        }
 
-        UpdateHealthBar();
-        
         if (currentHealth <= 0)
         {
             DestroyBuilding();
-            Debug.Log($"BuildingController: 建筑物 {buildingData.buildingName} 被摧毁，变为废墟！");
         }
         
         currentHealth = Mathf.Clamp(currentHealth, 0, buildingData.maxHealth);
@@ -490,15 +582,18 @@ public class BuildingController : MonoBehaviour, ISkillUser
     /// <param name="amount">治疗量</param>
     public virtual void Heal(int amount)
     {
-        if (buildingData.maxHealth > 0)
+        /*if (buildingData.maxHealth > 0)
         {
             currentHealth = Mathf.Min(currentHealth + amount, buildingData.maxHealth);
         }
         else
         {
             currentHealth += amount;
-        }
+        }*/
+        if (isRuin)
+            return;
 
+        currentHealth = Mathf.Min(currentHealth + amount, buildingData.maxHealth);
         UpdateHealthBar();
         Debug.Log($"BuildingController: 建筑物 {buildingData.buildingName} 恢复了 {amount} 点生命值，当前生命值: {currentHealth}");
     }
@@ -522,161 +617,39 @@ public class BuildingController : MonoBehaviour, ISkillUser
                     sr.sprite = ruinSprite;
                 }
             }
-
             // 禁用建筑物的功能（如行动和防卫）
             // 可以设置一个标志位，或者根据 isRuin 状态在其他方法中判断
 
             // 通知 BattleManager，建筑物已变为废墟
             int row = gridPosition.y;
             GridManager.Instance.SetRowCanAttackBoss(row, true);
-            //BattleManager.Instance.OnBuildingDestroyed(this, row);
+            Debug.Log($"BuildingController: 建筑物 {name} 被摧毁，变为废墟！");
         }
-        /*else
-        {
-            // 已经是废墟状态，彻底销毁
-            Debug.Log($"BuildingController: 建筑物 {buildingData.buildingName} 的废墟被移除");
-            GridManager.Instance.RemoveSkillUserAt(gridPosition);
-            Destroy(gameObject);
-        }*/
     }
 
     /// <summary>
     /// 使用行动技能
     /// </summary>
-    public virtual IEnumerator UseActionSkill()
+    public void UseSkill()
     {
-        if (buildingData.actionSkillSO != null)
-        {
-            // 检查技能是否准备就绪
-            if (IsSkillReady(buildingData.actionSkillSO.skillName))
-            {
-                // 为 currentSkill 行动技能赋值
-                currentSkill = Skill.FromSkillSO(buildingData.actionSkillSO);
-
-                // 执行当前技能
-                yield return StartCoroutine(ExecuteCurrentSkill());
-
-                // 重置技能延迟
-                ResetSkillDelay(buildingData.actionSkillSO.skillName, buildingData.actionSkillSO);
-            }
-            else
-            {
-                Debug.Log($"BuildingController: 建筑物 {name} 的行动技能 {buildingData.actionSkillSO.skillName} 还在延迟中（剩余 {skillDelays[buildingData.actionSkillSO.skillName]} 回合）");
-            }
-        }
-        else
-        {
-            Debug.LogWarning($"BuildingController: 建筑物 {name} 没有配置行动技能！");
-            yield break;
-        }
-    }
-
-    /// <summary>
-    /// 重新执行当前技能
-    /// </summary>
-    public virtual IEnumerator ExecuteCurrentSkill()
-    {
-        if (currentSkill != null)
-        {
-            // 执行当前技能的所有动作
-            foreach (var action in currentSkill.Actions)
-            {
-                switch (action.Type)
-                {
-                    case SkillType.Move:
-                        for (int i = 0; i < action.Value; i++)
-                        {
-                            if (!CanMoveForward())
-                            {
-                                Debug.Log($"BuildingController: 建筑物 {buildingData.buildingName} 无法继续移动，技能执行被阻挡！");
-                                break;
-                            }
-                            yield return StartCoroutine(MoveForward());
-                        }
-                        break;
-                    case SkillType.Melee:
-                        yield return StartCoroutine(PerformMeleeAttack(action.TargetType));
-                        yield return null;
-                        break;
-                    case SkillType.Ranged:
-                        yield return StartCoroutine(PerformRangedAttack(action.TargetType));
-                        yield return null;
-                        break;
-                    case SkillType.Defense:
-                        //IncreaseDefense(action.Value, action.TargetType);
-                        yield return null;
-                        break;
-                    case SkillType.AddToDeck:
-                        // 调用处理添加到牌组的方法
-                        yield return StartCoroutine(HandleAddToDeckAction(action));
-                        break;
-                    default:
-                        Debug.LogWarning($"BuildingController: 未处理的技能类型：{action.Type}");
-                        yield return null;
-                        break;
-                }
-            }
-            Debug.Log($"{name}: 当前技能执行完毕！");
-
-            // 清空当前技能动作，防止重复执行
-            currentSkill.Actions.Clear();
-        }
-    }
-    
-    /// <summary>
-    /// 重置技能延迟
-    /// </summary>
-    private void ResetSkillDelay(string skillName, SkillSO skillSO)
-    {
-        if (skillSO == null)
+        if(isRuin)
             return;
-
-        SkillActionData firstAction = skillSO.actions != null && skillSO.actions.Count > 0 ? skillSO.actions[0] : null;
-        if (firstAction == null)
+        
+        if (CanUseActionSkill())
         {
-            Debug.LogWarning($"BuildingController: 技能 {skillName} 没有配置任何动作，无法重置延迟。");
-            skillDelays[skillName] = 0;
+            Skill currentSkill = Skill.FromSkillSO(buildingData.actionSkillSO);
+            ScheduleSkillExecution(currentSkill);
+            hasActedThisTurn = true; // 标记为已行动
         }
         else
         {
-            int delay = firstAction.Delay;
-            skillDelays[skillName] = delay;
-            Debug.Log($"BuildingController: 建筑物 {name} 技能 {skillName} 的延迟已重置为 {delay} 回合");
+            Debug.Log($"BuildingController: 建筑物 {name} 的行动技能还未准备好！");
         }
     }
-    
-    /// <summary>
-    /// 使用技能后重置延迟
-    /// </summary>
-    private void ResetSkillDelay(string skillName)
-    {
-        if (skillDelays.ContainsKey(skillName))
-        {
-            // 查找技能的初始延迟
-            Skill skill = currentSkill; // 假设当前技能是使用的技能
-            foreach (var action in skill.Actions)
-            {
-                if (action.Delay > 0)
-                {
-                    skillDelays[skillName] = action.Delay;
-                    Debug.Log($"BuildingController: 建筑物 {name} 技能 {skillName} 的延迟已重置为 {action.Delay} 回合");
-                    break; // 假设所有动作共享相同的延迟
-                }
-            }
-        }
-    }
-    
-    /// <summary>
-    /// 使用行动技能后重置延迟
-    /// </summary>
-    public virtual IEnumerator UseActionSkillCoroutine()
-    {
-        yield return StartCoroutine(UseActionSkill());
 
-        if (buildingData.actionSkillSO != null)
-        {
-            
-        }
+    private void ScheduleSkillExecution(Skill skill)
+    {
+        BattleManager.Instance.ScheduleSkillExecution(skill, this);
     }
 
     public virtual IEnumerator MoveForward()
@@ -687,6 +660,7 @@ public class BuildingController : MonoBehaviour, ISkillUser
 
     public virtual bool CanMoveForward()
     {
+        // 建筑物无法移动
         return false;
     }
     
@@ -782,4 +756,62 @@ public class BuildingController : MonoBehaviour, ISkillUser
 
         yield return null;
     }
+    
+    public void ScheduleAction(SkillActionData action)
+    {
+        if (action.Delay > 0)
+        {
+            scheduledActions.Add(new ScheduledAction { action = action, remainingDelay = action.Delay });
+            Debug.Log($"UnitController: {name} 计划执行技能 {action.Type}，延迟 {action.Delay} 回合");
+        }
+        else
+        {
+            StartCoroutine(ExecuteAction(action));
+        }
+    }
+
+    /// <summary>
+    /// 在每个回合结束时调用，处理延迟的动作
+    /// </summary>
+    public void ReduceDelay()
+    {
+        List<ScheduledAction> actionsToExecute = new List<ScheduledAction>();
+
+        foreach (var scheduled in scheduledActions)
+        {
+            scheduled.remainingDelay--;
+            if (scheduled.remainingDelay <= 0)
+            {
+                actionsToExecute.Add(scheduled);
+            }
+        }
+
+        foreach (var action in actionsToExecute)
+        {
+            scheduledActions.Remove(action);
+            StartCoroutine(ExecuteAction(action.action));
+        }
+    }
+    
+    /*public void ApplyStatusEffect(StatusEffect statusEffect)
+    {
+        // 根据状态效果的类型，添加状态
+        //AddState(statusEffect);
+    }*/
+
+    
+    public void PrepareForNextTurn()
+    {
+        // 减少技能延迟
+        ReduceSkillDelays();
+
+        // 处理延迟的动作
+        ReduceDelay();
+
+        // 重置回合标志
+        hasActedThisTurn = false;
+
+        // 处理状态效果的持续时间等
+    }
+
 }

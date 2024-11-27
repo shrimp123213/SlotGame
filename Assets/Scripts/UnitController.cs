@@ -87,12 +87,6 @@ public class UnitController : MonoBehaviour, ISkillUser
         // 初始化单位属性
         InitializeUnit();
 
-        // 获取 SkillManager 引用
-        if (SkillManager.Instance == null)
-        {
-            Debug.LogError("UnitController: 未找到 SkillManager！");
-        }
-
         // 初始化实例变量
         currentHealth = unitData.maxHealth;
 
@@ -314,9 +308,8 @@ public class UnitController : MonoBehaviour, ISkillUser
     }
 
     /// <summary>
-    /// 判断是否可以使用主技能，依据技能的TargetType检查是否有有效目标
+    /// 判断是否可以使用主技能
     /// </summary>
-    /// <returns>是否可以使用主技能</returns>
     public bool CanUseMainSkill()
     {
         if (unitData.mainSkillSO == null || unitData.mainSkillSO.actions == null)
@@ -325,75 +318,7 @@ public class UnitController : MonoBehaviour, ISkillUser
             return false;
         }
 
-        foreach (var action in unitData.mainSkillSO.actions)
-        {
-            switch (action.Type)
-            {
-                case SkillType.Move:
-                    // 检查是否可以继续向前移动
-                    if (CanMoveForward())
-                    {
-                        return true;
-                    }
-                    break;
-                case SkillType.Melee:
-                case SkillType.Ranged:
-                    if (action.TargetType == TargetType.Enemy)
-                    {
-                        // 检查相应方向是否有敌方单位或建筑
-                        Vector3Int attackDirection = unitData.camp == Camp.Player ? Vector3Int.right : Vector3Int.left;
-                        Vector3Int targetPosition = gridPosition + attackDirection;
-
-                        UnitController targetUnit = GridManager.Instance.GetUnitAt(targetPosition);
-                        BuildingController targetBuilding = GridManager.Instance.GetBuildingAt(targetPosition);
-
-                        if ((targetUnit != null && targetUnit.unitData.camp != unitData.camp) ||
-                            (targetBuilding != null && targetBuilding.buildingData.camp != unitData.camp))
-                        {
-                            // 有有效的敌方目标
-                            return true;
-                        }
-                    }
-                    break;
-
-                case SkillType.Defense:
-                    if (action.TargetType == TargetType.Friendly)
-                    {
-                        // 检查是否有友方单位需要防卫（例如，低生命值）
-                        List<UnitController> friendlyUnits = GridManager.Instance.GetUnitsByCamp(unitData.camp);
-                        foreach (var friendly in friendlyUnits)
-                        {
-                            if (friendly.currentHealth < friendly.unitData.maxHealth)
-                            {
-                                return true;
-                            }
-                        }
-                    }
-                    else if (action.TargetType == TargetType.Self)
-                    {
-                        // 自身防卫，总是可以使用
-                        return true;
-                    }
-                    break;
-                
-                case SkillType.Repair:
-                    // 查找目标废墟
-                    BuildingController ruin = GridManager.Instance.GetBuildingAt(gridPosition);
-                    if (ruin != null && ruin.isRuin)
-                    {
-                        return true;
-                    }
-                    break;
-
-                // 处理其他 SkillType，如需要
-
-                default:
-                    break;
-            }
-        }
-
-        // 如果所有动作都没有找到有效目标，则不能使用主技能
-        return false;
+        return IsSkillReady(unitData.mainSkillSO.skillName);
     }
 
     /// <summary>
@@ -442,7 +367,42 @@ public class UnitController : MonoBehaviour, ISkillUser
         else
         {
             Debug.Log($"UnitController: 单位 {name} 无法移动到 {newPosition}");
+            yield return null;
         }
+    }
+    
+    private ISkillUser GetMeleeTarget(TargetType targetType)
+    {
+        Vector3Int attackDirection = unitData.camp == Camp.Player ? Vector3Int.right : Vector3Int.left;
+        Vector3Int targetPosition = gridPosition + attackDirection;
+
+        ISkillUser target = GridManager.Instance.GetSkillUserAt(targetPosition);
+
+        if (target != null && target.GetCamp() != unitData.camp)
+        {
+            return target;
+        }
+        return null;
+    }
+
+    private ISkillUser GetRangedTarget(TargetType targetType)
+    {
+        Vector3Int attackDirection = unitData.camp == Camp.Player ? Vector3Int.right : Vector3Int.left;
+        Vector3Int currentPos = gridPosition + attackDirection;
+
+        while (GridManager.Instance.IsWithinBattleArea(currentPos))
+        {
+            ISkillUser target = GridManager.Instance.GetSkillUserAt(currentPos);
+
+            if (target != null && target.GetCamp() != unitData.camp)
+            {
+                return target;
+            }
+
+            currentPos += attackDirection;
+        }
+
+        return null;
     }
 
     /// <summary>
@@ -811,6 +771,9 @@ public class UnitController : MonoBehaviour, ISkillUser
     /// <param name="source">伤害来源</param>
     public virtual void TakeDamage(int damage, DamageSource source = DamageSource.Normal)
     {
+        if (isDead)
+            return;
+        
         if (HasState<InvincibleState>())
         {
             Debug.Log($"{name} 处于无敌状态，免疫伤害");
@@ -1097,41 +1060,36 @@ public class UnitController : MonoBehaviour, ISkillUser
     /// <summary>
     /// 使用主技能或支援技能
     /// </summary>
-    public virtual IEnumerator UseMainSkillOrSupport()
+    public void UseSkill()
     {
         if (hasActedThisTurn)
         {
-            yield break; // 单位已经行动过，跳过
+            return; // 单位已经行动过，跳过
         }
 
         if (isDead)
         {
             Debug.Log($"UnitController: 单位 {name} 已死亡，无法使用任何技能！");
-            yield break;
+            return;
         }
 
-        bool skillUsed = false;
-
-        // 尝试使用主技能
         if (CanUseMainSkill())
         {
-            yield return StartCoroutine(UseMainSkill());
-            skillUsed = true;
+            currentSkill = Skill.FromSkillSO(unitData.mainSkillSO);
+            ScheduleSkillExecution(currentSkill);
         }
-
-        // 如果主技能未使用，尝试使用支援技能
-        if (!skillUsed && CanUseSupportSkill())
+        else if (CanUseSupportSkill())
         {
-            yield return StartCoroutine(UseSupportSkill());
-            skillUsed = true;
-        }
-
-        if (!skillUsed)
-        {
-            Debug.Log($"UnitController: 单位 {name} 无法使用任何技能！");
+            currentSkill = Skill.FromSkillSO(unitData.supportSkillSO);
+            ScheduleSkillExecution(currentSkill);
         }
 
         hasActedThisTurn = true; // 标记为已行动
+    }
+    
+    private void ScheduleSkillExecution(Skill skill)
+    {
+        BattleManager.Instance.ScheduleSkillExecution(skill, this);
     }
     
     /// <summary>
@@ -1149,12 +1107,15 @@ public class UnitController : MonoBehaviour, ISkillUser
     /// <summary>
     /// 判断是否可以使用支援技能
     /// </summary>
-    /// <returns></returns>
-    private bool CanUseSupportSkill()
+    public bool CanUseSupportSkill()
     {
-        // 判断条件，例如前方有友方单位
-        UnitController frontUnit = GridManager.Instance.GetFrontUnitInRow(this);
-        return frontUnit != null && frontUnit.unitData.camp == this.unitData.camp;
+        if (unitData.supportSkillSO == null || unitData.supportSkillSO.actions == null)
+        {
+            Debug.LogWarning($"{name}: supportSkillSO 或其动作列表为 null！");
+            return false;
+        }
+
+        return IsSkillReady(unitData.supportSkillSO.skillName);
     }
 
     /// <summary>
@@ -1615,7 +1576,7 @@ public class UnitController : MonoBehaviour, ISkillUser
         if (action.Delay > 0)
         {
             scheduledActions.Add(new ScheduledAction { action = action, remainingDelay = action.Delay });
-            Debug.Log($"UnitController: {name} 計劃執行技能 {action.Type}，延遲 {action.Delay} 回合");
+            Debug.Log($"UnitController: {name} 计划执行技能 {action.Type}，延迟 {action.Delay} 回合");
         }
         else
         {
@@ -1623,26 +1584,41 @@ public class UnitController : MonoBehaviour, ISkillUser
         }
     }
 
-    private IEnumerator ExecuteAction(SkillActionData action)
+
+    public IEnumerator ExecuteAction(SkillActionData action)
     {
         switch (action.Type)
         {
             case SkillType.Move:
-                for (int i = 0; i < action.Value; i++)
+                scheduledActions.Add(new ScheduledAction { action = action, remainingDelay = 0 });
+                break;
+
+            case SkillType.Melee:
+                ISkillUser meleeTarget = GetMeleeTarget(action.TargetType);
+                if (meleeTarget != null)
                 {
-                    if (!CanMoveForward())
-                    {
-                        Debug.Log($"UnitController: 單位 {name} 無法繼續移動，技能執行被阻擋！");
-                        break;
-                    }
-                    yield return StartCoroutine(MoveForward());
+                    Effect effect = new Effect(meleeTarget, damage: action.Value);
+                    BattleManager.Instance.AddEffectToQueue(effect);
+                    Debug.Log($"{name} 计划对 {meleeTarget} 造成 {action.Value} 点伤害");
+                }
+                else
+                {
+                    Debug.Log($"{name} 没有找到近战目标");
                 }
                 break;
-            case SkillType.Melee:
-                yield return StartCoroutine(PerformMeleeAttack(action.TargetType));
-                break;
+
             case SkillType.Ranged:
-                yield return StartCoroutine(PerformRangedAttack(action.TargetType));
+                ISkillUser rangedTarget = GetRangedTarget(action.TargetType);
+                if (rangedTarget != null)
+                {
+                    Effect effect = new Effect(rangedTarget, damage: action.Value);
+                    BattleManager.Instance.AddEffectToQueue(effect);
+                    Debug.Log($"{name} 计划对 {rangedTarget} 造成 {action.Value} 点远程伤害");
+                }
+                else
+                {
+                    Debug.Log($"{name} 没有找到远程目标");
+                }
                 break;
             case SkillType.Defense:
                 yield return StartCoroutine(IncreaseDefense(action.Value, action.TargetType));
@@ -1662,6 +1638,9 @@ public class UnitController : MonoBehaviour, ISkillUser
         }
     }
     
+    /// <summary>
+    /// 在每个回合结束时调用，处理延迟的动作
+    /// </summary>
     public void ReduceDelay()
     {
         List<ScheduledAction> actionsToExecute = new List<ScheduledAction>();
@@ -1675,16 +1654,10 @@ public class UnitController : MonoBehaviour, ISkillUser
             }
         }
 
-        // 移除並執行這些動作
         foreach (var action in actionsToExecute)
         {
             scheduledActions.Remove(action);
-            if (IsOnField())
-            {
-                StartCoroutine(ExecuteAction(action.action));
-                // 執行後重新倒數
-                ScheduleAction(action.action);
-            }
+            StartCoroutine(ExecuteAction(action.action));
         }
     }
 
@@ -1697,4 +1670,25 @@ public class UnitController : MonoBehaviour, ISkillUser
     {
         return unitData != null ? unitData.camp : Camp.Player; // 默认返回玩家阵营
     }
+
+    /*public void ApplyStatusEffect(StatusEffect statusEffect)
+    {
+        // 根据状态效果的类型，添加状态
+        AddState(statusEffect);
+    }*/
+
+    public void PrepareForNextTurn()
+    {
+        // 减少技能延迟
+        ReduceSkillDelays();
+
+        // 处理延迟的动作
+        ReduceDelay();
+
+        // 重置回合标志
+        hasActedThisTurn = false;
+
+        // 处理状态效果的持续时间等
+    }
+
 }

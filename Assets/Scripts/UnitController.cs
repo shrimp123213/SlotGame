@@ -3,6 +3,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using DG.Tweening;
+using UnityEngine.InputSystem.XR;
 
 public class UnitController : MonoBehaviour, ISkillUser
 {
@@ -39,6 +40,7 @@ public class UnitController : MonoBehaviour, ISkillUser
     public string unitId { get; private set; }
 
     public bool isInjured => HasState<InjuredState>();
+    public bool isFragile => HasState<FragileState>();
     
     private bool isDead = false;
     public bool IsDead => isDead;
@@ -828,7 +830,7 @@ public class UnitController : MonoBehaviour, ISkillUser
         isDead = true; // 设置死亡标志
 
         // 调用 DeckManager 的 HandleUnitDeath 方法
-        DeckManager.Instance.HandleUnitDeath(unitData, unitId, isInjured, unitData.camp == Camp.Player);
+        DeckManager.Instance.HandleUnitDeath(unitData, unitId, isInjured, unitData.camp == Camp.Player, isFragile);
         
         // 从 DeckManager 中移除技能延迟
         if (!string.IsNullOrEmpty(unitId))

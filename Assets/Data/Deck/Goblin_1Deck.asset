@@ -14,10 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   entries:
   - unitData: {fileID: 11400000, guid: 1d9477d87ba96b142a6dacbcd325059d, type: 2}
-    quantity: 0
+    quantity: 2
     injuredQuantity: 0
   - unitData: {fileID: 11400000, guid: cd4fd988818b1ce48b17cde2d9bab8f1, type: 2}
-    quantity: 0
+    quantity: 9
     injuredQuantity: 0
   - unitData: {fileID: 11400000, guid: 104d858dcb2463a42940c1c98ba669e5, type: 2}
     quantity: 0

@@ -71,12 +71,14 @@ public class DeckManager : MonoBehaviour
     /// <summary>
     /// 处理单位死亡，将卡牌移至墓地
     /// </summary>
-    public void HandleUnitDeath(UnitData unitData, string unitId, bool isInjured, bool isPlayerUnit)
+    public void HandleUnitDeath(UnitData unitData, string unitId, bool isInjured, bool isPlayerUnit, bool isFragile = false)
     {
         // 从战场移除单位
         Vector3Int unitPosition = GridManager.Instance.GetUnitPosition(unitId);
+        var unit = GridManager.Instance.GetUnitAt(unitPosition);
+        
         GridManager.Instance.RemoveSkillUserAt(unitPosition);
-
+        
         if (isPlayerUnit)
         {
             if (isInjured)
@@ -96,19 +98,29 @@ public class DeckManager : MonoBehaviour
         }
         else
         {
-            if (isInjured)
+            if (isFragile)
             {
-                // 敌方单位已处于负伤状态，再次死亡，进入墓地
-                RemoveCardFromEnemyDeck(unitData, unitId, 1, isInjured: true);
+                // 敌方单位是脆弱单位，直接进入墓地
+                RemoveCardFromEnemyDeck(unitData, unitId, 1, isInjured: false);
                 GraveyardManager.Instance.AddToEnemyGraveyard(unitData, unitId);
-                Debug.Log($"DeckManager: 敌方单位 {unitData.unitName} 在负伤状态下死亡，进入墓地。");
+                Debug.Log($"DeckManager: 敌方单位 {unitData.unitName} 是脆弱单位，直接进入墓地。");
             }
             else
             {
-                // 敌方单位第一次死亡，进入负伤状态并返回牌库
-                RemoveCardFromEnemyDeck(unitData, unitId, 1, isInjured: false);
-                AddCardToEnemyDeck(unitData, unitId, 1, isInjured: true);
-                Debug.Log($"DeckManager: 敌方单位 {unitData.unitName} 第一次死亡，进入负伤状态并返回牌库。");
+                if (isInjured)
+                {
+                    // 敌方单位已处于负伤状态，再次死亡，进入墓地
+                    RemoveCardFromEnemyDeck(unitData, unitId, 1, isInjured: true);
+                    GraveyardManager.Instance.AddToEnemyGraveyard(unitData, unitId);
+                    Debug.Log($"DeckManager: 敌方单位 {unitData.unitName} 在负伤状态下死亡，进入墓地。");
+                }
+                else
+                {
+                    // 敌方单位第一次死亡，进入负伤状态并返回牌库
+                    RemoveCardFromEnemyDeck(unitData, unitId, 1, isInjured: false);
+                    AddCardToEnemyDeck(unitData, unitId, 1, isInjured: true);
+                    Debug.Log($"DeckManager: 敌方单位 {unitData.unitName} 第一次死亡，进入负伤状态并返回牌库。");
+                }
             }
         }
 

@@ -15,4 +15,5 @@ MonoBehaviour:
   bossName: Goblin
   bossSprite: {fileID: 1321406154, guid: 284273b124f859f43abb5c06f69f930b, type: 3}
   maxHealth: 10
+  bossSkillSO: {fileID: 11400000, guid: 3fd882fa07c16f140ab0aacfbba33c5d, type: 2}
   camp: 1

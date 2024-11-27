@@ -252,6 +252,11 @@ public class BossController : MonoBehaviour, ISkillUser
                 defensePoints += action.Value;
                 Debug.Log($"BossController: Boss {name} 防御点数增加 {action.Value}，当前防御点数：{defensePoints}");
                 break;
+            
+            case SkillType.AddToDeck:
+                // 调用处理添加到牌组的方法
+                yield return StartCoroutine(HandleAddToDeckAction(action));
+                break;
 
             // 其他技能类型的处理...
 
@@ -680,5 +685,43 @@ public class BossController : MonoBehaviour, ISkillUser
     public Camp GetCamp()
     {
         return bossData != null ? bossData.camp : Camp.Player; // 默认返回玩家阵营
+    }
+
+    private IEnumerator HandleAddToDeckAction(SkillActionData action)
+    {
+        Debug.Log("BossController: 处理 AddToDeck 动作");
+
+        if (action.UnitsToAdd == null || action.UnitsToAdd.Count == 0)
+        {
+            Debug.LogWarning("BossController: AddToDeck 动作未指定任何单位！");
+            yield break;
+        }
+
+        // 获取 DeckManager 实例
+        DeckManager deckManager = DeckManager.Instance;
+        if (deckManager == null)
+        {
+            Debug.LogError("BossController: 未找到 DeckManager 实例！");
+            yield break;
+        }
+
+        // 确定要添加到哪个牌组
+        Camp bossCamp = GetCamp();
+        Deck targetDeck = bossCamp == Camp.Player ? deckManager.playerDeck : deckManager.enemyDeck;
+
+        // 将指定的单位添加到牌组
+        foreach (var unitToAdd in action.UnitsToAdd)
+        {
+            if (unitToAdd.unitData == null || unitToAdd.quantity <= 0)
+            {
+                Debug.LogWarning("BossController: AddToDeck 动作包含无效的单位或数量！");
+                continue;
+            }
+
+            targetDeck.AddCard(unitToAdd.unitData, null, unitToAdd.quantity, false);
+            Debug.Log($"BossController: 已将 {unitToAdd.quantity} 张 {unitToAdd.unitData.unitName} 添加到 {bossCamp} 的牌组中。");
+        }
+
+        yield return null;
     }
 }

@@ -15,6 +15,5 @@ MonoBehaviour:
   buildingName: Goblin Scepter
   buildingSprite: {fileID: -1392758253, guid: a9296d1b2bb696e4b99e10b5468a532d, type: 3}
   maxHealth: 10
-  defenseSkillSO: {fileID: 0}
-  actionSkillSO: {fileID: 0}
+  actionSkillSO: {fileID: 11400000, guid: d65ffca52bba49245a45ac82dfd78808, type: 2}
   camp: 1

@@ -15,6 +15,5 @@ MonoBehaviour:
   buildingName: Skull Collar
   buildingSprite: {fileID: 107514352, guid: a9296d1b2bb696e4b99e10b5468a532d, type: 3}
   maxHealth: 10
-  defenseSkillSO: {fileID: 0}
-  actionSkillSO: {fileID: 0}
+  actionSkillSO: {fileID: 11400000, guid: 523ff73f5d17e7c4092631e72d045bf5, type: 2}
   camp: 1

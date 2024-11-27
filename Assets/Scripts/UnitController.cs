@@ -500,7 +500,8 @@ public class UnitController : MonoBehaviour, ISkillUser
         }
         else
         {
-            yield return StartCoroutine(PlayAttackAnimation());
+            yield return null;
+            //yield return StartCoroutine(PlayAttackAnimation());
         }
     }
 
@@ -514,7 +515,8 @@ public class UnitController : MonoBehaviour, ISkillUser
         }
         else
         {
-            yield return StartCoroutine(PlayAttackAnimation());
+            yield return null;
+            //yield return StartCoroutine(PlayAttackAnimation());
         }
     }
 
@@ -542,7 +544,8 @@ public class UnitController : MonoBehaviour, ISkillUser
         }
         else
         {
-            yield return StartCoroutine(PlayAttackAnimation());
+            yield return null;
+            //yield return StartCoroutine(PlayAttackAnimation());
         }
     }
     
@@ -1690,5 +1693,26 @@ public class UnitController : MonoBehaviour, ISkillUser
 
         // 处理状态效果的持续时间等
     }
+    
+    public int GetMoveCount()
+    {
+        // 遍历单位的技能，查找移动技能并获取其移动次数
+        int totalMoveCount = 0;
+
+        // 假设单位的技能存储在 unitData 中
+        if (unitData != null && unitData.mainSkillSO != null)
+        {
+            foreach (var action in unitData.mainSkillSO.actions)
+            {
+                if (action.Type == SkillType.Move)
+                {
+                    totalMoveCount += action.Value; // 累加移动次数
+                }
+            }
+        }
+
+        return totalMoveCount;
+    }
+
 
 }

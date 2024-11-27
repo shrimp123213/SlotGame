@@ -16,4 +16,5 @@ public interface ISkillUser
     IEnumerator ExecuteAction(SkillActionData action);
     //void ApplyStatusEffect(StatusEffect statusEffect);
     void PrepareForNextTurn();
+    void UseSkill();
 }

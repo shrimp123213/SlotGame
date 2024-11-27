@@ -330,11 +330,13 @@ public class BossController : MonoBehaviour, ISkillUser
 
     public bool CanMoveForward()
     {
+        // Boss 无法移动
         return false;
     }
 
     public IEnumerator MoveForward()
     {
+        // Boss 无法移动
         yield break;
     }
 

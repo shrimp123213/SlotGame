@@ -213,9 +213,6 @@ public class DeckChoiceUI : MonoBehaviour
 
         Debug.Log($"DeckChoiceUI: 玩家選擇增加 {selectedUnit.unitName} 的數量");
 
-        // 觸發選擇完成事件
-        //OnChoiceMade?.Invoke();
-
         // 關閉面板並重置選項
         CloseChoicePanel(toggleButton);
     }

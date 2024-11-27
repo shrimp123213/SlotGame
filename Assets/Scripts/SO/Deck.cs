@@ -94,13 +94,15 @@ public class Deck : ScriptableObject
             {
                 existingEntry.unitSkillDelays.Remove(unitId);
             }
-            
-            // 如果数量和负伤数量都为 0，移除 DeckEntry
+
+            // **修改点：不再移除 DeckEntry，即使数量为 0**
+            /*
             if (existingEntry.quantity <= 0 && existingEntry.injuredQuantity <= 0)
             {
                 entries.Remove(existingEntry);
                 Debug.Log($"Deck: 已移除单位 {unitData.unitName} 的 DeckEntry，因为数量为 0");
             }
+            */
         }
 
         // 触发事件
@@ -128,36 +130,36 @@ public class Deck : ScriptableObject
     }
     
     /// <summary>
-    /// 隨機選取指定數量的不同 UnitData
+    /// 随机选取指定数量的不同 UnitData
     /// </summary>
-    /// <param name="count">選取的數量</param>
-    /// <returns>選取的 UnitData 列表</returns>
+    /// <param name="count">选取的数量</param>
+    /// <returns>选取的 UnitData 列表</returns>
     public List<UnitData> GetRandomUnitChoices(int count)
     {
         List<UnitData> availableUnits = new List<UnitData>();
 
-        // 收集所有的 UnitData
+        // 收集所有的 UnitData，即使数量为 0 的也包含在内
         foreach (var entry in entries)
         {
-            if (entry.unitData != null && entry.quantity >= 0 && !availableUnits.Contains(entry.unitData))
+            if (entry.unitData != null && !availableUnits.Contains(entry.unitData))
             {
                 availableUnits.Add(entry.unitData);
             }
         }
 
-        // 如果可用單位少於要求數量，返回所有可用的
+        // 如果可用单位少于要求数量，返回所有可用的
         if (availableUnits.Count <= count)
         {
             return new List<UnitData>(availableUnits);
         }
 
-        // 隨機選取指定數量的 UnitData
+        // 随机选取指定数量的 UnitData
         List<UnitData> selectedUnits = new List<UnitData>();
         List<UnitData> tempList = new List<UnitData>(availableUnits);
 
         for (int i = 0; i < count; i++)
         {
-            int randomIndex = Random.Range(0, tempList.Count);
+            int randomIndex = UnityEngine.Random.Range(0, tempList.Count);
             selectedUnits.Add(tempList[randomIndex]);
             tempList.RemoveAt(randomIndex);
         }
@@ -166,15 +168,15 @@ public class Deck : ScriptableObject
     }
 
     /// <summary>
-    /// 增加指定 UnitData 的數量
+    /// 增加指定 UnitData 的数量
     /// </summary>
-    /// <param name="unitData">要增加數量的 UnitData</param>
-    /// <param name="amount">增加的數量</param>
+    /// <param name="unitData">要增加数量的 UnitData</param>
+    /// <param name="amount">增加的数量</param>
     public void IncreaseUnitQuantity(UnitData unitData, int amount = 1)
     {
         if (unitData == null)
         {
-            Debug.LogWarning("Deck: 嘗試增加 null UnitData 的數量！");
+            Debug.LogWarning("Deck: 尝试增加 null UnitData 的数量！");
             return;
         }
 
@@ -188,7 +190,7 @@ public class Deck : ScriptableObject
             entries.Add(new DeckEntry(unitData, amount));
         }
 
-        Debug.Log($"Deck: 增加 {unitData.unitName} 的數量至 {(existingEntry != null ? existingEntry.quantity : amount)}");
+        Debug.Log($"Deck: 增加 {unitData.unitName} 的数量至 {(existingEntry != null ? existingEntry.quantity : amount)}");
         OnDeckChanged?.Invoke();
     }
     
@@ -261,6 +263,9 @@ public class Deck : ScriptableObject
     /// <summary>
     /// 在每回合开始时减少所有单位的技能延迟
     /// </summary>
+    /// <summary>
+    /// 在每回合开始时减少所有单位的技能延迟
+    /// </summary>
     public void ReduceSkillDelays()
     {
         if (entries == null)
@@ -279,18 +284,14 @@ public class Deck : ScriptableObject
 
             if (entry.unitSkillDelays == null)
             {
-                Debug.LogWarning($"Deck.ReduceSkillDelays: DeckEntry 的 unitSkillDelays 未初始化，unitData: {entry.unitData?.unitName ?? "null"}");
                 entry.unitSkillDelays = new Dictionary<string, Dictionary<string, int>>();
                 continue;
             }
-            
-            Debug.Log($"Deck: 单位 {entry.unitData.unitName} 的 unitSkillDelays 中有 {entry.unitSkillDelays.Count} 个 unitId");
 
             foreach (var unitDelays in entry.unitSkillDelays)
             {
                 if (unitDelays.Value == null)
                 {
-                    Debug.LogWarning($"Deck.ReduceSkillDelays: unitDelays.Value 为 null，unitId: {unitDelays.Key}");
                     continue;
                 }
 

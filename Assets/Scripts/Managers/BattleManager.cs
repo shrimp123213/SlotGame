@@ -1,6 +1,5 @@
 using System.Collections;
 using UnityEngine;
-using System;
 using System.Collections.Generic;
 
 /// <summary>
@@ -11,36 +10,32 @@ public class BattleManager : MonoBehaviour
     public static BattleManager Instance { get; private set; }
 
     [Header("Battle Components")]
-    public SlotMachineController slotMachine; // 轉盤組件
-    public SkillManager skillManager;         // 技能管理器
-    public GridManager gridManager;           // 網格管理器
-    public ConnectionManager connectionManager; // 連接管理器
-    
+    public SlotMachineController slotMachine; // 转盘组件
+    public GridManager gridManager;           // 网格管理器
+    public ConnectionManager connectionManager; // 连线管理器
+
     [Header("Enemy Buildings")]
     public List<EnemyBuildingInfo> enemyBuildings = new List<EnemyBuildingInfo>();
 
     [Header("Player Buildings")]
     public List<PlayerBuildingInfo> playerBuildings = new List<PlayerBuildingInfo>();
-    
-    private bool choiceMade = false;
-    
-    private bool playerBossAlive = false;
-    private bool enemyBossAlive = false;
 
-    private BossController playerBoss;
-    private BossController enemyBoss;
-    
+    private bool choiceMade = false;
+
     private BattlePhase currentPhase;
-    
+
     public enum BattlePhase
     {
-        SkillActivation,                // 第一阶段：单位发动技能
-        EffectResolution,               // 第二阶段：数值与状态结算
-        Movement,                       // 第三阶段：单位移动与触发技能
-        PostMovementEffectResolution,   // 第四阶段：技能后的数值与状态结算
-        PrepareNextTurn                 // 第五阶段：准备下一回合
+        SlotMachineSpin,                     // 阶段 2.1：转盘旋转
+        DefenseEffect,                       // 阶段 2.2：执行防卫效果
+        SkillActivation,                     // 新的第一阶段：单位发动技能
+        EffectResolution,                    // 新的第二阶段：数值与状态结算
+        Movement,                            // 新的第三阶段：单位移动与触发技能
+        PostMovementEffectResolution,        // 新的第四阶段：技能后的数值与状态结算
+        PrepareNextTurn,                     // 新的第五阶段：准备下一回合
+        ComboCalculation                     // 阶段 2.12：连线计算
     }
-    
+
     private List<Effect> effectQueue = new List<Effect>();              // 数值变化队列
     private List<SkillExecution> skillExecutionQueue = new List<SkillExecution>();  // 技能执行队列
 
@@ -56,14 +51,14 @@ public class BattleManager : MonoBehaviour
             this.user = user;
         }
     }
-    
+
     private void Awake()
     {
-        // 單例模式實現
+        // 单例模式实现
         if (Instance == null)
         {
             Instance = this;
-            DontDestroyOnLoad(gameObject); // 可選：保持在場景切換中不被銷毀
+            DontDestroyOnLoad(gameObject); // 可选：保持在场景切换中不被销毁
         }
         else
         {
@@ -73,46 +68,44 @@ public class BattleManager : MonoBehaviour
 
     private void Start()
     {
-        // 檢查所有必要的組件是否已正確設置
+        // 检查所有必要的组件是否已正确设置
         if (slotMachine == null)
         {
-            Debug.LogError("BattleManager: 未設置 SlotMachine 組件！");
-            return;
-        }
-        if (skillManager == null)
-        {
-            Debug.LogError("BattleManager: 未設置 SkillManager 組件！");
+            Debug.LogError("BattleManager: 未设置 SlotMachine 组件！");
             return;
         }
         if (gridManager == null)
         {
-            Debug.LogError("BattleManager: 未設置 GridManager 組件！");
+            Debug.LogError("BattleManager: 未设置 GridManager 组件！");
             return;
         }
         if (connectionManager == null)
         {
-            Debug.LogError("BattleManager: 未設置 ConnectionManager 組件！");
+            Debug.LogError("BattleManager: 未设置 ConnectionManager 组件！");
             return;
         }
-        // 初始化建築物
-        GridManager.Instance.InitializeBuildings(playerBuildings, enemyBuildings);
+        // 初始化建筑物
+        gridManager.InitializeBuildings(playerBuildings, enemyBuildings);
 
-        // 訂閱 SlotMachine 的轉動完成事件
+        // 订阅 SlotMachine 的转动完成事件
         slotMachine.OnSpinCompleted += OnSlotMachineSpun;
-        
-        // 開始戰鬥流程
+
+        // 开始战斗流程
         StartBattleSequence();
     }
-    
+
     private void OnEnable()
     {
-        // 訂閱選擇完成事件
-        DeckChoiceUI.Instance.OnChoiceMade += OnPlayerChoiceMade;
+        // 订阅选择完成事件
+        if (DeckChoiceUI.Instance != null)
+        {
+            DeckChoiceUI.Instance.OnChoiceMade += OnPlayerChoiceMade;
+        }
     }
-    
+
     private void OnDisable()
     {
-        // 取消訂閱事件
+        // 取消订阅事件
         if (DeckChoiceUI.Instance != null)
         {
             DeckChoiceUI.Instance.OnChoiceMade -= OnPlayerChoiceMade;
@@ -121,15 +114,15 @@ public class BattleManager : MonoBehaviour
 
     private void OnDestroy()
     {
-        // 取消訂閱事件，防止內存洩漏
+        // 取消订阅事件，防止内存泄漏
         if (slotMachine != null)
         {
             slotMachine.OnSpinCompleted -= OnSlotMachineSpun;
         }
     }
-    
+
     /// <summary>
-    /// 啟動戰鬥流程
+    /// 启动战斗流程
     /// </summary>
     public void StartBattleSequence()
     {
@@ -142,42 +135,44 @@ public class BattleManager : MonoBehaviour
     /// <returns></returns>
     private IEnumerator BattleSequence()
     {
-        while (true)
+        // 阶段 2.1：转盘旋转
+        currentPhase = BattlePhase.SlotMachineSpin;
+        yield return StartCoroutine(ExecuteSlotMachine());
+
+        // 阶段 2.2：执行防卫效果
+        currentPhase = BattlePhase.DefenseEffect;
+        ExecuteDefenseEffects();
+
+        // 新的第一阶段：单位发动技能
+        currentPhase = BattlePhase.SkillActivation;
+        yield return StartCoroutine(ExecuteSkillActivationPhase());
+
+        // 新的第二阶段：数值与状态结算
+        currentPhase = BattlePhase.EffectResolution;
+        yield return StartCoroutine(ExecuteEffectResolutionPhase());
+
+        // 新的第三阶段：单位移动与触发技能
+        currentPhase = BattlePhase.Movement;
+        yield return StartCoroutine(ExecuteMovementPhase());
+
+        // 新的第四阶段：技能后的数值与状态结算
+        currentPhase = BattlePhase.PostMovementEffectResolution;
+        yield return StartCoroutine(ExecutePostMovementEffectResolutionPhase());
+
+        // 阶段 2.12：连线计算
+        currentPhase = BattlePhase.ComboCalculation;
+        ExecuteComboCalculation();
+
+        // 检查战斗结果
+        if (CheckBattleOutcome())
         {
-            // 第一阶段：单位发动技能
-            currentPhase = BattlePhase.SkillActivation;
-            yield return StartCoroutine(ExecuteSkillActivationPhase());
-
-            // 第二阶段：数值与状态结算
-            currentPhase = BattlePhase.EffectResolution;
-            yield return StartCoroutine(ExecuteEffectResolutionPhase());
-
-            // 第三阶段：单位移动与触发技能
-            currentPhase = BattlePhase.Movement;
-            yield return StartCoroutine(ExecuteMovementPhase());
-
-            // 第四阶段：技能后的数值与状态结算
-            currentPhase = BattlePhase.PostMovementEffectResolution;
-            yield return StartCoroutine(ExecutePostMovementEffectResolutionPhase());
-
-            // 第五阶段：准备下一回合
-            currentPhase = BattlePhase.PrepareNextTurn;
-            yield return StartCoroutine(PrepareNextTurnPhase());
-
-            // 战斗结束逻辑，根据连线结果决定
-            CheckBattleOutcome();
-            
-            // // 检查游戏是否结束
-            // if (CheckBattleOutcome())
-            // {
-            //     break;
-            // }
-
-            // 等待一小段时间，避免过快循环
-            //yield return new WaitForSeconds(0.1f);
+            yield break; // 战斗结束，退出协程
         }
-    }
 
+        // 新的第五阶段：准备下一回合
+        currentPhase = BattlePhase.PrepareNextTurn;
+        yield return StartCoroutine(PrepareNextTurnPhase());
+    }
 
     /// <summary>
     /// 2.1 战斗画面 转盘
@@ -195,6 +190,7 @@ public class BattleManager : MonoBehaviour
         }
 
         // 转盘完成后，流程将由 OnSlotMachineSpun 回调继续
+        Debug.Log("BattleManager: 转盘旋转完成！");
     }
 
     /// <summary>
@@ -202,46 +198,12 @@ public class BattleManager : MonoBehaviour
     /// </summary>
     public void OnSlotMachineSpun()
     {
-        StartCoroutine(ContinueBattleAfterSlotMachine());
+        // 转盘旋转完成后，继续战斗流程
+        Debug.Log("BattleManager: 转盘旋转完成！");
     }
 
     /// <summary>
-    /// 继续战斗流程协程
-    /// </summary>
-    /// <param name="selectedColumn">转盘选择的列</param>
-    /// <returns></returns>
-    private IEnumerator ContinueBattleAfterSlotMachine()
-    {
-        // 已经在 SlotMachineController 内部调用了 WeightedDrawAndPlaceCards，不需要再次调用
-        
-        // 继续后续战斗流程
-        // 2.2 战斗画面 防卫
-        ExecuteDefenseEffects();
-
-        // 2.3 战斗画面 波次1 我方建筑行动
-        yield return StartCoroutine(ExecutePlayerBuildingActions());
-
-        // 2.4 - 2.7 战斗画面 波次2-波次7 单位行动
-        for (int wave = 1; wave <= 6; wave++)
-        {
-            yield return StartCoroutine(ExecuteUnitActionsByWave(wave));
-        }
-
-        // 2.8 战斗画面 波次8 敌方部位行动
-        yield return StartCoroutine(ExecuteEnemyPositionActions());
-
-        // 2.9 战斗画面 波次9 敌方Boss行动
-        yield return StartCoroutine(ExecuteBossAction());
-
-        // 2.13 战斗画面 连线 COMBO
-        ExecuteComboCalculation();
-
-        // 战斗结束逻辑，根据连线结果决定
-        CheckBattleOutcome();
-    }
-
-    /// <summary>
-    /// 2.2 战斗画面 防卫
+    /// 阶段 2.2：战斗画面 防卫
     /// </summary>
     private void ExecuteDefenseEffects()
     {
@@ -254,159 +216,16 @@ public class BattleManager : MonoBehaviour
     }
 
     /// <summary>
-    /// 2.3 战斗画面 波次1 我方建筑行动
-    /// </summary>
-    /// <returns></returns>
-    private IEnumerator ExecutePlayerBuildingActions()
-    {
-        Debug.Log("BattleManager: 执行我方建筑的行动！");
-        var buildings = GridManager.Instance.GetPlayerBuildings();
-        foreach (var building in buildings)
-        {
-            //building.ExecuteAction();
-            yield return new WaitForSeconds(0.1f); // 每个建筑间隔执行
-        }
-    }
-
-    /// <summary>
-    /// 2.4 - 2.7 战斗画面 波次2-波次7 单位行动
-    /// </summary>
-    /// <param name="wave">当前波次（1-6）</param>
-    /// <returns></returns>
-    private IEnumerator ExecuteUnitActionsByWave(int wave)
-    {
-        Debug.Log($"BattleManager: 执行波次{wave}的单位行动！");
-        var units = gridManager.GetUnitsByColumn(wave);
-        foreach (var unit in units)
-        {
-            if (unit != null && unit.gameObject.activeSelf)
-            {
-                //yield return StartCoroutine(unit.UseSkill());
-                yield return new WaitForSeconds(0.1f); // 每个单位间隔执行
-            }
-        }
-        yield return new WaitForSeconds(0.2f); // 每个波次间隔
-    }
-
-    /// <summary>
-    /// 2.8 战斗画面 波次8 敌方部位行动
-    /// </summary>
-    /// <returns></returns>
-    private IEnumerator ExecuteEnemyPositionActions()
-    {
-        Debug.Log("BattleManager: 执行敌方部位的行动！");
-        var enemyBuildings = gridManager.GetEnemyBuildings();
-        foreach (var building in enemyBuildings)
-        {
-            if (building != null && building.gameObject.activeSelf)
-            {
-                //building.ExecuteAction();
-                yield return new WaitForSeconds(0.1f); // 每个部位间隔执行
-            }
-        }
-        yield return null;
-    }
-
-    /// <summary>
-    /// 2.9 战斗画面 波次9 敌方Boss行动
-    /// </summary>
-    /// <returns></returns>
-    private IEnumerator ExecuteBossAction()
-    {
-        Debug.Log("BattleManager: 执行敌方Boss的行动！");
-        var boss = gridManager.GetBossUnit();
-        if (boss != null && boss.gameObject.activeSelf)
-        {
-            //boss.ExecuteBossAbility();
-            yield return new WaitForSeconds(0.2f); // 等待Boss行动完成
-        }
-        yield return null;
-    }
-
-    /// <summary>
-    /// 2.13 战斗画面 连线 COMBO
-    /// </summary>
-    private void ExecuteComboCalculation()
-    {
-        Debug.Log("BattleManager: 计算连线 COMBO！");
-        connectionManager.CheckConnections();
-        
-        // 实现连线计算逻辑
-        ComboCalculator.CalculateCombo(gridManager);
-    }
-    
-    /// <summary>
-    /// 结束回合，移除所有单位的无敌状态
-    /// </summary>
-    public void EndTurn()
-    {
-        Debug.Log("BattleManager: 回合结束，移除无敌状态");
-        var allUnits = gridManager.GetAllUnits();
-
-        foreach (var unit in allUnits)
-        {
-            if (unit.HasState<InvincibleState>())
-            {
-                unit.RemoveState<InvincibleState>();
-                Debug.Log($"BattleManager: 移除 {unit.unitData.unitName} 的无敌状态");
-            }
-        }
-
-        // 继续处理其他回合结束逻辑，如计时、敌方回合等
-    }
-
-    /// <summary>
-    /// 检查战斗结果并结束战斗
-    /// </summary>
-    private void CheckBattleOutcome()
-    {
-        var playerBoss = gridManager.GetBossUnit(Camp.Player);
-        var enemyBoss = gridManager.GetBossUnit(Camp.Enemy);
-        
-        // 检查玩家 BOSS 的生命值
-        if (playerBoss != null && playerBoss.currentHealth > 0)
-        {
-            playerBossAlive = true;
-        }
-
-        // 检查敌方 BOSS 的生命值
-        if (enemyBoss != null && enemyBoss.currentHealth > 0)
-        {
-            enemyBossAlive = true;
-        }
-        
-        if (playerBossAlive && enemyBossAlive)
-        {
-            // 戰鬥未結束，進行下一回合
-            StartCoroutine(NextTurnRoutine());
-            Debug.Log("BattleManager: 战斗未结束，进入下一回合！");
-        }
-        else if (!playerBossAlive)
-        {
-            // 玩家Boss阵亡，敌方胜利
-            //GameManager.Instance.EndGame("You Lose!");
-        }
-        else
-        {
-            // 敌方Boss阵亡，玩家胜利
-            //GameManager.Instance.EndGame("You Win!");
-        }
-    }
-    
-    /// <summary>
     /// 第一阶段：单位发动技能
     /// </summary>
     private IEnumerator ExecuteSkillActivationPhase()
     {
         Debug.Log("BattleManager: 第一阶段 - 单位发动技能");
 
-        var allSunits = gridManager.GetAllUnits();
-        foreach (var unit in allSunits)
+        var allSkillUsers = gridManager.GetAllSkillUsers();
+        foreach (var user in allSkillUsers)
         {
-            if (unit != null)
-            {
-                unit.UseSkill();
-            }
+            user.UseSkill();
         }
 
         // 执行技能队列中的技能
@@ -435,9 +254,9 @@ public class BattleManager : MonoBehaviour
 
         effectQueue.Clear(); // 清空效果队列
 
-        yield return null;
+        yield return new WaitForSeconds(1); // 可选：等待一段时间，确保效果结算完成
     }
-    
+
     /// <summary>
     /// 第三阶段：单位移动与触发技能
     /// </summary>
@@ -448,24 +267,26 @@ public class BattleManager : MonoBehaviour
         var allUnits = gridManager.GetAllUnits();
         foreach (var unit in allUnits)
         {
-            var skills = unit.unitData.mainSkillSO.actions;
-            foreach (var action in skills)
+            int moveCount = unit.GetMoveCount();
+
+            if (moveCount > 0)
             {
-                if(action.Type == SkillType.Move)
+                for (int i = 0; i < moveCount; i++)
                 {
-                    for (int i = 0; i < action.Value; i++)
+                    if (unit.CanMoveForward())
                     {
-                        if (unit.CanMoveForward())
-                        {
-                            yield return StartCoroutine(unit.MoveForward());
-                        }
-                        else
-                        {
-                            Debug.Log("BattleManager: 用户无法继续移动，动作被阻挡！");
-                            break;
-                        }
+                        yield return StartCoroutine(unit.MoveForward());
+                    }
+                    else
+                    {
+                        Debug.Log($"BattleManager: 单位 {unit.name} 无法继续移动，动作被阻挡！");
+                        break; // 如果不能移动，停止进一步的移动尝试
                     }
                 }
+            }
+            else
+            {
+                Debug.Log($"BattleManager: 单位 {unit.name} 没有可用的移动技能或次数为 0");
             }
         }
 
@@ -496,7 +317,19 @@ public class BattleManager : MonoBehaviour
 
         effectQueue.Clear(); // 清空效果队列
 
-        yield return null;
+        yield return new WaitForSeconds(1); // 可选：等待一段时间，确保效果结算完成
+    }
+
+    /// <summary>
+    /// 2.13 战斗画面 连线 COMBO
+    /// </summary>
+    private void ExecuteComboCalculation()
+    {
+        Debug.Log("BattleManager: 计算连线 COMBO！");
+        connectionManager.CheckConnections();
+
+        // 实现连线计算逻辑
+        ComboCalculator.CalculateCombo(gridManager);
     }
 
     /// <summary>
@@ -507,84 +340,65 @@ public class BattleManager : MonoBehaviour
         Debug.Log("BattleManager: 第五阶段 - 准备下一回合");
 
         // 更新单位的延迟、状态等
-        var allUnits = gridManager.GetAllUnits();
-        foreach (var unit in allUnits)
+        var allSkillUsers = gridManager.GetAllSkillUsers();
+        foreach (var user in allSkillUsers)
         {
-            unit.PrepareForNextTurn();
+            user.PrepareForNextTurn();
         }
 
-        // 更新建筑物的状态
-        var allBuildings = gridManager.GetAllBuildings();
-        foreach (var building in allBuildings)
-        {
-            building.PrepareForNextTurn();
-        }
-
-        yield return null;
-    }
-    
-    /// <summary>
-    /// 當玩家完成選擇後觸發的回調方法
-    /// </summary>
-    private void OnPlayerChoiceMade()
-    {
-        choiceMade = true;
-    }
-    
-    /// <summary>
-    /// 下一回合的流程協程
-    /// </summary>
-    /// <returns></returns>
-    private IEnumerator NextTurnRoutine()
-    {
-        // 重置所有单位的回合标志
-        var allUnits = gridManager.GetAllUnits();
-        foreach (var unit in allUnits)
-        {
-            unit.ResetTurn();
-        }
-    
-        // 重置所有建筑物的回合标志（如果适用）
-        var allBuildings = gridManager.GetAllBuildings();
-        foreach (var building in allBuildings)
-        {
-            building.ResetTurn(); // 需要在 BuildingController 中实现 ResetTurn 方法
-        }
-
-        // 减少所有单位的技能延迟
-        Debug.Log("BattleManager: 减少所有单位的技能延迟");
-        foreach (var unit in allUnits)
-        {
-            unit.ReduceSkillDelays();
-        }
-
-        // 减少所有建筑物的技能延迟（如果适用）
-        foreach (var building in allBuildings)
-        {
-            building.ReduceSkillDelays(); // 需要在 BuildingController 中实现 ReduceSkillDelays 方法
-        }
-        
-        //减少牌库中所有单位的技能延迟
+        // 减少牌库中所有单位的技能延迟
         DeckManager.Instance.ReduceSkillDelaysAtStartOfTurn();
-        
-        // 可以添加回合開始前的邏輯，如準備階段
 
-        // 觸發選擇面板讓玩家選擇增加卡牌
-        yield return new WaitForSeconds(1f); // 延遲以確保 UI 更新順序
-
+        // 显示选择面板让玩家选择增加卡牌
         choiceMade = false;
         DeckChoiceUI.Instance.ShowChoicePanel();
 
-        // 等待玩家做出選擇
+        // 等待玩家做出选择
         while (!choiceMade)
         {
             yield return null;
         }
 
-        // 進行下一回合的邏輯
-        StartBattleSequence(); // 或其他相關方法
+        // 等待一小段时间，确保 UI 更新
+        yield return new WaitForSeconds(0.5f);
+
+        // 开始下一回合
+        StartBattleSequence();
     }
-    
+
+    /// <summary>
+    /// 检查战斗结果并结束战斗
+    /// </summary>
+    private bool CheckBattleOutcome()
+    {
+        var playerBoss = gridManager.GetBossUnit(Camp.Player);
+        var enemyBoss = gridManager.GetBossUnit(Camp.Enemy);
+
+        if (playerBoss == null || playerBoss.IsDead)
+        {
+            // 玩家 Boss 阵亡，敌方胜利
+            GameManager.Instance.EndGame("You Lose!");
+            return true;
+        }
+        else if (enemyBoss == null || enemyBoss.IsDead)
+        {
+            // 敌方 Boss 阵亡，玩家胜利
+            GameManager.Instance.EndGame("You Win!");
+            return true;
+        }
+
+        // 战斗未结束，继续下一回合
+        return false;
+    }
+
+    /// <summary>
+    /// 当玩家完成选择后触发的回调方法
+    /// </summary>
+    private void OnPlayerChoiceMade()
+    {
+        choiceMade = true;
+    }
+
     public void OnBuildingDestroyed(BuildingController building, int row)
     {
         // 检查是否是关键建筑物被摧毁，例如保护 Boss 的建筑物
@@ -594,7 +408,7 @@ public class BattleManager : MonoBehaviour
             AllowUnitsAttackBoss(row);
         }
     }
-    
+
     public void AllowUnitsAttackBoss(int row)
     {
         // 更新游戏状态，允许指定行的单位攻击 Boss
@@ -617,51 +431,17 @@ public class BattleManager : MonoBehaviour
             GameManager.Instance.EndGame("You Win!");
         }
     }
-    
-    private IEnumerator HandleDelays()
-    {
-        Debug.Log("BattleManager: 處理單位延遲...");
 
-        // 獲取所有單位，包括場上和牌庫中的
-        List<UnitController> allUnits = GetAllUnits();
-        foreach (var unit in allUnits)
-        {
-            unit.ReduceDelay();
-        }
-
-        yield return null;
-    }
-
-    private List<UnitController> GetAllUnits()
-    {
-        List<UnitController> allUnits = new List<UnitController>();
-
-        // 獲取場上單位
-        allUnits.AddRange(gridManager.GetAllUnits());
-
-        // 獲取牌庫中的單位（假設 DeckManager 有 GetAllDeckUnits 方法）
-        if (DeckManager.Instance != null)
-        {
-            //allUnits.AddRange(DeckManager.Instance.GetAllDeckUnits());
-        }
-        else
-        {
-            Debug.LogError("BattleManager: DeckManager.Instance 未找到！");
-        }
-
-        return allUnits;
-    }
-    
     public void AddEffectToQueue(Effect effect)
     {
         effectQueue.Add(effect);
     }
-    
+
     public void ScheduleSkillExecution(Skill skill, ISkillUser user)
     {
         skillExecutionQueue.Add(new SkillExecution(skill, user));
     }
-    
+
     private IEnumerator ExecuteSkill(Skill skill, ISkillUser user)
     {
         foreach (var action in skill.Actions)
@@ -670,7 +450,7 @@ public class BattleManager : MonoBehaviour
         }
         yield return null;
     }
-    
+
     private void ApplyEffect(Effect effect)
     {
         if (effect.target != null)
@@ -690,9 +470,6 @@ public class BattleManager : MonoBehaviour
             }*/
         }
     }
-
-
-
 }
 
 public class Effect

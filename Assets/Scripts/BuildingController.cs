@@ -568,6 +568,8 @@ public class BuildingController : MonoBehaviour, ISkillUser
             Debug.Log($"BuildingController: 建筑物 {name} 防卫点数抵消了 {damage} 点伤害，剩余防卫点数: {defensePoints}");
         }
 
+        UpdateHealthBar();
+
         if (currentHealth <= 0)
         {
             DestroyBuilding();
@@ -639,7 +641,7 @@ public class BuildingController : MonoBehaviour, ISkillUser
         {
             Skill currentSkill = Skill.FromSkillSO(buildingData.actionSkillSO);
             ScheduleSkillExecution(currentSkill);
-            hasActedThisTurn = true; // 标记为已行动
+            //hasActedThisTurn = true; // 标记为已行动
         }
         else
         {
@@ -767,6 +769,7 @@ public class BuildingController : MonoBehaviour, ISkillUser
         else
         {
             StartCoroutine(ExecuteAction(action));
+            Debug.Log($"UnitController: {name} 立即执行技能 {action.Type}");
         }
     }
 

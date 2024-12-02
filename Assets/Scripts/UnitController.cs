@@ -380,10 +380,19 @@ public class UnitController : MonoBehaviour, ISkillUser
 
         ISkillUser target = GridManager.Instance.GetSkillUserAt(targetPosition);
 
+
         if (target != null && target.GetCamp() != unitData.camp)
         {
-            return target;
+            if (target is BuildingController { isRuin: true })
+            {
+                TryAttackBoss(1);
+            }
+            else
+            {
+                return target;
+            }
         }
+
         return null;
     }
 
@@ -398,12 +407,19 @@ public class UnitController : MonoBehaviour, ISkillUser
 
             if (target != null && target.GetCamp() != unitData.camp)
             {
-                return target;
+                if (target is  BuildingController { isRuin: true })
+                {
+                    TryAttackBoss(1);
+                }
+                else
+                {
+                    return target;
+                }
             }
 
             currentPos += attackDirection;
         }
-
+        
         return null;
     }
 
